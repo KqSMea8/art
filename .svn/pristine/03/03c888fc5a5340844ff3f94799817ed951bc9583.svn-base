@@ -1,0 +1,50 @@
+<?php
+
+namespace V60\Logic;
+
+use V60\Base\BaseLogic;
+
+
+class SubjectLikeLogic extends BaseLogic
+{
+    public function like($data)
+    {
+        $likeinfo = $this->where(['subject_id' => $data['subject_id'], 'like_user_id' => $data['like_user_id'], 'is_like' => $data['is_like']])->find();
+        if (!$likeinfo) {
+            $subjectLogic = new SubjectLogic();
+            $subjectinfo = $subjectLogic->where(['id' => $data['subject_id'], 'status' =>0])->find();
+            if ($subjectinfo) {
+                $id = $this->add($data);
+                if ($id) {
+                    $subjectLogic->where(['id' => $data['subject_id']])->setInc('love_num', 1);
+                }
+                return $id;
+            }else{
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    public function unlike($data)
+    {
+        $likeinfo = $this->where(['subject_id' => $data['subject_id'], 'like_user_id' => $data['like_user_id'], 'is_like' => 'Y'])->find();
+       if($likeinfo) {
+           $subjectLogic = new SubjectLogic();
+           $subjectinfo = $subjectLogic->where(['id' => $data['subject_id'], 'status' =>0])->find();
+           if ($subjectinfo) {
+               $like_count = $subjectinfo['love_num'];
+               if ($like_count > 1) {
+                   $subjectLogic->where(['id' => $data['subject_id']])->setDec('love_num', 1);
+               } else {
+                   $subjectLogic->where(['id' => $data['subject_id']])->setField('love_num', 0);
+               }
+
+           }
+           return $this->where(['subject_id' => $data['subject_id'], 'like_user_id' => $data['like_user_id'], 'is_like' => 'Y'])->delete();
+       }else{
+           return 0;
+       }
+    }
+}

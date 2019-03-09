@@ -1,0 +1,90 @@
+var vmApp = new Vue({
+  el: '#app',
+  data: {
+    mobile: '',
+    isLogin: false,
+    isSubmit: false,
+    userInfo: {
+      mobile: '',
+      password: ''
+    },
+    errorTip: '',
+    swiper1: [
+      {img:'/Public/Home/image/index/swiper1-1.png',name: '石高青',desc: '绘画对于我来说就是我的灵魂，把我内心的触感说出来。自然界中的各种生灵，他们的神秘，优雅，忧郁的或潜藏开心的，在我的画笔下似人非人，似物非物，如果语言是认知的边界，或许绘画能带我多走两步。哪怕只有一步，足以成为坚持如初的热爱。'},
+      {img:'/Public/Home/image/index/swiper1-2.png',name: '周迅',desc: '艺术之所以为艺术就在于每个人解读和表达方式不同，如果图画能让观者心中产生共鸣，那这幅画就是有生命的。'},
+      {img:'/Public/Home/image/index/swiper1-3.png',name: '朱可染',desc: '我喜欢画面特别简单，我个人的思考是事物越简单就越接近本质，‘一花一世界，一叶一菩提’，我想把微小的东西做到极致就行了。'}
+    ],
+    swiper2: [
+      {img: '/Public/Home/image/index/swiper2-1.png'},
+      {img: '/Public/Home/image/index/swiper2-2.png'},
+      {img: '/Public/Home/image/index/swiper2-3.png'}
+    ]
+  },
+  created: function () {
+    this.$nextTick(function (argument) {
+      // console.log(artzheAgent);
+    });
+  },
+  mounted: function () {
+    $(document).on('scroll', function () {
+      if ($(document).scrollTop()>600) {
+        $('.fix-wrap').show();
+      } else {
+        $('.fix-wrap').hide();
+      }
+    });
+    $(".fix-wrap .box").hover(function() {
+      $(this).find('.code').show();
+    }, function() {
+      $(this).find('.code').hide();
+    });
+  },
+  methods: {
+    accountLogin: function () {
+      var that = this;
+      var mobile = this.userInfo.mobile;
+      var password = this.userInfo.password;
+      if (mobile == "") {
+        this.errorTip = "请输入您的手机号";
+        return false;
+      } else if (!validInfo.mobile.test(mobile)) {
+        this.errorTip = "请输入正确的手机号";
+        return false;
+      } else if (password == "") {
+        this.errorTip = "请输入您的密码";
+        return false;
+      } else if (password.length < 6 || password.length > 16) {
+        this.errorTip = "请输入6-16位密码";
+        return false;
+      } else if (!validInfo.password.test(password)) {
+        this.errorTip = "密码不能包含空格，汉字";
+        return false;
+      } else if (!validInfo.chinese.test(password)) {
+        this.errorTip = "密码不能包含空格，汉字";
+        return false;
+      }
+      //避免重复点击提交
+      if (this.isSubmit) {
+        return false;
+      }
+      this.isSubmit = true;
+      this.errorTip = "提交中,请稍后...";
+
+      artzheAgent.call('user/accountLogin',this.userInfo,function(res) {
+        that.isSubmit = false;
+        console.log(res);
+        if (res.code == 30000) {
+          setCookie('userid', res.data.userid);
+          setCookie('inviteCode', res.data.inviteCode);
+          if (res.data.isArtist == '1') {
+            window.location.href = '/upload/manage';
+          } else {
+            that.isLogin = true;
+          }
+        } else if (res.code == 30111) {
+          that.errorTip = "密码错误";
+        }
+      });
+    }
+  }
+});

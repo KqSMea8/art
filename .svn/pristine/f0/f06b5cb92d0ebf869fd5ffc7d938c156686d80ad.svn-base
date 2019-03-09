@@ -1,0 +1,36 @@
+<?php
+
+namespace Mp\Model;
+
+use Mp\Base\BaseModel;
+
+class ArtworkStyleModel extends BaseModel
+{
+    protected $tableName = 'artwork_style';
+
+    public function getList(){
+        $list = $this->field('id,sort,cn_name as name')->where(['id'=>['neq',6]])->order('sort asc')->select();
+        return empty($list) ? [] : $list;
+    }
+
+    public function  getStrByids($ids){
+        $return_str='';
+        $ids_arr = explode(',', $ids);
+        $ids_arr_fix=[];
+        foreach ($ids_arr as $value) {
+            if ($value > 0)
+                array_push($ids_arr_fix, intval($value));
+        }
+        if(count($ids_arr_fix)>0){
+            $map['id'] = ['in', implode(',', $ids_arr_fix)];
+            $color_list = $this->field('cn_name')->where($map)->select();
+            foreach ($color_list as $value) {
+                $return_str=$return_str==''?$value['cn_name']:$return_str.','.$value['cn_name'];
+            }
+            return $return_str;
+        }else{
+            return '';
+        }
+    }
+
+}

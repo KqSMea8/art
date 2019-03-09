@@ -1,0 +1,11 @@
+<?php
+
+namespace V22\Model;
+
+
+use V22\Base\BaseModel;
+
+class UserWeightModel extends BaseModel
+{
+    protected $tableName = 'user_weight';
+}

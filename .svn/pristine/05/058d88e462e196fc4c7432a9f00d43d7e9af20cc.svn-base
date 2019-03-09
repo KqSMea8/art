@@ -1,0 +1,59 @@
+<?php
+
+namespace V50\Controller;
+
+use V50\Base\ApiBaseController;
+use V50\Logic\ArtworkLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Manager\Token;
+use Custom\Define\Image;
+use V50\Logic\ArtistExtensionLogic;
+
+class StatisticsController extends ApiBaseController{
+    //统计开机次数
+    public function sopen(){
+
+    }
+    //统计推广封面浏览量
+    public function sextension(){
+        $id = I('id','','number_int');
+        if($id){
+            $extLogic = new ArtistExtensionLogic();
+            $extLogic->where(['id' => $id])->setInc('view_total');
+            Util::jsonReturn(['status'=>Code::SUCCESS]);
+        }else{
+            Util::jsonReturn(['status'=>1001,'msg' => "id:".$id]);
+        }
+    }
+
+    //统计用户浏览页面信息
+    public function addUserVisit(){
+        $jsonstr = trim(I('param',''));
+        $jsonstr=htmlspecialchars_decode($jsonstr);
+        $jsonstr=json_decode($jsonstr,true);
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $userId = empty($userId)?-1:$userId;
+        $data=[];
+        foreach($jsonstr as $key=>$value){
+            $data[]=[
+                'user_id'=>$userId,
+                'content'=>$key,
+                'duration'=>$value,
+                'time'=>time(),
+            ];
+        }
+
+        if($data){
+            $id =M('visit_info')->addAll($data);
+            if($id){
+              Util::jsonReturn(['status'=>Code::SUCCESS]);
+            }
+        }else{
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误');
+        }
+    }
+
+}

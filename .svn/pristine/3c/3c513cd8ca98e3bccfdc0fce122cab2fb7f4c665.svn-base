@@ -1,0 +1,108 @@
+<?php
+
+namespace Admin\Controller;
+
+use Custom\Helper\Util;
+use Common\Logic\SeoLogic;
+use Common\Base\AdminBaseController;
+use Custom\Helper\Nav;
+
+class SeoController extends AdminBaseController
+{
+    private $keys = [
+        'index' => 'idx' // 首页
+    ];
+
+    public function index()
+    {
+        $logic = new SeoLogic();
+        if (IS_POST) {
+            $title = I('title');
+            $keyword = I('keyword');
+            $desc = I('desc');
+            $logic->where(['idx' => $this->keys['index']])->save([
+                'title' => $title,
+                'keyword' => $keyword,
+                'desc' => $desc
+            ]);
+            $this->redirect('index');
+        } else {
+            $info = $logic->where(['idx' => $this->keys['index']])->find();
+            $this->assign('info', $info);
+            $this->display();
+        }
+    }
+
+    //seo文章列表
+    public function seoArticle()
+    {
+        $status = I('get.status','','int');
+        $page = I('get.page', 1,'int');
+        $pagesize = I('get.pagesize', 10,'int');
+        $article = M('seo_article');
+        $where=[];
+        if (!is_null($status) && in_array($status, [-1,1,2])) {
+            $where['status'] = $status;
+        }
+        $lists=$article->where($where)
+            ->field('id,title,author,source_site,source_time,create_time,status,view_total')->order("id desc")->page($page, $pagesize)->select();
+        foreach ($lists as $key=>$value) {
+            switch($value['status']){
+                case 1:
+                    $lists[$key]['status'] = '审核通过';break;
+                case 2:
+                    $lists[$key]['status'] = '未审核';break;
+                case -1:
+                    $lists[$key]['status'] = '审核未通过';break;
+            }
+
+        }
+        $queryParams = [
+            'page'=>$page,
+            'pagesize'=>$pagesize,
+            'status'=>$status,
+        ];
+        $total = $article->where($where)->field('id,title,source_time')->count();
+        $nav = Nav::render(U('Admin/Seo/seoArticle'), $where, $page, $pagesize, $total);
+        $this->assign('nav', $nav);
+        $this->assign('queryParams', $queryParams);
+        $this->assign('lists',$lists);
+        $this->display('article');
+    }
+
+    //查看详情
+    public function getDetail()
+    {
+        $id = intval(I('get.id'));
+        $data = M('seo_article')->field('id,title,content,author,source_site,source_time,create_time,status,view_total')->find($id);
+        switch($data['status']){
+            case 1:
+                $data['status_text'] = '审核通过';break;
+            case 2:
+                $data['status_text'] = '未审核';break;
+            case -1:
+                $data['status_text'] = '审核未通过';break;
+        }
+        $this->assign('data', $data);
+        $this->display('getDetail');
+    }
+
+    //文章审核
+    public function check()
+    {
+        $id =intval( I('post.id'));  //ID
+        $status = intval(I('post.status'));  //类型
+        $data = [
+            'status' => $status,
+        ];
+        $where['id'] = $id;
+        $result = M('seo_article')->where($where)->save($data);  //更新记录
+        if (false !== $result) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败'];
+            echo json_encode($response);
+        }
+    }
+}

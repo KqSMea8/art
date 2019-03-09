@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>我的关注</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/user.css">
+  </head>
+  <body>
+    <div class="user-follow" id="user-follow">
+      <div class="holder">
+        <img  src="/Public/H5/image/user/holder.png" alt="">
+        <p>数位艺术家都在等待你的关注~</p>
+      </div>
+      <ul class="follow-list" style="display: none;">
+        <li class="artist-info" v-for="followItem in followList" :id="followItem.id">
+          <img class="avatar" :src="followItem.faceUrl">
+          <div class="detail">
+            <span class="nickname">白素</span>
+            <i class="icons icon-artist"></i>
+            <span class="desc">最享受拿着画笔的感觉</span>
+            <i v-if="!followItem.unfollow" @click="showMsgBox(followItem.id)" :class="[followItem.unfollow ? '' : 'icon-followed', 'icons', 'icon-follow']"></i>
+            <i v-else @click="followArtist(followItem.id)" :class="[followItem.unfollow ? '' : 'icon-followed', 'icons', 'icon-follow']"></i>
+          </div>
+        </li>
+<!--         <li class="artist-info">
+          <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png">
+          <div class="detail">
+            <span class="nickname">白素</span>
+            <i class="icons icon-artist"></i>
+            <span class="desc">最享受拿着画笔的感觉</span>
+            <i class="icons icon-follow"></i>
+          </div>
+        </li>
+        <li class="artist-info">
+          <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png">
+          <div class="detail">
+            <span class="nickname">白素</span>
+            <i class="icons icon-artist"></i>
+            <span class="desc">最享受拿着画笔的感觉</span>
+            <i class="icons icon-follow icon-followed"></i>
+          </div>
+        </li> -->
+      </ul>
+      <!-- 弹窗 -->
+      <div v-show="boxIsShow" class="layerbox layermshow" id="j_layerShow">
+        <div @click="hideBox" class="layershade"></div>
+        <div class="layermain">
+          <div v-show="msgBoxIsShow" class="thirdLayerIn anim-scale msg-box" id="j_thirdLayer">
+            <h3 class="title">艺术者提示</h3>
+            <div class="content">
+              确定不再关注此艺术家？
+            </div>
+            <div class="btns fix">
+              <span @click="confirm" class="btn-confirm">确认</span>
+              <span @click="hideBox" class="btn-cancel">取消</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="/Public/H5/js/lib/vue.js"></script>
+  <script src="/Public/H5/js/lib/zepto.js"></script>
+  <script src="/Public/H5/js/util.js"></script>
+  <script type="text/javascript" src="/Public/H5/js/user/userfollow.js"></script>
+</html>

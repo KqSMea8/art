@@ -1,0 +1,10 @@
+<?php
+
+namespace V51\Model;
+
+use V51\Base\BaseModel;
+
+class SeoModel extends BaseModel
+{
+    protected $tableName = 'seo';
+}

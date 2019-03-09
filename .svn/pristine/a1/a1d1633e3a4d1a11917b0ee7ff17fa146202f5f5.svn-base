@@ -1,0 +1,113 @@
+@charset "utf-8";
+
+/*CSS reset*/
+html, body { width: 100%; height: 100%; min-height: 100%; }
+html { background-color: #fff; -webkit-text-size-adjust: 100%; }
+html * { box-sizing: border-box; -webkit-text-size-adjust: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); outline: none; }
+body, h1, h2, h3, h4, h5, h6, hr, p, blockquote, dl, dt, dd, ul, ol, li, pre, fieldset, button, input, textarea, th, td, menu { margin: 0; padding: 0; }
+body { font: 100%/1.5 'Heiti SC', 'Helvetica', 'HelveticaNeue', 'Droidsansfallback', "Droid Sans", 'Dengxian', 'Segoe', 'microsoft yahei'; color: #191919; }
+input, button { font: inherit; font-size: 100% }
+img { width: auto; max-width: 100%; height: auto; }
+img { border: 0 }
+ol, ul { list-style: none }
+h1, h2, h3, h4, h5, h6 { font-size: 100%; }
+a { text-decoration: none; display: block; }
+a:link, a:visited { color: #222; }
+a:hover, a:active { color: #222; }
+input[type="button"], input[type="submit"], input[type="reset"], input[type="file"]::-webkit-file-upload-button, button { -webkit-appearance: none; }
+i { font-style: normal; }
+
+
+body {
+  background: #fff url(../image/download/bg.png) no-repeat fixed bottom;
+  background-size: 100% 1.28rem;
+}
+header {
+  padding: 0.8rem 0;
+  text-align: center;
+}
+header img {
+  width: 4.64rem;
+  height: 1.52rem;
+}
+#main {
+  color: #000;
+}
+#main h2 {
+  font-size: 0.64rem;
+  line-height: 1.5;
+  text-align: center;
+  letter-spacing: 0.18667rem;
+}
+#main ul li {
+  margin-top: 0.44rem;
+  margin-left: 2.13333rem;
+  padding-left: 0.8rem;
+  width: 6.36rem;
+  height: 1.10667rem;
+  font-size: 0.42667rem;
+  line-height: 1.10667rem;
+  background: url(../image/download/li-bg.png) no-repeat;
+  background-size: 6.36rem 1.10667rem;
+}
+#footer {
+  margin-top: 1.4rem;
+}
+#footer .btn {
+  display: block;
+  margin: 0 0.48rem;
+  height: 1.33333rem;
+  font-size: 0.48rem;
+  line-height: 1.33333rem;
+  text-align: center;
+  background-color: #febc3e;
+  border-radius: 0.05333rem;
+}
+#footer .btn span {
+  display: inline-block;
+  margin-left: 0.24rem;
+  height: 1.33333rem;
+  font-size: 0.48rem;
+  line-height: 1.33333rem;
+  vertical-align: middle;
+}
+#footer .btn img {
+  width: 0.37333rem;
+  height: 0.61333rem;
+  vertical-align: middle;
+}
+
+.weixin-tip {
+  background-color: ;
+}
+
+/* 弹出层 */
+.layerbox {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+}
+.layershade {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0, .6);
+  pointer-events: auto;
+}
+.layerbox .download {
+  position: fixed;
+  left: 50%;
+  margin-left: -3.6rem;
+  width: 7.21333rem;
+  height: 8.34667rem;
+  background: url(../image/download/download.png) no-repeat left top;
+  background-size: 100% 100%;
+}
+/*弹出层 end*/
+

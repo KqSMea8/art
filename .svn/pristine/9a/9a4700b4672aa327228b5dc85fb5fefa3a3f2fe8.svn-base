@@ -1,0 +1,31 @@
+{
+    "name": "topthink/thinkphp",
+    "description": "the ThinkPHP Framework",
+    "type": "framework",
+    "keywords": ["framework","thinkphp","ORM"],
+    "homepage": "https://thinkphp.cn/",
+    "license": "Apache2",
+    "authors": [
+        {
+            "name": "liu21st",
+            "email": "liu21st@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "respect/validation": "*",
+        "danielstjules/stringy": "~2.3",
+        "ralouphie/getallheaders": "^2.0",
+        "aliyuncs/oss-sdk-php": "~2.0",
+        "overtrue/wechat": "^3.2",
+        "kosinix/grafika": "dev-master",
+        "snoopy/snoopy": "^2.0"
+    },
+    "minimum-stability": "dev",
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
+    }
+}

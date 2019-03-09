@@ -1,0 +1,140 @@
+<?php
+
+namespace Common\Logic;
+
+use Common\Base\BaseLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+//话题讨论评论
+class TopicDiscussCommentLogic extends BaseLogic
+{
+    /**
+     * 评论讨论
+     * @param string $data
+     * @return bool|mixed
+     */
+    public function comment($data){
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $topicDiscussinfo = $topicDiscussLogic->where(['id' => $data['topic_discuss_id'], 'status' => 1])->find();
+        if ($topicDiscussinfo) {//存在讨论
+            $id = $this->add($data);
+            $topicDiscussLogic->where(['id' => $data['topic_discuss_id']])->setInc('comment_num', 1);
+            if($topicDiscussinfo['user_id'] != $data['commenter']) {//如果不是自己评论自己发表的讨论，则发送消息
+                $messageLogic = new MessageLogic();
+                $topicLogic = new TopicLogic();
+                $topicInfo=$topicLogic->field('title')->find($topicDiscussinfo['topic_id']);
+                $messageLogic->sendMessage($data['commenter'], $topicDiscussinfo['user_id'], '评论了你对话题#'.$topicInfo['title'].'#的讨论', $messageLogic->type['topicComment'], MessageLogic::$showmsg, '', $id, false, '', $data['topic_discuss_id']);
+            }
+            $commentInfo = $this->find($id);
+            return empty($commentInfo)?[]:$commentInfo;
+        } else {//不存在讨论
+            return [];
+        }
+    }
+
+    /**
+     * 回复讨论评论
+     * @param $data
+     * @return bool|mixed
+     */
+    public function replyComment($data){
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $topicDiscussinfo = $topicDiscussLogic->where(['id' => $data['topic_discuss_id'], 'status' => 1])->find();
+        if ($topicDiscussinfo) {//存在讨论
+            $id = $this->add($data);
+            //给发表讨论的人和评论的人发消息，如果发表讨论的人和评论的人是同一个人，则只发一条消息
+            $topicDiscussLogic->where(['id' => $data['topic_discuss_id']])->setInc('comment_num', 1);
+            $messageLogic = new MessageLogic();
+            $topicLogic = new TopicLogic();
+            $topicInfo=$topicLogic->field('title')->find($topicDiscussinfo['topic_id']);
+            //如果不是自己回复自己发表的讨论的评论且发表讨论的人和评论的人不是同一个人则发送消息给发表讨论的人,
+            if($topicDiscussinfo['user_id'] != $data['commenter'] && $data['comment_to'] != $topicDiscussinfo['user_id']) {
+                $messageLogic->sendMessage($data['commenter'], $topicDiscussinfo['user_id'], '回复了你对话题#'.$topicInfo['title'].'#讨论的评论', $messageLogic->type['topicReplyComment'], MessageLogic::$showmsg, '', $id, false, '', $data['topic_discuss_id']);
+            }
+            if($data['commenter'] != $data['comment_to']) {//如果不是自己评论自己发表的评论，则发送消息
+                $messageLogic->sendMessage($data['commenter'], $data['comment_to'], '回复了你对话题#' . $topicInfo['title'] . '#讨论的评论', $messageLogic->type['topicReplyComment'], MessageLogic::$showmsg, '', $id, false, '', $data['topic_discuss_id']);
+            }
+            $replyInfo = $this->find($id);
+            return empty($replyInfo)?[]:$replyInfo;
+        } else {//不存在讨论
+            return [];
+        }
+    }
+
+    /**
+     * 获取评论信息
+     * @param $commentId 评论id
+     */
+    public function getCommentInfo($commentId){
+        $Commentinfo = $this->model->where(['id' => $commentId, 'status' => 1])->find();
+        return empty($Commentinfo)?[]:$Commentinfo;
+    }
+
+    /**
+     * 删除评论
+     * @param $data 评论信息
+     * @return array
+     */
+    public function deleteComment($data){
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $topicDiscussinfo = $topicDiscussLogic->where(['id' => $data['topic_discuss_id'], 'status' => 1])->find();
+        if (empty($topicDiscussinfo)) {//讨论不存在
+            return false;
+        }
+
+        $result = $this->where(['id' => $data['id'], 'status' => 1])->setField('status',0);
+        if($topicDiscussinfo['comment_num']>0){
+            $topicDiscussLogic->where(['id' => $data['topic_discuss_id']])->setDec('comment_num', 1);
+        }else{
+            $topicDiscussLogic->where(['id' => $data['topic_discuss_id']])->setField('comment_num', 0);
+        }
+
+        return $result;
+    }
+
+    /**获取下级评论id
+     * @param $id
+     * @return string
+     */
+    public function getTopicDiscussCommentChildrenids($id){
+        $childerIds='';
+        $commentIds=$this->field('id')->where(['comment_parent_id'=>$id,'status'=>1])->select();
+        while($commentIds){
+            $ids = implode(',',array_column($commentIds,'id'));
+            $childerIds=empty($childerIds)?$ids:$childerIds.','.$ids;
+            $commentIds=$this->field('id')->where(['comment_parent_id'=>['in',$ids],'status'=>1])->select();
+        }
+        return $childerIds;
+    }
+
+    /**获取下级评论信息
+     * @param $id
+     * @param int $limit
+     * @return array|false|mixed|\PDOStatement|string|\think\Collection
+     */
+    public function getTopicDiscussCommentChildren($id,$limit=0){
+        $childerIds=$this->getTopicDiscussCommentChildrenids($id);
+        $list=[];
+        if(!empty($childerIds)){
+            if($limit!=0){
+                $list=$this
+                    ->field('az_topic_discuss_comment.id,az_topic_discuss_comment.content,az_topic_discuss_comment.create_time,az_topic_discuss_comment.comment_to,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender')
+                    ->join('JOIN az_user ON az_user.id = az_topic_discuss_comment.commenter','left')
+                    ->where(['az_topic_discuss_comment.id'=>['in',$childerIds],'az_topic_discuss_comment.status'=>1])
+                    ->order('create_time desc')
+                    ->limit($limit)
+                    ->select();
+            }else{
+                $list=$this
+                    ->field('az_topic_discuss_comment.id,az_topic_discuss_comment.content,az_topic_discuss_comment.create_time,az_topic_discuss_comment.comment_to,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender')
+                    ->join('JOIN az_user ON az_user.id = az_topic_discuss_comment.commenter','left')
+                    ->where(['az_topic_discuss_comment.id'=>['in',$childerIds],'az_topic_discuss_comment.status'=>1])
+                    ->order('create_time desc')
+                    ->select();
+            }
+        }
+        return $list;
+    }
+}

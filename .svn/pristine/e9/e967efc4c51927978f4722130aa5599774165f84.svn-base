@@ -1,0 +1,14 @@
+<?php
+
+namespace V22\Logic;
+
+use V22\Base\BaseLogic;
+use Custom\Define\Image;
+
+class ArtworkTagWeightLogic extends BaseLogic
+{
+    public function getTagList()
+    {
+
+    }
+}

@@ -1,0 +1,10 @@
+<?php
+
+namespace M\Model;
+
+use M\Base\BaseModel;
+
+class ArtCircleCommentModel extends BaseModel
+{
+    protected $tableName = 'art_circle_comment';
+}

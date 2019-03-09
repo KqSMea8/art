@@ -1,0 +1,62 @@
+<?php
+
+namespace V30\Controller;
+
+use V30\Base\ApiBaseController;
+
+
+class AttachmentsController extends ApiBaseController
+{
+    public function MyListForUeditor()
+    {
+
+        $start = intval(I('get.start'));
+        $size = intval(I('get.size'));
+
+        $Attachments = M("attachments");
+
+        $total = $Attachments
+            ->where(['poster_id'=>$this->loginUserId])
+            ->count();
+
+        $start=$start<=0?1:$start;
+        $page=ceil($start/$size);
+
+        $Attachments_list = $Attachments
+            ->where(['poster_id'=>$this->loginUserId])
+            ->order('attach_id desc')
+            ->page($page, $size)
+            ->select();
+
+        if(count($Attachments_list)<=0){
+            $return= [
+                "state" => "no match file",
+                "list" => array(),
+                "start" => 0,
+                "total" => 0
+            ];
+            echo json_encode($return);
+            exit;
+        }
+
+        $list = [];
+        foreach ($Attachments_list as $value) {
+            $img = [
+                "url" => $value['file_domain_name'] . '/' . $value['file_url'],
+                "mtime" => $value['filetime']
+            ];
+            array_push($list, $img);
+        }
+
+
+        $return = [
+            'state' => 'SUCCESS',
+            'list' => $list,
+            'start' => $start,
+            'total' => $total,
+        ];
+        echo json_encode($return);
+
+    }
+
+}

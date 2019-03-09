@@ -1,0 +1,3118 @@
+<?php
+
+namespace Mp\Controller;
+
+use Mp\Base\ApiBaseController;
+use Mp\Logic\ArtworkCategoryLogic;
+use Mp\Logic\ArtworkColorLogic;
+use Mp\Logic\ArtworkLikeLogic;
+use Mp\Logic\MessageLogic;
+use Mp\Logic\ArtworkLogic;
+use Mp\Logic\ArtworkTagLogic;
+use Mp\Logic\ArtworkUpdateLogic;
+
+use Mp\Logic\CommentLogic;
+use Mp\Logic\AssetsLogic;
+use Mp\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+use Custom\Helper\Verify;
+use Mp\Logic\RecommendLogic;
+use Mp\Logic\ArtCircleLogic;
+use Mp\Logic\ArtCircleShareLogic;
+use Mp\Model\ArtworkUpdateTagModel;
+use Mp\Model\ArtworkStyleModel;
+use Mp\Model\ArtworkSubjectModel;
+use Mp\Model\ArtworkCategoryModel;
+use Mp\Model\ArticleDraftModel;
+use Mp\Logic\ArticleLogic;
+use Mp\Model\ArtCircleModel;
+use Mp\Base\MpHttp;
+use Mp\Base\Crypt3Des;
+
+//artwork upload
+class ArtworkController extends ApiBaseController
+{
+
+    private function updateMallStatus($userid)
+    {
+//更新状态
+        $ArtworkGoods = M('ArtworkGoods');
+        $artworkLogic = new ArtworkLogic();
+
+        $where['az_artwork.artist'] = $userid;
+        $where['az_artwork.is_deleted'] = 'N';
+//        $where['az_artwork_goods.status'] = array('GT',0);
+
+        $ArtworkGoods_result = $artworkLogic
+            ->join('az_artwork_goods on az_artwork.id=az_artwork_goods.artwork_id', 'left')
+            ->where($where)->select();
+        if ($ArtworkGoods_result) {
+            $MpHttp = new MpHttp();
+            $DES = new Crypt3Des();
+
+
+            $ArtworkGoods_ids = [];
+            foreach ($ArtworkGoods_result as $value) {
+                if ($value['goods_id'] > 0)
+                    array_push($ArtworkGoods_ids, (int)$value['goods_id']);
+            }
+            $post_data = ['goodsIdStr' => implode(',', $ArtworkGoods_ids), 'from' => 2];
+            $param = $DES->encrypt(json_encode($post_data));
+
+            $content = $MpHttp->post_data(C('Artzhe_mall_api')['Artwork_List_status'], ['param' => $param]);
+            $artwork_status = json_decode($content, true);
+
+            $pass_list = $notpass_list = $other_list = [];
+            foreach ($artwork_status['data'] as $value) {
+                if ($value['review_code'] == 2 && $value['goods_id'] > 0) {
+                    array_push($notpass_list, $value['goods_id']);
+                } elseif ($value['review_code'] == 3 && $value['goods_id'] > 0) {
+                    array_push($pass_list, $value['goods_id']);
+                } elseif ($value['goods_id'] > 0) {
+                    array_push($other_list, $value['goods_id']);
+                }
+            }
+//            print_r($artwork_status);
+//            print_r($pass_list);
+//            print_r($notpass_list);
+
+            if (count($pass_list)) {// 更新审核通过
+                $cond['goods_id'] = array('in', implode(',', $pass_list));
+                $data['approval_status'] = 3;
+                $ArtworkGoods->where($cond)->save($data);
+            }
+            if (count($notpass_list)) {// 更新审核未通过
+                $cond['goods_id'] = array('in', implode(',', $notpass_list));
+                $data['approval_status'] = 2;
+                $ArtworkGoods->where($cond)->save($data);
+            }
+            if (count($other_list)) {//
+                $cond['goods_id'] = array('in', implode(',', $other_list));
+                $data['approval_status'] = 1;
+                $ArtworkGoods->where($cond)->save($data);
+            }
+
+
+        }
+        //更新状态 end
+    }
+
+
+    public function MallArtworkListPass___bakkkk20180129()
+    {
+
+        $this->updateMallStatus();
+
+        $status = (int)I('post.status');
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 10, 'number_int'); //每页显示条数
+
+        $artworkLogic = new ArtworkLogic();
+
+
+        $where['az_artwork.artist'] = $this->loginUserId;
+        $where['az_artwork.is_deleted'] = 'N';
+        $where['az_artwork_goods.status'] = 1;
+        $where['az_artwork_goods.goods_type'] = 1488;
+
+        if ($status == 1) {//查询已经添加到商城的
+            $where['az_artwork_goods.status'] = 1;
+        }
+
+
+        $total = $artworkLogic
+            ->join('az_artwork_goods on az_artwork.id=az_artwork_goods.artwork_id', 'left')
+            ->where($where)->count(); //总记录数
+
+        $data = $artworkLogic
+            ->field("az_artwork.id,az_artwork.`name`,az_artwork.finish_percent,count(az_artwork.id) as update_times,az_artwork.cover,az_artwork_goods.goods_id,az_artwork.shape,az_artwork.name,az_artwork.state,az_artwork.color_ids,az_artwork.length,az_artwork.width,az_artwork.panorama_ids,az_artwork.topography_ids,az_artwork.category,az_artwork.subject_ids,az_artwork.style_ids,az_artwork.story,az_artwork.diameter")
+            ->join('az_artwork_update on az_artwork.id=az_artwork_update.artwork_id', 'left')
+            ->join('az_artwork_goods on az_artwork.id=az_artwork_goods.artwork_id', 'left')
+            ->where($where)
+            ->group('az_artwork.id')
+            ->order("id desc")
+            ->page($page, $pagesize)
+            ->select();
+
+        $maxpage = ceil($total / $pagesize);
+
+
+        $artwork_list = [];//作者ids
+        foreach ($data as $value) {
+            array_push($artwork_list, $value['id']);
+        }
+
+
+        $ArtworkGoods_list = [];
+        if (count($data)) {
+            $ArtworkGoods = M('ArtworkGoods');
+            $cond['artwork_id'] = array('in', implode(',', $artwork_list));
+            $ArtworkGoods_result = $ArtworkGoods->where($cond)->select();
+            foreach ($ArtworkGoods_result as $value) {
+                $ArtworkGoods_list[$value['artwork_id']] = $value;
+            }
+
+
+            //读取商城接口
+            if ($ArtworkGoods_result) {
+                $MpHttp = new MpHttp();
+                $DES = new Crypt3Des();
+
+
+                $ArtworkGoods_ids = [];
+                foreach ($ArtworkGoods_result as $value) {
+                    array_push($ArtworkGoods_ids, $value['goods_id']);
+                }
+                $post_data = ['goodsIdStr' => implode(',', $ArtworkGoods_ids), 'from' => 2];
+                $param = $DES->encrypt(json_encode($post_data));
+
+                $content = $MpHttp->post_data(C('Artzhe_mall_api')['Artwork_List_status'], ['param' => $param]);
+                $artwork_status = json_decode($content, true);
+//                print_r($artwork_status);
+            }
+        }
+        //读取商城接口 end
+
+
+        $artwork = [];
+        foreach ($data as $value) {
+
+            $artwork_row = [];
+            $artwork_row['id'] = $value['id'];
+            $artwork_row['name'] = $value['name'];
+            $artwork_row['cover'] = $value['cover'];
+            $artwork_row['goods_id'] = (int)$ArtworkGoods_list[$value['id']]['goods_id'];
+            $artwork_row['finish_percent'] = $artworkLogic->getAttributePercent($value['id']);
+            $artwork_row['update_times'] = $value['update_times'];
+            $artwork_row['review_code'] = $artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['review_code'];
+            $artwork_row['review_state'] = $artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['review_state'];
+            $artwork_row['price'] = $artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['price'];
+            $artwork_row['is_mount'] = (int)$artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['framed'];
+//            $artwork_row['is_shipping'] = (int)$artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['is_shipping'];
+            $artwork_row['is_collect'] = (int)$artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['certificate'];
+            $artwork_row['shipping_fee'] = (int)$artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['ship_price'];
+            $artwork_row['is_mall_sale'] = $ArtworkGoods_list[$value['id']] ? 1 : 0;
+            $artwork[] = $artwork_row;
+        }
+
+        $info = [
+            'list' => $artwork,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+    }
+
+    public function MallArtworkList()
+    {
+        //更新状态
+        $this->updateMallStatus($this->loginUserId);
+
+
+        $type = I('post.type');
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 10, 'number_int'); //每页显示条数
+
+        $artworkLogic = new ArtworkLogic();
+
+
+        $where['az_artwork.artist'] = $this->loginUserId;
+        $where['az_artwork.is_deleted'] = 'N';
+        $where['az_artwork.state'] = 1;
+
+//        $where['az_artwork_goods.status'] = array('NEQ',0);
+
+
+        if ($type == 'pass') {//查询已经添加到商城的
+            $where['az_artwork_goods.approval_status'] = 3;
+        }
+        if ($type == 'notpass') {//查询已经添加到商城的
+//            $where['az_artwork_goods.approval_status'] = array('NEQ', 0);
+            $where['az_artwork_goods.approval_status'] = array('NEQ', 3);
+        }
+
+
+        $total = $artworkLogic
+            ->join('az_artwork_goods on az_artwork.id=az_artwork_goods.artwork_id', 'left')
+            ->where($where)->count(); //总记录数
+
+
+        $data = $artworkLogic
+            ->field("az_artwork.id,az_artwork.`name`,az_artwork.finish_percent,az_artwork.update_times,az_artwork.cover,az_artwork_goods.goods_id,az_artwork.shape,az_artwork.name,az_artwork.state")
+            ->join('az_artwork_update on az_artwork.id=az_artwork_update.artwork_id', 'left')
+            ->join('az_artwork_goods on az_artwork.id=az_artwork_goods.artwork_id and az_artwork_goods.goods_type=1488', 'left')
+            ->where($where)
+            ->group('az_artwork.id')
+            ->order("id desc")
+            ->page($page, $pagesize)
+            ->select();
+
+
+
+        $maxpage = ceil($total / $pagesize);
+
+
+        $artwork_list = [];//作者ids
+        foreach ($data as $value) {
+            array_push($artwork_list, $value['id']);
+        }
+
+
+        $ArtworkGoods_list = [];
+        if (count($data)) {
+            $ArtworkGoods = M('ArtworkGoods');
+            $cond['artwork_id'] = array('in', implode(',', $artwork_list));
+            $cond['goods_type'] =1488;
+            $ArtworkGoods_result = $ArtworkGoods->where($cond)->select();
+            foreach ($ArtworkGoods_result as $value) {
+                $ArtworkGoods_list[$value['artwork_id']] = $value;
+            }
+
+
+            //读取商城接口
+            if ($ArtworkGoods_result) {
+                $MpHttp = new MpHttp();
+                $DES = new Crypt3Des();
+
+
+                $ArtworkGoods_ids = [];
+                foreach ($ArtworkGoods_result as $value) {
+                    array_push($ArtworkGoods_ids, $value['goods_id']);
+                }
+                $post_data = ['goodsIdStr' => implode(',', $ArtworkGoods_ids), 'from' => 2];
+                $param = $DES->encrypt(json_encode($post_data));
+
+                $content = $MpHttp->post_data(C('Artzhe_mall_api')['Artwork_List_status'], ['param' => $param]);
+                $artwork_status = json_decode($content, true);
+//                print_r($artwork_status);
+            }
+        }
+        //读取商城接口 end
+
+
+        $artwork = [];
+        foreach ($data as $value) {
+
+            $artwork_row = [];
+            $artwork_row['id'] = $value['id'];
+            $artwork_row['name'] = $value['name'];
+            $artwork_row['cover'] = $value['cover'];
+            $artwork_row['goods_id'] = (int)$value['goods_id'];
+            $artwork_row['finish_percent'] = $artworkLogic->getAttributePercent($value['id']);
+            $artwork_row['update_times'] = $value['update_times'];
+            $artwork_row['review_code'] = $artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['review_code'];
+            $artwork_row['review_state'] = $artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['review_state'];
+            $artwork_row['price'] = $artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['price'];
+            $artwork_row['is_mount'] = (int)$artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['framed'];
+            $artwork_row['is_shipping'] = (int)$artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['is_shipping'];
+            $artwork_row['is_collect'] = (int)$artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['certificate'];
+            $artwork_row['shipping_fee'] = $artwork_status['data']['' . $ArtworkGoods_list[$value['id']]['goods_id'] . '']['ship_price'];
+            $artwork_row['is_mall_sale'] = $ArtworkGoods_list[$value['id']] ? 1 : 0;
+            $artwork[] = $artwork_row;
+        }
+
+        $info = [
+            'list' => $artwork,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+    }
+
+    public function AddToMall()
+    {
+        $artwork_id = I('post.artwork_id', '');
+        $is_mount = I('post.is_mount');
+        $is_collect = I('post.is_collect');
+        $price = I('post.price');
+        $shipping_fee = I('post.shipping_fee');
+        $is_shipping = I('post.is_shipping');
+        $MpHttp = new MpHttp();
+        $DES = new Crypt3Des();
+
+        $userLogic = new UserLogic();
+        $userInfo = $userLogic->getUserInfoById($this->loginUserId);
+
+        if (strpos(',' . $userInfo['role'] . ',', ',artist,') === false) {
+            Util::jsonReturn(null, Code::SYS_ERR, '只有艺术家才能执行该操作');
+        }
+
+        $artworkLogic = new ArtworkLogic();
+        $ArtworkGoods = M('ArtworkGoods');
+        $artworkDetail = $artworkLogic->getDetail($artwork_id);
+        if ($artworkDetail && $userInfo) {
+
+            $finish_percent = $artworkLogic->getAttributePercent($artwork_id);
+
+            if ($finish_percent < 100) {
+                Util::jsonReturn(null, Code::SYS_ERR, '完成度不到100%，不能加入商城');
+            }
+
+            $ArtworkGoods_info = $ArtworkGoods->where(['artwork_id' => $artwork_id, 'status' => 1,'goods_type'=>1488])->find();
+            if ($ArtworkGoods_info) {
+                Util::jsonReturn(null, Code::SYS_ERR, '不能重复添加');
+            }
+
+            //分类 风格等
+            $ArtworkColorLogic=new ArtworkColorLogic();
+            $goods_artwork_color=$ArtworkColorLogic->getStrByids($artworkDetail['color_ids']);
+
+            $ArtworkCategoryLogic=new ArtworkCategoryLogic();
+            $goods_artwork_catory=$ArtworkCategoryLogic->getStrByids($artworkDetail['category']);
+
+            $ArtworkSubjectModel=new ArtworkSubjectModel();
+            $goods_artwork_subjects=$ArtworkSubjectModel->getStrByids($artworkDetail['subject_ids']);
+
+            $ArtworkStyleModel=new ArtworkStyleModel();
+            $goods_artwork_styles=$ArtworkStyleModel->getStrByids($artworkDetail['style_ids']);
+
+
+            if($artworkDetail['shape']==1){
+                $goods_artwork_shape='方形';
+            }elseif($artworkDetail['shape']==2){
+                $goods_artwork_shape='圆形';
+            }
+
+
+            $goods_artwork_date=$artworkDetail['artwork_date']>0?date('Y',$artworkDetail['artwork_date']):'';
+
+
+
+            $desc_mobile_img = '';
+            $goods_img_gallery_array = [];
+            $topography_ids_arr = explode(',', $artworkDetail['cover'] . ',' . $artworkDetail['panorama_ids'] . ',' . $artworkDetail['topography_ids']);
+            $i = 0;
+            foreach ($topography_ids_arr as $value) {
+                if (trim($value) != '') {
+                    $i++;
+                    $data = [
+                        'img_desc' => $i, //排序
+                        'img_original' => $value,//原图 oss远程连接
+                    ];
+                    array_push($goods_img_gallery_array, $data);
+
+                    $desc_mobile_img = $desc_mobile_img . '<div class="section s-img">
+  <div class="img"><img src="' . $value . '"></div>
+  <div class="tools"><i class="move-up icon-arrow-up disabled"></i><i class="move-down icon-arrow-down"></i><em class="move-remove"><i class="icon icon-remove"></i>删除</em>
+    <div class="cover"></div>
+  </div>
+</div>';
+                }
+            }
+
+
+            $desc_mobile_text='<div class="section s-txt">
+  <div class="txt">'.$artworkDetail['story'].'</div>
+  <div class="tools"><a href="javascript:void(0);" class="move-up icon-arrow-up"></a><a href="javascript:void(0);" class="move-down icon-arrow-down disabled"></a><a href="javascript:void(0);" class="move-edit" ectype="move_edit_touch"><i class="icon icon-edit"></i>编辑</a><a href="javascript:void(0);" class="move-remove"><i class="icon icon-remove"></i>删除</a>
+    <div class="cover"></div>
+  </div>
+</div>
+';
+
+
+            $goods_img_gallery = json_encode($goods_img_gallery_array);
+
+
+            $desc_mobile = $desc_mobile_text . $desc_mobile_img;
+
+            $post_data = [
+                'is_api' => 1,
+                'artWorkId'=>$artwork_id,
+                'user_id' => $this->loginUserId,
+                'mobile' => $userInfo['mobile'],
+                'act' => 'insert',
+                'cat_id' => 1488,
+                'goods_name' => $artworkDetail['name'],
+                'is_mount' => $is_mount,
+                'is_collect' => $is_collect,
+                'shop_price' => $price,
+                'goods_original' => $artworkDetail['cover'],
+                'is_shipping' => $is_shipping,
+                'freight' => $is_shipping==1?0:1,
+                'shipping_fee' => $shipping_fee,
+                'desc_mobile' => $desc_mobile,
+                'goods_img_gallery' => $goods_img_gallery,
+
+                'goods_artwork_color' => $goods_artwork_color,
+                'goods_artwork_shape' => $goods_artwork_shape,
+                'goods_artwork_length' => floatval($artworkDetail['length']).'cm',
+                'goods_artwork_width' => floatval($artworkDetail['width']).'cm',
+                'goods_artwork_diameter' => floatval($artworkDetail['diameter']).'cm',
+                'goods_artwork_date' => $goods_artwork_date,
+                'goods_artwork_catory' => $goods_artwork_catory,
+                'goods_artwork_subjects' => $goods_artwork_subjects,
+                'goods_artwork_styles' => $goods_artwork_styles,
+            ];
+//            print_r($post_data);
+//            exit;
+
+            $param = $DES->encrypt(json_encode($post_data));
+
+
+            $content = $MpHttp->post_data(C('Artzhe_mall_api')['Add_To_Mall'], ['param' => $param]);
+            //  $content = $MpHttp->post_data(C('Artzhe_mall_api')['Add_To_Mall'], $post_data);
+//            print_r($content);
+//            exit;
+            $content_json = json_decode($content, true);
+
+            if ($content_json != null) {
+                if ($content_json['error'] == 0) {
+                    $goods_id = (int)$content_json['goods_id'];
+//                    if ($goods_id > 0) {
+//                        $ArtworkGoods->add([
+//                            'artwork_id' => $artwork_id,
+//                            'goods_id' => $goods_id,
+//                            'goods_type' => 1488,
+//                            'mall_name' => $shipping_fee,
+//                            'status' => 2,
+//                            'create_time' => time(),
+//                        ]);
+//                    }
+                    Util::jsonReturn(['status' => Code::SUCCESS]);
+                }
+
+            } else {
+                Util::jsonReturn(null, Code::SYS_ERR, '超时，请重试');
+            }
+
+        } else {
+            Util::jsonReturn(null, Code::NOT_FOUND, '记录不存在');
+        }
+    }
+
+    //是否可发布（用于判断本次更新是否可以完成画作）
+    public function canBePublished()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        //todo  if the userId is matched with follow artworkUpdateId
+        $userId = $tokenInfo['userInfo']['id'];
+        $artworkUpdateId = I('post.artworkUpdateId'); //艺术品更新id
+
+        $artworkUpdateLogic = new ArtworkUpdateLogic();
+        $artworkUpdateDetail = $artworkUpdateLogic->getDetail($artworkUpdateId);
+        //if >24hour
+        // if ($_SERVER['REQUEST_TIME'] > $artworkUpdateDetail['create_time'] + 24*3600)
+        // {
+        //     Util::jsonReturn(['status'=>1001]);//timeout
+        // }
+        $artworkId = $artworkUpdateDetail['artwork_id'];
+        $artworkLogic = new ArtworkLogic();
+        $artworkDetail = $artworkLogic->getDetail($artworkId);
+
+        //1. if current edit artwork update's update_times less then the artwork's max update_times,
+        //   then cannot be finish the artwork creation
+        if ($artworkDetail['update_times'] > $artworkUpdateDetail['number']) {
+            $canBePublished = false;
+        } else {
+            $canBePublished = true;
+        }
+        if ($canBePublished) {
+            Util::jsonReturn(['status' => 1000, 'rest' => ($_SERVER['REQUEST_TIME'] - $artworkUpdateDetail['create_time'])]);
+        } else {
+            Util::jsonReturn(['status' => 1002]);
+        }
+    }
+
+    public function like()
+    {
+        $this->checkLogin();
+        $type = I('post.type', '1', 'number_int');
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $id = Checker::numberId();
+
+
+        $userLogic = new UserLogic(); //实例化用户模块
+        $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+        $assetsLogic = new AssetsLogic(); //获取用户头像
+        $faceUrl = $assetsLogic->getUrl($userInfo['face']);
+
+
+        $artworkLikeLogic = new ArtworkLikeLogic();
+        $likeData = [
+            'artwork_id' => $id,//todo if not exists or deleted.
+            'like_user_id' => $this->loginUserId,
+            'like_time' => time(),
+            'is_like' => 'Y',
+            'type' => $type
+        ];
+        $likeId = $artworkLikeLogic->like($likeData, $type);
+        if ($likeId) {
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => $faceUrl]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经喜欢了');
+            //Util::jsonReturn(['status'=>1000, 'faceUrl'=>$faceUrl]);
+        }
+    }
+
+    public function unlike()
+    {
+        $this->checkLogin();
+        $type = I('post.type', '0', 'number_int');
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $id = Checker::numberId();
+
+        $userLogic = new UserLogic(); //实例化用户模块
+        $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+        $assetsLogic = new AssetsLogic(); //获取用户头像
+        $faceUrl = $assetsLogic->getUrl($userInfo['face']);
+
+
+        $artworkLikeLogic = new ArtworkLikeLogic();
+        $likeData = [
+            'artwork_id' => $id,//todo if not exists or deleted.
+            'like_user_id' => $this->loginUserId,
+            'unlike_time' => time(),
+            'is_like' => 'N',
+            'type' => $type
+        ];
+        if ($type > 0) {
+            $likeResult = $artworkLikeLogic->saveUnlike($likeData, $type);
+        } else {//不喜欢一个艺术品，就是包括了不喜欢该艺术品的更新，艺术品的喜欢和更新的喜欢一起删除
+            $likeResult = $artworkLikeLogic->delUserlike_byArtid($likeData);
+        }
+        if ($likeResult) {
+            //Util::jsonReturn();
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => $faceUrl]);
+        } else if ($likeResult == false) {
+            //Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经取消喜欢了');
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => $faceUrl]);
+        }
+    }
+
+    //get my update artwork list
+    public function getMyUpdateArtworkList111()
+    {
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $artistId = $tokenInfo['userInfo']['id'];
+        $page = I('post.page', 1);
+        $perPageCount = I('post.perPageCount', 10);
+        $artworkLogic = new ArtworkLogic();
+        //$assetsLogic  = new AssetsLogic();
+
+        $artworkList = $artworkLogic->where(['artist' => $artistId, 'is_deleted' => 'N'])
+            ->field('id,tag_ids,name,cover,artist AS artistid,update_times,story,state,last_update_time,is_finished')
+            ->order('last_update_time DESC,create_time DESC')
+            ->page($page, $perPageCount)
+            ->select();
+
+        if (empty($artworkList)) {
+            $unFinishedArtworkList = [];
+        } else {
+            foreach ($artworkList as $k => $v) {
+                $artworkUpdateLogic = new ArtworkUpdateLogic();
+                $updateDetail = $artworkUpdateLogic->getLastUpdateDetail($v['id']);
+                $unFinishedArtworkList[$k]['artistId'] = $v['id'];
+                $unFinishedArtworkList[$k]['coverUrl'] = Util::getImageResize($v['cover'], 300, 300);
+                $unFinishedArtworkList[$k]['name'] = $v['name'];
+                $unFinishedArtworkList[$k]['updateId'] = $updateDetail['id'];
+                $unFinishedArtworkList[$k]['state'] = $v['state'];
+                $unFinishedArtworkList[$k]['story'] = $v['story'];
+                $unFinishedArtworkList[$k]['updateTimes'] = $v['update_times'];
+                $unFinishedArtworkList[$k]['isEdit'] = 'Y';
+                $unFinishedArtworkList[$k]['is_finished'] = $v['is_finished'];
+                $unFinishedArtworkList[$k]['last_update_time'] = date('Y-m-d H:i', $v['last_update_time']);
+            }
+
+        }
+
+        //$unFinishedArtworkList = empty($artworkList) ? [] : $artworkList;
+        //$unFinishedArtworkList = $artworkLogic->getUnFinishedArtworkList($artistId, $page, $perPageCount);
+
+
+        Util::jsonReturn(['status' => 1000, 'info' => $unFinishedArtworkList]);
+    }
+
+    //获取我的所有作品
+    public function getMyUpdateArtworkList()
+    {
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $artistId = $tokenInfo['userInfo']['id'];
+        $page = I('post.page', 1);
+        $perPageCount = I('post.perPageCount', 10);
+        $seriesId = I('post.series_id', '', 'number_int'); //系列id
+        $artworkLogic = new ArtworkLogic();
+        $artCircleModel = new ArtCircleModel();
+
+        $where =['artist' => $artistId, 'is_deleted' => 'N'];
+        if(!empty($seriesId)){//系列作品
+            $where['series_id'] = $seriesId;
+        }
+
+        $total = $artworkLogic->where($where)->count();
+        $artworkList = $artworkLogic->where($where)
+            // ->field('id,tag_ids,name,cover,panorama_ids,artist AS artistid,update_times,story,state,last_update_time,is_finished,finish_percent')
+            ->order('istop desc,last_update_time DESC,create_time DESC')
+            ->page($page, $perPageCount)
+            ->select();
+
+        if (empty($artworkList)) {
+            $unFinishedArtworkList = [];
+        } else {
+            foreach ($artworkList as $k => $v) {
+                if (trim($v['cover']) != '') {
+                    $img = Util::getImgUrlById($v['cover']);
+                } else {
+                    $images = explode(',', $v['panorama_ids']);
+                    $img = $images[0];
+                }
+
+                //计算画作属性百分比
+                $artworklogic = new ArtworkLogic();
+                $percent = $artworklogic->getAttributePercent($v['id']);
+
+                //艺术圈花絮
+                $artCircleUpdates = $artCircleModel->where(['artwork_id' => $v['id']])->count();
+
+                $unFinishedArtworkList[$k]['artistId'] = $v['id'];
+                $unFinishedArtworkList[$k]['coverUrl'] = Util::getImageResize($img, 300, 300);
+                $unFinishedArtworkList[$k]['name'] = $v['name'];
+                $unFinishedArtworkList[$k]['state'] = $v['state'];
+                $unFinishedArtworkList[$k]['story'] = $v['story'];
+                $unFinishedArtworkList[$k]['updateTimes'] = intval($v['update_times']) + $artCircleUpdates;
+                $unFinishedArtworkList[$k]['isEdit'] = 'Y';
+                $unFinishedArtworkList[$k]['is_finished'] = $v['is_finished'];
+                $unFinishedArtworkList[$k]['last_update_time'] = date('Y-m-d', $v['last_update_time']);
+                $unFinishedArtworkList[$k]['finish_percent'] = $percent;
+            }
+        }
+        $maxpage = ceil($total / $perPageCount);
+        $info = [
+            'artwork' => $unFinishedArtworkList,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $perPageCount,
+            'maxpage' => $maxpage
+        ];
+        Util::jsonReturn(['status' => 1000, 'info' => $info]);
+    }
+
+    //todo need to config the config json in az_config ,the key is COLOR_CONFIG
+    public function getArtworkColorConfig()
+    {
+        $artworkColorLogic = new ArtworkColorLogic();
+        $colorConfig = $artworkColorLogic->getColorList('array');
+        Util::jsonReturn(['status' => 1000, 'info' => $colorConfig]);
+    }
+
+    // todo need to cache it
+    public function getArtworkTagConfig()
+    {
+        $artworkTagLogic = new ArtworkTagLogic();
+        $tagConfig = $artworkTagLogic->getTagList('array');
+        Util::jsonReturn(['status' => 1000, 'info' => $tagConfig]);
+    }
+
+    public function getArtworkCategoryConfig()
+    {
+        $artworkCategoryLogic = new ArtworkCategoryLogic();
+        $categoryConfig = $artworkCategoryLogic->getCategoryList('array');
+        Util::jsonReturn(['status' => 1000, 'info' => $categoryConfig]);
+    }
+
+    //获取作品详情信息
+    public function getArtDetail()
+    {
+        $artId = I('post.id', '', 'number_int');
+        $artId2 = I('post.artId', '', 'number_int');
+        if (empty($artId) && $artId2) {
+            $artId = $artId2;
+        }
+        if ($artId > 0) {
+            $artworkModel = new ArtworkLogic();
+            $artInfo = $artworkModel->getArtworkDetail($artId, $this->loginUserId);
+            if ($artInfo === false) {
+                Util::jsonReturn(null, Code::NOT_FOUND, '该艺术品仅作者可见', var_export($artId, true));
+            } elseif (!empty($artInfo)) {
+                Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $artInfo]);
+            } else {
+                Util::jsonReturn(null, Code::NOT_FOUND, '未找到对应的艺术品', var_export($artId, true));
+            }
+        } else {
+            Util::jsonReturn(null, Code::VERIF, '[artId]错误', var_export($artId, true));
+        }
+    }
+
+    //获取评论列表
+    public function getCommentList()
+    {
+        $id = I('post.id', '', 'number_int');
+        $type = I('post.type', '', 'number_int');
+        $page = I('post.page', 1);
+        $pagesize = I('post.pagesize', 10);
+        $commentLogic = new CommentLogic();
+        $commentList = $commentLogic->getList($id, $type, $page, $pagesize, $this->loginUserId);
+        $commentList['is_repay'] = $this->loginUserId == $commentLogic->getAuthorByIdAndType($id, $type) ? 'Y' : 'N';
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $commentList]);
+    }
+
+    //回复评论
+    public function repayMessage()
+    {
+        $this->checkLogin();
+        $commentId = I('post.commentId', '', 'number_int');
+        $repayer = $this->loginUserId;
+        $content = I('post.content', '');
+        $Commentinfo = M('Comment')->where("id=" . intval($commentId) . " and parent_id=0 and comment_to=" . $this->loginUserId)->find();
+        if (!$Commentinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+
+        $commentLogic = new CommentLogic();
+        $repayInfo = $commentLogic->repay($commentId, $repayer, $content);
+        if (!empty($repayInfo)) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'repayInfo' => $repayInfo]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '回复失败');
+        }
+    }
+
+    //发表评论
+    public function comment()
+    {
+        $this->checkLogin();
+        $artId = I('post.artId', '', 'number_int');
+        $type = I('post.type', '', 'number_int');
+        $commenter = $this->loginUserId;
+        $content = I('post.content', '');
+
+        //Util::jsonReturn(null, Code::SYS_ERR, '评论失败');
+
+        if ($type == 1) {
+            $artwork = new ArtworkLogic();
+            $artworkinfo = $artwork->where(['id' => $artId, 'is_deleted' => 'N'])->find();
+            if (!$artworkinfo) {
+                Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+            }
+            $comment_to = $artworkinfo['artist'];
+        } elseif ($type == 2) {
+            $ArtworkUpdate = new ArtworkUpdateLogic();
+            $ArtworkUpdateinfo = $ArtworkUpdate->where(['id' => $artId, 'is_deleted' => 'N'])->find();
+            if (!$ArtworkUpdateinfo) {
+                Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+            }
+            $comment_to = $ArtworkUpdateinfo['artist'];
+        }
+
+        $commentLogic = new CommentLogic();
+        $commentInfo = $commentLogic->comment($artId, $type, $commenter, $content, $comment_to);
+        if (!empty($commentInfo)) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'commentInfo' => $commentInfo]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '评论失败');
+        }
+    }
+
+    //获取花絮（单次更新）详情H5(暂不用)
+    public function updateDetail()
+    {
+        $all = I('post.');
+        Verify::all($all, ['id' => '!@']);
+        $updateLogic = new ArtworkUpdateLogic();
+        $loginUserId = empty($this->loginUserId) ? 0 : $this->loginUserId;
+        $detail = $updateLogic->getDetailWithComment($all['id'], $loginUserId);
+        if ($detail == false) {
+            Util::jsonReturn(null, Code::NOT_FOUND, '该艺术品仅作者可见');
+        } else {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $detail]);
+        }
+    }
+
+    //获取花絮（单次更新）详情-app
+    public function updateDetailSimple()
+    {
+        $all = I('post.');
+        Verify::all($all, ['id' => '!@']);
+        $updateLogic = new ArtworkUpdateLogic();
+        $loginUserId = empty($this->loginUserId) ? 0 : $this->loginUserId;
+        $detail = $updateLogic->getDetailWithCommentSimple($all['id'], $loginUserId);
+        if ($detail == false) {
+            Util::jsonReturn(null, Code::NOT_FOUND, '该艺术品仅作者可见');
+        } else {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $detail]);
+        }
+    }
+
+    public function getupdateWit______20170826()
+    {
+        $id = I('post.id', '', 'number_int');
+
+        $updateLogic = new ArtworkUpdateLogic();
+        $loginUserId = empty($this->loginUserId) ? 0 : $this->loginUserId;
+
+
+        $updateInfo = $updateLogic->where(['id' => $id, 'is_deleted' => 'N'])->find();
+        if (!$updateInfo) {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+        $artLogic = new ArtworkLogic();
+        $artInfo = $artLogic->where(['id' => $updateInfo['artwork_id'], 'is_deleted' => 'N'])->find();
+        if ($artInfo['state'] == 2 && $artInfo['artist'] != $loginUserId) {//画作仅自己看的时候，不是作者就隐藏
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+
+        if (!$artInfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '该艺术品仅作者可见');
+        } else {
+            $imgUrls = Util::getHtmlImgSrc($updateInfo['wit']);
+            $updateInfo['wit'] = $updateLogic->replaceHtmlImgSrc($imgUrls, $updateInfo['wit']);
+            $updateInfo = [
+                'id' => $updateInfo['id'],
+
+                'wit' => html_entity_decode(trim($updateInfo['wit'])),
+
+            ];
+
+            $info = $updateInfo;
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        }
+    }
+
+    //添加新作品第一步:添加作品名称
+    public function addArtwrokStepOne()
+    {
+
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+
+
+        $artworkName = I('post.artworkName'); //艺术品名称
+        $state = I('post.state'); //作品权限
+        $state = empty($state) ? 1 : $state; //1.所有人可见 2.仅自己可见
+
+        if (trim($artworkName) == '') {
+            Util::jsonReturn(null, Code::PARAM_ERR, '艺术品名称不能为空');
+            exit();
+        }
+
+        $artworkData = [
+            'artist' => $userId, //艺术家ID
+            'name' => $artworkName, //作品名称
+            'panorama_ids' => '',
+            //'category' => 10, //类别
+            'update_times' => 0, //更新次数
+            'state' => $state, //作品权限
+            'create_time' => time(), //作品添加时间
+            'last_update_time' => time() //最后更新时间
+        ];
+
+        $insert_id = M('Artwork')->add($artworkData);
+        //判断是否插入成功
+        if ($insert_id > 0) {
+            M('User')->where(['id' => $this->loginUserId])->setInc('art_total', 1);
+            Util::jsonReturn(['status' => 1000, 'artistId' => $insert_id]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+    }
+
+    private function lock($redis, $key, $expire = 5)
+    {
+        $thistime = time();
+        $lock = $redis->setnx($key, $thistime + $expire);
+        // 不能获取锁
+        if (!$lock) {
+            // 判断锁是否过期
+            $lock_time = $redis->get($key);
+            // 锁已过期，删除锁，重新获取
+            if ($thistime > $lock_time) {
+                $redis->del($key);
+                $lock = $redis->setnx($key, $thistime + $expire);
+            }
+        }
+        return $lock ? true : false;
+    }
+
+    //添加创作记录
+    public function addCreateRecord()
+    {
+
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+
+        $artworkId = I('post.artworkId'); //艺术品ID
+        //$artworkName = I('post.artworkName'); //艺术品名称
+
+
+        $wit = I('post.wit'); //创作心路
+        $wit = htmlentities($wit, ENT_QUOTES, 'UTF-8'); //创作心路
+        $wit = Util::stripHtmlATag($wit); //创作心路
+        $wit = Util::cleanSpecific($wit); //创作心路
+
+        $createDate = I('post.createDate'); //创建日期
+        $Share2ArtCircle = I('post.Share2ArtCircle'); //是否分享到艺术圈
+
+
+        $cover = I('post.cover'); //封面
+        $pos = strpos($cover, '?');
+        if ($pos !== false) {
+            $cover = substr($cover, 0, $pos);
+        }
+
+        $artworkTag = I('post.artworkTag');
+
+        $story = Util::cleanSpecific(I('post.story')); //故事摘要
+        $title = empty(I('post.title')) ? date('Y.m.d') : I('post.title');
+
+        if (trim($wit) == '') {//==============
+            Util::jsonReturn(null, Code::SYS_ERR, '不能为空');
+        }
+
+        //redis lock
+        $expire = 10; //有效期10秒
+        $key = 'artzhe_add_update_lock' . intval($userId); //key
+        $redis = new \Redis();
+        $redis->connect(C('REDIS_HOST'), C('REDIS_PORT'), 1);
+        $redis->auth(C('REDIS_PASSWD'));
+        if ($this->lock($redis, $key, $expire)) {//加锁成功就入库
+
+            $Artworkinfo = M('Artwork')->where(['id' => intval($artworkId), 'artist' => $userId])->find();
+            if (!$Artworkinfo) {
+                $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+            }
+
+            $artworkUpdateLogic = new ArtworkUpdateLogic();
+
+            //判断该作品单次更新的最新的一个wit内容是否相同，不同就添加，避免多次提交
+            $last_artwork_update = $artworkUpdateLogic->field('wit,summary')->where('artwork_id=' . intval($artworkId) . ' and artist=' . $userId)->order('id desc')->find();
+            if (trim($last_artwork_update['wit']) == trim($wit)) {
+                $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                //Util::jsonReturn(['status'=>1000]);
+                Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+            }
+
+            $artworkLogic = new ArtworkLogic(); //实例化作品表
+            $userLogic = new UserLogic(); //实例化用户表
+
+            $updateNumber = $artworkLogic->getUpdateNumber($artworkId); //获取某艺术品更新次数
+            $updateNumber = empty($updateNumber) ? 0 : $updateNumber;
+            $updateNumber++;
+
+            $map['uid'] = $userId;
+            $map['artworkid'] = $artworkId;
+            $map['type'] = 4;
+            $res = M('ArtzheCustom')->where($map)->find();
+            if (!empty($artworkTag)) {
+                if (empty($res)) {
+                    $customData = [
+                        'uid' => $userId, //用户ID
+                        'artworkid' => $artworkId, //艺术品ID
+                        'cn_name' => $artworkTag, //用户自定义标签
+                        'type' => 4, //4表示标签
+                        'create_time' => time() //添加时间
+                    ];
+                    M('ArtzheCustom')->add($customData);
+                } else {
+                    $customData = [
+                        'cn_name' => $artworkTag, //用户自定义标签
+                    ];
+                    $w['id'] = $res['id'];
+                    M('ArtzheCustom')->where($w)->save($customData);
+                }
+            }
+
+            //更新画作信息
+            $artwrokData = [
+                // 'cover' => $cover, //封面
+                'update_times' => $updateNumber, //更新次数
+                'last_update_time' => time(),
+                // 'story' => $story
+            ];
+
+            if (trim($Artworkinfo['cover']) == '' && trim($Artworkinfo['panorama_ids']) == '') {//作品没有封面和全局图，抽取内容的第一张图做封面
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+                $first_pic = trim($array[1][0]);
+                if ($first_pic != '') {
+                    $artwrokData['cover'] = $first_pic;
+                }
+            }
+
+            //更新作品信息
+            $artworkLogic->ArtUpdate($artwrokData, $artworkId);
+            $messageLogic = new MessageLogic();
+            $messageLogic->artistUpdate($artworkId);
+
+            /*$draftModel = M('ArtworkDraft');
+            $result = $draftModel->field('id')->where(['artist_id'=>$userId,'artwork_id'=>$artworkId])->find();
+            if(!empty($result)){
+                //$draftModel->delete($result['id']);  //删除草稿
+                $draftModel->where(['artist_id'=>$userId,'artwork_id'=>$artworkId])->setField('number',$updateNumber+1);
+            }*/
+
+            //添加创作记录
+            $artworkUpdateLogic = new ArtworkUpdateLogic();
+            $artworkUpdateData = [
+                'artist' => $userId, //登录的用户ID(即艺术者ID)
+                'title' => $title,
+                'artwork_id' => $artworkId, //艺术品ID
+                'number' => $updateNumber, //更新次数
+                'wit' => $wit, //创作心路
+                'cover' => $cover, //封面
+                'create_date' => $createDate, //创建日期
+                'create_time' => time(), //创建时间
+                'last_update_time' => time(), //上次更新时间
+                'summary' => $story //摘要
+            ];
+
+
+            $artworkUpdateId = $artworkUpdateLogic->addOne($artworkUpdateData); //添加一条创作记录
+            $thistime = time();
+            $userLogic->where(['id' => $this->loginUserId])->save(['last_update_time' => $thistime, 'last_add_artupdate_time' => $thistime, 'last_add_artupdate_artid' => $artworkId]); //艺术者最后更新作品时间
+            $messageLogic = new MessageLogic();
+            $messageLogic->artworkUpdate($artworkId);
+            $userInfo = M('user')->field('face,nickname,motto')->find($userId);
+            $artLogic = new ArtworkLogic();
+            $artInfo = $artLogic->where(['id' => intval($artworkId), 'is_deleted' => 'N'])->find();
+
+            //封面图片判断,优先全局图>封面图>内容里面的图
+            if (trim($artInfo['panorama_ids']) != '') {
+                $images = explode(',', $artInfo['panorama_ids']);
+                $cover = $images[0];
+            } elseif (trim($artInfo['cover']) != '') {
+                $cover = $artInfo['cover'];
+            } else {
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+                $first_pic = trim($array[1][0]);
+                $cover = $first_pic;
+            }
+
+            $share['face'] = Util::getImageResize($userInfo['face'], Image::faceWidth, Image::faceHeight);
+            $share['name'] = $userInfo['nickname'];
+            $share['category'] = $artworkTag;
+            $share['cover'] = trim($cover) == '' ? '' : Util::getImageResize($cover, Image::recommendListWidth, Image::recommendListHeight);
+            $share['link'] = C('m_site') . '/artwork/update/' . $artworkUpdateId;
+            $share['motto'] = empty($userInfo['motto']) ? "" : $userInfo['motto'];
+
+            //$share['artname'] = $artworkName;
+            $resInfo = M('artwork')->field('name')->find($artworkId);
+            if (strpos("{$resInfo['name']}", "《") !== false) {
+                $artName = $resInfo['name'];
+            } else {
+                $artName = '《' . $resInfo['name'] . '》';
+            }
+            $redis->del($key);//执行完，redis解锁
+            if ($artworkUpdateId) {
+
+                //分享到艺术圈
+                if ($Share2ArtCircle == 1) {
+                    $ArtCircleLogic = new ArtCircleLogic();
+                    $share_info = $ArtCircleLogic->getShareInfo('artwork_update', $artworkUpdateId);
+                    if ($share_info !== false) {
+                        $ArtCircledata = [
+                            'type' => 12,
+                            'address' => '',
+                            'content' => '',
+                            'images_url' => '',
+                            'video_poster' => '',
+                            'video_url' => '',
+                            'user_id' => $this->loginUserId,
+                            'create_time' => time(),
+                        ];
+                        $ArtCircle_insertId = $ArtCircleLogic->add($ArtCircledata);
+                        $ArtCircleShareLogic = new ArtCircleShareLogic();
+                        $share_info['art_circle_id'] = $ArtCircle_insertId;
+                        $share_insertId = $ArtCircleShareLogic->add($share_info);
+                    }
+                }
+
+
+                Util::jsonReturn([
+                    'status' => 1000,
+                    'EditLockEnable' => (int)C('ARTWORK_UPDATE')['EDIT_LOCK_ENABLE'],
+                    'shareTitle' => "{$userInfo['nickname']}{$artName}更新{$updateNumber}",
+                    'shareDesc' => html_deconvert_content_cut($wit, 45),
+                    'shareImg' => Util::getFillImage(Util::getImgUrlById(trim($cover) != '' ? $cover : C('SHARE_IMG_DEFAULT')), Image::faceWidth, Image::faceHeight),
+                    'shareLink' => C('m_site') . '/artwork/update/' . $artworkUpdateId,
+                    'shareInfo' => $share
+                ]);
+            } else {
+                Util::jsonReturn(null, Code::SYS_ERR);
+            }
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'redis error');
+        }
+    }
+
+    //保存创作记录
+    public function saveUpdateRecord()
+    {
+
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+
+        $artworkUpdateId = I('post.artworkUpdateId'); //艺术品更新ID
+        $draftId = I('post.draftId'); //草稿箱Id
+
+        $wit = I('post.wit'); //创作心路
+        $wit = htmlentities($wit, ENT_QUOTES, 'UTF-8'); //创作心路
+        $wit = Util::stripHtmlATag($wit); //创作心路
+        $wit = Util::cleanSpecific($wit); //创作心路
+
+        $title = empty(I('post.title')) ? date('Y.m.d') : I('post.title');
+
+        $Share2ArtCircle = I('post.Share2ArtCircle'); //是否分享到艺术圈
+
+        $createDate = I('post.createDate'); //创建日期
+
+        $cover = I('post.cover'); //封面
+        $pos = strpos($cover, '?');
+        if ($pos !== false) {
+            $cover = substr($cover, 0, $pos);
+        }
+
+        $artworkTag = I('post.artworkTag');
+
+        $story = Util::cleanSpecific(I('post.story')); //故事摘要
+
+        $artworkLogic = new ArtworkLogic(); //实例化作品表
+        $userLogic = new UserLogic(); //实例化用户表
+        $artworkUpdateLogic = new ArtworkUpdateLogic();
+
+        if (empty($artworkUpdateId) && empty($draftId)) {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+        if (!empty($artworkUpdateId)) {
+            $ArtworkUpdateinfo = M('ArtworkUpdate')->where("id=" . intval($artworkUpdateId) . " and artist=" . $userId)->find();
+            $Artworkinfo = M('Artwork')->where(['id' => intval($ArtworkUpdateinfo['artwork_id']), 'artist' => $userId])->find();
+            if (!$ArtworkUpdateinfo || !$Artworkinfo) {
+                Util::jsonReturn(null, Code::SYS_ERR);
+            }
+            if (C('ARTWORK_UPDATE')['EDIT_LOCK_ENABLE'] == 1 && $_SERVER['REQUEST_TIME'] > $ArtworkUpdateinfo['create_time'] + C('ARTWORK_UPDATE')['EDIT_LOCK_TIME']) {
+                Util::jsonReturn(null, Code::SYS_ERR, '已经超过可编辑时间，不能修改');
+            }
+        } elseif (!empty($draftId)) {
+            $ArtworkDraftinfo = M('ArtworkDraft')->where("id=" . intval($draftId) . " and artist_id=" . $userId)->find();
+            $Artworkinfo = M('Artwork')->where(['id' => intval($ArtworkDraftinfo['artwork_id']), 'artist' => $userId])->find();
+            if (!$ArtworkDraftinfo || !$Artworkinfo) {
+                Util::jsonReturn(null, Code::SYS_ERR);
+            }
+        }
+
+        //判断是否从更新记录进行的编辑操作
+        if (!empty($artworkUpdateId)) {
+            $artworkId = M('ArtworkUpdate')->where(['id' => $artworkUpdateId])->getField('artwork_id');
+
+            //$updateNumber = $artworkLogic->getUpdateNumber($artworkId); //获取某艺术品更新次数
+            //$updateNumber++;
+
+            $map['uid'] = $userId;
+            $map['artworkid'] = $artworkId;
+            $map['type'] = 4;
+            $res = M('ArtzheCustom')->where($map)->find();
+            if (!empty($artworkTag)) {
+                if (empty($res)) {
+                    $customData = [
+                        'uid' => $userId, //用户ID
+                        'artworkid' => $artworkId, //艺术品ID
+                        'cn_name' => $artworkTag, //用户自定义标签
+                        'type' => 4, //4表示标签
+                        'create_time' => time() //添加时间
+                    ];
+                    M('ArtzheCustom')->add($customData);
+                } else {
+                    $customData = [
+                        'cn_name' => $artworkTag, //用户自定义标签
+                    ];
+                    $w['id'] = $res['id'];
+                    M('ArtzheCustom')->where($w)->save($customData);
+                }
+            }
+
+            //保存创作记录
+            $artworkUpdateData = [
+                'title' => $title,
+                //'artist'=>$userId, //登录的用户ID(即艺术者ID)
+                //'artwork_id'=>$artworkId, //艺术品ID
+                //'number'=>$updateNumber, //更新次数
+                'wit' => $wit, //创作心路
+                'cover' => $cover, //封面
+                'create_date' => $createDate, //创建日期
+                'last_update_time' => time(), //上次更新时间
+                'summary' => $story //摘要
+            ];
+            //更新画作信息
+            $artwrokData = [
+                //'cover' => $cover, //封面
+                'last_update_time' => time(),
+                // 'story' => $story
+            ];
+
+            if (trim($Artworkinfo['cover']) == '' && trim($Artworkinfo['panorama_ids']) == '') {//作品没有封面和全局图，抽取内容的第一张图做封面
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+                $first_pic = trim($array[1][0]);
+                if ($first_pic != '') {
+                    $artwrokData['cover'] = $first_pic;
+                }
+            }
+
+            //更新作品信息
+            $artworkLogic->ArtUpdate($artwrokData, $artworkId);
+
+            $num = $artworkUpdateLogic->update($artworkUpdateId, $artworkUpdateData);
+            $insert_Id = $artworkUpdateId;
+
+            //分享到艺术圈
+            if ($Share2ArtCircle == 1) {
+                $ArtCircleLogic = new ArtCircleLogic();
+                $share_info = $ArtCircleLogic->getShareInfo('artwork_update', $artworkUpdateId);
+                if ($share_info !== false) {
+                    $ArtCircledata = [
+                        'type' => 12,
+                        'address' => '',
+                        'content' => '',
+                        'images_url' => '',
+                        'video_poster' => '',
+                        'video_url' => '',
+                        'user_id' => $this->loginUserId,
+                        'create_time' => time(),
+                    ];
+                    $ArtCircle_insertId = $ArtCircleLogic->add($ArtCircledata);
+                    $ArtCircleShareLogic = new ArtCircleShareLogic();
+                    $share_info['art_circle_id'] = $ArtCircle_insertId;
+                    $share_insertId = $ArtCircleShareLogic->add($share_info);
+                }
+            }
+
+
+        } elseif (!empty($draftId)) {//草稿箱编辑保存
+            $artworkId = M('ArtworkDraft')->where(['id' => $draftId])->getField('artwork_id');
+            M('ArtworkDraft')->delete($draftId);
+            $updateNumber = $artworkLogic->getUpdateNumber($artworkId); //获取某艺术品更新次数
+            $updateNumber = empty($updateNumber) ? 0 : $updateNumber;
+            $updateNumber++;
+
+            $map['uid'] = $userId;
+            $map['artworkid'] = $artworkId;
+            $map['type'] = 4;
+            $res = M('ArtzheCustom')->where($map)->find();
+            if (!empty($artworkTag)) {
+                if (empty($res)) {
+                    $customData = [
+                        'uid' => $userId, //用户ID
+                        'artworkid' => $artworkId, //艺术品ID
+                        'cn_name' => $artworkTag, //用户自定义标签
+                        'type' => 4, //4表示标签
+                        'create_time' => time() //添加时间
+                    ];
+                    M('ArtzheCustom')->add($customData);
+                } else {
+                    $customData = [
+                        'cn_name' => $artworkTag, //用户自定义标签
+                    ];
+                    $w['id'] = $res['id'];
+                    M('ArtzheCustom')->where($w)->save($customData);
+                }
+            }
+
+            //添加创作记录
+            $artworkUpdateLogic = new ArtworkUpdateLogic();
+            $artworkUpdateData = [
+                'title' => $title,
+                'artist' => $userId, //登录的用户ID(即艺术者ID)
+                'artwork_id' => $artworkId, //艺术品ID
+                'number' => $updateNumber, //更新次数
+                'wit' => $wit, //创作心路
+                'cover' => $cover, //封面
+                'create_date' => $createDate, //创建日期
+                'create_time' => time(), //创建时间
+                'last_update_time' => time(), //上次更新时间
+                'summary' => $story //摘要
+            ];
+
+            //更新画作信息
+            $artwrokData = [
+                // 'cover' => $cover, //封面
+                'update_times' => $updateNumber, //更新次数
+                'last_update_time' => time(),
+                // 'story' => $story
+            ];
+
+            if (trim($Artworkinfo['cover']) == '' && trim($Artworkinfo['panorama_ids']) == '') {//作品没有封面和全局图，抽取内容的第一张图做封面
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+                $first_pic = trim($array[1][0]);
+                if ($first_pic != '') {
+                    $artwrokData['cover'] = $first_pic;
+                }
+            }
+
+            //更新作品信息
+            $artworkLogic->ArtUpdate($artwrokData, $artworkId);
+
+            $num = $artworkUpdateLogic->addOne($artworkUpdateData); //添加一条创作记录
+            if ($num) {
+                $thistime = time();
+                $userLogic->where(['id' => $this->loginUserId])->save(['last_add_artupdate_time' => $thistime, 'last_add_artupdate_artid' => $artworkId]);
+
+                //分享到艺术圈
+                if ($Share2ArtCircle == 1) {
+                    $ArtCircleLogic = new ArtCircleLogic();
+                    $share_info = $ArtCircleLogic->getShareInfo('artwork_update', $num);
+                    if ($share_info !== false) {
+                        $ArtCircledata = [
+                            'type' => 12,
+                            'address' => '',
+                            'content' => '',
+                            'images_url' => '',
+                            'video_poster' => '',
+                            'video_url' => '',
+                            'user_id' => $this->loginUserId,
+                            'create_time' => time(),
+                        ];
+                        $ArtCircle_insertId = $ArtCircleLogic->add($ArtCircledata);
+                        $ArtCircleShareLogic = new ArtCircleShareLogic();
+                        $share_info['art_circle_id'] = $ArtCircle_insertId;
+                        $share_insertId = $ArtCircleShareLogic->add($share_info);
+                    }
+                }
+
+            }
+            $insert_Id = $num;
+        }
+
+        $userLogic->where(['id' => $this->loginUserId])->save(['last_update_time' => time()]); //艺术者最后更新作品时间
+        $messageLogic = new MessageLogic();
+        $messageLogic->artworkUpdate($artworkId);
+        $userInfo = M('user')->field('face,nickname,motto')->find($userId);
+
+
+        $artLogic = new ArtworkLogic();
+        $artInfo = $artLogic->where(['id' => intval($Artworkinfo['id']), 'is_deleted' => 'N'])->find();
+
+        //封面图片判断,优先全局图>封面图>内容里面的图
+        if (trim($artInfo['panorama_ids']) != '') {
+            $images = explode(',', $artInfo['panorama_ids']);
+            $cover = $images[0];
+        } elseif (trim($artInfo['cover']) != '') {
+            $cover = $artInfo['cover'];
+        } else {
+            preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+            $first_pic = trim($array[1][0]);
+            $cover = $first_pic;
+        }
+
+
+        $share['face'] = Util::getImageResize($userInfo['face'], Image::faceWidth, Image::faceHeight);
+        $share['name'] = $userInfo['nickname'];
+        $share['category'] = $artworkTag;
+        $share['cover'] = trim($cover) == '' ? '' : Util::getImageResize($cover, Image::recommendListWidth, Image::recommendListHeight);
+        $share['link'] = C('m_site') . '/artwork/update/' . $insert_Id;
+        $share['motto'] = empty($userInfo['motto']) ? "" : $userInfo['motto'];
+
+        //$share['artname'] = $artworkName;
+        $resInfo = M('artwork')->field('name')->find($artworkId);
+
+        if (strpos("{$resInfo['name']}", "《") !== false) {
+            $artName = $resInfo['name'];
+        } else {
+            $artName = '《' . $resInfo['name'] . '》';
+        }
+
+        if ($num) {
+            Util::jsonReturn([
+                'status' => 1000,
+                'EditLockEnable' => (int)C('ARTWORK_UPDATE')['EDIT_LOCK_ENABLE'],
+                'shareTitle' => "{$userInfo['nickname']}{$artName}更新{$updateNumber}",
+                'shareDesc' => html_deconvert_content_cut($wit, 45),
+                'shareImg' => Util::getFillImage(Util::getImgUrlById(trim($cover) != '' ? $cover : C('SHARE_IMG_DEFAULT')), Image::faceWidth, Image::faceHeight),
+                'shareLink' => C('m_site') . '/artwork/update/' . $insert_Id,
+                'shareInfo' => $share
+            ]);
+        } else {
+            Util::jsonReturn(['status' => 1000]);
+        }
+    }
+
+    /**
+     * 保存创作记录到草稿箱
+     * 1.一个作品最多只能保存一个花絮草稿
+     *
+     */
+    public function addArtworkToDraft()
+    {
+
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+
+        $drafId = intval(I('post.drafId')); //草稿箱ID
+        $artworkId = intval(I('post.artworkId')); //艺术品ID
+        $wit = I('post.wit', ''); //创作心路
+        $wit = htmlentities($wit, ENT_QUOTES, 'UTF-8'); //创作心路
+        $wit = Util::stripHtmlATag($wit); //创作心路
+        $wit = Util::cleanSpecific($wit); //创作心路
+        $createDate = empty(I('post.createDate')) ? date('Y-m-d') : I('post.createDate'); //创建日期
+        $cover = I('post.cover', ''); //封面
+        $pos = strpos($cover, '?');
+        if ($pos !== false) {
+            $cover = substr($cover, 0, $pos);
+        }
+
+        $artworkTag = I('post.artworkTag', '');
+        $story = Util::cleanSpecific(I('post.story', '')); //故事摘要
+
+        //文章标题
+        $title = empty(I('post.title')) ? date('Y.m.d') : I('post.title');
+
+        $draftModel = M('ArtworkDraft'); //实例化草稿箱表
+
+        if (empty($drafId) && empty($artworkId)) {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+        if (empty($drafId)) {
+            if (!empty($artworkId)) {
+                $Artworkinfo = M('Artwork')->where("id=" . intval($artworkId) . " and artist=" . $userId)->find();
+                if (!$Artworkinfo) {
+                    Util::jsonReturn(null, Code::SYS_ERR);
+                }
+            }
+        } else {
+            $ArtworkDraftinfo = M('ArtworkDraft')->where("id=" . intval($drafId) . " and artist_id=" . $userId)->find();
+            if (!$ArtworkDraftinfo) {
+                Util::jsonReturn(null, Code::SYS_ERR);
+            }
+        }
+
+        //判断艺术品ID是否为空,如果是空的代表新作品
+        $data = [];
+        if (empty($drafId)) {//新文章，不是从草稿箱进行的编辑
+            if (!empty($artworkId)) {
+
+                $res = M('Artwork')->field('name')->find($artworkId);
+                $res2 = M('ArtworkUpdate')->field('number')->where(['artwork_id' => $artworkId])->order('create_time DESC')->find();
+                $res3 = $draftModel->where(['artwork_id' => $artworkId])->find();
+
+                $number = empty($res2) ? 0 : $res2['number']; //更新编号
+
+                if (empty($res3)) {//没有该画作的花絮草稿，新增
+                    $data['title'] = $title;
+                    $data['artist_id'] = $userId;
+                    $data['artwork_id'] = $artworkId;
+                    $data['artname'] = $res['name'];
+                    $data['number'] = $number + 1;
+                    $data['create_date'] = $createDate;
+                    $data['wit'] = $wit;
+                    $data['cover'] = empty($cover) ? '' : $cover;
+                    $data['tag'] = empty($artworkTag) ? '' : $artworkTag;
+                    $data['story'] = empty($story) ? '' : $story;
+
+                    $num = $draftModel->add($data);
+                } else {//有该画作的花絮草稿，修改
+                    $data['title'] = $title;
+                    $data['number'] = $number + 1;
+                    $data['create_date'] = $createDate;
+                    $data['wit'] = $wit;
+                    $data['cover'] = empty($cover) ? '' : $cover;
+                    $data['tag'] = empty($artworkTag) ? '' : $artworkTag;
+                    $data['story'] = empty($story) ? '' : $story;
+
+                    $num = $draftModel->where(['artwork_id' => $artworkId])->save($data);
+
+                }
+            }
+        } else {//从草稿箱进行的编辑
+            $data['title'] = $title;
+            $data['create_date'] = $createDate;
+            $data['wit'] = $wit;
+            $data['cover'] = $cover;
+            $data['tag'] = $artworkTag;
+            $data['story'] = $story;
+            $where['id'] = $drafId;
+            $num = $draftModel->where($where)->save($data);
+        }
+
+        if ($num > 0) {
+            Util::jsonReturn(['status' => 1000]);
+        } else {
+            Util::jsonReturn(['status' => 1000]);
+        }
+    }
+
+    //获取创作记录列表 （我-添加花絮）
+    public function getRecordList()
+    {
+
+        //判断用户是否登录
+        $this->checkLogin();
+
+        $userid = $this->loginUserId;
+
+        $artId = I('post.artId', '', 'number_int'); //艺术品id
+        $updateLogic = new ArtworkUpdateLogic();
+
+        //判断该作品是否属于登录用户
+        //  if(!M('ArtworkDraft')->where(['artwork_id' => $artId,'artist_id'=>$userid])->find()&&!$updateLogic->where(['artwork_id' => $artId,'is_deleted' => 'N','artist'=>$userid])->find()&&!M('Artwork')->where(['id' => $artId,'is_deleted' => 'N','artist'=>$userid])->find()){
+        //都为空表示不属于
+        //     Util::jsonReturn(null, Code::SYS_ERR);
+        // }
+
+        $i = 0;
+        $upRecord = [];
+
+        $res = M('ArtworkDraft')->where(['artwork_id' => $artId])->find(); //查询草稿箱记录
+        $list = $updateLogic->where(['artwork_id' => $artId, 'is_deleted' => 'N'])->order('create_time DESC')->select();
+        $artInfo = M('Artwork')->field('story,color_ids,shape,length,width,diameter,panorama_ids,topography_ids,state,cover')->find($artId); //获取画作故事
+
+        //状态
+        $color_status = trim($artInfo['color_ids']) != '' ? 1 : 0;
+        $shape_status = $artInfo['shape'] == 1 || $artInfo['shape'] == 2 ? 1 : 0;
+        $size_status = 0;
+        if ($artInfo['shape'] == 1) {
+            $size_status = $artInfo['length'] > 0 && $artInfo['width'] > 0 ? 1 : 0;
+        } elseif ($artInfo['shape'] == 2) {
+            $size_status = $artInfo['diameter'] > 0 ? 1 : 0;
+        }
+        //$artzhe_custom = M('artzhe_custom');
+        // $artzhe_custom_info = $artzhe_custom->where(['artworkid' => intval($artId)])->find();
+        //$tag_status = $artzhe_custom_info ? 1 : 0;
+
+        $story_status = trim($artInfo['story']) != '' ? 1 : 0;
+        $panorama_status = trim($artInfo['panorama_ids']) != '' ? 1 : 0;
+        $topography_status = trim($artInfo['topography_ids']) != '' ? 1 : 0;
+        $cover_status = trim($artInfo['cover']) != '' ? 1 : 0;
+        //状态 end
+
+
+        if (!empty($res)) {
+
+
+            preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $res['wit'], $array);
+            $img = empty($array[1]) ? [] : Util::getImageResizes($array[1], 300, 300);
+            $img = array_slice($img, 0, 3);
+
+            $upRecord[$i]['id'] = $res['id'];
+            $upRecord[$i]['title'] = $res['title'];
+            $upRecord[$i]['create_date'] = $res['create_date'];
+            $upRecord[$i]['number'] = $res['number']; //更新记录号码
+            $upRecord[$i]['summary'] = trim($res['wit']) == '' ? '' : html_deconvert_content_cut($res['wit'], 45);
+            $upRecord[$i]['isEdit'] = 'Y';
+            //$upRecord[$i]['img'] = Util::getHtmlImgSrc($res['wit']);
+            $upRecord[$i]['img'] = count($img)>0?$img:[$artInfo['cover']];
+            $upRecord[$i]['flag'] = 1;  //草稿箱
+
+            //获取更新记录里面的视频
+            preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $res['wit'], $match);
+            $upRecord[$i]['video'] = empty($match[1]) ? '' : $match[1][0];
+
+            $i++;
+        }
+        if (!empty($list)) {
+            $time = time();
+
+            foreach ($list as $key => $value) {
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $value['wit'], $array);
+                $img = empty($array[1]) ? [] : Util::getImageResizes($array[1], 300, 300);
+                $img = array_slice($img, 0, 3);
+
+
+                $upRecord[$key + $i]['id'] = $value['id'];
+                $upRecord[$key + $i]['create_date'] = $value['create_date'];
+                $upRecord[$key + $i]['title'] = $value['title'];
+                $upRecord[$key + $i]['number'] = $value['number']; //更新记录号码
+                $upRecord[$key + $i]['summary'] = trim($value['wit']) == '' ? '' : html_deconvert_content_cut($value['wit'], 45);
+                //$isEdit = $time - $value['create_time'] >= 86400 ? false : true;
+                //$upRecord[$key+$i]['isEdit'] = $isEdit && $value['edit_count'] < 1 ? 'Y' : 'N';
+                $upRecord[$key + $i]['isEdit'] = 'Y';
+                //$upRecord[$key]['cover'] = Util::getImageToSq($value['cover']);
+                //$upRecord[$key + $i]['img'] = Util::getHtmlImgSrc($value['wit']);
+                $upRecord[$key + $i]['img'] = count($img)>0?$img:[$artInfo['cover']];
+                $upRecord[$key + $i]['flag'] = 2; //更新记录
+
+                //获取更新记录里面的视频
+                preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $value['wit'], $match);
+                $upRecord[$key + $i]['video'] = empty($match[1]) ? '' : $match[1][0];
+            }
+        }
+
+        $artworkModel = M('Artwork'); //实例化艺术者画作表
+        $artcusModel = M('ArtzheCustom'); //实例化自定义表
+
+        $artworkData = $artworkModel->field('id,name,state,color_ids,shape,length,width,diameter,panorama_ids,topography_ids,category,subject_ids,style_ids,story')->find($artId);
+        $c = $artcusModel->field('cn_name')->where(['artworkid' => $artId, 'type' => '1'])->find();
+        $s = $artcusModel->field('cn_name')->where(['artworkid' => $artId, 'type' => '2'])->find();
+        $s2 = $artcusModel->field('cn_name')->where(['artworkid' => $artId, 'type' => '3'])->find();
+
+        $num = 0; //统计数
+        $percent = 0; //百分比
+
+        //先判断是方形还是圆形
+        if (!empty($artworkData)) {
+            if (1 == $artworkData['shape']) {
+                //方形
+                if (!empty($artworkData['name'])) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['state'])) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['color_ids'])) {
+                    $num += 1;
+                }
+                if (intval($artworkData['length']) > 0 && intval($artworkData['width']) > 0) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['panorama_ids'])) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['topography_ids'])) {
+                    $num += 1;
+                }
+                if ($artworkData['category'] != -1 || !empty($c) || !empty($artworkData['subject_ids']) || !empty($s) || !empty($artworkData['style_ids']) || !empty($s2)) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['story'])) {
+                    $num += 1;
+                }
+                $percent = round($num / 8 * 100); //计算百分比
+            } else {
+                //圆形
+                if (!empty($artworkData['name'])) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['state'])) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['color_ids'])) {
+                    $num += 1;
+                }
+                if (floatval($artworkData['diameter']) > 0) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['panorama_ids'])) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['topography_ids'])) {
+                    $num += 1;
+                }
+                if ($artworkData['category'] != -1 || !empty($c) || !empty($artworkData['subject_ids']) || !empty($s) || !empty($artworkData['style_ids']) || !empty($s2)) {
+                    $num += 1;
+                }
+                if (!empty($artworkData['story'])) {
+                    $num += 1;
+                }
+                $percent = round($num / 8 * 100); //计算百分比
+            }
+        } else {
+            $percent = 0;
+        }
+
+        $list = empty($upRecord) ? [] : $upRecord;
+        $artwork = [
+            'percent' => $percent,
+            'color_status' => $color_status,
+            'shape_status' => $shape_status,
+            'size_status' => $size_status,
+            'tag_status' => trim($c['cn_name']) != '' || trim($s['cn_name']) != '' || trim($s2['cn_name']) != '' ? 1 : 0,
+            'story_status' => $story_status,
+            'panorama_status' => $panorama_status,
+            'topography_status' => $topography_status,
+            'cover_status' => $cover_status
+        ];
+        Util::jsonReturn(['status' => 1000, 'info' => $list, 'artwork' => $artwork]);
+    }
+
+    //添加创作属性
+    public function addArtworkAttribute()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+
+        $artworkId = I('post.artworkId', '', 'number_int'); //艺术品id
+        $artworkName = trim(I('post.artworkName')); //艺术品名称
+        $state = I('post.state', 1, 'number_int'); //1.所有人可见 2.仅自己可见
+        $color_ids = I('post.color', ''); //色调
+        $shape = I('post.shape', 1); //类型 1.方形 2.圆形
+        $length = I('post.length', 0); //长
+        $width = I('post.width', 0); //宽
+        $diameter = I('post.diameter', 0); //直径
+        $panorama_ids = trim(I('post.panorama', '')); //全景图
+        $topography_ids = I('post.topography', ''); //局部图
+        $category = I('post.category', -1); //类别
+        $subject = I('post.subject', ''); //题材
+        $style = I('post.style', ''); //风格
+        $story = I('post.story', ''); //创作描述
+        $artwork_date = strtotime(I('post.artwork_date') . '-01-01'); //作品创作年份
+        $cover = trim(I('post.cover', '')); //封面
+        $series_id = intval(I('post.series_id', '0')); //画作系列id
+
+        $artworkModel = M('Artwork'); //实例化画作表
+        $cusModel = M('ArtzheCustom');
+
+        if (intval($artworkId) == 0) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'artworkId不能为空');
+            exit();
+        }
+
+        $length = floatval($length);
+        $width = floatval($width);
+        $diameter = floatval($diameter);
+
+        $Artworkinfo = $artworkModel->where(['id' => $artworkId, 'artist' => $userId])->find();
+        if (!$Artworkinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+
+        $artworkData = [
+            'name' => $artworkName,
+            'state' => $state,
+            'color_ids' => $color_ids, //色调
+            'shape' => $shape, //形状
+            'length' => $length, //长
+            'width' => $width, //宽
+            'diameter' => $diameter, //直径
+            'panorama_ids' => $panorama_ids, //全景图
+            'topography_ids' => $topography_ids, //局部图
+            'story' => $story, //创作描述
+            'last_update_time' => time(), //最后一次更新时间
+            'artwork_date' => $artwork_date,//作品创作日期
+            'series_id' => $series_id,//画作系列id
+        ];
+
+        $recommendLogic = new RecommendLogic(); //实例化推荐逻辑
+        $res = M('ArtworkWeight')->where(['artist' => $userId, 'artwork_id' => $artworkId])->find();
+        //属性完整度达到100，就放进推荐列表    --------------20170806任何时候都保存进权重表，不需要100%
+        if (empty($res)) {
+            $recommendLogic->addArtwork($artworkId);
+        }
+
+        $a = $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 1])->find();
+        $b = $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 2])->find();
+        $c = $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 3])->find();
+
+        /* $cat = [
+             1 => '油画',
+             2 => '水彩',
+             3 => '插画',
+             4 => '素描',
+             5 => '工笔',
+             6 => '国画',
+             7 => '版画',
+             8 => '漆画',
+             9 => '丙烯',
+             10 => '其它',
+             11 => '雕塑',
+         ];*/
+
+        //保存画作类别标签，（自定义标签表和画作表）
+        $cat = [];
+        $artworkCategoryModel = new ArtworkCategoryModel();
+        $categoryTag = $artworkCategoryModel->select();
+        foreach ($categoryTag as $k => $v) {
+            $cat[$v['id']] = $v['cn_name'];
+        }
+        if (!empty($category)) {
+            $zl = strpos($category, "，") !== false ? str_replace("，", ",", $category) : $category;
+            if (empty($a)) {
+                $cusData = [
+                    'uid' => $userId,
+                    'artworkid' => $artworkId,
+                    'cn_name' => $zl,
+                    'type' => 1,
+                    'create_time' => time()
+                ];
+                $cusModel->add($cusData);
+            } else {
+                $cusData = [
+                    'cn_name' => $zl
+                ];
+                $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 1])->save($cusData);
+            }
+
+            $ca = trim($zl, ',');
+            $arr = explode(',', $ca);
+
+            $temp = '';
+            for ($i = 0; $i < count($arr); $i++) {
+                if ($arr[$i] == $cat[1]) {
+                    $temp .= '1' . ',';
+                }
+                if ($arr[$i] == $cat[2]) {
+                    $temp .= '2' . ',';
+                }
+                if ($arr[$i] == $cat[3]) {
+                    $temp .= '3' . ',';
+                }
+                if ($arr[$i] == $cat[4]) {
+                    $temp .= '4' . ',';
+                }
+                if ($arr[$i] == $cat[5]) {
+                    $temp .= '5' . ',';
+                }
+                if ($arr[$i] == $cat[6]) {
+                    $temp .= '6' . ',';
+                }
+                if ($arr[$i] == $cat[7]) {
+                    $temp .= '7' . ',';
+                }
+                if ($arr[$i] == $cat[8]) {
+                    $temp .= '8' . ',';
+                }
+                if ($arr[$i] == $cat[9]) {
+                    $temp .= '9' . ',';
+                }
+                if ($arr[$i] == $cat[10]) {
+                    $temp .= '10' . ',';
+                }
+                if ($arr[$i] == $cat[11]) {
+                    $temp .= '11' . ',';
+                }
+            }
+
+            $cat = trim($temp, ',');
+
+            if (!empty($cat)) {
+                $artworkData['category'] = $cat;
+            } else {
+                $artworkData['category'] = 10;
+                // $artworkData = 10;
+            }
+            //M('Artwork')->where(['id' => $artworkId])->save($data);
+        } else {
+            $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 1])->save(['cn_name' => '']);//没提交清空内容
+        }
+        //保存画作题材标签（自定义标签表）
+        if (!empty($subject)) {
+            $zt = strpos($subject, "，") !== false ? str_replace("，", ",", $subject) : $subject;
+            if (empty($b)) {
+                $cusData = [
+                    'uid' => $userId,
+                    'artworkid' => $artworkId,
+                    'cn_name' => $zt,
+                    'type' => 2,
+                    'create_time' => time()
+                ];
+                $cusModel->add($cusData);
+            } else {
+                $cusData = [
+                    'cn_name' => $zt
+                ];
+                $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 2])->save($cusData);
+            }
+        } else {
+            $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 2])->save(['cn_name' => '']);
+        }
+        //保存画作类别标签（自定义标签表）
+        if (!empty($style)) {
+            $fg = strpos($style, "，") !== false ? str_replace("，", ",", $style) : $style;
+            if (empty($c)) {
+                $cusData = [
+                    'uid' => $userId,
+                    'artworkid' => $artworkId,
+                    'cn_name' => $fg,
+                    'type' => 3,
+                    'create_time' => time()
+                ];
+                $cusModel->add($cusData);
+            } else {
+                $cusData = [
+                    'cn_name' => $fg
+                ];
+                $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 3])->save($cusData);
+            }
+        } else {
+            $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 3])->save(['cn_name' => '']);
+        }
+
+        $artworkData['cover'] = $cover;//封面
+
+        //计算画作属性百分比
+        $category = $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 1])->find();
+        $subject = $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 2])->find();
+        $style = $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 3])->find();
+        $artworklogic = new ArtworkLogic();
+        $rownum = $artworkModel->where(['id' => $artworkId])->save($artworkData);
+
+
+        $Artworkinfo = $artworkModel->where(['id' => $artworkId, 'artist' => $userId])->find();
+        $percent = $artworklogic->countAttributePercent($Artworkinfo, $category, $subject, $style);
+
+        //更新属性百分比
+        $newData['finish_percent'] = $percent;//完成百分百
+        if ($Artworkinfo['finish_percent'] != 100 && $percent == 100) {
+            $newData['finish_percent_time'] = time();//设置100%时候的时间
+        }
+        $artworkModel->where(['id' => $artworkId])->save($newData);
+
+        if ($rownum > 0) {
+            //M('User')->where(['id' => $this->loginUserId])->setInc('art_total',1);
+            Util::jsonReturn(['status' => 1000, 'percent' => $percent]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '操作失败');
+        }
+    }
+
+    //获取可编辑的作品列表
+    public function getArtWorkListByAuthor()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+
+        //获取登录艺术者所有可编辑的作品列表
+        $data = M('artwork')->field('id,name')->where(['artist' => $userId, 'is_deleted' => 'N', 'is_finished' => 'N'])->order('last_update_time DESC')->select();
+
+        $list = empty($data) ? [] : $data;
+        Util::jsonReturn(['status' => 1000, 'info' => ['list' => $list]]);
+    }
+
+    //获取编辑草稿箱或编辑创作记录
+    public function getEditRecordContent()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+
+        $artworkUpdateId = I('post.artworkUpdateId'); //艺术品更新id
+        $drafId = I('post.drafId'); //草稿箱Id
+
+        $artworkUpdateModel = M('ArtworkUpdate'); //实例化更新记录表
+        $draftModel = M('ArtworkDraft'); //实例化草稿箱表
+        $customModel = M('ArtzheCustom');
+
+        $record = [];
+        if (!empty($artworkUpdateId)) {
+            //获取更新记录详情
+            $upInfo = $artworkUpdateModel->field('id,title,artist,artwork_id,number,wit,cover,summary,create_date')->find($artworkUpdateId);
+            $artworkInfo = M('Artwork')->field('name')->find($upInfo['artwork_id']);
+            $tag = $customModel->field('cn_name')->where(['uid' => $userId, 'artworkid' => $upInfo['artwork_id'], 'type' => 4])->find();
+
+            if (empty($upInfo)) {
+                $record = [];
+            } else {
+                $vowels = array("\r\n", "\n", "\r", "\t");
+                $wit = str_replace($vowels, "<br>", html_entity_decode($upInfo['wit'], ENT_QUOTES, 'UTF-8'));
+
+                $artwork_name = trim($artworkInfo['name']);
+                if (preg_match("/《(.*)》/", $artwork_name)) {
+                    $artwork_name = ' ' . $artwork_name . ' ';//trim($artwork_name,'《》');
+                } else {
+                    $artwork_name = '《' . $artwork_name . '》';
+                }
+                $title = empty($upInfo['title']) ? $artwork_name . '花絮' : $upInfo['title']; //作品id
+                $record = [
+                    'id' => $upInfo['id'], //更新ID
+                    'title' => $title,//花絮标题
+                    'artist_id' => $upInfo['artist'], //艺术者ID
+                    'artwork_name' => $artworkInfo['name'], //艺术品名称
+                    'artwork_id' => $upInfo['artwork_id'], //艺术品ID
+                    'number' => $upInfo['number'], //更新编号
+                    'wit' => $wit, //创作心路
+                    'summary' => $upInfo['summary'], //摘要
+                    'create_date' => $upInfo['create_date'], //创建日期
+                    'cover' => $upInfo['cover'], //封面
+                    'tag' => empty($tag) ? '' : $tag['cn_name'], //标签
+                    'flag' => 2 //更新记录
+                ];
+            }
+        }
+
+        if (!empty($drafId)) {
+            //获取草稿箱记录详情
+            $draftInfo = $draftModel->field('id,title,artist_id,artwork_id,artname,number,wit,create_date,cover,tag,story')->find($drafId);
+            if (empty($draftInfo)) {
+                $record = [];
+            } else {
+                $artwork_name = trim($draftInfo['artname']);
+                if (preg_match("/《(.*)》/", $artwork_name)) {
+                    $artwork_name = ' ' . $artwork_name . ' ';//trim($artwork_name,'《》');
+                } else {
+                    $artwork_name = '《' . $artwork_name . '》';
+                }
+                $title = empty($draftInfo['title']) ? $artwork_name . '花絮' : $draftInfo['title']; //作品id
+                $record = [
+                    'id' => $draftInfo['id'], //草稿箱ID
+                    'title' => $title,//花絮标题
+                    'artist_id' => $draftInfo['artist_id'], //艺术者ID
+                    'artwork_name' => $draftInfo['artname'], //艺术品名称
+                    'artwork_id' => $draftInfo['artwork_id'], //艺术品ID
+                    'number' => $draftInfo['number'], //更新编号
+                    'wit' => html_entity_decode($draftInfo['wit'], ENT_QUOTES, 'UTF-8'), //创作心路
+                    'summary' => empty($draftInfo['story']) ? '' : $draftInfo['story'], //摘要
+                    'create_date' => $draftInfo['create_date'], //创建日期
+                    'cover' => empty($draftInfo['cover']) ? '' : $draftInfo['cover'], //封面
+                    'tag' => empty($draftInfo['tag']) ? '' : $draftInfo['tag'], //标签
+                    'flag' => 1 //更新记录
+                ];
+            }
+        }
+
+        $list = empty($record) ? [] : $record;
+
+        Util::jsonReturn(['status' => 1000, 'info' => $list]);
+    }
+
+    //获取画作属性完整度百分比（详细信息）
+    public function getAttributePercent()
+    {
+        $artworkId = I('post.artworkId', '', 'number_int'); //艺术品id
+        $info = $this->getArtworkAttribute($artworkId);
+        if (!empty($info)) {
+            Util::jsonReturn(['status' => 1000, 'info' => $info['info'], 'percent' => $info['percent']]);
+        } else {
+            Util::jsonReturn(['status' => 1000, 'info' => [], 'percent' => 0]);
+        }
+    }
+
+    //获取画作属性百分比(完成状态统计)
+    public function getAttributeAll()
+    {
+        $this->checkLogin();
+        $artId = I('post.artId', '', 'number_int'); //艺术品id
+
+        $artInfo = M('Artwork')->field('name,category,finish_percent,story,color_ids,shape,length,width,diameter,panorama_ids,topography_ids,state,cover,artwork_date')
+            ->where(['id' => intval($artId), 'artist' => $this->loginUserId])
+            ->find();
+
+        if (!$artInfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'No record');
+        }
+
+        //状态
+        $color_status = trim($artInfo['color_ids']) != '' ? 1 : 0;
+        $shape_status = $artInfo['shape'] == 1 || $artInfo['shape'] == 2 ? 1 : 0;
+        $size_status = 0;
+        if ($artInfo['shape'] == 1) {
+            $size_status = $artInfo['length'] > 0 && $artInfo['width'] > 0 ? 1 : 0;
+        } elseif ($artInfo['shape'] == 2) {
+            $size_status = $artInfo['diameter'] > 0 ? 1 : 0;
+        }
+
+        $story_status = trim($artInfo['story']) != '' ? 1 : 0;
+        $panorama_status = trim($artInfo['panorama_ids']) != '' ? 1 : 0;
+        $topography_status = trim($artInfo['topography_ids']) != '' ? 1 : 0;
+        $cover_status = trim($artInfo['cover']) != '' ? 1 : 0;
+        $artwork_date_status = trim($artInfo['artwork_date']) != '' ? 1 : 0;
+        //状态 end
+
+        $artworkModel = M('Artwork'); //实例化艺术者画作表
+        $artcusModel = M('ArtzheCustom'); //实例化自定义表
+
+        $artworkData = $artworkModel->field('id,name,state,color_ids,shape,length,width,diameter,cover,panorama_ids,topography_ids,category,subject_ids,style_ids,story,artwork_date')->find($artId);
+        $c = $artcusModel->field('cn_name')->where(['artworkid' => $artId, 'type' => '1'])->find();
+        $s = $artcusModel->field('cn_name')->where(['artworkid' => $artId, 'type' => '2'])->find();
+        $s2 = $artcusModel->field('cn_name')->where(['artworkid' => $artId, 'type' => '3'])->find();
+
+        //计算画作属性百分比
+        $artworklogic = new ArtworkLogic();
+        $percent = $artworklogic->countAttributePercent($artworkData, $c, $s, $s2);
+
+        $artwork = [
+            'percent' => $percent,
+            'color_status' => $color_status,
+            'shape_status' => $shape_status,
+            'size_status' => $size_status,
+            'tag_status' => trim($c['cn_name']) != '' || trim($s['cn_name']) != '' || trim($s2['cn_name']) != '' ? 1 : 0,
+            'story_status' => $story_status,
+            'panorama_status' => $panorama_status,
+            'topography_status' => $topography_status,
+            'cover_status' => $cover_status,
+            'artwork_date' => $artwork_date_status,
+        ];
+        Util::jsonReturn(['status' => 1000, 'artwork' => $artwork]);
+    }
+
+
+    //PC端保存画作名字和权限
+    public function saveArtistBaseInfo()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+
+        $artworkId = I('post.artworkId', '', 'number_int'); //艺术品id
+        $artworkName = I('post.artworkName'); //艺术品名称
+        $state = I('post.state', 1, 'number_int'); //1.所有人可见 2.仅自己可见
+
+        $baseData = [
+            'name' => $artworkName,
+            'state' => $state,
+        ];
+
+        M('Artwork')->where(['id' => $artworkId, 'artist' => $userId])->save($baseData);
+        Util::jsonReturn(['status' => 1000]);
+    }
+
+    //PC端保存画作权限
+    public function changeState()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+
+        $artworkId = I('post.artworkId', '', 'number_int'); //艺术品id
+        $state = I('post.state', 1, 'number_int'); //1.所有人可见 2.仅自己可见
+
+        $baseData = [
+            'state' => $state,
+        ];
+
+        M('Artwork')->where(['id' => $artworkId, 'artist' => $userId])->save($baseData);
+        Util::jsonReturn(['status' => 1000]);
+    }
+
+    //添加新画作
+    public function addArtworkInfo()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+
+        $artworkName = trim(I('post.artworkName')); //艺术品名称
+        $state = I('post.state', 1, 'number_int'); //1.所有人可见 2.仅自己可见
+        $color_ids = I('post.color', ''); //色调
+        $shape = I('post.shape', 1); //类型 1.方形 2.圆形
+        $length = I('post.length', 0); //长
+        $width = I('post.width', 0); //宽
+        $diameter = I('post.diameter', 0); //直径
+        $panorama_ids = trim(I('post.panorama', '')); //全景图
+        $topography_ids = I('post.topography', ''); //局部图
+        $category = I('post.category', -1); //类别
+        $subject = I('post.subject', ''); //题材
+        $style = I('post.style', ''); //风格
+        $story = I('post.story', ''); //创作描述
+        $artwork_date = strtotime(I('post.artwork_date') . '-01-01'); //作品创作年份
+        $cover = trim(I('post.cover', '')); //封面
+        $series_id = intval(I('post.series_id', '0')); //画作系列id
+
+        if (empty($artworkName)) {
+            Util::jsonReturn(null, Code::SYS_ERR, '请添加画作名称');
+        }
+
+        $artworkModel = M('Artwork'); //实例化画作表
+        $cusModel = M('ArtzheCustom');
+
+        $length = floatval($length);
+        $width = floatval($width);
+        $diameter = floatval($diameter);
+
+        $artworkData = [
+            'artist' => $userId, //艺术家ID
+            'name' => $artworkName,
+            'state' => $state,
+            'color_ids' => $color_ids, //色调
+            'shape' => $shape, //形状
+            'length' => $length, //长
+            'width' => $width, //宽
+            'diameter' => $diameter, //直径
+            'panorama_ids' => $panorama_ids, //全景图
+            'topography_ids' => $topography_ids, //局部图
+            'story' => $story, //创作描述
+            'create_time' => time(), //作品添加时间
+            'last_update_time' => time(), //最后一次更新时间
+            'update_times' => 0, //更新次数
+            'artwork_date' => $artwork_date,//作品创作日期
+            'cover' => $cover,//封面
+            'series_id' => $series_id,//画作系列id
+        ];
+
+        //保存画作类别标签，（自定义标签表和画作表）
+        $cat = [];
+        $artworkCategoryModel = new ArtworkCategoryModel();
+        $categoryTag = $artworkCategoryModel->select();
+        foreach ($categoryTag as $k => $v) {
+            $cat[$v['id']] = $v['cn_name'];
+        }
+        $zl = strpos($category, "，") !== false ? str_replace("，", ",", $category) : $category;
+        $ca = trim($zl, ',');
+        $arr = explode(',', $ca);
+        $temp = '';
+        for ($i = 0; $i < count($arr); $i++) {
+            if ($arr[$i] == $cat[1]) {
+                $temp .= '1' . ',';
+            }
+            if ($arr[$i] == $cat[2]) {
+                $temp .= '2' . ',';
+            }
+            if ($arr[$i] == $cat[3]) {
+                $temp .= '3' . ',';
+            }
+            if ($arr[$i] == $cat[4]) {
+                $temp .= '4' . ',';
+            }
+            if ($arr[$i] == $cat[5]) {
+                $temp .= '5' . ',';
+            }
+            if ($arr[$i] == $cat[6]) {
+                $temp .= '6' . ',';
+            }
+            if ($arr[$i] == $cat[7]) {
+                $temp .= '7' . ',';
+            }
+            if ($arr[$i] == $cat[8]) {
+                $temp .= '8' . ',';
+            }
+            if ($arr[$i] == $cat[9]) {
+                $temp .= '9' . ',';
+            }
+            if ($arr[$i] == $cat[10]) {
+                $temp .= '10' . ',';
+            }
+            if ($arr[$i] == $cat[11]) {
+                $temp .= '11' . ',';
+            }
+        }
+        $cat = trim($temp, ',');
+        if (!empty($cat)) {
+            $artworkData['category'] = $cat;
+        } else {
+            $artworkData['category'] = 10;
+        }
+
+        $artworkId = $artworkModel->add($artworkData);
+        if (!$artworkId) {
+            Util::jsonReturn(null, Code::SYS_ERR, '操作失败');
+        }
+        $recommendLogic = new RecommendLogic(); //实例化推荐逻辑
+        $recommendLogic->addArtwork($artworkId);
+
+        $cusData = [
+            'uid' => $userId,
+            'artworkid' => $artworkId,
+            'cn_name' => empty($zl)?'':$zl,
+            'type' => 1,
+            'create_time' => time()
+        ];
+        $cusModel->add($cusData);
+
+        //保存画作题材标签（自定义标签表）
+        $zt = strpos($subject, "，") !== false ? str_replace("，", ",", $subject) : $subject;
+        $cusData = [
+            'uid' => $userId,
+            'artworkid' => $artworkId,
+            'cn_name' => empty($zt)?'':$zt,
+            'type' => 2,
+            'create_time' => time()
+        ];
+        $cusModel->add($cusData);
+
+        //保存画作类别标签（自定义标签表）
+        $fg = strpos($style, "，") !== false ? str_replace("，", ",", $style) : $style;
+        $cusData = [
+            'uid' => $userId,
+            'artworkid' => $artworkId,
+            'cn_name' => empty($fg)?'':$fg,
+            'type' => 3,
+            'create_time' => time()
+        ];
+        $cusModel->add($cusData);
+
+
+        //计算画作属性百分比
+        $category = $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 1])->find();
+        $subject = $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 2])->find();
+        $style = $cusModel->where(['uid' => $userId, 'artworkid' => $artworkId, 'type' => 3])->find();
+        $artworklogic = new ArtworkLogic();
+        $Artworkinfo = $artworkModel->where(['id' => $artworkId, 'artist' => $userId])->find();
+        $percent = $artworklogic->countAttributePercent($Artworkinfo, $category, $subject, $style);
+
+        //更新属性百分比
+        $newData['finish_percent'] = $percent;//完成百分百
+        if ($Artworkinfo['finish_percent'] != 100 && $percent == 100) {
+            $newData['finish_percent_time'] = time();//设置100%时候的时间
+        }
+        $artworkModel->where(['id' => $artworkId])->save($newData);
+        Util::jsonReturn(['status' => 1000, 'percent' => $percent, 'id' => $artworkId]);
+
+    }
+
+    public function AttributePreview()
+    {
+        $this->checkLogin();
+
+        $artworkId = I('post.artworkId'); //艺术品id
+
+        $artworkLogic = new ArtworkLogic();
+        $userLogic = new UserLogic();
+
+        $artworkResult = $artworkLogic->field('artist,view_total')->where(['id' => intval($artworkId), 'artist' => $this->loginUserId])->find();
+        $userResult = $userLogic->field('nickname,face,follower_total,art_total,gender')->where(['id' => intval($artworkResult['artist'])])->find();
+
+        if ($artworkResult && $userResult) {
+            $userInfo = [
+                'nickname' => trim($userResult['nickname']),
+                'face' => Util::getImageResize($userResult['face'], Image::faceWidth, Image::faceHeight),
+                'follower_total' => (int)$userResult['follower_total'],
+                'art_total' => (int)$userResult['art_total'],
+                'gender' => (int)$userResult['gender'],
+            ];
+            $artworkInfo = [
+                'view_total' => (int)$artworkResult['view_total'],
+            ];
+            $info = [
+                'ArtworkInfo' => $artworkInfo,
+                'UserInfo' => $userInfo,
+            ];
+            Util::jsonReturn(['status' => 1000, 'info' => $info]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'No record');
+        }
+    }
+
+    //获取画作标签：类别标签+题材标签+风格标签
+    public function getArtworkTag()
+    {
+        //画作类别标签
+        $artworkCategoryLogic = new ArtworkCategoryLogic();
+        $category = $artworkCategoryLogic->getCategoryTagList();
+        //画作题材标签
+        $artworkSubjectModel = new ArtworkSubjectModel();
+        $subject = $artworkSubjectModel->getList();
+        //画作风格标签
+        $artworkStyleModel = new ArtworkStyleModel();
+        $style = $artworkStyleModel->getList();
+
+        $info['category'] = $category;
+        $info['subject'] = $subject;
+        $info['style'] = $style;
+        Util::jsonReturn(['status' => 1000, 'info' => $info]);
+    }
+
+    //获取创作记录标签
+    public function getUpdateTag()
+    {
+        $artworkUpdateTagModel = new ArtworkUpdateTagModel();
+        $list = $artworkUpdateTagModel->getList();
+        Util::jsonReturn(['status' => 1000, 'info' => $list]);
+    }
+
+    //获取艺术家(已登录)可关联作品列表
+    public function getRelationArtwoks()
+    {
+        $this->checkLogin();
+        $userid = $this->loginUserId; //用户登录ID
+        $userid = empty($userid) ? 0 : $userid;
+
+        $artworkLogic = new ArtworkLogic();
+        $list = $artworkLogic->getRelationList($userid);
+        Util::jsonReturn(['status' => 1000, 'info' => $list]);
+    }
+
+
+    /**
+     *保存文章到临时草稿箱
+     *1.临时保存文章（花絮和艺术号），填写标题和内容页面，点击“继续”时保存。
+     *2.每个用户（可发表花絮或艺术号的用户）只能保存一条临时草稿。
+     */
+    public function addArticleToDraft()
+    {
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+
+        $title = I('post.title', ''); //文章标题
+        $artworkId = I('post.artworkId', -1, 'number_int'); //艺术品ID
+        $wit = trim(I('post.wit', '')); //文章内容
+
+        $wit = htmlentities($wit, ENT_QUOTES, 'UTF-8'); //创作心路
+        $wit = Util::stripHtmlATag($wit); //去掉a标签
+        $wit = Util::cleanSpecific($wit);
+
+        $articleDraftModel = new ArticleDraftModel();
+
+        $data['title'] = empty($title) ? date('Y.m.d') : $title;
+        $data['user_id'] = $userId;
+        $data['artwork_id'] = $artworkId;
+        $data['wit'] = $wit;
+        $data['create_time'] = time();
+
+        /*
+         * 查询草稿箱中用户是否存在草稿,如果不存在，则是新文章；
+         */
+        $where['user_id'] = $userId;
+        $articleDraft = $articleDraftModel->where($where)->find();
+        if (empty($articleDraft)) {//新文章，第一次提交
+            if ($artworkId != -1) {
+                CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+                $Artworkinfo = M('Artwork')->where("id=" . $artworkId . " and artist=" . $userId)->find();
+                if (!$Artworkinfo) {
+                    Util::jsonReturn(null, Code::SYS_ERR, '关联作品不存在');
+                }
+            }
+            $num = $articleDraftModel->add($data);
+        } else {//再次编辑
+            $num = $articleDraftModel->where($where)->save($data);
+        }
+
+        if ($num) {
+            $info = $articleDraftModel->field('id,title,wit,artwork_id')->where($where)->find();
+            $info['artwork_id'] = $info['artwork_id'] == -1 ? '' : $info['artwork_id'];
+            $info['summary'] = html_deconvert_content_cut($info['wit'], 45);
+            //获取内容里面的图片
+            preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $info['wit'], $array);
+            $info['image'] = empty($array[1][0]) ? '' : Util::getImageResize(trim($array[1][0]), 300, 300);
+            //获取更新记录里面的视频
+            preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $info['wit'], $match);
+            $info['video'] = empty($match[1]) ? '' : Util::getImageResize($match[1][0], 300, 300);
+
+            $imgUrls = Util::getHtmlImgSrc($info['wit']);
+            $info['wit'] = $articleDraftModel->replaceHtmlImgSrc($imgUrls, $info['wit']);
+            $info['wit'] = html_entity_decode($info['wit'], ENT_QUOTES);
+
+            Util::jsonReturn(['status' => 1000, 'info' => $info]);
+        } else {
+            Util::jsonReturn(['status' => 1000]);
+        }
+    }
+
+
+    /**
+     * 发布文章（花絮和艺术号）
+     */
+    public function publishArticle()
+    {
+
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+
+        $artworkId = I('post.artworkId'); //艺术品ID
+        $updateId = I('post.updateId'); //艺术品花絮ID
+        $updateDraftId = I('post.updateDraftId'); //草稿箱Id
+
+
+        $title = I('post.title', ''); //文章标题
+        $title = empty($title) ? date('Y.m.d') : $title;
+        $wit = I('post.wit'); //文章内容
+        $wit = htmlentities($wit, ENT_QUOTES, 'UTF-8'); //创作心路
+        $wit = Util::stripHtmlATag($wit); //创作心路
+        $wit = Util::cleanSpecific($wit); //创作心路
+
+        /* preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $wit, $match);
+         if(!empty($match[1])) {//有视频
+             $cover = $match[1][0];
+         }else{
+             preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+             $cover = empty($array[1]) ? '' : $array[1][0];
+         }*/
+
+        $articleTag = I('post.articleTag', '');//文章标签
+        $createDate = I('post.createDate'); //原创作记录艺术家选择的创作时间，现在默认是当前日期
+        $shareToArtCircle = I('post.shareToArtCircle'); //是否分享到艺术圈
+
+        $artworkLogic = new ArtworkLogic(); //实例化作品表
+        $userLogic = new UserLogic(); //实例化用户表
+        $artworkUpdateLogic = new ArtworkUpdateLogic();//实例化花絮表
+        $articleLogic = new ArticleLogic();//实例化艺术号文章表
+        $artCircleLogic = new ArtCircleLogic();//实例化艺术圈动态表
+        $artCircleShareLogic = new ArtCircleShareLogic();//实例化艺术圈分享表
+
+        if (empty($artworkId)) {//发布艺术号文章
+            //艺术家 策展人 艺术机构才能发布艺术号
+            if (!$userLogic->isArtist($this->loginUserId) && !$userLogic->isAgency($this->loginUserId) && !$userLogic->isPlann($this->loginUserId)) {
+                Util::jsonReturn(null, Code::SYS_ERR, '没有权限');
+            }
+
+            $thistime = time();
+            //发布文章限制
+            /* $publish_max = 50;
+             $time_from = strtotime(date('Y-m-d'));
+             $time_end = $time_from + 86400;
+             $article_publish = $articleLogic->where('artist=' . $this->loginUserId . ' and status=1 and create_time>=' . $time_from . ' and create_time<' . $time_end)->count();
+             if ($article_publish >= $publish_max) {
+                 Util::jsonReturn(null, Code::SYS_ERR, '你今天已发布了' . $publish_max . '篇文章了');
+             }*/
+            //发布文章限制 end
+            //$content=$this->html_insert_video_screenshot($content);
+            $excerpt =
+            $data = [
+                'artist' => $userId,
+                'status' => 1,
+                'title' => $title,
+                'content' => $wit,
+                'excerpt' => html_deconvert_content_cut($wit, 45),
+                'cover' => '',
+                'tag' => $articleTag,
+                'create_time' => $thistime,
+                'modified_time' => $thistime,
+                'publish_time' => $thistime,
+            ];
+            $articleId = $articleLogic->add($data);
+            //分享到艺术圈
+            if ($shareToArtCircle == 1) {
+                $shareInfo = $artCircleLogic->getShareInfo('art_article', $articleId);
+                if ($shareInfo !== false) {
+                    $artCircleData = [
+                        'type' => ArtCircleModel::TYPE['article'],//13
+                        'address' => '',
+                        'content' => '',
+                        'images_url' => '',
+                        'video_poster' => '',
+                        'video_url' => '',
+                        'user_id' => $userId,
+                        'create_time' => time(),
+                    ];
+                    $artCircleId = $artCircleLogic->add($artCircleData);
+                    $shareInfo['art_circle_id'] = $artCircleId;
+                    $shareId = $artCircleShareLogic->add($shareInfo);
+                }
+            }
+            Util::jsonReturn(['status' => 1000, 'articleId' => $articleId]);
+
+        } else {//发布花絮
+            $insert_Id = -1;
+            if (!empty($updateId)) {//编辑已发布花絮
+                $artworkUpdateinfo = M('ArtworkUpdate')->where("id=" . intval($updateId) . " and artist=" . $userId)->find();
+                $artworkInfo = M('Artwork')->where(['id' => intval($artworkUpdateinfo['artwork_id']), 'artist' => $userId])->find();
+                if (!$artworkUpdateinfo || !$artworkInfo) {
+                    Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+                }
+                if (C('ARTWORK_UPDATE')['EDIT_LOCK_ENABLE'] == 1 && $_SERVER['REQUEST_TIME'] > $artworkUpdateinfo['create_time'] + C('ARTWORK_UPDATE')['EDIT_LOCK_TIME']) {
+                    Util::jsonReturn(null, Code::SYS_ERR, '已经超过可编辑时间，不能修改');
+                }
+
+                $artwork_id = $artworkUpdateinfo['artwork_id'];
+                //保存创作记录
+                $artworkUpdateData = [
+                    'title' => $title,
+                    'wit' => $wit, //创作心路
+                    'create_date' => empty($createDate) ? date('Y-m-d') : $createDate, //创建日期
+                    'last_update_time' => time(), //上次更新时间
+                ];
+                //更新画作信息
+                $artwrokData = [
+                    'last_update_time' => time(),
+                ];
+
+                if (trim($artworkInfo['cover']) == '' && trim($artworkInfo['panorama_ids']) == '') {//作品没有封面和全局图，抽取内容的第一张图做封面
+                    preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+                    $first_pic = trim($array[1][0]);
+                    if ($first_pic != '') {
+                        $artwrokData['cover'] = $first_pic;
+                    }
+                }
+                //更新作品信息
+                $artworkLogic->ArtUpdate($artwrokData, $artwork_id);
+                $num = $artworkUpdateLogic->update($updateId, $artworkUpdateData);
+                if ($num) {
+                    $thistime = time();
+                    $userLogic->where(['id' => $this->loginUserId])->save(['last_update_time' => $thistime]); //艺术者最后更新作品时间
+                    $insert_Id = $updateId;
+                }
+
+            } elseif (!empty($updateDraftId)) {//编辑草稿花絮
+                $artworkDraftInfo = M('ArtworkDraft')->where("id=" . intval($updateDraftId) . " and artist_id=" . $userId)->find();
+                $artworkInfo = M('Artwork')->where(['id' => intval($artworkDraftInfo['artwork_id']), 'artist' => $userId])->find();
+                if (!$artworkDraftInfo || !$artworkInfo) {
+                    Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+                }
+
+                $artwork_id = $artworkDraftInfo['artwork_id'];
+                M('ArtworkDraft')->delete($updateDraftId);
+                $updateNumber = $artworkLogic->getUpdateNumber($artwork_id); //获取某艺术品更新次数
+                $updateNumber = empty($updateNumber) ? 0 : $updateNumber;
+                $updateNumber++;
+
+                //添加创作记录
+                $artworkUpdateData = [
+                    'title' => $title,
+                    'artist' => $userId, //登录的用户ID(即艺术者ID)
+                    'artwork_id' => $artwork_id, //艺术品ID
+                    'number' => $updateNumber, //更新次数
+                    'wit' => $wit, //创作心路
+                    'create_date' => empty($createDate) ? date('Y-m-d') : $createDate, //创建日期
+                    'create_time' => time(), //创建时间
+                    'last_update_time' => time(), //上次更新时间
+                ];
+
+                //更新画作信息
+                $artwrokData = [
+                    'update_times' => $updateNumber, //更新次数
+                    'last_update_time' => time(),
+                ];
+
+                if (trim($artworkInfo['cover']) == '' && trim($artworkInfo['panorama_ids']) == '') {//作品没有封面和全局图，抽取内容的第一张图做封面
+                    preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+                    $first_pic = trim($array[1][0]);
+                    if ($first_pic != '') {
+                        $artwrokData['cover'] = $first_pic;
+                    }
+                }
+
+                //更新作品信息
+                $artworkLogic->ArtUpdate($artwrokData, $artwork_id);
+                $num = $artworkUpdateLogic->addOne($artworkUpdateData); //添加一条创作记录
+                if ($num) {
+                    $insert_Id = $num;
+                    $thistime = time();
+                    $userLogic->where(['id' => $userId])->save(['last_add_artupdate_time' => $thistime, 'last_add_artupdate_artid' => $artworkId]);
+                    $messageLogic = new MessageLogic();
+                    $messageLogic->artworkUpdate($artwork_id);
+                }
+
+            } else {//发布新的花絮
+                $artworkInfo = M('Artwork')->where(['id' => intval($artworkId), 'artist' => $userId])->find();
+                if (!$artworkInfo) {
+                    Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+                }
+
+                //判断该作品单次更新的最新的一个wit内容是否相同，不同就添加，避免多次提交
+                $lastArtworkUpdate = $artworkUpdateLogic->field('wit,summary')->where('artwork_id=' . intval($artworkId) . ' and artist=' . $userId)->order('id desc')->find();
+                if (trim($lastArtworkUpdate['wit']) == trim($wit)) {
+                    Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                }
+
+                $updateNumber = $artworkLogic->getUpdateNumber($artworkId); //获取某艺术品更新次数
+                $updateNumber = empty($updateNumber) ? 0 : $updateNumber;
+                $updateNumber++;
+
+                //更新画作信息
+                $artwrokData = [
+                    'update_times' => $updateNumber, //更新次数
+                    'last_update_time' => time(),
+                ];
+
+                if (trim($artworkInfo['cover']) == '' && trim($artworkInfo['panorama_ids']) == '') {//作品没有封面和全局图，抽取内容的第一张图做封面
+                    preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+                    $first_pic = trim($array[1][0]);
+                    if ($first_pic != '') {
+                        $artwrokData['cover'] = $first_pic;
+                    }
+                }
+
+                //更新作品信息
+                $artworkLogic->ArtUpdate($artwrokData, $artworkId);
+                $messageLogic = new MessageLogic();
+                $messageLogic->artistUpdate($artworkId);
+
+                //添加创作记录
+                $artworkUpdateData = [
+                    'title' => $title,
+                    'artist' => $userId, //登录的用户ID(即艺术者ID)
+                    'artwork_id' => $artworkId, //艺术品ID
+                    'number' => $updateNumber, //更新次数
+                    'wit' => $wit, //创作心路
+                    'create_date' => empty($createDate) ? date('Y-m-d') : $createDate, //创建日期
+                    'create_time' => time(), //创建时间
+                    'last_update_time' => time(), //上次更新时间
+                ];
+
+                $num = $artworkUpdateLogic->addOne($artworkUpdateData); //添加一条创作记录
+                if ($num) {
+                    $insert_Id = $num;
+                    $thistime = time();
+                    $userLogic->where(['id' => $userId])->save(['last_update_time' => $thistime, 'last_add_artupdate_time' => $thistime, 'last_add_artupdate_artid' => $artworkId]); //艺术者最后更新作品时间
+                    $messageLogic = new MessageLogic();
+                    $messageLogic->artworkUpdate($artworkId);
+                }
+
+            }
+
+            if ($num) {//发布成功
+                //添加花絮标签
+                $map['uid'] = $userId;
+                $map['artworkid'] = $artworkId;
+                $map['type'] = 4;
+                $res = M('ArtzheCustom')->where($map)->find();
+                if (!empty($articleTag)) {
+                    if (empty($res)) {
+                        $customData = [
+                            'uid' => $userId, //用户ID
+                            'artworkid' => $artworkId, //艺术品ID
+                            'cn_name' => $articleTag, //用户自定义标签
+                            'type' => 4, //4表示标签
+                            'create_time' => time() //添加时间
+                        ];
+                        M('ArtzheCustom')->add($customData);
+                    } else {
+                        $customData = [
+                            'cn_name' => $articleTag, //用户自定义标签
+                        ];
+                        M('ArtzheCustom')->where(['id' => $res['id']])->save($customData);
+                    }
+                }
+
+                //分享到艺术圈
+                if ($shareToArtCircle == 1) {
+                    $shareInfo = $artCircleLogic->getShareInfo('artwork_update', $insert_Id);
+                    if ($shareInfo !== false) {
+                        $artCircleData = [
+                            'type' => ArtCircleModel::TYPE['update'],//12
+                            'address' => '',
+                            'content' => '',
+                            'images_url' => '',
+                            'video_poster' => '',
+                            'video_url' => '',
+                            'user_id' => $userId,
+                            'create_time' => time(),
+                        ];
+                        $artCircleId = $artCircleLogic->add($artCircleData);
+                        $shareInfo['art_circle_id'] = $artCircleId;
+                        $shareId = $artCircleShareLogic->add($shareInfo);
+                    }
+                }
+            }
+
+            //返回分享数据
+            $userInfo = M('user')->field('face,nickname,motto')->find($userId);
+            $artInfo = $artworkLogic->where(['id' => intval($artworkId), 'is_deleted' => 'N'])->find();
+
+            //封面图片判断,优先全局图>封面图>内容里面的图
+            if (trim($artInfo['panorama_ids']) != '') {
+                $images = explode(',', $artInfo['panorama_ids']);
+                $cover = $images[0];
+            } elseif (trim($artInfo['cover']) != '') {
+                $cover = $artInfo['cover'];
+            } else {
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $wit, $array);
+                $first_pic = trim($array[1][0]);
+                $cover = $first_pic;
+            }
+
+            $share['face'] = Util::getImageResize($userInfo['face'], Image::faceWidth, Image::faceHeight);
+            $share['name'] = $userInfo['nickname'];
+            $share['category'] = $articleTag;
+            $share['cover'] = trim($cover) == '' ? '' : Util::getImageResize($cover, Image::recommendListWidth, Image::recommendListHeight);
+            $share['link'] = C('m_site') . '/artwork/update/' . $insert_Id;
+            $share['motto'] = empty($userInfo['motto']) ? "" : $userInfo['motto'];
+
+            $artwork_name = trim($artInfo['name']);
+            if (preg_match("/《(.*)》/", $artwork_name)) {
+                $artwork_name = ' ' . $artwork_name . ' ';//trim($artwork_name,'《》');
+            } else {
+                $artwork_name = '《' . $artwork_name . '》';
+            }
+            $shareTitle = empty($v['title']) ? $artwork_name . '花絮' : $v['title']; //作品id
+            Util::jsonReturn([
+                'status' => 1000,
+                'EditLockEnable' => (int)C('ARTWORK_UPDATE')['EDIT_LOCK_ENABLE'],//0--不限制24小时可编辑，1--限制
+                'shareTitle' => "{$userInfo['nickname']} {$shareTitle}",
+                'shareDesc' => html_deconvert_content_cut($wit, 45),
+                'shareImg' => Util::getFillImage(Util::getImgUrlById(trim($cover) != '' ? $cover : C('SHARE_IMG_DEFAULT')), Image::faceWidth, Image::faceHeight),
+                'shareLink' => C('m_site') . '/artwork/update/' . $insert_Id,
+                'shareInfo' => $share
+            ]);
+        }
+    }
+
+
+    /**
+     * 用于手动更新数据库画作的属性百分比
+     */
+    public function updateArtworkAttribute(){
+        $artworkLogic = new ArtworkLogic();
+        $artworkInfo = $artworkLogic->field('id,finish_percent')->select();
+        foreach ($artworkInfo as $key => $value) {
+            $percent = $artworkLogic->getAttributePercent($value['id']);
+            //更新属性百分比
+            $artwork['finish_percent'] = $percent;//完成百分比
+            if ($artworkInfo['finish_percent'] != 100 && $percent == 100) {
+                $artwork['finish_percent_time'] = time();//设置100%时候的时间
+            }else{
+                $artwork['finish_percent_time'] = 0;//设置100%时候的时间
+            }
+            $artworkLogic->where(['id' => $value['id']])->save($artwork);
+        }
+    }
+
+
+
+    //添加画作系列
+    public function addArtworkSeries()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+        $seriesName = trim(I('post.series_name')); //系列名称
+        if(empty($seriesName)){
+            Util::jsonReturn(null, Code::SYS_ERR, '请输入画作系列名称');
+        }
+        $data=[
+            'artist'=>$userId,
+            'name'=>$seriesName,
+            'create_time'=>time()
+        ];
+        $id = M('artwork_series')->add($data);
+        if($id){
+            Util::jsonReturn(['status' => 1000, 'series_id' => $id, 'series_name' => $seriesName]);
+        }else{
+            Util::jsonReturn(null, Code::SYS_ERR, '添加画作系列失败');
+        }
+
+    }
+
+    //修改画作系列
+    public function editArtworkSeries()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+        $seriesId = intval(I('post.series_id')); //系列id
+        $seriesName = trim(I('post.series_name')); //系列名称
+        if(empty($seriesId) || empty($seriesName)){
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误');
+        }
+        $series = M('artwork_series')->find($seriesId);
+        if(empty($series)){
+            Util::jsonReturn(null, Code::SYS_ERR, '画作系列不存在');
+        }
+        $data=[
+            'name'=>$seriesName,
+        ];
+        $id = M('artwork_series')->where(['id'=>$seriesId])->save($data);
+        if($id){
+            Util::jsonReturn(['status' => 1000, 'series_id' => $id, 'series_name' => $seriesName]);
+        }else{
+            Util::jsonReturn(null, Code::SYS_ERR, '修改画作系列失败');
+        }
+
+    }
+
+    //删除画作系列中的画作
+    public function delSeriesArtwork()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+        $seriesId = intval(I('post.series_id')); //系列id
+        $artworkId = intval(I('post.artwork_id')); //画作id
+        if(empty($seriesId) || empty($artworkId)){
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误');
+        }
+        $series = M('artwork_series')->find($seriesId);
+        if(empty($series)){
+            Util::jsonReturn(null, Code::SYS_ERR, '画作系列不存在');
+        }
+
+        $artwork = M('artwork')->where(['id'=>$artworkId,'artist'=>$userId,'series_id'=>$seriesId])->find();
+        if(empty($artwork)){
+            Util::jsonReturn(null, Code::SYS_ERR, '艺术家该系列的画作不存在');
+        }
+
+        $data=[
+            'series_id'=>0,
+        ];
+        $id = M('artwork')->where(['id'=>$artworkId,'artist'=>$userId])->save($data);
+        if($id){
+            Util::jsonReturn(['status' => 1000, 'artworkId' => $artworkId]);
+        }else{
+            Util::jsonReturn(null, Code::SYS_ERR, '删除画作系列中的画作失败');
+        }
+
+    }
+
+    //获取艺术家的画作系列(简单）
+    public function getArtworkSeries(){
+        //判断用户是否登录
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+        $series = M('artwork_series')->field('id,name')->where(['artist'=>$userId])->order('create_time desc')->select();
+        Util::jsonReturn(['status' => 1000, 'info' => $series]);
+    }
+
+    //获取艺术家的画作系列(分页）
+    public function getArtworkSeriesPage(){
+        //判断用户是否登录
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+        $page = intval(I('post.page',1));
+        $pagesize = intval(I('post.pagesize',10));
+        $series = M('artwork_series')
+            ->field('id,name,create_time')
+            ->where(['artist'=>$userId])
+            ->order('create_time desc')
+            ->page($page,$pagesize)
+            ->select();
+        $total = M('artwork_series')
+            ->where(['artist'=>$userId])
+            ->count();
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1;
+        foreach($series as $key=>$value){
+            $cover='';
+            $artwork = M('artwork')->field('cover')->where(['series_id'=>$value['id'],'is_deleted'=>'N','cover'=>['neq','']])->order('create_time')->find();
+            if($artwork && $artwork['cover']){
+                $cover=$artwork['cover'];
+            }else{
+                $artwork = M('artwork')->field('panorama_ids')->where(['series_id'=>$value['id'],'is_deleted'=>'N','panorama_ids'=>['neq','']])->order('create_time')->find();
+                if($artwork && $artwork['panorama_ids']){
+                    $cover = explode(',',$artwork['panorama_ids'])[0];
+                    $cover = empty($cover)?'':$cover;
+                }
+            }
+            $series[$key]['cover'] = $cover;
+            $series[$key]['create_time'] = date('Y-m-d',$value['create_time']);
+        }
+        $info =  [
+            'list' => empty($series) ? [] : $series,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+        Util::jsonReturn(['status' => 1000, 'info' => $info]);
+    }
+
+    //获取画作系列中艺术家最近添加的画作的画作属性
+    public function getSeriesAttribute(){
+        //判断用户是否登录
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        CheckUserRole($this->loginUserId, 'artist');//验证是否艺术家
+        $seriesId = trim(I('post.series_id')); //系列id
+        $series = M('artwork_series')->where(['artist'=>$userId,'id'=>$seriesId])->find();
+        if(empty($series)){
+            Util::jsonReturn(null, Code::SYS_ERR, '该画作系列不存在');
+        }
+        $artwork = M('artwork')->field('id')->where(['artist'=>$userId,'series_id'=>$seriesId])->order('create_time desc')->find();
+        if($artwork){
+            $info = $this->getArtworkAttribute($artwork['id']);
+            Util::jsonReturn(['status' => 1000, 'info' => $info['info']]);
+        }else{
+            Util::jsonReturn(['status' => 1000, 'info' => []]);
+        }
+    }
+
+
+    //获取画作属性
+    private function getArtworkAttribute($artworkId)
+    {
+        $artworkModel = M('Artwork'); //实例化艺术者画作表
+        $artcusModel = M('ArtzheCustom'); //实例化自定义表
+        $colorModel = M('ArtworkColor'); //实例化色调表
+
+        $artworkData = $artworkModel->field('id,name,state,color_ids,shape,length,width,diameter,panorama_ids,topography_ids,category,subject_ids,style_ids,story,is_finished,cover,artwork_date,series_id')->find($artworkId);
+        $c = $artcusModel->field('cn_name')->where(['artworkid' => $artworkId, 'type' => '1'])->find();
+        $s = $artcusModel->field('cn_name')->where(['artworkid' => $artworkId, 'type' => '2'])->find();
+        $s2 = $artcusModel->field('cn_name')->where(['artworkid' => $artworkId, 'type' => '3'])->find();
+
+        $color = [];
+        if (!empty($artworkData)) {
+            if (!empty($artworkData['color_ids'])) {
+                $map['id'] = ['in', $artworkData['color_ids']];
+                $color = $colorModel->field('id,cn_name')->where($map)->select();
+            }
+            if (!empty($artworkData['panorama_ids'])) {
+                $panorama_img = explode(',', $artworkData['panorama_ids']);
+            } else {
+                $panorama_img = [];
+            }
+            if (!empty($artworkData['topography_ids'])) {
+                $topography_img = explode(',', $artworkData['topography_ids']);
+            } else {
+                $topography_img = [];
+            }
+            if ($artworkData['category'] != -1 || !empty($c)) {
+                $category = empty($c['cn_name']) ? '' : $c['cn_name'];//直接取自定义表
+            } else {
+                $category = '';
+            }
+            if (!empty($artworkData['subject_ids']) || !empty($s)) {
+                $subject = !empty($artworkData['subject_ids']) ? $artworkData['subject_ids'] : $s['cn_name'];
+            } else {
+                $subject = '';
+            }
+            if (!empty($artworkData['style_ids']) || !empty($s2)) {
+                $style = !empty($artworkData['style_ids']) ? $artworkData['style_ids'] : $s2['cn_name'];
+            } else {
+                $style = '';
+            }
+
+            //计算画作属性百分比
+            $artworklogic = new ArtworkLogic();
+            $percent = $artworklogic->countAttributePercent($artworkData, $c, $s, $s2);
+            $series_name= M('artwork_series')->where(['id'=>$artworkData['series_id']])->getField('name');
+
+            $list = [
+                'name' => $artworkData['name'],  //画作名称
+                'state' => $artworkData['state'], //权限 1.所有人可见 2.仅自己可见
+                'cover' => trim($artworkData['cover']),
+                'color_ids' => empty($color) ? [] : $color, //色调
+                'shape' => $artworkData['shape'], //形状 1.方形 2.圆形
+                'length' => $artworkData['length'] <= 0 ? '' : trim(floatval($artworkData['length'])), //长
+                'width' => $artworkData['width'] <= 0 ? '' : trim(floatval($artworkData['width'])), //宽
+                'diameter' => $artworkData['diameter'] <= 0 ? '' : trim(floatval($artworkData['diameter'])), //直径
+                'panorama_ids' => empty($panorama_img) ? [] : $panorama_img, //全景图
+                'topography_ids' => empty($topography_img) ? [] : $topography_img, //局部图
+                'category' => trim($category,','), //类别
+                'subject' => trim($subject,','), //题材
+                'style' => trim($style,','), //风格
+                'story' => empty($artworkData['story']) ? '' : $artworkData['story'], //创作描述
+                'artwork_date' => empty($artworkData['artwork_date']) ? '' : date('Y', $artworkData['artwork_date']),//创作日期
+                'is_finished' => $artworkData['is_finished'], //是否完成更新
+                'series_id' => $artworkData['series_id'], //画作系列id
+                'series_name' => empty($series_name)?'':$series_name, //画作系列名称
+            ];
+
+            return ['info' => $list, 'percent' => $percent];
+        } else {
+            return [];
+        }
+    }
+
+
+
+
+
+    //置顶
+    public function setTop()
+    {
+        $this->checkLogin();
+
+        $artwork_id = I('post.artwork_id');
+        $artworklogic = new ArtworkLogic();
+
+        if(intval($artwork_id)>0){
+            $where['id']=$artwork_id;
+            $where['artist']=$this->loginUserId;
+            $artwork_info=$artworklogic->where($where)->find();
+            if($artwork_info){
+                $where_dis['artist']=$this->loginUserId;
+                $artworklogic-> where($where_dis)->setField('istop','0');
+
+                $where_update['artist']=$this->loginUserId;
+                $where_update['id']=$artwork_id;
+                $artworklogic-> where($where_update)->setField('istop','1');
+            }
+
+            Util::jsonReturn(['status' => 1000]);
+        }else{
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误');
+        }
+
+
+    }
+
+}

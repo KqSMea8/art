@@ -1,0 +1,34 @@
+<?php
+
+namespace V40\Model;
+
+
+use V40\Base\BaseModel;
+//主页-推荐-banner
+class HomeBannerModel extends BaseModel
+{
+    protected $tableName = 'home_banner';
+
+    //获取在线的banner
+    public function getBanner($token){
+        $time = time();
+        $where['up_time']=['elt',$time];
+        $where['down_time']=['gt',$time];
+        $images = $this->field('id,sort,image,type,link,desc')->where($where)->order("sort asc")->select();
+        foreach($images as $key=>$value){
+            if(trim($value['desc']) == '商城'){//商城链接特殊处理
+                $device = M('login_log')->field('user_id,device')->where(['token'=>trim($token)])->order("id desc")->find();
+                if($device && stripos($device['device'],'iphone') !== false){//ios
+                    $images[$key]['link']=htmlspecialchars_decode($value['link']);
+                }else{//android
+                    $images[$key]['link']='';
+                    $images[$key]['type']=0;
+                }
+
+            }else{
+                $images[$key]['link']=htmlspecialchars_decode($value['link']);
+            }
+        }
+        return empty($images) ? [] : $images;
+    }
+}

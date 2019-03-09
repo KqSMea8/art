@@ -1,0 +1,62 @@
+var vmAuth = new Vue({
+  el: '#finished',
+  data: {
+    ruleForm: {
+          name: '',
+          color: '',
+          width: '',
+          height: '',
+          desc: ''       
+    },
+    rules: {
+      name: [{
+        required: true,
+        message: '请填写画作名称',
+        trigger: 'blur'
+      }],
+      color: [{
+        required: true,
+        message: '请填写画作色调',
+        trigger: 'change'
+      }],
+      width: [{
+        required: true,
+        message: '请输入画作长度',
+        trigger: 'blur'
+      }],
+      height: [{
+        required: true,
+        message: '请输入画作宽度',
+        trigger: 'blur'
+      }],
+      desc: [{
+        required: true,
+        message: '请输入画作简介',
+        trigger: 'blur'
+      }],
+    },
+    dialogImageUrl: '',
+    dialogVisible: false
+  },
+  methods: {
+    submitForm: function (formName) {
+      var that = this;
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          
+          this.errorText = 'xxx';
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    handleRemove:function(file, fileList) {
+        console.log(file, fileList);
+      },
+    handlePictureCardPreview:function(file) {
+        this.dialogImageUrl = file.url;
+        this.dialogVisible = true;
+      }
+  }
+});

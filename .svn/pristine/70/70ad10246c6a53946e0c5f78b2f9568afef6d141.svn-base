@@ -1,0 +1,53 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Admin\Logic\AdminLogic;
+use Common\Base\AdminBaseController;
+use Think\Verify;
+
+class AuthController extends AdminBaseController
+{
+    const VERIFY_ID = 'Admin_Auth_login';
+    const  VERIFY_CONFIG = ['seKey'=>'artzhe2017AZ','useZh'=>true, 'length'=>3];
+    //account/password:artzhe2017/gw4KHJKpo5f*Irt
+    public function login()
+    {
+        if ($this->isLogin()) {
+            $this->redirect("Admin/Artist/index");
+        }
+        if (IS_POST) {
+            $account = I('post.account');
+            $password = I('post.password');
+
+            $adminLogic = new AdminLogic();
+            $checkResult = $adminLogic->checkPassword($account, $password);
+            $adminDetail = $adminLogic->getDetailByAccount($account);
+            if ($checkResult === true) {
+                //write user info to session,keep login status
+                cookie('isLogin','1',86400);
+                $this->redirect("Admin/Artist/index");
+            } elseif ($checkResult === -1) {
+                $this->error('账号已经被删除！');
+            } elseif ($checkResult === -2) {
+                $this->error("账号密码不匹配！");
+            } elseif ($checkResult === false) {
+                $this->error("账号不存在！");
+            } else {
+                $this->error("你应该不可能看到我！");
+            }
+        }
+        $this->display();
+    }
+    public function getVerifyCode()
+    {
+        $verify = new Verify(self::VERIFY_CONFIG);
+        $verify->entry(self::VERIFY_ID);
+    }
+    public function logout()
+    {
+        cookie('isLogin',null);
+        $this->redirect('Admin/Auth/login');
+    }
+}

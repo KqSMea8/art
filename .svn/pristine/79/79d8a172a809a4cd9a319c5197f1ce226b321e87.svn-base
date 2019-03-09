@@ -1,0 +1,21 @@
+<?php
+namespace Home\Controller;
+
+use Think\Controller;
+use Custom\Helper\Util;
+use Common\Logic\UserStatisticsLogic;
+
+class StatisticsController extends Controller {
+  public function run(){
+    $sTime = strtotime(date('Y-m-d ',strtotime('yesterday')));
+    $eTime = strtotime(date('Y-m-d ',time()));
+    $logic = new UserStatisticsLogic();
+    $flag = $logic->where('time >='.$sTime.' and  time <='.$eTime)->select();
+    if(empty($flag)){
+       $result = $logic->addRow(['stime'=>$sTime,'etime'=>$eTime]);
+        $this->ajaxreturn(['state'=>2000,'data'=>$result,'stime'=>$sTime,'etime'=>$eTime]);
+    }else{
+        $this->ajaxreturn(['state'=>2000,'msg'=>'exists','stime'=>$sTime,'etime'=>$eTime]);
+    }
+  }
+}

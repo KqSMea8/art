@@ -1,0 +1,82 @@
+<?php
+
+namespace V41\Logic;
+
+use V41\Base\BaseLogic;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+
+class ArticleCommentLogic extends BaseLogic
+{
+    public function addcomment($ArticleId,$commenter,$content,$comment_to){
+        $addId = $this->add([
+            'parent_id' => 0,
+            'commenter' => $commenter,
+            'comment_to' => $comment_to,
+            'content' => $content,
+            'create_time' => time(),
+            'topic_id' => $ArticleId,
+            'publish_time' =>time(),
+            'status' => 1,
+            'like_total' => 0,
+        ]);
+        if(!$addId){
+            return [];
+        }
+        $comment = $this->find($addId);
+        $userLogic = new UserLogic();
+        $userinfo = $userLogic->where(['id'=>$commenter])->find();
+        $data= [
+            'commentId' => $comment['id'],
+            'artist' => $userinfo['id'],
+            'faceUrl' => Util::getFillImage($userinfo['face'],Image::faceWidth,Image::faceHeight),
+            'nickname' => $userinfo['nickname'],
+            'time' => Util::simpleTimeShow($comment['create_time']),
+            'content' => $comment['content'],
+            'repayer' => '',
+            'repayContent' => '',
+            'repayTime' => ''
+        ];
+        return $data;
+
+    }
+
+
+    public function repay($commentId,$from,$content){
+        $userLogic = new UserLogic();
+        $info = $this->find($commentId);
+        $addId = $this->add([
+            'parent_id' => $info['id'],
+            'commenter' => $from,
+            'comment_to' => $info['commenter'],
+            'content' => $content,
+            'create_time' => time(),
+            'topic_id' => $info['topic_id'],
+            'delete_time' => '',
+            'is_published' => 'Y',
+            'publish_time' =>time(),
+            'status' => 1,
+            'like_total' => 0,
+
+        ]);
+        if(!$addId){
+            return [];
+        }
+        $comment = $this->find($addId);
+        $userLogic = new UserLogic();
+        $userinfo = $userLogic->where(['id'=>$from])->find();
+        $data= [
+            'commentId' => $comment['id'],
+            'artist' => $userinfo['id'],
+            'faceUrl' => Util::getFillImage($userinfo['face'],Image::faceWidth,Image::faceHeight),
+            'nickname' => $userinfo['nickname'],
+            'time' => Util::simpleTimeShow($comment['create_time']),
+            'content' => $comment['content'],
+            'repayer' => '',
+            'repayContent' => '',
+            'repayTime' => ''
+        ];
+        return $data;
+
+    }
+}

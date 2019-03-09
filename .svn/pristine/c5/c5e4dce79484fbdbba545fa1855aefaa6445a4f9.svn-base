@@ -1,0 +1,9 @@
+<?php
+
+namespace V2\Base;
+
+class AdminBaseLogic extends BaseLogic
+{
+    protected static $namespacePrefix = "Admin\\Model\\";
+
+}

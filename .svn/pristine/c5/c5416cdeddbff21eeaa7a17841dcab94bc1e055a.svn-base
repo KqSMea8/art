@@ -1,0 +1,23 @@
+<?php
+
+namespace V42\Model;
+
+
+use V42\Base\BaseModel;
+//主页-推荐-banner
+class HomeBannerModel extends BaseModel
+{
+    protected $tableName = 'home_banner';
+
+    //获取在线的banner
+    public function getBanner(){
+        $time = time();
+        $where['up_time']=['elt',$time];
+        $where['down_time']=['gt',$time];
+        $images = $this->field('id,sort,image,type,link,desc')->where($where)->order("sort asc")->select();
+        foreach($images as $key=>$value){
+            $images[$key]['link']=htmlspecialchars_decode($value['link']);
+        }
+        return empty($images) ? [] : $images;
+    }
+}

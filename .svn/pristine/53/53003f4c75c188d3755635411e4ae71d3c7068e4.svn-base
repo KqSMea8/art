@@ -1,0 +1,282 @@
+{include file="page_header"}
+    <script type="text/javascript">
+        function checkUA() {
+          var isIOS, isAndroid, isWeChat, isAPP;
+          var ua = navigator.userAgent.toLowerCase();
+          if (/iphone|ipad|ipod/.test(ua)) {
+            isIOS = true;
+            isAndroid = false;
+          } else if (/android/.test(ua)) {
+            isIOS = false;
+            isAndroid = true;
+          }
+          if (/micromessenger/.test(ua)) {
+            isWeChat = true;
+          }
+          if (/artzhe/.test(ua)) {
+            isAPP = true;
+          }
+          return {
+            isIOS: isIOS,
+            isAndroid: isAndroid,
+            isWeChat: isWeChat,
+            isAPP: isAPP
+          };
+        }
+        function addNewStyle(newStyle) {
+            var styleElement = document.getElementById('styles_js');
+
+            if (!styleElement) {
+                styleElement = document.createElement('style');
+                styleElement.type = 'text/css';
+                styleElement.id = 'styles_js';
+                document.getElementsByTagName('head')[0].appendChild(styleElement);
+            }
+
+            styleElement.appendChild(document.createTextNode(newStyle));
+        }
+        if (checkUA().isAPP) {
+            addNewStyle('#ectouch-top {display: none}');
+        }
+         addNewStyle('.layermcont {text-align: center}');
+    </script>
+    <style>
+      /*2008/06/26 start*/
+      .layermbtn{
+        height: 4rem;
+        line-height: 4rem;
+      }
+      .layermbtn span{
+        height: 4rem;
+        line-height: 4rem;
+      }
+      .layermbtn span:first-child{
+        height: 4rem;
+      }
+      .layermbtn:before{
+        height: 3.9rem;
+      }
+      .layermbox0 .layermchild {
+          max-width: 24rem;
+          min-width: 20rem;
+      }
+      /*2008/06/26 end*/
+    </style>
+<div class="con">
+    <div class="goods-info user-order of-hidden ts-3" style="padding-top:4rem">
+        <nav class="tab-title b-color-f of-hidden" style="position:fixed">
+            <ul class="dis-box">
+                <li class="box-flex {if empty($status)}active{/if}"><a status="0" >全部订单({$order_num.all_order})</a></li>
+                <li class="box-flex {if $status ==1}active{/if}"><a status="1" >待付款({$order_num.pay_count})</a></li>
+                <li class="box-flex {if $status == 2}active{/if}"><a status="2" >待收货({$order_num.confirmed_count})</a></li>
+            </ul>
+        </nav>
+        <section class="store_info">
+            <script id="j-product" type="text/html">
+            <% if order_list!=""%>
+                <%each order_list as order%>
+                <section class="flow-checkout-pro  m-top08">
+                    <header class="b-color-f dis-box padding-all">
+                        <span class=" box-flex">
+                            <%if order.user_name%>
+                            <%order.user_name%>
+                            <%else%>
+                            <%order.shop_name%>
+                            <%/if%>
+                        </span>
+                        <em class="j-goods-coupon t-first1 f-04"><%order.order_status%></em>
+                    </header>
+                    <div class="f-c-p-orderid padding-all m-top1px b-color-f">
+                        <a class="product-div-link" href="<%order.order_url%>"></a>
+
+                        <h4 class="t-remark2 tmk1">
+                            <label class="t-remark">订单号：</label><%order.order_sn%>
+                            <!--拼团标识-->
+                            <%if order.team_id > 0%>
+                            <em class="em-promotion b-tag">拼团订单</em>
+                            <%/if%>
+                            <!--拼团标识 end-->
+                            <!--砍价标识-->
+                            <%if order.extension_code == 'bargain_buy'%>
+                            <em class="em-promotion b-tag">砍价订单</em>
+                            <%/if%>
+                            <!--砍价标识 end-->
+
+                             <span class="t-jiantou"></span>
+                        </h4>
+                        <p class="t-remark3 m-top04 tmk2"><%order.order_time%></p>
+                    </div>
+
+                    <div class="padding-all user-orderlist-shop dis-box text-all-select">
+                        <a class="product-div-link" href="<%order.order_url%>"></a>
+                        <ul class="flow-checkout-smallpic box-flex">
+                            <%each order.order_goods as val %>
+                            <li><img class="product-list-img" src="<%val.goods_thumb%>" /></li>
+                            <%if order.order_goods_num==1 %>
+                            <div class="twolist-hidden f-05 order-name-has"><%val.goods_name%></div>
+                            <div class="twolist-hidden f-05 order-name-has" style="font-size: 1.5rem;color: #FF2A2A;margin: 1rem 0 0 0;"><%#order.total_fee%></div>
+                            <div class="twolist-hidden f-05 order-name-has" style="display:none;font-size: 1rem;color:#333;">已付定金：<%#order.total_fee%></div>
+                            <%/if%>
+                            <%/each%>
+                        </ul>
+                        <span class="t-jiantou">
+                            <span class="f-c-a-count">共<%order.order_goods_num%>款</span><i class="iconfont icon-jiantou tf-180"></i>
+                        </span>
+                    </div>
+
+                    <div class="nbox1" style="padding: 0 1.3rem;background:#fff;">
+                        <%if order.total_amount>5000 && order.pay_status !=2%>
+                            <p class="paytrip" style="text-align:left;border:none;font-size:1.3rem;color:#666;padding: 1.2rem 0;">请赶快去www.artzhe.com付款吧~</p>
+                        <%/if%>
+                        <div class="stoptimebox" style="display:none;position:relative;text-align:right;background:#fff;font-size:1.3rem; color:#666;">
+                            <p style="display: none;">在24小时内未付款完成，订单将自动取消</p>
+                            <p style="display: none;">剩余：<span class="stoptime" style="color:#F5B230;">00时00分00秒</span></p>
+                        </div>
+                    </div>
+
+					<!-- <div class="padding-all f-05 user-order-money b-color-f">共<%order.order_goods_num%>款商品 合计：<em class="t-first"><%#order.total_fee%></em></div> -->
+                    <footer class="padding-all b-color-f m-top1px of-hidden dis-box">
+                        <h4 class="t-remark2 box-flex text-left">
+                            合计：<em class="t-first"><%#order.total_fee%></em>
+                        </h4>
+                        <p class="ect-button-more ect-button-more-dete n-br-5">
+                            <%if order.handler_return && order.pay_status == 2%>
+                            <a class="btn-default-new br-5 min-btn" href="<%order.handler_return%>">申请售后</a>
+                            <%/if%>
+                            <%if !order.handler%>
+                            <a class="btn-default-new br-5 min-btn" href="<%order.order_url%>">查看订单</a>
+                            <%/if%>
+                            <%if order.delete_yes == 1%>
+                            <!--<a class="btn-default">删除</a>-->
+                            <%/if%>
+
+                            <%if order.order_del%>
+                             <button class="btn-default-new br-5 min-btn del-order" data-item="<%order.order_id%>">删除</button>
+                            <%/if%>
+
+                                     <%#order.handler%>
+
+                        </p>
+                    </footer>
+                </section>
+                <%/each%>
+                <%else%>
+                <div class="no-div-message">
+                    <i class="iconfont icon-biaoqingleiben"></i>
+                    <p>亲，还没有订单哦～！</p>
+                </div>
+                <%/if%>
+            </script>
+        </section>
+    </div>
+</div>
+{if $is_app !='APP' }
+       <!--快捷导航-->
+    {include file="float_nav"}
+    {include file="float_nav_footer"}
+{/if}
+
+    <script type="text/javascript">
+        //订单列表
+        var infinite = $('.store_info').infinite({url: "{url('user/order/index')}", template: 'j-product', params: 'status={$status}'});
+        $(".tab-title a").click(function () {
+            var status = $(this).attr('status');
+
+            infinite.onload('status=' + status);
+            $(this).parent().addClass("active").siblings().removeClass("active");
+        })
+        //删除订单
+        $(".goods-info").on('click','.del-order', function() {
+            var order_id = $(this).attr('data-item');
+            var url='{url("user/order/delorder")}';
+            layer.open({
+                content: '是否删除此订单',
+                btn: ['确定', '取消'],
+                shadeClose: false,
+                yes: function() {
+                    $.post(url, {order_id:order_id}, function(result) {
+                         if (result.y == 1) {
+                            window.location.href = "{url('user/order/index')}";
+                         }
+                    }, 'json');
+                },
+                no: function() {}
+            });
+            $('.layermbtn span:last-child').css('color','#F5B230');
+            $('.layermbtn span:first-child').css('color','#333')
+        });
+
+        //确认订单
+        $(".goods-info").on('click','.received-order', function() {
+            var order_id = $(this).attr('data-item-received');
+            var url = "{url('user/order/affirmreceived')}";
+            layer.open({
+                content: '你确认已经收到货物了吗？',
+                btn: ['确定', '取消'],
+                shadeClose: false,
+                yes: function() {
+                    $.post(url, {order_id:order_id}, function(result) {
+                         if (result.y == 1) {
+                            window.location.href = "{url('user/order/index')}";
+                         }
+                    }, 'json');
+                },
+                no: function() {}
+            });
+            $('.layermbtn span:last-child').css('color','#F5B230');
+            $('.layermbtn span:first-child').css('color','#333')
+        });
+
+        // 取消订单
+        $(".goods-info").on('click','.cancel-order', function() {
+            var order_id = $(this).attr('data-item');
+            var url = "{url('user/order/cancel')}";
+            layer.open({
+                content: '确定要取消该订单吗？取消后将视为无效订单',
+                btn: ['取消订单', '再考虑下'],
+                shadeClose: false,
+                yes: function() {
+                    $.post(url, {order_id:order_id}, function(result) {
+                         if (result.y == 1) {
+                            window.location.href = "{url('user/order/index')}";
+                         }
+                         return false;
+                    }, 'json');
+                },
+                no: function() {}
+            });
+
+            $('.layermbtn span:last-child').css('color','#F5B230');
+            $('.layermbtn span:first-child').css('color','#333')
+        });
+
+        //截止时间(待)
+        // var endTime = new Date("2018/04/24 19:00:00");
+        // var intEndTime = endTime.getTime();
+        // var timer;
+        // function stoptime(){
+        //     var nowTime = new Date();
+        //     var intNowTime = nowTime.getTime();
+        //     var relayTime = intEndTime - intNowTime; //剩余时间毫秒数
+        //     if(relayTime > 0){
+        //         //nd = Math.floor(relayTime/1000/86400); //剩余天数
+        //         nh = Math.floor(relayTime/1000/60/60%60%24); //剩余小时数
+        //         nm = Math.floor(relayTime/1000/60%60); //剩余分钟数
+        //         ns = Math.floor(relayTime/1000%60); //剩余秒数
+
+        //         //nd = nd > 9 ? nd : "0" + nd; //格式化天数
+        //         nh = nh > 9 ? nh : "0" + nh; //格式化小时数
+        //         nm = nm > 9 ? nm : "0" + nm; //格式化分钟数
+        //         ns = ns > 9 ? ns : "0" + ns; //格式化秒数
+        //         // console.log(nd+'天'+nh+'时'+nm+'分'+ns+'秒')
+        //         //$('.stoptime').text(nd+'天'+nh+'时'+nm+'分'+ns+'秒');
+        //         $('.stoptime').text(nh+':'+nm+':'+ns);
+        //     }else{
+        //         $('.stoptime').text('已过期');
+        //         clearInterval(timer);
+        //     }
+        // }
+        // timer=setInterval(stoptime,900);
+    </script>
+</body>
+</html>

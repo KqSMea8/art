@@ -1,0 +1,10 @@
+<?php
+
+namespace V30\Model;
+
+
+use V30\Base\BaseModel;
+
+class AdModel extends BaseModel{
+    protected $tableName = 'ad';
+}

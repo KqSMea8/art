@@ -1,0 +1,1204 @@
+<?php
+
+namespace Admin\Controller;
+
+use Custom\Helper\Util;
+use Custom\Helper\AdmTpl;
+use Common\Base\AdminBaseController;
+use Common\Logic\UserLogic;
+use Common\Logic\ArtworkLikeLogic;
+use Common\Logic\CommentLogic;
+use Common\Logic\ThirdLogic;
+use Common\Logic\ArtistApplyLogic;
+use Common\Logic\ArtworkLogic;
+use Common\Logic\GalleryLogic;
+use Common\Logic\ArtworkCategoryLogic;
+use Common\Logic\ArtworkTagLogic;
+use Common\Logic\ArtworkUpdateLogic;
+use Common\Model\ArtworkSubjectModel;
+use Common\Model\ArtworkStyleModel;
+use Common\Model\ArtworkUpdateTagModel;
+use Custom\Helper\Nav;
+use Admin\Logic\ArtCircleLogic;
+use Admin\Logic\ArtCircleShareLogic;
+use Think\Model;
+
+class ArtController extends AdminBaseController
+{
+    public $size = 10;
+
+    //画作列表
+    public function index()
+    {
+        $page = I('get.page', '1');
+        $perPageCount = I('get.perPageCount', $this->size);
+        $keyword = trim(I('get.keyword',''));//关键字
+        $numberType = trim(I('get.numberType',''));//搜索数字类型  artSign艺签数  commentTotal评论数  likeTotal喜欢数  viewTotal浏览数
+        $snumber = I('get.snumber')==null?-1:intval(I('get.snumber'));
+        $enumber = I('get.enumber')==null?-1:intval(I('get.enumber'));
+        $userLogic = new UserLogic();
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $tagLogic = new ArtworkTagLogic();
+        $ArtworkUpdate = new ArtworkUpdateLogic();
+
+        $where="az_artwork.is_deleted='N'";
+        if(!empty($keyword)){
+            $where=$where." and (az_artwork.name like '%".$keyword."%' ";
+            $where=$where." or az_user.nickname like '%".$keyword."%' ";
+            $catid= $categoryLogic->field('id')->where("cn_name like '%".$keyword."%'")->select();
+            if($catid){
+                $where=$where." or az_artwork.category in (".implode(',',array_column($catid,'id')).")";
+            }
+            $where=$where." or (az_artzhe_custom.type in (2,3) and az_artzhe_custom.cn_name like '%".$keyword."%'))";
+
+        }
+
+        switch($numberType){
+            case 'commentTotal'://评论数
+                if($snumber>0){
+                    $where=$where." and az_artwork.comment_total >= ".$snumber;
+                    if($enumber>0){
+                        $where=$where." and az_artwork.comment_total <= ".$enumber;
+                    }
+                }else{
+                    if($enumber>0){
+                        $where=$where." and az_artwork.comment_total <= ".$enumber;
+                    }elseif($enumber==0){
+                        $where=$where." and az_artwork.comment_total = ".$enumber;
+                    }
+                }
+
+                break;
+            case 'likeTotal'://欢数
+                if($snumber>0){
+                    $where=$where." and az_artwork.like_total >= ".$snumber;
+                    if($enumber>0){
+                        $where=$where." and az_artwork.like_total <= ".$enumber;
+                    }
+                }else{
+                    if($enumber>0){
+                        $where=$where." and az_artwork.like_total <= ".$enumber;
+                    }elseif($enumber==0){
+                        $where=$where." and az_artwork.like_total = ".$enumber;
+                    }
+                }
+
+                break;
+            case 'viewTotal'://浏览数
+                if($snumber>0){
+                    $where=$where." and az_artwork.view_total >= ".$snumber;
+                    if($enumber>0){
+                        $where=$where." and az_artwork.view_total <= ".$enumber;
+                    }
+                }else{
+                    if($enumber>0){
+                        $where=$where." and az_artwork.view_total <= ".$enumber;
+                    }elseif($enumber==0){
+                        $where=$where." and az_artwork.view_total = ".$enumber;
+                    }
+                }
+
+                break;
+            case 'artSign'://艺签数
+                if($snumber>0){
+                    $ArtSignHaving="count(id) >= ".$snumber;
+                    if($enumber>0){
+                        $ArtSignHaving=$ArtSignHaving?$ArtSignHaving." and count(id) <= ".$enumber:"count(id) <= ".$enumber;
+                    }
+
+                    $queryArtcircle="SELECT link FROM `az_art_circle_banner` WHERE ( `type` = 4) GROUP BY link HAVING ".$ArtSignHaving;
+                    $artworkIds=M('art_circle_banner')->query($queryArtcircle);
+                    if($artworkIds) {
+                        $where = $where . " and az_artwork.id in (" . implode(',', array_column($artworkIds, 'link')) . ")";
+                    }else{
+                        $where = $where . " and az_artwork.id =0" ;
+                    }
+
+                }else{
+                    if($enumber>0){
+                        $ArtSignHaving="count(id) > ".$enumber;
+                        $queryArtcircle="SELECT link FROM `az_art_circle_banner` WHERE ( `type` = 4) GROUP BY link HAVING ".$ArtSignHaving;;
+                        $artworkIds=M('art_circle_banner')->query($queryArtcircle);
+                        if($artworkIds){
+                            $where=$where." and az_artwork.id not in (".implode(',',array_column($artworkIds,'link')).")";
+                        }
+                    }elseif($enumber==0){
+                        $queryArtcircle="SELECT link FROM `az_art_circle_banner` WHERE ( `type` = 4) GROUP BY link";
+                        $artworkIds=M('art_circle_banner')->query($queryArtcircle);
+                        if($artworkIds){
+                            $where=$where." and az_artwork.id not in (".implode(',',array_column($artworkIds,'link')).")";
+                        }
+                    }
+
+                }
+                break;
+
+        }
+
+
+
+        $totalCount = $artLogic->where($where)
+            ->join('az_user on az_artwork.artist=az_user.id', 'left')
+            ->join('az_artzhe_custom on az_artwork.id=az_artzhe_custom.artworkid', 'left')
+            ->group('az_artwork.id')
+            ->select();
+        $totalCount = count($totalCount);
+
+        $lists = $artLogic->where($where)
+            ->field('az_user.nickname,az_artwork.id,az_artwork.artist,az_artwork.category,az_artwork.name,az_artwork.update_times,az_artwork.is_finished,az_artwork.length,az_artwork.width,az_artwork.cover,az_artwork.panorama_ids,az_artwork.topography_ids,az_artwork.story,az_artwork.create_time,az_artwork.last_update_time,az_artwork.price,az_artwork.view_total,az_artwork.share_total,az_artwork.like_total,az_artwork.comment_total,az_artwork.tag_ids')
+            ->join('az_user on az_artwork.artist=az_user.id', 'left')
+            ->join('az_artzhe_custom on az_artwork.id=az_artzhe_custom.artworkid', 'left')
+            ->group('az_artwork.id')
+            ->order('last_update_time DESC,id DESC')->page($page, $perPageCount)->select();
+
+        foreach ($lists as $key => $value) {
+            $percent = $artLogic->getAttributePercent($value['id']);
+            $lists[$key]['percent'] = $percent;
+            $artwork_update_view = $ArtworkUpdate->field('sum(view_total) as view_total ')->where(['artwork_id' => $value['id']])->find();
+            $lists[$key]['view_total_all'] = (string)($value['view_total'] + $artwork_update_view['view_total']);
+
+            $artwork_update_comment = $ArtworkUpdate->field('sum(comment_total) as comment_total ')->where(['artwork_id' => $value['id']])->find();
+            $lists[$key]['comment_total_all'] = (string)($value['comment_total'] + $artwork_update_comment['comment_total']);
+
+            $lists[$key]['price'] = -1 == $value['price'] ? '无' : $value['price'];
+            $lists[$key]['nickname'] = $value['nickname'];//$userLogic->where(['id' => $value['artist']])->getField('nickname');
+            if($value['category']){
+                $cat= $categoryLogic->field('cn_name')->where(['id' => ['in',explode(',',$value['category'])]])->select();
+                $lists[$key]['categoryName']=implode('/',array_column($cat,'cn_name'));
+            }else{
+                $lists[$key]['categoryName'] ='';
+            }
+
+            //$lists[$key]['comment_total'] = $commentLogic->totalByArt($value['id']);
+            $lists[$key]['create_time'] = $value['create_time'] ? date('Y-m-d', $value['create_time']) : '';
+            $lists[$key]['last_update_time'] = $value['last_update_time'] ? date('Y-m-d', $value['last_update_time']) : '';
+            $lists[$key]['is_finished'] = $value['is_finished'] == 'Y' ? '是' : '否';
+            $panorama_ids = [];
+            if (!empty($value['panorama_ids'])) {
+                $panorama_ids = explode(',', $value['panorama_ids']);
+            }
+            $lists[$key]['panorama_ids'] = $panorama_ids;
+            $topography_ids = [];
+            if (!empty($value['topography_ids'])) {
+                $topography_ids = explode(',', $value['topography_ids']);
+            }
+            $lists[$key]['topography_ids'] = $topography_ids;
+
+            if(empty($value['cover'])){
+                if(empty($panorama_ids)){
+                    if(empty($topography_ids)){
+                        $lists[$key]['cover']='';
+                    }else{
+                        $lists[$key]['cover'] = Util::getFillImage($topography_ids[0],100,100);
+                    }
+                }else{
+                    $lists[$key]['cover'] = Util::getFillImage($panorama_ids[0],100,100);
+                }
+            }else{
+                $lists[$key]['cover'] = Util::getFillImage($value['cover'],100,100);
+            }
+
+            if (!empty($value['tag_ids'])) {
+                $tags = [];
+                $tagList = $tagLogic->where("id in ({$value['tag_ids']})")->select();
+                foreach ($tagList as $k => $v) {
+                    $tags[] = $v['cn_value'];
+                }
+                $lists[$key]['tag_ids'] = implode('/', $tags);
+            }
+            $artSign=M('art_circle_banner')->where(['type'=>4,'link'=>$value['id']])->count();
+            $lists[$key]['art_sign'] = intval($artSign);
+
+            //艺术圈花絮次数
+            $artcircle = M('art_circle')->where(['status'=>1,'artwork_id'=>$value['id']])->count();
+            $lists[$key]['artcircle_times'] = intval($artcircle);
+
+        }
+
+
+        $condition = [
+            'keyword'=>$keyword,
+        ];
+
+        $nav = Nav::render(U('Admin/Art/index'), $condition, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    //画作列表20190108
+    public function index_20190108()
+    {
+        $page = I('get.page', '1');
+        $perPageCount = I('get.perPageCount', $this->size);
+        $artName = trim(I('get.artname'));//作品名称
+        $artistName = trim(I('get.artistname'));//用户昵称
+        $mobile = trim(I('get.mobile'));
+        $isFinished = I('get.isFinished');
+        $sCreateTime = strtotime(I('get.sCreateTime'));
+        $eCreateTime = strtotime(I('get.eCreateTime'));
+        $sLastUpdateTime = strtotime(I('get.sLastUpdateTime'));
+        $eLastUpdateTime = strtotime(I('get.eLastUpdateTime'));
+        $sViewTotal = I('get.sViewTotal')==null?-1:intval(I('get.sViewTotal'));
+        $eViewTotal = I('get.eViewTotal')==null?-1:intval(I('get.eViewTotal'));
+        $sShareTotal = I('get.sShareTotal')==null?-1:intval(I('get.sShareTotal'));
+        $eShareTotal = I('get.eShareTotal')==null?-1:intval(I('get.eShareTotal'));
+        $sLikeTotal = I('get.sLikeTotal')==null?-1:intval(I('get.sLikeTotal'));
+        $eLikeTotal = I('get.eLikeTotal')==null?-1:intval(I('get.eLikeTotal'));
+        $sCommentTotal = I('get.sCommentTotal')==null?-1:intval(I('get.sCommentTotal'));
+        $eCommentTotal = I('get.eCommentTotal')==null?-1:intval(I('get.eCommentTotal'));
+        $sArtSign = I('get.sArtSign')==null?-1:intval(I('get.sArtSign'));
+        $eArtSign = I('get.eArtSign')==null?-1:intval(I('get.eArtSign'));
+        $tag = trim(I('get.tags',''));//标签
+        $category=trim(I('get.category',''));//列表
+        $userLogic = new UserLogic();
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $tagLogic = new ArtworkTagLogic();
+        $ArtworkUpdate = new ArtworkUpdateLogic();
+
+        $where="az_artwork.is_deleted='N'";
+        if ($mobile) {
+            $artist = $userLogic->where(['mobile' => $mobile])->getField('id');
+            if($artist){
+                $where= $where." and az_artwork.artist=".$artist;
+            }
+        }
+        if(!empty($isFinished)){
+            $where=$where." and az_artwork.is_finished ='".$isFinished."'";
+        }
+        if(!empty($sCreateTime)){
+            $where=$where." and az_artwork.create_time >= ".$sCreateTime;
+        }
+        if(!empty($eCreateTime)){
+            $where=$where." and az_artwork.create_time <= ".$eCreateTime;
+        }
+        if(!empty($sLastUpdateTime)){
+            $where=$where." and az_artwork.last_update_time >= ".$sLastUpdateTime;
+        }
+        if(!empty($eLastUpdateTime)){
+            $where=$where." and az_artwork.last_update_time <= ".$eLastUpdateTime;
+        }
+        if($sViewTotal!=-1){
+            $where=$where." and az_artwork.view_total >= ".$sViewTotal;
+        }
+        if($eViewTotal!=-1 && $eViewTotal!=0){
+            $where=$where." and az_artwork.view_total <= ".$eViewTotal;
+        }
+        if($sShareTotal!=-1){
+            $where=$where." and az_artwork.share_total >= ".$sShareTotal;
+        }
+        if($eShareTotal!=-1 && $eShareTotal!=0){
+            $where=$where." and az_artwork.share_total <= ".$eShareTotal;
+        }
+        if($sLikeTotal!=-1){
+            $where=$where." and az_artwork.like_total >= ".$sLikeTotal;
+        }
+        if($eLikeTotal!=-1 && $eLikeTotal!=0){
+            $where=$where." and az_artwork.like_total <= ".$eLikeTotal;
+        }
+        if($sCommentTotal!=-1){
+            $where=$where." and az_artwork.comment_total >= ".$sCommentTotal;
+        }
+        if($eCommentTotal!=-1 && $eCommentTotal!=0){
+            $where=$where." and az_artwork.comment_total <= ".$eCommentTotal;
+        }
+        if(!empty($artName)){
+            $where=$where." and az_artwork.name like '%".$artName."%' ";
+        }
+        if(!empty($artistName)){
+            $where=$where." and az_user.nickname like '%".$artistName."%' ";
+        }
+        if(!empty($tag)){
+            $where=$where." and az_artzhe_custom.type in (2,3) and az_artzhe_custom.cn_name like '%".$tag."%'";
+        }
+         if(!empty($category)){
+             $catid= $categoryLogic->field('id')->where("cn_name like '%".$category."%'")->select();
+             if($catid){
+                 $where=$where." and az_artwork.category in (".implode(',',array_column($catid,'id')).")";
+             }
+
+         }
+
+        //SELECT link ,count(id) as num FROM `az_art_circle_banner` WHERE ( `type` = 4) GROUP BY link HAVING count(id)>1 and count(id)<3
+        $ArtSignHaving='';
+        if($sArtSign!=-1 && $sArtSign!=0){
+            $ArtSignHaving="count(id) >= ".$sArtSign;
+        }
+        if($eArtSign!=-1 && $eArtSign!=0){
+            if($sArtSign==0){
+                $ArtSignHaving="count(id) > ".$eArtSign;
+            }else{
+                $ArtSignHaving=$ArtSignHaving?$ArtSignHaving." and count(id) <= ".$eArtSign:"count(id) <= ".$eArtSign;
+            }
+
+        }
+
+        if(!empty($ArtSignHaving)){
+            if($sArtSign==0){
+                $queryArtcircle="SELECT link FROM `az_art_circle_banner` WHERE ( `type` = 4) GROUP BY link HAVING ".$ArtSignHaving;
+                $artworkIds=M('art_circle_banner')->query($queryArtcircle);
+                if($artworkIds){
+                    $where=$where." and az_artwork.id not in (".implode(',',array_column($artworkIds,'link')).")";
+                }
+
+            }else{
+                $queryArtcircle="SELECT link FROM `az_art_circle_banner` WHERE ( `type` = 4) GROUP BY link HAVING ".$ArtSignHaving;
+                $artworkIds=M('art_circle_banner')->query($queryArtcircle);
+                if($artworkIds) {
+                    $where = $where . " and az_artwork.id in (" . implode(',', array_column($artworkIds, 'link')) . ")";
+                }else{
+                    $where = $where . " and az_artwork.id =0" ;
+                }
+            }
+        }
+
+
+        $allcount = $artLogic->where(['is_deleted' => 'N'])->count();
+        $finishedCount = $artLogic->where(['is_deleted' => 'N', 'is_finished' => 'Y'])->count();
+        $noFinishedCount = $artLogic->where(['is_deleted' => 'N', 'is_finished' => 'N'])->count();
+        $lists = $artLogic->where($where)
+            ->field('az_user.nickname,az_artwork.id,az_artwork.artist,az_artwork.category,az_artwork.name,az_artwork.update_times,az_artwork.is_finished,az_artwork.length,az_artwork.width,az_artwork.cover,az_artwork.panorama_ids,az_artwork.topography_ids,az_artwork.story,az_artwork.create_time,az_artwork.last_update_time,az_artwork.price,az_artwork.view_total,az_artwork.share_total,az_artwork.like_total,az_artwork.comment_total,az_artwork.tag_ids')
+            ->join('az_user on az_artwork.artist=az_user.id', 'left')
+            ->join('az_artzhe_custom on az_artwork.id=az_artzhe_custom.artworkid', 'left')
+            ->group('az_artwork.id')
+            ->order('id DESC')->page($page, $perPageCount)->select();
+
+        foreach ($lists as $key => $value) {
+            $percent = $artLogic->getAttributePercent($value['id']);
+            $lists[$key]['percent'] = $percent;
+            $artwork_update_view = $ArtworkUpdate->field('sum(view_total) as view_total ')->where(['artwork_id' => $value['id']])->find();
+            $lists[$key]['view_total_all'] = (string)($value['view_total'] + $artwork_update_view['view_total']);
+
+            $artwork_update_comment = $ArtworkUpdate->field('sum(comment_total) as comment_total ')->where(['artwork_id' => $value['id']])->find();
+            $lists[$key]['comment_total_all'] = (string)($value['comment_total'] + $artwork_update_comment['comment_total']);
+
+            $lists[$key]['price'] = -1 == $value['price'] ? '无' : $value['price'];
+            $lists[$key]['nickname'] = $value['nickname'];//$userLogic->where(['id' => $value['artist']])->getField('nickname');
+            if($value['category']){
+                $cat= $categoryLogic->field('cn_name')->where(['id' => ['in',explode(',',$value['category'])]])->select();
+                $lists[$key]['categoryName']=implode('/',array_column($cat,'cn_name'));
+            }else{
+                $lists[$key]['categoryName'] ='';
+            }
+
+            //$lists[$key]['comment_total'] = $commentLogic->totalByArt($value['id']);
+            $lists[$key]['create_time'] = $value['create_time'] ? date('Y-m-d', $value['create_time']) : '';
+            $lists[$key]['last_update_time'] = $value['last_update_time'] ? date('Y-m-d', $value['last_update_time']) : '';
+            $lists[$key]['is_finished'] = $value['is_finished'] == 'Y' ? '是' : '否';
+            $panorama_ids = [];
+            if (!empty($value['panorama_ids'])) {
+                $panorama_ids = explode(',', $value['panorama_ids']);
+            }
+            $lists[$key]['panorama_ids'] = $panorama_ids;
+            $topography_ids = [];
+            if (!empty($value['topography_ids'])) {
+                $topography_ids = explode(',', $value['topography_ids']);
+            }
+            $lists[$key]['topography_ids'] = $topography_ids;
+
+            if(empty($value['cover'])){
+                if(empty($panorama_ids)){
+                    if(empty($topography_ids)){
+                        $lists[$key]['cover']='';
+                    }else{
+                        $lists[$key]['cover'] = Util::getFillImage($topography_ids[0],100,100);
+                    }
+                }else{
+                    $lists[$key]['cover'] = Util::getFillImage($panorama_ids[0],100,100);
+                }
+            }else{
+                $lists[$key]['cover'] = Util::getFillImage($value['cover'],100,100);
+            }
+
+            if (!empty($value['tag_ids'])) {
+                $tags = [];
+                $tagList = $tagLogic->where("id in ({$value['tag_ids']})")->select();
+                foreach ($tagList as $k => $v) {
+                    $tags[] = $v['cn_value'];
+                }
+                $lists[$key]['tag_ids'] = implode('/', $tags);
+            }
+            $artSign=M('art_circle_banner')->where(['type'=>4,'link'=>$value['id']])->count();
+            $lists[$key]['art_sign'] = intval($artSign);
+
+            //艺术圈花絮次数
+            $artcircle = M('art_circle')->where(['status'=>1,'artwork_id'=>$value['id']])->count();
+            $lists[$key]['artcircle_times'] = intval($artcircle);
+
+        }
+        $totalCount = $artLogic->where($where)
+            ->join('az_user on az_artwork.artist=az_user.id', 'left')
+            ->join('az_artzhe_custom on az_artwork.id=az_artzhe_custom.artworkid', 'left')
+            ->group('az_artwork.id')
+            ->select();
+        $totalCount = count($totalCount);
+
+        $condition = [
+            'artname'=>$artName,
+            'artistname'=>$artistName,
+            'mobile'=>$mobile,
+            'isFinished' => $isFinished,
+            'sCreateTime' => I('get.sCreateTime'),
+            'eCreateTime' => I('get.eCreateTime'),
+            'sLastUpdateTime' => I('get.sLastUpdateTime'),
+            'eLastUpdateTime' => I('get.eLastUpdateTime'),
+            'sViewTotal' => $sViewTotal==-1?'':$sViewTotal,
+            'eViewTotal' => $eViewTotal==-1?'':$eViewTotal,
+            'sShareTotal' => $sShareTotal==-1?'':$sShareTotal,
+            'eShareTotal' => $eShareTotal==-1?'':$eShareTotal,
+            'sLikeTotal' => $sLikeTotal==-1?'':$sLikeTotal,
+            'eLikeTotal' => $eLikeTotal==-1?'':$eLikeTotal,
+            'sCommentTotal' => $sCommentTotal==-1?'':$sCommentTotal,
+            'eCommentTotal' => $eCommentTotal==-1?'':$eCommentTotal,
+            'tags'=>$tag,
+            'category'=>$category,
+        ];
+
+        //类别
+        $artworkCategoryLogic = new ArtworkCategoryLogic();
+        $categoryList = $artworkCategoryLogic->getCategoryTagList();
+
+        //画作题材标签
+        $artworkSubjectModel = new ArtworkSubjectModel();
+        $subjectList = $artworkSubjectModel->getList();
+
+        //画作风格标签
+        $artworkStyleModel = new ArtworkStyleModel();
+        $styleList = $artworkStyleModel->getList();
+
+        $tagList = array_merge($subjectList,$styleList);
+
+        $nav = Nav::render(U('Admin/Art/index'), $condition, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('categoryList', $categoryList);
+        $this->assign('tagList', $tagList);
+        $this->assign('lists', $lists);
+        $this->assign('allcount', $allcount);
+        $this->assign('finishedCount', $finishedCount);
+        $this->assign('noFinishedCount', $noFinishedCount);
+        $this->display();
+    }
+
+    public function detail_0()
+    {
+        $id = I('get.id');
+        $userLogic = new UserLogic();
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $tagLogic = new ArtworkTagLogic();
+        $detail = $artLogic->where(['id' => $id])
+            ->field('id,artist,cover,category,name,update_times,is_finished,shape,length,width,diameter,panorama_ids,topography_ids,story,create_time,last_update_time,price,view_total,share_total,like_total,tag_ids')
+            ->find();
+        $detail['nickname'] = $userLogic->where(['id' => $detail['artist']])->getField('nickname');
+        $detail['categoryName'] = $categoryLogic->where(['id' => $detail['category']])->getField('cn_name');
+        $detail['comment_total'] = $commentLogic->totalByArt($detail['id']);
+        $detail['create_time'] = $detail['create_time'] ? date('Y-m-d', $detail['create_time']) : '';
+        $detail['last_update_time'] = $detail['last_update_time'] ? date('Y-m-d', $detail['last_update_time']) : '';
+        $percent = $artLogic->getAttributePercent($id);
+        $detail['percent'] = $percent;
+        $detail['price'] = -1 == $detail['price'] ? '无' : $detail['price'];
+        $panorama_ids = [];
+        if (!empty($detail['panorama_ids'])) {
+            $panorama_ids = explode(',', $detail['panorama_ids']);
+        }
+        $detail['panorama_ids'] = $panorama_ids;
+        $topography_ids = [];
+        if (!empty($detail['topography_ids'])) {
+            $topography_ids = explode(',', $detail['topography_ids']);
+        }
+        $detail['topography_ids'] = $topography_ids;
+        /*  if (!empty($detail['tag_ids'])) {
+              $tags = [];
+              $tagList = $tagLogic->where("id in ({$detail['tag_ids']})")->select();
+              foreach ($tagList as $k => $v) {
+                  $tags[] = $v['cn_value'];
+              }
+              $detail['tag_ids'] = implode('/', $tags);
+          }*/
+        $detail['tag_ids'] = implode('/', $artLogic->getArtworkTags($id));
+        $this->assign('detail', $detail);
+        $this->display();
+    }
+
+    //画作详情
+    public function detail()
+    {
+        $id = I('get.id');
+        $userLogic = new UserLogic();
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $tagLogic = new ArtworkTagLogic();
+        $detail = $artLogic->where(['id' => $id])->find();
+        if(preg_match("/《(.*)》/",$detail['name'])){
+            $artwork_name = ' ' .$detail['name']. ' ';
+        }else{
+            $artwork_name = '《' .$detail['name']. '》';
+        }
+        $detail['nickname'] = $userLogic->where(['id' => $detail['artist']])->getField('nickname');
+        if($detail['category']){
+            $cat= $categoryLogic->field('cn_name')->where(['id' => ['in',explode(',',$detail['category'])]])->select();
+            $detail['categoryName']=implode('/',array_column($cat,'cn_name'));
+        }else{
+            $detail['categoryName'] ='';
+        }
+
+        $detail['comment_total'] = $commentLogic->totalByArt($detail['id']);
+        $detail['artwork_date'] = $detail['artwork_date'] ? date('Y', $detail['artwork_date']) : '';
+        $detail['create_time'] = $detail['create_time'] ? date('Y-m-d', $detail['create_time']) : '';
+        $detail['last_update_time'] = $detail['last_update_time'] ? date('Y-m-d', $detail['last_update_time']) : '';
+        $percent = $artLogic->getAttributePercent($id);
+        $detail['percent'] = $percent;
+        $detail['price'] = -1 == $detail['price'] ? '无' : $detail['price'];
+        $panorama_ids = [];
+        if (!empty($detail['panorama_ids'])) {
+            $panorama_ids = explode(',', $detail['panorama_ids']);
+        }
+        $panorama = [];
+        foreach ($panorama_ids as $key => $value) {
+            $small=Util::getFillImage($value,100,100);
+            $panorama[] = ['raw'=>$value, 'mini'=>$small];
+        }
+        $detail['panorama_ids'] = $panorama;
+
+        $topography_ids = [];
+        if (!empty($detail['topography_ids'])) {
+            $topography_ids = explode(',', $detail['topography_ids']);
+        }
+        $topography = [];
+        foreach ($topography_ids as $key => $value) {
+            $small=Util::getFillImage($value,100,100);
+            $topography[] = ['raw'=>$value, 'mini'=>$small];
+        }
+        $detail['topography_ids'] = $topography;
+        $detail['tag_ids'] = implode('/', $artLogic->getArtworkTags($id));
+        $detail['color_ids'] = M('ArtworkColor')->field('id,cn_name')->where(['id'=>['in',$detail['color_ids']]])->select();
+        $detail['color_ids'] = implode(',',array_column($detail['color_ids'],'cn_name'));
+        $detail['cover_small']=Util::getFillImage($detail['cover'],400,400);
+        $detail['link'] = C('m_site') . '/artwork/detail/' . $detail['id'];
+
+        $record=[];
+        //创作花絮
+        $where['is_deleted']='N';
+        $where['artwork_id']=$id;
+        $updateList = M('artwork_update')->where($where)
+            ->field('id,title,number,create_time,create_date,wit,cover,summary,view_total,share_total,like_total,comment_total')
+            ->order('create_time DESC')->select();
+        foreach ($updateList as $key => $value) {
+            $updateList[$key]['showType'] = 1;//1--创作花絮（原创作记录）  2--艺术圈花絮
+            if(empty($value['title'])){
+                $updateList[$key]['title'] = $artwork_name.'花絮';
+            }
+            $updateList[$key]['create_time'] = $value['create_time'] ? date('Y-m-d', $value['create_time']) : '';
+            $updateList[$key]['wit'] = html_entity_decode($value['wit'], ENT_QUOTES, 'UTF-8');
+            $updateList[$key]['link'] = C('m_site') . '/artwork/update/' . $value['id'];
+            $record[$value['create_time']] = $updateList[$key];
+        }
+
+        //艺术圈花絮
+        $where2['status']=1;
+        $where2['artwork_id']=$id;
+        $artCircleList=M('art_circle')->where($where2)
+            ->order('create_time DESC')
+            ->select();
+        foreach ($artCircleList as $k => $v) {
+            $artCircleList[$k]['showType'] = 2;//1--创作花絮（原创作记录）  2--艺术圈花絮
+            $artCircleList[$k]['create_time'] = $v['create_time'] ? date('Y-m-d', $v['create_time']) : '';
+            $record[$v['create_time']] = $artCircleList[$k];
+        }
+
+        krsort($record);
+        $this->assign('detail', $detail);
+        $this->assign('updateList', $record);
+        $this->display('artworkDetail');
+    }
+
+    //花絮列表
+    public function artUpdate()
+    {
+        $page = I('get.page', '1');
+        $perPageCount = I('get.perPageCount', $this->size);
+        $keyword = trim(I('get.keyword'));//关键字
+        $userLogic = new UserLogic();
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $tagLogic = new ArtworkTagLogic();
+        $artUpdateLogic = new ArtworkUpdateLogic();
+        $where1="az_artwork_update.is_deleted='N'";
+        $where2="az_art_circle.status=1 and az_art_circle.artwork_id is not null";
+        if(!empty($keyword)){
+            $where1=$where1." and (az_artwork.name like '%".$keyword."%' ";
+            $where1=$where1." or az_user.nickname like '%".$keyword."%' )";
+            $where2=$where2." and (az_artwork.name like '%".$keyword."%' ";
+            $where2=$where2." or az_user.nickname like '%".$keyword."%' )";
+        }
+
+
+        $Model = new Model();
+        $start = ($page - 1) * $perPageCount;
+
+        $total = $Model->table('az_artwork_update')
+            ->join('az_user on az_artwork_update.artist=az_user.id', 'left')
+            ->join('az_artwork on az_artwork_update.artwork_id=az_artwork.id', 'left')
+            ->where($where1)
+            ->count();
+        $totalCount = $total + $Model->table('az_art_circle')
+                ->join('az_user on az_art_circle.user_id=az_user.id', 'left')
+                ->join('az_artwork on az_art_circle.artwork_id=az_artwork.id', 'left')
+                ->where($where2)->count();
+
+        //type 1--创作花絮（原创作记录）  2--艺术圈花絮
+        $lists = $Model->query("SELECT 1 as type,az_artwork_update.id,az_artwork_update.artwork_id,az_artwork_update.artist,az_artwork_update.number,az_artwork_update.create_time,az_artwork.name,az_artwork.cover,az_user.nickname
+,az_artwork_update.title,az_artwork_update.tag,az_artwork_update.view_total,az_artwork_update.like_total,az_artwork_update.comment_total
+FROM az_artwork_update left JOIN az_artwork on az_artwork_update.artwork_id=az_artwork.id left JOIN az_user on az_artwork_update.artist=az_user.id where ".$where1.
+            "union SELECT 2 as type,az_art_circle.id,az_art_circle.artwork_id,az_art_circle.user_id as artist,0 as number,az_art_circle.create_time,az_artwork.name,az_artwork.cover,az_user.nickname
+            ,'' as title,'' as tag,0 as view_total,az_art_circle.like_count as like_total,az_art_circle.comment_count as comment_total
+             from az_art_circle left JOIN az_artwork on az_art_circle.artwork_id=az_artwork.id left JOIN az_user on az_art_circle.user_id=az_user.id where ".$where2.
+            " order by create_time desc limit " . $start . "," . $perPageCount);
+
+
+        foreach ($lists as $key => $value) {
+            $lists[$key]['cover'] = Util::getFillImage($value['cover'],100,100);
+            $lists[$key]['create_time'] = $value['create_time'] ? date('Y-m-d', $value['create_time']) : '';
+            if($value['type']==2){
+                $lists[$key]['number'] = '/';
+            }
+            $detail['tag'] = str_replace(',','/',$value['tag']);
+        }
+        /*  $totalCount = $artUpdateLogic->where($where)
+              ->join('az_user on az_artwork_update.artist=az_user.id', 'left')
+              ->join('az_artwork on az_artwork_update.artwork_id=az_artwork.id', 'left')
+              ->count();*/
+        $condition = [
+            'keyword'=>$keyword,
+        ];
+
+        $nav = Nav::render(U('Admin/Art/artUpdate'), $condition, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    //花絮列表20190108
+    public function artUpdate_20190108()
+    {
+        $page = I('get.page', '1');
+        $perPageCount = I('get.perPageCount', $this->size);
+        $artName = trim(I('get.artname'));//作品名称
+        $artistName = trim(I('get.artistname'));//用户昵称
+        $mobile = trim(I('get.mobile'));
+        $sCreateTime = strtotime(I('get.sCreateTime'));
+        $eCreateTime = strtotime(I('get.eCreateTime'));
+        $sViewTotal =  I('get.sViewTotal')==null?-1:intval(I('get.sViewTotal'));
+        $eViewTotal = I('get.eViewTotal')==null?-1:intval(I('get.eViewTotal'));
+        $sShareTotal = I('get.sShareTotal')==null?-1:intval(I('get.sShareTotal'));
+        $eShareTotal = I('get.eShareTotal')==null?-1:intval(I('get.eShareTotal'));
+        $sLikeTotal = I('get.sLikeTotal')==null?-1:intval(I('get.sLikeTotal'));
+        $eLikeTotal = I('get.eLikeTotal')==null?-1:intval(I('get.eLikeTotal'));
+        $sCommentTotal = I('get.sCommentTotal')==null?-1:intval(I('get.sCommentTotal'));
+        $eCommentTotal = I('get.eCommentTotal')==null?-1:intval(I('get.eCommentTotal'));
+        $userLogic = new UserLogic();
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $tagLogic = new ArtworkTagLogic();
+        $artUpdateLogic = new ArtworkUpdateLogic();
+        $where="az_artwork_update.is_deleted='N'";
+        if ($mobile) {
+            $artist = $userLogic->where(['mobile' => $mobile])->getField('id');
+            if($artist){
+                $where= $where." and az_artwork_update.artist=".$artist;
+            }
+        }
+        if(!empty($sCreateTime)){
+            $where=$where." and az_artwork_update.create_time >= ".$sCreateTime;
+        }
+        if(!empty($eCreateTime)){
+            $where=$where." and az_artwork_update.create_time <= ".$eCreateTime;
+        }
+        if($sViewTotal!=-1){
+            $where=$where." and az_artwork_update.view_total >= ".$sViewTotal;
+        }
+        if($eViewTotal!=-1 && $eViewTotal!=0){
+            $where=$where." and az_artwork_update.view_total <= ".$eViewTotal;
+        }
+        if($sShareTotal!=-1){
+            $where=$where." and az_artwork_update.share_total >= ".$sShareTotal;
+        }
+        if($eShareTotal!=-1 && $eShareTotal!=0){
+            $where=$where." and az_artwork_update.share_total <= ".$eShareTotal;
+        }
+        if($sLikeTotal!=-1){
+            $where=$where." and az_artwork_update.like_total >= ".$sLikeTotal;
+        }
+        if($eLikeTotal!=-1 && $eLikeTotal!=0){
+            $where=$where." and az_artwork_update.like_total <= ".$eLikeTotal;
+        }
+        if($sCommentTotal!=-1){
+            $where=$where." and az_artwork_update.comment_total >= ".$sCommentTotal;
+        }
+        if($eCommentTotal!=-1 && $eCommentTotal!=0){
+            $where=$where." and az_artwork_update.comment_total <= ".$eCommentTotal;
+        }
+        if(!empty($artName)){
+            $where=$where." and az_artwork.name like '%".$artName."%' ";
+        }
+        if(!empty($artistName)){
+            $where=$where." and az_user.nickname like '%".$artistName."%' ";
+        }
+
+
+        $Model = new Model();
+        $start = ($page - 1) * $perPageCount;
+
+        $total = $Model->table('az_artwork_update')->where("is_deleted='N'")->count();
+        $totalCount = $total + $Model->table('az_art_circle')->where('status=1 and artwork_id is not null')->count();
+
+        //type 1--创作花絮（原创作记录）  2--艺术圈花絮
+        $lists = $Model->query("SELECT 1 as type,id,artwork_id,artist,number,create_time FROM `az_artwork_update` where is_deleted='N'
+union    SELECT 2 as type,id,artwork_id,user_id as artist,0 as number,create_time from az_art_circle where status=1 and artwork_id is not null order by create_time desc limit " . $start . "," . $perPageCount);
+
+
+        /* $lists = $artUpdateLogic->where($where)
+             ->field('az_user.nickname,az_artwork.name,az_artwork_update.id,az_artwork_update.artwork_id,az_artwork_update.artist,az_artwork_update.number,az_artwork_update.create_time,az_artwork_update.create_date,az_artwork_update.wit,az_artwork_update.cover,az_artwork_update.summary,az_artwork_update.view_total,az_artwork_update.share_total,az_artwork_update.like_total,az_artwork_update.comment_total')
+             ->join('az_user on az_artwork_update.artist=az_user.id', 'left')
+             ->join('az_artwork on az_artwork_update.artwork_id=az_artwork.id', 'left')
+             ->order('id DESC')->page($page, $perPageCount)->select();*/
+        foreach ($lists as $key => $value) {
+            $lists[$key]['name'] = $artLogic->where(['id' => $value['artwork_id']])->getField('name');
+            $lists[$key]['cover'] = $artLogic->where(['id' => $value['artwork_id']])->getField('cover');
+            $lists[$key]['nickname'] = $userLogic->where(['id' => $value['artist']])->getField('nickname');
+            $lists[$key]['create_time'] = $value['create_time'] ? date('Y-m-d', $value['create_time']) : '';
+            if($value['type']==2){
+                $lists[$key]['number'] = '/';
+            }
+        }
+        /*  $totalCount = $artUpdateLogic->where($where)
+              ->join('az_user on az_artwork_update.artist=az_user.id', 'left')
+              ->join('az_artwork on az_artwork_update.artwork_id=az_artwork.id', 'left')
+              ->count();*/
+        $condition = [
+            'artname'=>$artName,
+            'artistname'=>$artistName,
+            'mobile'=>$mobile,
+            'sCreateTime' => I('get.sCreateTime'),
+            'eCreateTime' => I('get.eCreateTime'),
+            'sViewTotal' => $sViewTotal==-1?'':$sViewTotal,
+            'eViewTotal' => $eViewTotal==-1?'':$eViewTotal,
+            'sShareTotal' => $sShareTotal==-1?'':$sShareTotal,
+            'eShareTotal' => $eShareTotal==-1?'':$eShareTotal,
+            'sLikeTotal' => $sLikeTotal==-1?'':$sLikeTotal,
+            'eLikeTotal' => $eLikeTotal==-1?'':$eLikeTotal,
+            'sCommentTotal' => $sCommentTotal==-1?'':$sCommentTotal,
+            'eCommentTotal' => $eCommentTotal==-1?'':$eCommentTotal,
+        ];
+        $nav = Nav::render(U('Admin/Art/artUpdate'), $condition, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    //创作花絮详情
+    public function artUpdateDetail()
+    {
+        $id = I('get.id');
+        $userLogic = new UserLogic();
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $artUpdateLogic = new ArtworkUpdateLogic();
+        $detail = $artUpdateLogic->where(['id' => $id])->find();
+        $artInfo = $artLogic->field('id,name,cover')->where(['id' => $detail['artwork_id']])->find();
+        $detail['artname'] = $artInfo['name'];
+        $detail['artcover'] = $artInfo['cover'];
+        $detail['artcover_small']=Util::getFillImage($artInfo['cover'],400,400);
+        $detail['nickname'] = $userLogic->where(['id' => $detail['artist']])->getField('nickname');
+        $detail['create_time'] = $detail['create_time'] ? date('Y-m-d', $detail['create_time']) : '';
+        $detail['tag'] = str_replace(',','/',$detail['tag']);
+        $detail['wit'] = htmlspecialchars_decode($detail['wit']);
+        $detail['content'] = Util::cleanSpecific($detail['wit']);
+        $detail['link'] = C('m_site') . '/artwork/update/' . $detail['id'];
+        //内容的图片链接
+        preg_match_all('/img.*?src="(.*?)"/', $detail['wit'], $match);
+        $images =[];
+        foreach ($match[1] as $key => $value) {
+            $small=Util::getFillImage($value,100,100);
+            $images[] = ['raw'=>$value, 'mini'=>$small];
+        }
+        $detail['image'] =$images;
+
+        $commentList = $commentLogic
+            ->field('az_comment.content,az_comment.commenter,az_comment.create_time,az_user.nickname')
+            ->where(['az_comment.is_deleted' => 'N','az_comment.topic_id' => $detail['id'],'az_comment.type' => 2])
+            ->join('az_user on az_comment.commenter=az_user.id', 'left')
+            ->order('az_comment.create_time DESC')
+            ->select();
+        foreach ($commentList as $key => &$value) {
+            $value['create_time'] = $value['create_time'] ? date('Y-m-d H:i:s', $value['create_time']) : '';
+
+        }
+
+        $this->assign('commentList', $commentList);
+        $this->assign('detail', $detail);
+        $this->assign('showType', 1);//1--创作花絮（原创作记录）  2--艺术圈花絮
+        $this->display('artworkUpdateDetail');
+    }
+
+    //艺术圈花絮详情
+    public function artCircleDetailTable()
+    {
+        $id = intval(I('get.id'));
+        $artCircleLogic = new ArtCircleLogic();
+        $userLogic = new UserLogic();
+        $artLogic = new ArtworkLogic();
+        $where['id']=$id;
+        $where['status']=1;
+        $artCircle=$artCircleLogic->where($where)->find();
+        $artInfo = $artLogic->field('id,name,cover')->where(['id' => $artCircle['artwork_id']])->find();
+        $artCircle['artname'] = $artInfo['name'];
+        $artCircle['artcover'] = $artInfo['cover'];
+        $artCircle['artcover_small']=Util::getFillImage($artInfo['cover'],400,400);
+        $artCircle['artist'] = $artCircle['user_id'];
+        $artCircle['nickname'] = $userLogic->where(['id' => $artCircle['user_id']])->getField('nickname');
+        $images_url_arr = explode(',', trim($artCircle['images_url']));
+        $images=[];
+        foreach ($images_url_arr as $key => $value) {
+            $small=Util::getFillImage($value,100,100);
+            $images[] = ['raw'=>$value, 'mini'=>$small];
+        }
+        $artCircle['image'] =$images;
+        $artCircle['create_time'] = date('Y-m-d H:i:s',$artCircle['create_time']);//Util::simpleTimeShow($value['create_time']);
+        $artCircle['like_total'] = (int)$artCircle['like_count'];
+        $artCircle['comment_total'] = (int)$artCircle['comment_count'];
+        $artCircle['view_total'] =0;
+        $artCircle['number']='/';
+        $artCircle['title']='/';
+
+        $commentList = M('art_circle_comment')
+            ->field('az_art_circle_comment.content,az_art_circle_comment.commenter,az_art_circle_comment.create_time,az_user.nickname')
+            ->where("az_art_circle_comment.art_circle_id=" . intval($id) . " and az_art_circle_comment.status=1")
+            ->join('az_user on az_art_circle_comment.commenter=az_user.id', 'left')
+            ->order('az_art_circle_comment.id DESC')
+            ->select();
+        foreach ($commentList as $key => &$value) {
+            $value['create_time'] = $value['create_time'] ? date('Y-m-d H:i:s', $value['create_time']) : '';
+
+        }
+
+        $this->assign('commentList', $commentList);
+        $this->assign('detail', $artCircle);
+        $this->assign('showType', 2);//1--创作花絮（原创作记录）  2--艺术圈花絮
+        $this->display('artworkUpdateDetail');
+    }
+
+    //艺术圈花絮
+    public function artCircleDetail(){
+        $id = intval(I('get.id'));
+        $artCircleLogic = new ArtCircleLogic();
+        if(!empty($id)){
+            $where['id']=$id;
+            $where['status']=1;
+            $artCircle=M('art_circle')->where($where)->find();
+            $images_url_arr = explode(',', trim($artCircle['images_url']));
+            if(count($images_url_arr)==1){
+                $artCircle['thumbnails'] = trim($artCircle['images_url']) == '' ? [] : Util::getImageResizes_oldProportion($images_url_arr, 300);
+            }else {
+                $artCircle['thumbnails'] = trim($artCircle['images_url']) == '' ? [] : Util::getImageResizes($images_url_arr, 300, 300);
+            }
+            $artCircle['images_url'] = trim($artCircle['images_url']) == '' ? [] : Util::imageWaters($images_url_arr);
+            $artCircle['create_time'] = date('Y.m.d H:s:i',$artCircle['create_time']);//Util::simpleTimeShow($value['create_time']);
+            $artCircle['like_count'] = (int)$artCircle['like_count'];
+            $artCircle['comment_count'] = (int)$artCircle['comment_count'];
+
+            $face_list = $artCircleLogic->recent_favorite_face($artCircle['id'], 10);
+            $artCircle['like_face'] = Util::getImageResizes($face_list, 50, 50);
+
+            $nickname_list = $artCircleLogic->recent_favorite_nickname($artCircle['id'], 10);
+            $artCircle['like_nickname'] = implode(',',$nickname_list);
+
+            $recent_comment = $artCircleLogic->recent_comment($artCircle['id'], 10);
+            $artCircle['comment_list'] = $recent_comment;
+
+            //分享
+            $ArtCircleShareLogic = new ArtCircleShareLogic();
+            $art_circle_share_list = $ArtCircleShareLogic->share_link_list_indexArtCircleId([$id]);
+            $artCircle['share_list'] = is_array($art_circle_share_list[$id]) ? $art_circle_share_list[$id] : (object)null;;
+            $this->assign('artCircle', $artCircle);
+            $this->display('artCircleDetail');
+        }
+
+    }
+
+    public function replaceHtmlImgSrc($find, $content)
+    {
+        foreach ($find as $key => $value) {
+            $content = str_replace($value, $value . '?x-oss-process=image/resize,m_fixed,w_400,image/format,jpg', $content);
+        }
+        return $content;
+    }
+
+    //标签管理
+    public function tag()
+    {
+       /*$tagLogic = new ArtworkTagLogic();
+        $lists = $tagLogic->select();
+        foreach ($lists as $key => $value) {
+            $lists[$key]['create_time'] = $value['create_time'] ? date('Y-m-d', $value['create_time']) : '';
+            $lists[$key]['total'] = $tagLogic->useTotal($value['id']);
+        }*/
+
+        $type = I('get.type',1);
+        $queryParams = [
+          /*  'page'=>$page,
+            'perPageCount'=>$perPageCount,*/
+            'type'=>$type,
+        ];
+        $lists='';
+        switch($type){
+            case 1:
+                //画作类别标签
+                $artworkCategoryLogic = new ArtworkCategoryLogic();
+                $lists = $artworkCategoryLogic->getCategoryTagList();
+                break;
+            case 2:
+                //画作题材标签
+                $artworkSubjectModel = new ArtworkSubjectModel();
+                $lists = $artworkSubjectModel->getList();
+                break;
+            case 3:
+                //画作风格标签
+                $artworkStyleModel = new ArtworkStyleModel();
+                $lists = $artworkStyleModel->getList();
+                break;
+            case 4:
+                //画作更新标签
+                $artworkUpdateTagModel = new ArtworkUpdateTagModel();
+                $lists = $artworkUpdateTagModel->getList();
+                break;
+        }
+
+        //Util::jsonReturn([ 'info' => $lists]);
+        $this->assign('queryParams', $queryParams);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    //新增标签
+    public function addTag()
+    {
+        $name = I('post.name','');
+        $type = intval(I('post.type',1));
+        $sort = I('post.sort',10);
+        if (!empty($name)) {
+          /* $tagLogic = new ArtworkTagLogic();
+            $id = $tagLogic->add([
+                'en_value' => '',
+                'cn_value' => $name,
+                'sort' => $sort,
+                'create_time' => time()
+            ]);*/
+
+            switch($type){
+                case 1:
+                    //画作类别标签
+                    $artworkCategoryLogic = new ArtworkCategoryLogic();
+                    $id = $artworkCategoryLogic->add([
+                        'en_name' => '',
+                        'cn_name' => $name,
+                        'sort' => $sort,
+                        'create_time' => time()
+                    ]);
+                    break;
+                case 2:
+                    //画作题材标签
+                    $artworkSubjectModel = new ArtworkSubjectModel();
+                    $id = $artworkSubjectModel->add([
+                        'en_name' => '',
+                        'cn_name' => $name,
+                        'sort' => $sort,
+                        'create_time' => time()
+                    ]);
+                    break;
+                case 3:
+                    //画作风格标签
+                    $artworkStyleModel = new ArtworkStyleModel();
+                    $id = $artworkStyleModel->add([
+                        'en_name' => '',
+                        'cn_name' => $name,
+                        'sort' => $sort,
+                        'create_time' => time()
+                    ]);
+                    break;
+                case 4:
+                    //画作更新标签
+                    $artworkUpdateTagModel = new ArtworkUpdateTagModel();
+                    $id = $artworkUpdateTagModel->add([
+                        'en_name' => '',
+                        'cn_name' => $name,
+                        'sort' => $sort,
+                        'create_time' => time()
+                    ]);
+                    break;
+
+            }
+            if ($id) {
+                $response = ['error' => 0, 'message' => '添加成功'];
+            }else{
+                $response = ['error' => 1, 'message' => '添加失败，请重试'];
+            }
+        }else{
+            $response = ['error' => 1, 'message' => $name.'标签名不能为空!'];
+        }
+        //$this->redirect('tag');
+        echo json_encode($response);
+    }
+
+    //删除标签
+    public function deleteTag()
+    {
+        $ids = I('post.id');
+        $type = intval(I('post.type'));
+       // Util::jsonReturn([ 'info' => $type]);
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+        $where['id'] = array('in',$ids);
+        switch($type){
+            case 1:
+                //画作类别标签
+                $artworkCategoryLogic = new ArtworkCategoryLogic();
+                $num = $artworkCategoryLogic->where($where)->delete();
+                break;
+            case 2:
+                //画作题材标签
+                $artworkSubjectModel = new ArtworkSubjectModel();
+                $num = $artworkSubjectModel->where($where)->delete();
+                break;
+            case 3:
+                //画作风格标签
+                $artworkStyleModel = new ArtworkStyleModel();
+                $num = $artworkStyleModel->where($where)->delete();
+                break;
+            case 4:
+                //画作更新标签
+                $artworkUpdateTagModel = new ArtworkUpdateTagModel();
+                $num = $artworkUpdateTagModel->where($where)->delete();
+                break;
+
+        }
+        $return=['error'=>0,'delete_num'=>$num];
+        echo json_encode($return);
+    }
+
+    //编辑标签页面显示
+    public function showEditTag()
+    {
+        $id = intval(I('get.id'));
+        $type = intval(I('get.type',1));//标签类型
+        switch($type){
+            case 1:
+                //画作类别标签
+                $artworkCategoryLogic = new ArtworkCategoryLogic();
+                $data = $artworkCategoryLogic->find($id);
+                break;
+            case 2:
+                //画作题材标签
+                $artworkSubjectModel = new ArtworkSubjectModel();
+                $data = $artworkSubjectModel->find($id);
+                break;
+            case 3:
+                //画作风格标签
+                $artworkStyleModel = new ArtworkStyleModel();
+                $data = $artworkStyleModel->find($id);
+                break;
+            case 4:
+                //画作更新标签
+                $artworkUpdateTagModel = new ArtworkUpdateTagModel();
+                $data = $artworkUpdateTagModel->find($id);
+                break;
+        }
+        $this->assign('data', $data);
+        $this->assign('type', $type);
+        $this->display('editTag');
+    }
+
+    //编辑标签
+    public function editTag()
+    {
+        $id = intval(I('post.id'));  //ID
+        $type = intval(I('post.type',1));//标签类型
+        $name = I('post.name','');  //标签名称
+        $sort = intval(I('post.sort'));  //排序
+        $where['id'] = $id;
+        $data=[
+            'cn_name'=>$name,
+            'sort'=>$sort,
+        ];
+        switch($type){
+            case 1:
+                //画作类别标签
+                $artworkCategoryLogic = new ArtworkCategoryLogic();
+                $result = $artworkCategoryLogic->where($where)->save($data);
+                break;
+            case 2:
+                //画作题材标签
+                $artworkSubjectModel = new ArtworkSubjectModel();
+                $result = $artworkSubjectModel->where($where)->save($data);
+                break;
+            case 3:
+                //画作风格标签
+                $artworkStyleModel = new ArtworkStyleModel();
+                $result = $artworkStyleModel->where($where)->save($data);
+                break;
+            case 4:
+                //画作更新标签
+                $artworkUpdateTagModel = new ArtworkUpdateTagModel();
+                $result = $artworkUpdateTagModel->where($where)->save($data);
+                break;
+        }
+        if ($result) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+    }
+
+    public function category()
+    {
+        $categoryLogic = new ArtworkCategoryLogic();
+        $lists = $categoryLogic->select();
+        foreach ($lists as $key => $value) {
+            $lists[$key]['create_time'] = $value['create_time'] ? date('Y-m-d', $value['create_time']) : '';
+            $lists[$key]['total'] = $categoryLogic->useTotal($value['id']);
+        }
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    public function addCategory()
+    {
+        $name = I('post.name');
+        if (!empty($name)) {
+            $categoryLogic = new ArtworkCategoryLogic();
+            $categoryLogic->add([
+                'en_name' => '',
+                'cn_name' => $name,
+                'sort' => 0,
+                'create_time' => time()
+            ]);
+        }
+        $this->redirect('category');
+    }
+}

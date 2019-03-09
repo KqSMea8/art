@@ -1,0 +1,727 @@
+<?php
+
+
+namespace V50\Controller;
+
+use V50\Base\ApiBaseController;
+use V50\Logic\ArtworkLogic;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use Custom\Define\Image;
+use V50\Logic\UserLogic;
+use V50\Logic\ArtworkUpdateLogic;
+
+class RecommendationController extends ApiBaseController
+{
+    function Index()
+    {
+        //后台生成推荐 start
+        $Recommendation_run_per_day = S('Recommendation_run_per_day');
+        if ($Recommendation_run_per_day != date('Y-m-d')) {
+            $this->Recommendation_per_day($_SERVER['SERVER_NAME']);
+            S('Recommendation_run_per_day', date('Y-m-d'), 1800);
+        }
+        //后台生成推荐 end
+
+
+        $page = (int)I('post.page');
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = 6;
+
+        $history = (int)I('post.history');
+        $history = $history != 1 ? 0 : $history;
+        $today_start = strtotime(date('Y-m-d'));
+
+        $RecommendationModel = M('Recommendation');
+        $where['status'] = 1;
+        if ($history == 1) {//查询历史记录
+            $where['create_time'] = array("LT", $today_start);
+        } else {//查询今天最新的
+            $where['create_time'] = array("GT", $today_start);
+        }
+        $total = $RecommendationModel->where($where)->count();
+        $list = $RecommendationModel
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+
+        $user_ids = [];//用户id列表
+        $article_ids = [];//文章id列表
+        $artwork_ids = [];//作品id列表
+        $Article_list = [];
+        $Artwork_list = [];
+        $user_list = [];
+        foreach ($list as $value) {
+            if ($value['type'] == 'article') {
+                array_push($article_ids, $value['recommended_id']);
+            }
+            if ($value['type'] == 'artwork') {
+                array_push($artwork_ids, $value['recommended_id']);
+            }
+
+        }
+
+        //艺术号文章
+        if (count($article_ids) > 0) {
+            $ArticleModel = M('Article');
+            $where_Article['status'] = 1;
+            $where_Article['id'] = ['in', $article_ids];
+            $Articles = $ArticleModel->field('id,title,artist as user_id,cover,views')->where($where_Article)->select();
+
+            foreach ($Articles as $value) {
+                array_push($user_ids, $value['user_id']);
+                $Article_list[$value['id']] = $value;
+            }
+
+        }
+
+        //作品
+        if (count($artwork_ids) > 0) {
+            $ArtworkModel = M('Artwork');
+            $where_Artwork['state'] = 1;
+            $where_Artwork['is_deleted'] = 'N';
+            $where_Artwork['id'] = ['in', $artwork_ids];
+            $Artworks = $ArtworkModel->field('id,name as title,artist as user_id,cover,view_total as views')->where($where_Artwork)->select();
+
+            foreach ($Artworks as $value) {
+                array_push($user_ids, $value['user_id']);
+                $Artwork_list[$value['id']] = $value;
+            }
+        }
+
+        //用户
+        if (count($user_ids) > 0) {
+            $userLogic = new UserLogic();
+            $agencyTypeList = $userLogic->getAgencyTypeList_byUids($user_ids);//机构列表
+
+
+            $userModel = M('user');
+            $where_user['id'] = ['in', $user_ids];
+            $users = $userModel->field('id,nickname,face,role')->where($where_user)->select();
+
+            foreach ($users as $value) {
+                $user = [];
+                $user['id'] = $value['id'];
+                $user['nickname'] = $value['nickname'];
+                $user['face'] = Util::getImageResize($value['face'], Image::faceWidth, Image::faceHeight);
+                $user['is_artist'] = strpos(',' . $value['role'] . ',', ',artist,') !== false ? 1 : 0;
+                $user['is_agency'] = strpos(',' . $value['role'] . ',', ',agency,') !== false ? 1 : 0;
+                $user['AgencyType'] = (int)$agencyTypeList[$value['id']];
+                $user["is_planner"] = strpos(',' . $value['role'] . ',', ',planner,') !== false ? 1 : 0;
+                $user_list[$value['id']] = $user;
+            }
+
+        }
+
+
+        $recommendation_list = [];
+        foreach ($list as $value) {
+
+            $recommendation_row = [];
+
+            if ($value['type'] == 'article') {
+                if(!$Article_list[$value['recommended_id']]){// 推荐后被用户隐藏删除的不显示
+                    continue;
+                }
+                $recommendation_row['type'] = $value['type'];
+                $recommendation_row['action'] = $value['action'];
+                $recommendation_row['is_ad'] = 0;
+                $recommendation_row['title'] = $Article_list[$value['recommended_id']]['title'];
+                $recommendation_row['views'] = $Article_list[$value['recommended_id']]['views'];
+                $recommendation_row['cover'] = Util::getImageResize($Article_list[$value['recommended_id']]['cover'], 519, 264);
+                $recommendation_row['recommended_id'] = $value['recommended_id'];
+                $recommendation_row['user_info'] = $user_list[$Article_list[$value['recommended_id']]['user_id']];
+            } elseif ($value['type'] == 'artwork') {
+                if(!$Artwork_list[$value['recommended_id']]){// 推荐后被用户隐藏删除的不显示
+                    continue;
+                }
+                $artwork_name = trim($Artwork_list[$value['recommended_id']]['title']);
+                if (!preg_match("/《(.*)》/", $artwork_name)) {
+                    $artwork_name = '《' . $artwork_name . '》';
+                }
+
+                $ArtworkUpdate = new ArtworkUpdateLogic();
+                $artwork_update_view = $ArtworkUpdate->field('sum(view_total) as view_total ')->where(['artwork_id'=>intval($value['recommended_id'])])->find();
+                $recommendation_row['views']=(string)($Artwork_list[$value['recommended_id']]['views']+$artwork_update_view['view_total']);
+
+                $recommendation_row['type'] = $value['type'];
+                $recommendation_row['action'] = $value['action'];
+                $recommendation_row['is_ad'] = 0;
+                $recommendation_row['title'] = $artwork_name;
+
+                $recommendation_row['cover'] = Util::getImageResize($Artwork_list[$value['recommended_id']]['cover'], 519, 264);
+                $recommendation_row['recommended_id'] = $value['recommended_id'];
+                $recommendation_row['user_info'] = $user_list[$Artwork_list[$value['recommended_id']]['user_id']];
+            }
+
+
+            $recommendation_list[] = $recommendation_row;//添加进recommendation_list
+        }
+
+        //插入广告位  start
+        $Ad_list = S('Recommendation_' . $history . '_' . $page);
+        if (!is_array($Ad_list)) {
+            $Ad_list = $this->getAd($page,$article_ids,$artwork_ids);
+            S('Recommendation_' . $history . '_' . $page, $Ad_list, 130);
+        }
+//        $Ad_list = $this->getAd($page,$article_ids,$artwork_ids);
+
+
+//        print_r($Ad_list);exit;
+
+        $thispage_total = count($list);
+        if ($thispage_total > 0) {
+            if ($Ad_list[0]) array_splice($recommendation_list, 0, 0, [$Ad_list[0]]);
+        }
+        if ($thispage_total >= 2) {
+            if ($Ad_list[1]) array_splice($recommendation_list, 3, 0, [$Ad_list[1]]);
+        }
+        if ($thispage_total >= 4) {
+            if ($Ad_list[2]) array_splice($recommendation_list, 6, 0, [$Ad_list[2]]);
+        }
+        if ($thispage_total >= 6) {
+            if ($Ad_list[3]) array_splice($recommendation_list, 9, 0, [$Ad_list[3]]);
+        }
+        //插入广告位  end
+
+
+        //关注 start
+        $user_ids = [];//用户id列表
+
+        $user_list_follow = [];
+
+        foreach ($recommendation_list as $value) {
+            array_push($user_ids, $value['user_info']['id']);
+        }
+
+        if (count($user_ids)) {
+            $user_followerModel = M('user_follower');
+            $where_user_follow['user_id'] = ['in', $user_ids];
+            $where_user_follow['follower'] = (int)$this->loginUserId;
+            $where_user_follow['is_follow'] = 'Y';
+            $user_followers = $user_followerModel->field('user_id')->where($where_user_follow)->select();
+            foreach ($user_followers as $user_follower) {
+                $user_list_follow[$user_follower['user_id']] = 1;
+            }
+        }
+
+        //is_follow
+        foreach ($recommendation_list as &$value) {
+            $value['is_follow'] = (int)$user_list_follow[$value['user_info']['id']];
+        }
+
+
+        //关注  end
+
+
+        $maxpage = ceil($total / $pagesize);
+        $info = [
+            'list' => $recommendation_list,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+    }
+
+
+
+    private function getAd($page,$article_ids,$artwork_ids)
+    {
+
+
+        //排除重复id
+        /*
+         列表页：文章 作品
+            1艺术家 专题
+            2艺术家  (要排除重复)
+            3专题  (要排除重复)
+            4 文章 花絮  (文章要排除重复)
+         */
+        $article_ids_remove=$article_ids;
+        $artwork_ids_remove=$artwork_ids;
+        $artist_ids_remove=[];
+        $subject_ids_remove=[];
+        $artwork_update_ids_remove=[];
+
+        //排除重复id end
+
+
+
+        $list = [];
+        $thistime = time();
+        $thisdate = date('Y-m-d', $thistime);
+
+
+        //广告1 start
+        $recommendation_row = [];
+        $recommendation_ad_first_M = M('recommendation_ad_first');
+        $map_recommendation_ad_first['recommended_time_start'] = ['LT', $thistime];
+        $map_recommendation_ad_first['recommended_time_end'] = ['GT', $thistime];
+        $map_recommendation_ad_first['status'] = 1;
+
+        //第一条广告，不重复出现Recommendation_last_ad1_id+token,保存缓存
+        $last_ad1_id = (int)S('Recommendation_last_ad1_id'.($page-1));
+        if ($last_ad1_id > 0) {
+            $map_recommendation_ad_first['id'] = ['NEQ', $last_ad1_id];
+        }
+
+
+
+        $where_1['type'] = 'article';
+        $where_2['type'] = 'artist';
+        $where_3['type'] = 'subject';
+
+        if(count($article_ids_remove)>0) {//排除重复
+            $where_1['recommended_id'] = ['not in', $article_ids_remove];
+        }
+
+        $map_recommendation_ad_first['_complex'] = array(
+            $where_1,
+            $where_2,
+            $where_3,
+            '_logic' => 'or'
+        );
+
+        //第一页的时候，显示自定义的推荐
+        if($page==1){
+            $thisday_time_start=strtotime(date('Y-m-d',$thistime));
+            $recommendation_ad_first_page1_where['recommended_time_end'] = ['EGT', $thisday_time_start];
+            $recommendation_ad_first_page1_where['status'] = 1;
+            $recommendation_ad_first = M('recommendation_ad_first_page1')->field('id,type,recommended_id')->where($recommendation_ad_first_page1_where)->order('id desc')->find();
+
+            //自定义推荐没数据时，返回系统自动的推荐
+            if(!$recommendation_ad_first) {
+                $recommendation_ad_first = $recommendation_ad_first_M->field('id,type,recommended_id')->where($map_recommendation_ad_first)->order('rand()')->find();
+            }
+        }else{
+            //系统自动的推荐
+            $recommendation_ad_first = $recommendation_ad_first_M->field('id,type,recommended_id')->where($map_recommendation_ad_first)->order('rand()')->find();
+        }
+
+        S('Recommendation_last_ad1_id'.$page, $recommendation_ad_first['id'], 200);
+//        echo $recommendation_ad_first_M->getLastSql();exit;
+        if ($recommendation_ad_first) {
+            if ($recommendation_ad_first['type'] == 'article') {
+                array_push($article_ids_remove, $recommendation_ad_first['recommended_id']);
+
+                $article_M = M('article');
+                $article_where_ad1 = [];
+                $article_where_ad1['status'] = 1;
+                $article_where_ad1['id'] = $recommendation_ad_first['recommended_id'];
+                $article_info = $article_M->field('id,title,cover,views,artist')->where($article_where_ad1)->find();
+                if($article_info) {
+                    $userLogic = new UserLogic();
+                    $agencyTypeList = $userLogic->getAgencyTypeList_byUids([$article_info['artist']]);//机构列表
+
+                    $user_M = M('user');
+                    $user_where = [];
+                    $user_where['id'] = $article_info['artist'];
+                    $user_info_ = $user_M->field('id,nickname,face,role')->where($user_where)->find();
+                    // print_r($article_info);exit;
+
+                    $user_info['id'] = $user_info_['id'];
+                    $user_info['nickname'] = $user_info_['nickname'];
+                    $user_info['face'] = Util::getImageResize($user_info_['face'], Image::faceWidth, Image::faceHeight);
+                    $user_info['is_artist'] = strpos(',' . $user_info_['role'] . ',', ',artist,') !== false ? 1 : 0;
+                    $user_info['is_agency'] = strpos(',' . $user_info_['role'] . ',', ',agency,') !== false ? 1 : 0;
+                    $user_info['AgencyType'] = (int)$agencyTypeList[$user_info_['id']];
+                    $user_info["is_planner"] = strpos(',' . $user_info_['role'] . ',', ',planner,') !== false ? 1 : 0;
+
+
+                    $title = trim($article_info['title']);
+                    $title = str_replace('一周推荐 |', '', $title);
+                    $title = str_replace('丨一周推荐', '', $title);
+
+
+                    $recommendation_row['type'] = 'article';
+                    $recommendation_row['action'] = 'ad_1';
+                    $recommendation_row['is_ad'] = 1;
+                    $recommendation_row['title'] = $title;
+                    $recommendation_row['views'] = (int)$article_info['views'];
+                    $recommendation_row['cover'] = Util::getImageResize($article_info['cover'], 519, 264);
+                    $recommendation_row['recommended_id'] = $article_info['id'];
+                    $recommendation_row['user_info'] = $user_info;
+                    $list[0] = $recommendation_row;
+                }
+            }
+            elseif ($recommendation_ad_first['type'] == 'artist') {
+                array_push($artist_ids_remove,$recommendation_ad_first['recommended_id']);
+
+                $userLogic = new UserLogic();
+                $agencyTypeList = $userLogic->getAgencyTypeList_byUids([$recommendation_ad_first['recommended_id']]);//机构列表
+
+                $userModel = M('user');
+                $where_user = [];
+                $where_user['az_user.id'] = ['in', $recommendation_ad_first['recommended_id']];
+                $user = $userModel->field('az_user.id,az_user.nickname,az_user.face,az_user.role,az_gallery.view_total as views,az_gallery.cover')->join('az_gallery on az_user.id=az_gallery.artist', 'left')->where($where_user)->find();
+
+                if ($user) {
+                    $user_info['id'] = $user['id'];
+                    $user_info['nickname'] = $user['nickname'];
+                    $user_info['face'] = Util::getImageResize($user['face'], Image::faceWidth, Image::faceHeight);
+                    $user_info['is_artist'] = strpos(',' . $user['role'] . ',', ',artist,') !== false ? 1 : 0;
+                    $user_info['is_agency'] = strpos(',' . $user['role'] . ',', ',agency,') !== false ? 1 : 0;
+                    $user_info['AgencyType'] = (int)$agencyTypeList[$user['id']];
+                    $user_info["is_planner"] = strpos(',' . $user['role'] . ',', ',planner,') !== false ? 1 : 0;
+
+
+                    $artLogic = new ArtworkLogic();
+
+                    $recommendation_row['type'] = 'artist';
+                    $recommendation_row['action'] = 'ad_1';
+                    $recommendation_row['is_ad'] = 1;
+                    $recommendation_row['title'] = $user['nickname'];
+//                    $recommendation_row['views'] = (int)$user['views'];
+                    $recommendation_row['views'] = intval($artLogic->where(['is_deleted' => 'N','artist'=>$user['id']])->sum('view_total'));
+                    $recommendation_row['cover'] = Util::getImageResize($user['cover'], 519, 264);
+                    $recommendation_row['recommended_id'] = $user['id'];
+                    $recommendation_row['user_info'] = $user_info;
+                    $list[0] = $recommendation_row;
+                }
+            } else if ($recommendation_ad_first['type'] == 'subject') {
+                array_push($subject_ids_remove,$recommendation_ad_first['recommended_id']);
+
+                $subjectModel = M('subject');
+                $where_subject1 = [];
+                $where_subject1['status'] = 0;
+                $where_subject1['id'] = ['in', $recommendation_ad_first['recommended_id']];
+                $where_subject1['start_time'] = ['LT', $thistime];
+                $where_subject1['end_time'] = ['GT', $thistime];
+                $subject = $subjectModel->field('id,sub_title as title,cover,view_num as views,type as subject_type')->where($where_subject1)->find();
+                if ($subject) {
+
+                    $where_user = [];
+                    $userModel = M('user');
+                    $where_user['az_user.id'] = 100001;
+                    $user = $userModel->field('az_user.id,az_user.nickname,az_user.face,az_user.role')->where($where_user)->find();
+
+                    $userLogic = new UserLogic();
+                    $agencyTypeList = $userLogic->getAgencyTypeList_byUids([$user['id']]);//机构列表
+
+                    $user_info['id'] = $user['id'];
+                    $user_info['nickname'] = $user['nickname'];
+                    $user_info['face'] = Util::getImageResize($user['face'], Image::faceWidth, Image::faceHeight);
+                    $user_info['is_artist'] = strpos(',' . $user['role'] . ',', ',artist,') !== false ? 1 : 0;
+                    $user_info['is_agency'] = strpos(',' . $user['role'] . ',', ',agency,') !== false ? 1 : 0;
+                    $user_info['AgencyType'] = (int)$agencyTypeList[$user['id']];
+                    $user_info["is_planner"] = strpos(',' . $user['role'] . ',', ',planner,') !== false ? 1 : 0;
+
+
+                    $recommendation_row['html5_description'] = C('m_site') . '/subject/content/' . $subject['id'];
+                    $recommendation_row['type'] = 'subject';
+                    $recommendation_row['action'] = 'ad_1';
+                    $recommendation_row['is_ad'] = 1;
+                    $recommendation_row['subject_type'] = $subject['subject_type'];
+                    $recommendation_row['title'] = $subject['title'];
+                    $recommendation_row['views'] = (int)$subject['views'];
+                    $recommendation_row['cover'] = Util::getImageResize($subject['cover'], 519, 264);
+                    $recommendation_row['recommended_id'] = $subject['id'];
+                    $recommendation_row['user_info'] = $user_info;
+                    $list[0] = $recommendation_row;
+                }
+            }
+
+
+        }
+        //广告1 end
+
+        //广告2 start
+
+        $recommendation_row = [];
+        $userModel = M('user');
+        $where_user = [];
+        $where_user['az_user.is_deleted'] = 'N';
+        $where_user['az_artwork.state'] = 1;
+        $where_user['az_artwork.update_times'] = ["GT", 0];
+        $where_user['az_user.art_total'] = ["EGT", 20];
+        $where_user['az_user.follower_total'] = ["EGT", 100];
+        $where_user['_string'] = 'FIND_IN_SET("artist", az_user.role)';
+        $where_user['az_gallery.cover'] = ['NEQ', ''];
+
+        if(count($artist_ids_remove)>0) {//排除重复
+            $where_user['az_user.id'] = ['not in', $artist_ids_remove];
+        }
+
+        $user = $userModel->field('az_user.id,az_user.nickname,az_user.face,az_user.role,az_gallery.view_total as views,az_gallery.cover')
+            ->join('az_gallery on az_user.id=az_gallery.artist', 'left')
+            ->join('az_artwork on az_user.id=az_artwork.artist', 'left')
+            ->where($where_user)
+            ->order('rand()')
+            ->find();
+//echo $userModel->getLastSql();exit;
+        if ($user) {
+            array_push($artist_ids_remove,$user['id']);
+            //画作被浏览总数
+            $artLogic = new ArtworkLogic();
+
+
+            $userLogic = new UserLogic();
+            $agencyTypeList = $userLogic->getAgencyTypeList_byUids([$user['id']]);//机构列表
+
+            $user_info['id'] = $user['id'];
+            $user_info['nickname'] = $user['nickname'];
+            $user_info['face'] = Util::getImageResize($user['face'], Image::faceWidth, Image::faceHeight);
+            $user_info['is_artist'] = strpos(',' . $user['role'] . ',', ',artist,') !== false ? 1 : 0;
+            $user_info['is_agency'] = strpos(',' . $user['role'] . ',', ',agency,') !== false ? 1 : 0;
+            $user_info['AgencyType'] = (int)$agencyTypeList[$user['id']];
+            $user_info["is_planner"] = strpos(',' . $user['role'] . ',', ',planner,') !== false ? 1 : 0;
+
+
+            $recommendation_row['type'] = 'artist';
+            $recommendation_row['action'] = 'ad_2';
+            $recommendation_row['is_ad'] = 1;
+            $recommendation_row['title'] = $user['nickname'];
+//            $recommendation_row['views'] = (int)$user['views'];
+            $recommendation_row['views'] = intval($artLogic->where(['is_deleted' => 'N','artist'=>$user['id']])->sum('view_total'));
+            $recommendation_row['cover'] = Util::getImageResize($user['cover'], 519, 264);
+            $recommendation_row['recommended_id'] = $user['id'];
+            $recommendation_row['user_info'] = $user_info;
+            $list[1] = $recommendation_row;
+        }
+
+//广告2 end
+
+//广告3 start
+        $recommendation_row = [];
+        $az_recommendation_ad_subject_M = M('recommendation_ad_subject');
+        $map_az_recommendation_ad_subject['recommended_date'] = $thisdate;
+        $map_az_recommendation_ad_subject['status'] = 1;
+
+        if(count($subject_ids_remove)>0) {//排除重复
+            $map_az_recommendation_ad_subject['recommended_id'] = ['not in', $subject_ids_remove];
+        }
+
+        $az_recommendation_ad_subject = $az_recommendation_ad_subject_M->field('type,recommended_id')->where($map_az_recommendation_ad_subject)->order('rand()')->find();
+//        echo $az_recommendation_ad_subject_M->getLastSql();exit;
+        if ($az_recommendation_ad_subject) {
+            array_push($subject_ids_remove,$az_recommendation_ad_subject['recommended_id']);
+
+            $subjectModel = M('subject');
+            $where_subject = [];
+            $where_subject['id'] = ['in', $az_recommendation_ad_subject['recommended_id']];
+            $subject = $subjectModel->field('id,sub_title as title,cover,view_num as views,type as subject_type')->where($where_subject)->find();
+            if ($subject) {
+
+                $where_user = [];
+                $userModel = M('user');
+                $where_user['az_user.id'] = 100001;
+                $user = $userModel->field('az_user.id,az_user.nickname,az_user.face,az_user.role')->where($where_user)->find();
+
+                $userLogic = new UserLogic();
+                $agencyTypeList = $userLogic->getAgencyTypeList_byUids([$user['id']]);//机构列表
+
+                $user_info['id'] = $user['id'];
+                $user_info['nickname'] = $user['nickname'];
+                $user_info['face'] = Util::getImageResize($user['face'], Image::faceWidth, Image::faceHeight);
+                $user_info['is_artist'] = strpos(',' . $user['role'] . ',', ',artist,') !== false ? 1 : 0;
+                $user_info['is_agency'] = strpos(',' . $user['role'] . ',', ',agency,') !== false ? 1 : 0;
+                $user_info['AgencyType'] = (int)$agencyTypeList[$user['id']];
+                $user_info["is_planner"] = strpos(',' . $user['role'] . ',', ',planner,') !== false ? 1 : 0;
+
+
+                $recommendation_row['html5_description'] = C('m_site') . '/subject/content/' . $subject['id'];
+                $recommendation_row['type'] = 'subject';
+                $recommendation_row['action'] = 'ad_3';
+                $recommendation_row['is_ad'] = 1;
+                $recommendation_row['subject_type'] = $subject['subject_type'];
+                $recommendation_row['title'] = $subject['title'];
+                $recommendation_row['views'] = (int)$subject['views'];
+                $recommendation_row['cover'] = Util::getImageResize($subject['cover'], 519, 264);
+                $recommendation_row['recommended_id'] = $subject['id'];
+                $recommendation_row['user_info'] = $user_info;
+                $list[2] = $recommendation_row;
+            }
+        }
+
+//广告3 end
+
+//广告4 start
+        $recommendation_row = [];
+        $az_recommendation_ad_fourth_M = M('recommendation_ad_fourth');
+
+        //$map_az_recommendation_ad_fourth['recommended_date'] = $thisdate;//永久有效，不需要日期限制
+        $map_az_recommendation_ad_fourth['status'] = 1;
+        //三个文章之后，显示花絮
+        if ($page % 4 == 0) {
+            $map_az_recommendation_ad_fourth['type'] = 'artwork_update';
+        } else {
+            $map_az_recommendation_ad_fourth['type'] = 'article';
+
+            if(count($article_ids_remove)>0) {//排除重复
+                $map_az_recommendation_ad_fourth['recommended_id'] = ['not in', $article_ids_remove];
+            }
+        }
+
+        $thistime = time();
+        $year_weekth=date('Y-W',$thistime);
+
+        $where_1['type'] = 'artwork_update';
+        $where_2['type'] = 'article';
+        $where_2['year_weekth'] = $year_weekth;
+        $map_az_recommendation_ad_fourth['_complex'] = array(
+            $where_1,
+            $where_2,
+            '_logic' => 'or'
+        );
+        if ($page % 4 == 0) {
+            $az_recommendation_ad_fourth = $az_recommendation_ad_fourth_M->field('id,type,recommended_id')->where($map_az_recommendation_ad_fourth)->order('rand()')->find();
+        } else {
+            $az_recommendation_ad_fourth_count = $az_recommendation_ad_fourth_M->field('id,type,recommended_id')->where($map_az_recommendation_ad_fourth)->count();
+
+            //交替出现，只有一条时不交替
+            if ($az_recommendation_ad_fourth_count > 1) {
+                $last_ad1_id = (int)S('Recommendation_last_ad4_id'.($page-1));
+                if ($last_ad1_id > 0) {
+                    $map_az_recommendation_ad_fourth['id'] = ['NEQ', $last_ad1_id];
+                }
+            }
+            $az_recommendation_ad_fourth = $az_recommendation_ad_fourth_M->field('id,type,recommended_id')->where($map_az_recommendation_ad_fourth)->order('rand()')->find();
+            if ($az_recommendation_ad_fourth_count > 1) {
+                S('Recommendation_last_ad4_id'.$page, $az_recommendation_ad_fourth['id'], 200);
+            }
+        }
+
+
+//        echo $az_recommendation_ad_fourth_M->getLastSql();exit;
+        if ($az_recommendation_ad_fourth) {
+            if ($az_recommendation_ad_fourth['type'] == 'article') {
+                $article_M = M('article');
+                $article_where = [];
+                $article_where['status'] = 1;
+                $article_where['id'] = $az_recommendation_ad_fourth['recommended_id'];
+                $article_info = $article_M->field('id,title,cover,views,artist')->where($article_where)->find();
+                if($article_info) {
+                    $userLogic = new UserLogic();
+                    $agencyTypeList = $userLogic->getAgencyTypeList_byUids([$article_info['artist']]);//机构列表
+
+                    $user_M = M('user');
+                    $user_where = [];
+                    $user_where['id'] = $article_info['artist'];
+                    $user_info_ = $user_M->field('id,nickname,face,role')->where($user_where)->find();
+                    // print_r($article_info);exit;
+
+                    $user_info['id'] = $user_info_['id'];
+                    $user_info['nickname'] = $user_info_['nickname'];
+                    $user_info['face'] = Util::getImageResize($user_info_['face'], Image::faceWidth, Image::faceHeight);
+                    $user_info['is_artist'] = strpos(',' . $user_info_['role'] . ',', ',artist,') !== false ? 1 : 0;
+                    $user_info['is_agency'] = strpos(',' . $user_info_['role'] . ',', ',agency,') !== false ? 1 : 0;
+                    $user_info['AgencyType'] = (int)$agencyTypeList[$user_info_['id']];
+                    $user_info["is_planner"] = strpos(',' . $user_info_['role'] . ',', ',planner,') !== false ? 1 : 0;
+
+
+                    $title = trim($article_info['title']);
+                    $title = str_replace('一周推荐 |', '', $title);
+                    $title = str_replace('丨一周推荐', '', $title);
+
+
+                    $recommendation_row['type'] = 'article';
+                    $recommendation_row['action'] = 'ad_4';
+                    $recommendation_row['is_ad'] = 1;
+                    $recommendation_row['title'] = $title;
+                    $recommendation_row['views'] = (int)$article_info['views'];
+                    $recommendation_row['cover'] = Util::getImageResize($article_info['cover'], 519, 264);
+                    $recommendation_row['recommended_id'] = $article_info['id'];
+                    $recommendation_row['user_info'] = $user_info;
+                    $list[3] = $recommendation_row;
+                }
+
+            } elseif ($az_recommendation_ad_fourth['type'] == 'artwork_update') {
+                //只有视频花絮
+                $artwork_update_M = M('artwork_update');
+                $artwork_update_where['status'] = 1;
+                $artwork_update_where['id'] = $az_recommendation_ad_fourth['recommended_id'];
+                $artwork_update_info = $artwork_update_M->field('id,title,artwork_id,wit,artist,view_total as views')->where($artwork_update_where)->find();
+                if($artwork_update_info) {
+                    preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $artwork_update_info['wit'], $match);
+                    $poster = empty($match[1]) ? '' : $match[1][0];
+
+
+                    if (empty($artwork_update_info['title'])) {
+                        $artwork_M = M('artwork');
+                        $artwork_info = $artwork_M->field('name')->where(['id' => $artwork_update_info['artwork_id']])->find();
+                        $artwork_name = $artwork_info['name'];
+
+                        if (!preg_match("/《(.*)》/", $artwork_name)) {
+                            $artwork_name = '《' . $artwork_name . '》';
+                        }
+                    }
+
+
+                    $userLogic = new UserLogic();
+                    $agencyTypeList = $userLogic->getAgencyTypeList_byUids([$artwork_update_info['artist']]);//机构列表
+
+                    $user_M = M('user');
+                    $user_where = [];
+                    $user_where['id'] = $artwork_update_info['artist'];
+                    $user_info_ = $user_M->field('id,nickname,face,role')->where($user_where)->find();
+                    // print_r($article_info);exit;
+
+                    $user_info['id'] = $user_info_['id'];
+                    $user_info['nickname'] = $user_info_['nickname'];
+                    $user_info['face'] = Util::getImageResize($user_info_['face'], Image::faceWidth, Image::faceHeight);
+                    $user_info['is_artist'] = strpos(',' . $user_info_['role'] . ',', ',artist,') !== false ? 1 : 0;
+                    $user_info['is_agency'] = strpos(',' . $user_info_['role'] . ',', ',agency,') !== false ? 1 : 0;
+                    $user_info['AgencyType'] = (int)$agencyTypeList[$user_info_['id']];
+                    $user_info["is_planner"] = strpos(',' . $user_info_['role'] . ',', ',planner,') !== false ? 1 : 0;
+
+
+                    //只有视频花絮
+                    $recommendation_row['video'] = 1;
+                    $recommendation_row['type'] = 'feature';//花絮
+                    $recommendation_row['action'] = 'ad_4';
+                    $recommendation_row['is_ad'] = 1;
+                    $recommendation_row['title'] = empty($artwork_update_info['title']) ? $artwork_name . '花絮' : $artwork_update_info['title']; //作品id
+                    $recommendation_row['views'] = (int)$artwork_update_info['views'];
+                    $recommendation_row['cover'] = Util::getImageResize($poster, 519, 264);
+                    $recommendation_row['recommended_id'] = $artwork_update_info['id'];
+                    $recommendation_row['user_info'] = $user_info;
+                    $list[3] = $recommendation_row;
+                }
+            }
+        }
+
+//广告4 end
+
+        return $list;
+
+    }
+
+    private function Recommendation_per_day($host)
+    {
+        if ($host == 'test-api.artzhe.com' || $host == 'harry-api.artzhe.com' || $host == 'api.artzhe.com') {
+            $port = 443;
+            $errno = '';
+            $errstr = '';
+            $timeout = 10;
+            $url = '/Admin/BackgroundRun/Recommendation';
+
+            $param = array(
+                'key' => 'JHf354dsk543gh'
+            );
+
+            $url = $url . '?' . http_build_query($param);
+
+// create connect
+            $fp = fsockopen('ssl://' . $host, $port, $errno, $errstr, $timeout);
+
+            if (!$fp) {
+                return false;
+            }
+
+// send request
+            $out = "GET ${url} HTTP/1.1\r\n";
+            $out .= "Host: ${host}\r\n";
+            $out .= "Connection:close\r\n\r\n";
+
+            fputs($fp, $out);
+            fclose($fp);
+        }
+    }
+}

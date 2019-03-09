@@ -1,0 +1,121 @@
+<?php
+namespace H5\Controller;
+
+use Custom\Helper\Util;
+use Think\Controller;
+
+//关注模块
+class FollowController extends Controller {
+
+	//我的关注,分页列表
+	public function getData(){
+
+		$data = [
+					'list'=>[
+								[
+									'id'=>1,
+									'follower'=>[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'user'=>	[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'time'=>'2017-04-01 12:12',
+								],
+								[
+									'id'=>1,
+									'follower'=>[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'user'=>	[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'time'=>'2017-04-01 12:12',
+								],
+							],
+					'total'=>138,
+					'curpage'=>2,
+					'size'=>20,
+					'last'=>7,
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//关注读取
+	public function follow(){
+
+		$data = ['id'=>10];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//关注删除
+	public function cancel(){
+
+		$data = [
+					'id'=>1,
+					'follower'=>[
+								[
+									'id'=>'1',
+									'nickname'=>'油画',
+									'motto'=>'motto',
+									'gender'=>'gender',
+									'face'=>'face',
+									'level'=>'level',
+									'mp'=>'mp',
+								]
+							],
+					'user'=>	[
+								[
+									'id'=>'1',
+									'nickname'=>'油画',
+									'motto'=>'motto',
+									'gender'=>'gender',
+									'face'=>'face',
+									'level'=>'level',
+									'mp'=>'mp',
+								]
+							],
+					'time'=>'2017-04-01 12:12',
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//关注统计
+	public function statistics(){
+
+		$data = ['total'=>800,'follow'=>21,'cancel'=>621];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+}

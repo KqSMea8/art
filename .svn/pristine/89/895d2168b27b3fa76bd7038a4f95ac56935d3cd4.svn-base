@@ -1,0 +1,293 @@
+html, body {
+  height: 100%;
+  background-color: #eee;
+}
+
+/* 最新作品 */
+
+/* 轮播切换点 */
+.swiper-pagination-bullet {
+  width: 0.16rem;
+  height: 0.16rem;
+  border: 1px solid #eaab32;
+  background-color: transparent;
+  opacity: 1;
+}
+.swiper-pagination-bullet-active {
+  background-color: #eaab32;
+}
+/* 轮播切换点 end */
+
+/* 作品描述 */
+.painting-new {
+  position: relative;
+  width: 10.0rem;
+}
+.painting-new .detail {
+  position: relative;
+  padding: 0 0.4rem;
+  background-color: #fff;
+}
+.painting-new .detail .title {
+  height: 0.90667rem;
+  vertical-align: middle;
+}
+.painting-new .title h3 {
+  float: left;
+  margin-top: 0.24rem;
+  height: 0.42667rem;
+  line-height: 0.42667rem;
+  font-size: 0.37333rem;
+  vertical-align: middle;
+  color: #333;
+}
+
+.painting-new .detail .label {
+  color: #999;
+}
+.painting-new .title .icon-r{
+  float: right;
+  margin-top: 0.24rem;
+  margin-left: 0.46667rem;
+  vertical-align: middle;
+}
+.painting-new .title .label {
+  display: inline-block;
+  height: 0.4rem;
+  line-height: 0.4rem;
+  vertical-align: middle;
+  font-size: 0.24rem;
+  color: #999;
+}
+.painting-new .title .icons {
+  width: 0.53333rem;
+  height: 0.53333rem;
+}
+.icons.icon-eye-grey {
+  background-position: -10.26667rem -4.24rem;
+}
+.icons.icon-heart-grey {
+  background-position: -9.28rem -4.24rem;
+}
+.painting-new .flags {
+  height: 0.96rem
+}
+.icons.icon-flag {
+  width: 0.48rem;
+  height: 0.96rem;
+  background-position: -0.24rem -8.0rem;
+}
+.painting-new .flags .label {
+  display: inline-block;
+  margin: 0.24rem 3px 0;
+  padding: 0.09333rem 0.21333rem;
+  font-size: 0.26667rem;
+  line-height: 1;
+}
+/* 作品描述 end */
+/* 作者信息 */
+.painting-new .painter {
+  position: relative;
+  margin-top: 11px;
+  padding: 0 0.4rem;
+  background-color: #fff;
+}
+.painting-new .painter .desc {
+  padding: 0.13333rem 0;
+  line-height: 0.64rem;
+  font-size: 0.4rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+.painter .info {
+  position: relative;
+  /*height: 1.54667rem;*/
+}
+.painter .info .avatar {
+  position: absolute;
+  top: 50%;
+  margin-top: -0.58667rem;
+  width: 1.17333rem;
+  height: 1.17333rem;
+  border-radius: 50%;
+  box-shadow: 0 0.08rem 0.18667rem rgba(0,0,0,.15);
+}
+.painter .info .det {
+  padding: 0.13333rem 0 0.13333rem 1.6rem;
+}
+.info .det .name {
+  height: 0.74667rem;
+  line-height: 0.74667rem;
+  font-size: 0.48rem;
+  color: #333;
+}
+.info .det span {
+  display: inline-block;
+  padding-right: 0.2rem;
+  height: 0.58667rem;
+  line-height: 0.58667rem;
+  font-size: 0.32rem;
+  color: #666;
+}
+
+.painter .info .follow {
+  position: absolute;
+  top: 0.32rem;
+  right: 0;
+  line-height: 0.53333rem;
+  font-size: 0.32rem;
+  border: 1px solid #fff;
+  border-radius: 4px;
+}
+.icon.icon-follow {
+  display: block;
+  margin: 0 auto;
+  width: 0.6rem;
+  height: 0.6rem;
+  background-image: url(../image/paintingdetail/icon-follow.png);
+}
+/* 作者信息 end */
+
+/* 最新作品 end */
+
+/* 留言板 */
+.message-board {
+  position: relative;
+  margin-top: 0.16rem;
+  padding: 0 0.4rem;
+  background-color: #fff;
+}
+.message-board .title {
+  padding: 0.37333rem 0;
+  font-size: 0.42667rem;
+  line-height: 1;
+  color: #333;
+}
+.message-board .user-list {
+  margin-right: 0.24rem;
+}
+.message-board .user-list .avatar {
+  float: right;
+  margin: 0.32rem 0 0 -0.16rem;
+  width: 0.56rem;
+  height: 0.56rem;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+}
+.message-board .icon {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  margin-top: -0.13333rem;
+  height: 0.26667rem;
+  width: 0.26667rem;
+  background-color: #abc;
+}
+/* 留言板 end */
+
+/* 创作过程 */
+.updates {
+  margin-top: 0.16rem;
+}
+.updates .title {
+  padding: 0.34667rem 0.4rem;
+  font-size: 0.42667rem;
+  line-height: 1;
+  background-color: #fff;
+  border-bottom: 2px solid #e3e3e3;
+}
+.updates .update {
+  margin-top: 0.16rem;
+  padding-bottom: 0.66667rem;
+  width: 100%;
+  background-color: #fff;
+  box-shadow: 0 0.05333rem 0.06667rem rgba(0,0,0,.15);
+}
+.updates .update:first-of-type {
+  margin-top: 0;
+}
+.update .date {
+  padding: 0.32rem 0.8rem;
+  font-size: 0.4rem;
+  line-height: 1;
+}
+.update .update-num {
+  float: right;
+  padding: 0.18667rem;
+  vertical-align: middle;
+}
+.update .update-num .label {
+  display: inline-block;
+  font-size: 0.32rem;
+  line-height: 0.66667rem;
+  vertical-align: middle;
+}
+
+/* 图片排版 */
+.img-wrap {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: space-between;
+}
+[class*="img-item-"] {
+  margin-bottom: 0.13333rem;
+}
+.img-item-1 {
+  width: 10.0rem;
+  height: 10.0rem;
+}
+.img-item-2,
+.img-item-4 {
+  width: 4.92rem;
+  height: 4.92rem;
+}
+.img-item-3 {
+  width: 3.30667rem;
+  height: 3.30667rem;
+}
+/* 图片排版 end */
+.update .desc,
+.update .mess {
+  padding: 0.10667rem 0.4rem;
+  color: #666; 
+}
+.update .desc {
+  margin: 0 0.4rem;
+  padding: 0.10667rem 0;
+  font-size: 0.4rem;
+  line-height: 1.5;
+  border-bottom: 2px solid #e3e3e3;
+}
+.update .mess .mess-num {
+
+}
+.mess .mess-item .username,
+.mess .mess-item .con {
+  float: left;
+  font-size: 0.32rem;
+  line-height: 1.5;
+}
+.mess .mess-item .username {
+  color: #6ea6c3;
+}
+.mess .more {
+  padding-top: 0.24rem;
+  line-height: 1;
+  font-size: 0.32rem;
+  color: #999;
+}
+/* 创作过程 end */
+
+/*.records-tab .records-tab-list.sticked {
+  top:0;
+  left: 0;
+  margin-top: 0;
+  width: 100%;
+  z-index: 99;
+}*/

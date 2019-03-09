@@ -1,0 +1,10 @@
+<?php
+
+namespace V50\Model;
+
+
+use V50\Base\BaseModel;
+
+class TopicDiscussModel extends BaseModel{
+    protected $tableName = 'topic_discuss';
+}

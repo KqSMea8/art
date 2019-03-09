@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术,美术,美术圈,艺术者,美学,artzhe,art,美术史,青年艺术家,艺术品,美院,arts,美术生,画展,画廊,美术馆,艺术品收藏,艺术电商网,故宫博物院,艺术电商,艺术品鉴,展览,艺术收藏,艺术品电商,博物馆,故宫展览,艺术展,艺术新闻,艺术生活,油画,插画,国画,水粉,水彩,素描,工笔,版画,漆画,丙烯,艺术云图,阿波罗,artand,艺术头条,artsy,雅昌,artpollo,意外艺术,艺术狗,在艺,雅昌兜藏,画家圈,Vart,芭莎艺术,空艺术,藏客,寺库艺术,中国美术馆,掌拍艺术,优家,艺典中国,艺堆,久久视频,在艺,艺厘米,艺堆 - 发现艺术,artstack,葫芦里,VICE MEDIA,imuseum,798,artstack limited,古玩鉴定,雅昌云图,雅昌艺术云图,人物,风景,静物,动物,植物,萌化,宗教,具象,抽象,古典,观念,表现,当代艺术,当代,原始艺术,古典艺术,现代艺术">
+    <meta name="description" content="艺术者-遇见你的品味。这里有温度的艺术家，有故事的艺术作品，有品味的社交圈。专注手绘艺术创作，打造青年艺术家品牌。由艺术家记录艺术创作全过程，建立以艺术家、艺术作品为核心的社交网络，帮助艺术家轻松经营粉丝，建立个性互动的长期收藏，完善艺术作品流通。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>单次更新页</title>
+    <link rel="shortcut icon" href="/Public/favicon.ico?v=1.0.1" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="/Public/js/lib/element/index.css">
+    <link rel="stylesheet" type="text/css" href="/Public/css/richwap.css?v=0.0.2">
+    <link rel="stylesheet" type="text/css" href="/Public/css/global.css?v=1.2.0">
+    <link rel="stylesheet" type="text/css" href="/Public/css/artworkupdate.css?v=0.0.1">
+  </head>
+  <body>
+    <div v-cloak id="app">
+      <ysz-header></ysz-header>
+      <div id="main">
+        <div class="w">
+          <div class="content clearfix">
+            <h2>{{info.artname}}</h2>
+            <div class="artist-info clearfix">
+              <div class="fl">
+                <a :href="'/artzhe/gallery/detail/' + info.publisherInfo.id">
+                  <img v-lazy="info.publisherInfo.face + compress.face" class="avatar">
+                  <h3 class="name">{{info.publisherInfo.name}} <i class="icons icon-artist"></i></h3>
+                </a>
+                <p class="category">{{info.publisherInfo.category_name}}</p>
+              </div>
+              <div class="fr">
+                <div class="btn-group">
+                  <div @mouseover="overFollowText" @mouseout="outFollowText" @click="toggleFollow(info.publisherInfo.id)" :class="[info.publisherInfo.isFollow=='Y'? 'followed': '', 'btn-s']">{{info.publisherInfo.btnText}}</div>
+                </div>
+                <p class="num"><span>作品 <strong>{{info.publisherInfo.artTotal}}</strong></span>|<span>粉丝 <strong>{{info.publisherInfo.follower_total}}</strong></span></p>
+              </div>
+            </div>
+            <div class="view" v-html="info.wit"></div>
+            <p @click="showDownloadFix" class="more"><span>查看更多</span></p>
+            <div class="like-wrap clearfix">
+              <i @click="toggleLike" :class="[info.is_like=='Y'?'icon-liked':'icon-like', 'icons']"></i>
+              <p class="like-num">{{info.like_total}}次喜欢    |</p>
+              <ul class="like-list">
+                <li v-for="item in info.likes"><img v-lazy="item + compress.face"></li>
+                <li v-if="info.like_total > 19" class="like-more"><i class="icons icon-more"></i></li>
+              </ul>
+            </div>
+            <div class="com-wrap">
+              <p class="tit">{{info.publisher}}说：我的灵感或许来源于你，快把你此刻想法告诉我吧~</p>
+              <img src="//artzhe.oss-cn-shenzhen.aliyuncs.com/static/pc/APP.png">
+              <p>赶快下载艺术者APP留言吧</p>
+            </div>
+            <div class="relate-wrap">
+              <h3 class="tit">你可能感兴趣的内容</h3>
+              <ul class="update-list">
+                <li v-for="item in info.related" class="update-item clearfix">
+                  <a :href="'/artwork/update/'+ item.id">
+                    <div class="detail-wrap">
+                      <h3 class="title"><strong class="name">{{item.name}}</strong> <span class="time">{{item.create_date}}</span></h3>
+                      <p class="story">
+                        {{item.summary}}
+                      </p>
+                      <ul class="tags clearfix">
+                        <li><i class="icons icon-eye"></i>{{item.view_total}}</li>
+                        <li><i class="icons icon-comment"></i>{{item.comment_total}}</li>
+                        <li><i class="icons icon-like"></i>{{item.like_total}}</li>
+                      </ul>
+                    </div>
+                    <div class="img-wrap">
+                      <img class="art-pic" v-lazy="item.cover + compress.S">
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <app-down-box></app-down-box>
+      <like-box></like-box>
+      <auth-fixedbox></auth-fixedbox>
+      <set-user-box></set-user-box>
+      <login-box></login-box>
+      <ysz-footer></ysz-footer>
+    </div>
+    <div class="share-wrap">
+      <div class="bdsharebuttonbox">
+        <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+        <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+        <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+        <a href="javascript:;" id="to-top" class="to-top" title="返回顶部"></a>
+      </div>
+    </div>
+    <script src="/Public/js/lib/vue.min.js"></script>
+    <script src="/Public/js/lib/element/index.js"></script>
+    <script src="/Public/js/plugin/vue-lazyload.js"></script>
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/Public/js/plugin/swiper.jquery.min.js"></script>
+    <script src="/Public/js/common.js?v=1.2.0"></script>
+    <script src="/Public/js/artwork/update.js?v=1.0.1"></script>
+  </body>
+</html>

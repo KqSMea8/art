@@ -1,0 +1,130 @@
+<?php
+namespace H5\Controller;
+
+use Custom\Helper\Util;
+use Think\Controller;
+
+//消息模块
+class MessageController extends Controller {
+
+	//我的消息,分页列表
+	public function getData(){
+
+		$data = [
+					'list'=>[
+								[
+									'id'=>1,
+									'type'=>2,
+									'topic'=>1,
+									'content'=>'很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮',
+									'from'=>[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'to'=>	[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'is_read'=>'N',
+								],
+								[
+									'id'=>1,
+									'type'=>2,
+									'topic'=>1,
+									'content'=>'很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮',
+									'from'=>[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'to'=>	[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'is_read'=>'N',
+								],
+							],
+					'total'=>138,
+					'curpage'=>2,
+					'size'=>20,
+					'last'=>7,
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//消息读取
+	public function read(){
+
+		$data = ['id'=>10];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//消息删除
+	public function del(){
+
+		$data = [
+					'id'=>1,
+					'type'=>2,
+					'topic'=>1,
+					'content'=>'很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮',
+					'from'=>[
+								[
+									'id'=>'1',
+									'nickname'=>'油画',
+									'motto'=>'motto',
+									'gender'=>'gender',
+									'face'=>'face',
+									'level'=>'level',
+									'mp'=>'mp',
+								]
+							],
+					'to'=>	[
+								[
+									'id'=>'1',
+									'nickname'=>'油画',
+									'motto'=>'motto',
+									'gender'=>'gender',
+									'face'=>'face',
+									'level'=>'level',
+									'mp'=>'mp',
+								]
+							],
+					'is_read'=>'N',
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//消息统计
+	public function statistics(){
+
+		$data = ['total'=>800,'new'=>21];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+}

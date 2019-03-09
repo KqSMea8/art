@@ -1,0 +1,1043 @@
+/*
+Navicat MariaDB Data Transfer
+
+Source Server         : localhost
+Source Server Version : 100119
+Source Host           : localhost:3306
+Source Database       : artzhe
+
+Target Server Type    : MariaDB
+Target Server Version : 100119
+File Encoding         : 65001
+
+Date: 2017-03-11 18:01:01
+*/
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for *az_pay_log
+-- ----------------------------
+DROP TABLE IF EXISTS `*az_pay_log`;
+CREATE TABLE `*az_pay_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` tinyint(4) NOT NULL DEFAULT '-1' COMMENT '支付类型-1未指定2微信2支付宝',
+  `order_id` int(11) NOT NULL DEFAULT '-1' COMMENT '订单id -1未指定',
+  `amount` bigint(20) NOT NULL DEFAULT '0' COMMENT '支付金额',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '支付时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单支付日志';
+
+-- ----------------------------
+-- Records of *az_pay_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for *az_user_address
+-- ----------------------------
+DROP TABLE IF EXISTS `*az_user_address`;
+CREATE TABLE `*az_user_address` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL DEFAULT '-1' COMMENT 'az_user.id',
+  `recipients` varchar(255) NOT NULL DEFAULT '' COMMENT '收件人姓名',
+  `mobile` varchar(255) NOT NULL DEFAULT '' COMMENT '手机号码',
+  `province` int(11) NOT NULL DEFAULT '-1' COMMENT '省级/自治区/直辖市 id',
+  `city` int(11) NOT NULL DEFAULT '-1' COMMENT '地级/市级 id',
+  `area` int(11) NOT NULL DEFAULT '-1' COMMENT '县/区 id',
+  `town` int(11) NOT NULL DEFAULT '-1' COMMENT '乡/镇/街道办 id',
+  `address` varchar(255) NOT NULL DEFAULT '' COMMENT '详细地址',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT ' 更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户收货地址';
+
+-- ----------------------------
+-- Records of *az_user_address
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_admin
+-- ----------------------------
+DROP TABLE IF EXISTS `az_admin`;
+CREATE TABLE `az_admin` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account` varchar(255) NOT NULL DEFAULT '',
+  `email` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `enc_password` varchar(255) NOT NULL DEFAULT '',
+  `enc_salt` char(12) NOT NULL DEFAULT '',
+  `mobile` varchar(30) NOT NULL DEFAULT '',
+  `is_deleted` enum('N','Y') NOT NULL DEFAULT 'N',
+  `create_time` int(11) NOT NULL DEFAULT '0',
+  `delete_time` int(11) NOT NULL DEFAULT '0',
+  `last_login_time` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of az_admin
+-- ----------------------------
+INSERT INTO `az_admin` VALUES ('1', 'artzhe2017', '', '', 'a+hmNZF3Ak3KV1PzCJ0FC9dNZJip7XqSrG59Gw==', 'nskU5LZ59gyv', '', 'N', '0', '0', '0');
+
+-- ----------------------------
+-- Table structure for az_artist_apply
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artist_apply`;
+CREATE TABLE `az_artist_apply` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL DEFAULT '-1',
+  `cover_image_id` int(11) NOT NULL DEFAULT '-1' COMMENT '画廊封面图片id',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '真实姓名',
+  `mobile` varchar(30) NOT NULL DEFAULT '' COMMENT '手机号码',
+  `invite_code` int(11) NOT NULL DEFAULT '-1' COMMENT '邀请码',
+  `motto` text NOT NULL,
+  `resume` text NOT NULL,
+  `id_card_image_id` int(11) NOT NULL DEFAULT '-1' COMMENT '身份证照片id',
+  `cert_image_ids` varchar(500) NOT NULL DEFAULT '-1' COMMENT '证书奖状图片',
+  `group_photo_ids` varchar(500) NOT NULL DEFAULT '-1' COMMENT '艺术家与自己作品的合影',
+  `memo` text NOT NULL COMMENT '备注信息',
+  `verify_state` tinyint(3) NOT NULL DEFAULT '1' COMMENT '审核状态-1审核不通过1未审核2审核通过',
+  `verify_memo` text NOT NULL COMMENT '审核者备注',
+  `verifier` int(11) NOT NULL DEFAULT '-1' COMMENT '审核人-1未指定az_admin.id',
+  `verify_time` int(11) NOT NULL DEFAULT '0' COMMENT '审核时间',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of az_artist_apply
+-- ----------------------------
+INSERT INTO `az_artist_apply` VALUES ('1', '2', '243', '李坤', '15038325872', '100001', '生活因你而美好因我而改变', 'tudidjhdjfnfjcjcjfjf个大喊大叫的呵呵呵嘿多好多好', '243', '244,245,246,247,248', '249,250,251,252,253,254,255,256', '填写个人信息备注，提高审核通过率~/n如个人微信公众号，微博，博客等信息', '1', '', '-1', '0', '1489114811');
+
+-- ----------------------------
+-- Table structure for az_artwork
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork`;
+CREATE TABLE `az_artwork` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `artist` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定az_user.id',
+  `owner_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定az_user.id',
+  `category` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定az_artwork_category.id',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '名称',
+  `length` int(11) NOT NULL DEFAULT '-1' COMMENT '未指定',
+  `width` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定',
+  `color_ids` varchar(500) NOT NULL DEFAULT '' COMMENT 'az_artwork_color.id使用英文逗号分隔',
+  `cover` int(11) NOT NULL DEFAULT '-1' COMMENT '最后一次更新的cover封面图az_assets.id',
+  `panorama_ids` varchar(500) NOT NULL DEFAULT '' COMMENT '全景图az_assets.id',
+  `topography_ids` varchar(500) NOT NULL DEFAULT '' COMMENT '局部图az_assets.id',
+  `story` text NOT NULL COMMENT '故事简介',
+  `subject_ids` varchar(500) NOT NULL DEFAULT '' COMMENT '风格-1未指定az_artwork_subject.id',
+  `style_ids` varchar(500) NOT NULL DEFAULT '' COMMENT '风格 -1未指定az_artwork_style.id',
+  `tag_ids` varchar(500) NOT NULL DEFAULT '' COMMENT '艺术家标签ids',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '作品创建时间',
+  `last_update_time` int(11) NOT NULL DEFAULT '0' COMMENT '最后一次更新时间',
+  `update_times` int(11) NOT NULL DEFAULT '1' COMMENT '更新次数表示az_artwork_update',
+  `price` bigint(20) NOT NULL DEFAULT '-1' COMMENT '价格-1未指定精确到分',
+  `state` tinyint(4) NOT NULL DEFAULT '1' COMMENT '艺术品状态1正常2禁止查看',
+  `is_finished` enum('N','Y') NOT NULL DEFAULT 'N' COMMENT '是否更新完成',
+  `is_for_sale` enum('N','Y') NOT NULL DEFAULT 'N' COMMENT '是否可购买',
+  `is_deleted` enum('N','Y') NOT NULL DEFAULT 'N' COMMENT '是否删除',
+  `like_total` int(11) NOT NULL DEFAULT '0' COMMENT ' 被喜欢的次数',
+  `view_total` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '总浏览次数',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='艺术品';
+
+-- ----------------------------
+-- Records of az_artwork
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_artwork_category
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_category`;
+CREATE TABLE `az_artwork_category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cn_name` varchar(255) NOT NULL DEFAULT '' COMMENT '中文名',
+  `en_name` varchar(255) NOT NULL DEFAULT '' COMMENT '英文名',
+  `sort` int(11) NOT NULL DEFAULT '0' COMMENT '排序值越小排序在越前面',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='画作分类';
+
+-- ----------------------------
+-- Records of az_artwork_category
+-- ----------------------------
+INSERT INTO `az_artwork_category` VALUES ('1', '油画', '', '0', '0');
+INSERT INTO `az_artwork_category` VALUES ('2', '水彩', '', '5', '0');
+INSERT INTO `az_artwork_category` VALUES ('3', '插画', '', '10', '0');
+INSERT INTO `az_artwork_category` VALUES ('4', '素描', '', '15', '0');
+INSERT INTO `az_artwork_category` VALUES ('5', '工笔', '', '20', '0');
+INSERT INTO `az_artwork_category` VALUES ('6', '国画', '', '25', '0');
+INSERT INTO `az_artwork_category` VALUES ('7', '版画', '', '30', '0');
+INSERT INTO `az_artwork_category` VALUES ('8', '漆画', '', '35', '0');
+INSERT INTO `az_artwork_category` VALUES ('9', '丙烯', '', '40', '0');
+INSERT INTO `az_artwork_category` VALUES ('10', '其它', '', '45', '0');
+
+-- ----------------------------
+-- Table structure for az_artwork_category_stat
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_category_stat`;
+CREATE TABLE `az_artwork_category_stat` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `gender_type` tinyint(4) NOT NULL DEFAULT '-1' COMMENT '-1全部1男2女3未知',
+  `category_type` tinyint(4) NOT NULL COMMENT '-1全部１油画２水彩３素描４插画',
+  `total` int(11) NOT NULL DEFAULT '0' COMMENT '画作总量',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='画作分类统计表';
+
+-- ----------------------------
+-- Records of az_artwork_category_stat
+-- ----------------------------
+INSERT INTO `az_artwork_category_stat` VALUES ('1', '1', '1', '2');
+INSERT INTO `az_artwork_category_stat` VALUES ('2', '1', '2', '4');
+
+-- ----------------------------
+-- Table structure for az_artwork_color
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_color`;
+CREATE TABLE `az_artwork_color` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cn_name` varchar(255) NOT NULL DEFAULT '',
+  `en_name` varchar(255) NOT NULL DEFAULT '',
+  `value` char(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='颜色配置表';
+
+-- ----------------------------
+-- Records of az_artwork_color
+-- ----------------------------
+INSERT INTO `az_artwork_color` VALUES ('1', '', '', '#e51f20');
+INSERT INTO `az_artwork_color` VALUES ('2', '', '', '#ec8e2a');
+INSERT INTO `az_artwork_color` VALUES ('3', '', '', '#ec8e2a');
+INSERT INTO `az_artwork_color` VALUES ('4', '', '', '#43c956');
+INSERT INTO `az_artwork_color` VALUES ('5', '', '', '#2f76e0');
+INSERT INTO `az_artwork_color` VALUES ('6', '', '', '#c949d2');
+INSERT INTO `az_artwork_color` VALUES ('7', '', '', '#a1a1a1');
+INSERT INTO `az_artwork_color` VALUES ('8', ' 黑白相间', '', '#ffffff,#1b1b1b');
+INSERT INTO `az_artwork_color` VALUES ('9', '', '', '#ac6c25');
+
+-- ----------------------------
+-- Table structure for az_artwork_like
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_like`;
+CREATE TABLE `az_artwork_like` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `artwork_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定',
+  `like_user_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定',
+  `like_time` int(11) NOT NULL DEFAULT '0' COMMENT '点赞时间',
+  `is_like` enum('N','Y') NOT NULL DEFAULT 'Y' COMMENT '是否喜欢',
+  `unlike_time` int(11) NOT NULL DEFAULT '0' COMMENT ' 取消点赞时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='艺术品点赞记录表';
+
+-- ----------------------------
+-- Records of az_artwork_like
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_artwork_stat
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_stat`;
+CREATE TABLE `az_artwork_stat` (
+  `artist` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定 az_user.id',
+  `total` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '总数量包含删除的和未删除的艺术品',
+  `deleted_total` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '被删除的总量',
+  PRIMARY KEY (`artist`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='艺术家的艺术品数量统计表';
+
+-- ----------------------------
+-- Records of az_artwork_stat
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_artwork_style
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_style`;
+CREATE TABLE `az_artwork_style` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cn_name` varchar(255) NOT NULL DEFAULT '' COMMENT '中文名',
+  `en_name` varchar(255) NOT NULL DEFAULT '' COMMENT '英文名',
+  `sort` int(11) NOT NULL DEFAULT '0' COMMENT '排序值',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='艺术品风格';
+
+-- ----------------------------
+-- Records of az_artwork_style
+-- ----------------------------
+INSERT INTO `az_artwork_style` VALUES ('1', '具象', '', '0', '0');
+INSERT INTO `az_artwork_style` VALUES ('2', '抽象', '', '5', '0');
+INSERT INTO `az_artwork_style` VALUES ('3', '古典', '', '10', '0');
+INSERT INTO `az_artwork_style` VALUES ('4', '观念', '', '15', '0');
+INSERT INTO `az_artwork_style` VALUES ('5', '表现', '', '20', '0');
+INSERT INTO `az_artwork_style` VALUES ('6', '其它', '', '25', '0');
+
+-- ----------------------------
+-- Table structure for az_artwork_subject
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_subject`;
+CREATE TABLE `az_artwork_subject` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cn_name` varchar(255) NOT NULL DEFAULT '' COMMENT '中文名',
+  `en_name` varchar(255) NOT NULL DEFAULT '' COMMENT '英文名',
+  `sort` int(11) NOT NULL DEFAULT '0' COMMENT '排序值',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='艺术品题材';
+
+-- ----------------------------
+-- Records of az_artwork_subject
+-- ----------------------------
+INSERT INTO `az_artwork_subject` VALUES ('1', '人物', '', '0', '0');
+INSERT INTO `az_artwork_subject` VALUES ('2', '风景', '', '5', '0');
+INSERT INTO `az_artwork_subject` VALUES ('3', '静物', '', '10', '0');
+INSERT INTO `az_artwork_subject` VALUES ('4', '动植物', '', '15', '0');
+INSERT INTO `az_artwork_subject` VALUES ('5', '萌化', '', '20', '0');
+INSERT INTO `az_artwork_subject` VALUES ('6', '宗教', '', '25', '0');
+INSERT INTO `az_artwork_subject` VALUES ('7', '其它', '', '30', '0');
+
+-- ----------------------------
+-- Table structure for az_artwork_tag
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_tag`;
+CREATE TABLE `az_artwork_tag` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `en_value` varchar(255) NOT NULL DEFAULT '' COMMENT '英文标签值',
+  `cn_value` varchar(255) NOT NULL DEFAULT '' COMMENT '中文标签值',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COMMENT='标签表';
+
+-- ----------------------------
+-- Records of az_artwork_tag
+-- ----------------------------
+INSERT INTO `az_artwork_tag` VALUES ('1', '', '人物', '0');
+INSERT INTO `az_artwork_tag` VALUES ('2', '', '风景', '0');
+INSERT INTO `az_artwork_tag` VALUES ('3', '', '静物', '0');
+INSERT INTO `az_artwork_tag` VALUES ('4', '', '动物', '0');
+INSERT INTO `az_artwork_tag` VALUES ('5', '', '萌化', '0');
+INSERT INTO `az_artwork_tag` VALUES ('6', '', '宗教', '0');
+INSERT INTO `az_artwork_tag` VALUES ('7', '', '具象', '0');
+INSERT INTO `az_artwork_tag` VALUES ('8', '', '植物', '0');
+INSERT INTO `az_artwork_tag` VALUES ('9', '', '古典', '0');
+INSERT INTO `az_artwork_tag` VALUES ('10', '', '观念', '0');
+INSERT INTO `az_artwork_tag` VALUES ('11', '', '表现', '0');
+INSERT INTO `az_artwork_tag` VALUES ('12', '', '少女', '0');
+INSERT INTO `az_artwork_tag` VALUES ('13', '', '儿童', '0');
+INSERT INTO `az_artwork_tag` VALUES ('14', '', '戏曲戏剧', '0');
+INSERT INTO `az_artwork_tag` VALUES ('15', '', '写实', '0');
+INSERT INTO `az_artwork_tag` VALUES ('16', '', '抽象', '0');
+INSERT INTO `az_artwork_tag` VALUES ('17', '', '科幻', '0');
+INSERT INTO `az_artwork_tag` VALUES ('18', '', '动漫风', '0');
+INSERT INTO `az_artwork_tag` VALUES ('19', '', '人体', '0');
+INSERT INTO `az_artwork_tag` VALUES ('20', '', '花鸟', '0');
+
+-- ----------------------------
+-- Table structure for az_artwork_tag_weight
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_tag_weight`;
+CREATE TABLE `az_artwork_tag_weight` (
+  `id` int(11) NOT NULL,
+  `artwork_id` int(11) NOT NULL DEFAULT '0' COMMENT '艺术品id',
+  `tag_id` int(11) NOT NULL DEFAULT '-1' COMMENT '标签id',
+  `user_id` int(11) NOT NULL DEFAULT '-1' COMMENT '艺术家user_id',
+  `tag_weight` double NOT NULL DEFAULT '0' COMMENT '标签权重',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_art_tag` (`artwork_id`,`tag_id`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='艺术品标签记录表';
+
+-- ----------------------------
+-- Records of az_artwork_tag_weight
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_artwork_update
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_update`;
+CREATE TABLE `az_artwork_update` (
+  `id` int(11) NOT NULL,
+  `artwork_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定艺术品id',
+  `number` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新次数编号',
+  `wit` text NOT NULL COMMENT '创作心路',
+  `cover` int(11) NOT NULL DEFAULT '-1' COMMENT 'az_assets.id每次更新的封面',
+  `is_cover_show` enum('N','Y') NOT NULL DEFAULT 'Y' COMMENT '是否让封面显示在主页',
+  `summary` varchar(500) NOT NULL DEFAULT '' COMMENT '摘要',
+  `is_deleted` enum('N','Y') NOT NULL DEFAULT 'N',
+  `last_update_time` int(11) NOT NULL DEFAULT '0' COMMENT '上次更新时间',
+  `create_date` char(8) NOT NULL DEFAULT '' COMMENT '例如20170206用户自己填写的',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT ' 创建时间 非创作日期',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='艺术品更新';
+
+-- ----------------------------
+-- Records of az_artwork_update
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_artwork_view
+-- ----------------------------
+DROP TABLE IF EXISTS `az_artwork_view`;
+CREATE TABLE `az_artwork_view` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL DEFAULT '-1' COMMENT '用户id',
+  `artwork_id` int(11) NOT NULL DEFAULT '-1' COMMENT '艺术品id',
+  `view_time` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='艺术品浏览';
+
+-- ----------------------------
+-- Records of az_artwork_view
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_assets
+-- ----------------------------
+DROP TABLE IF EXISTS `az_assets`;
+CREATE TABLE `az_assets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bucket` varchar(255) NOT NULL DEFAULT '' COMMENT 'bucket名称',
+  `object` varchar(255) NOT NULL DEFAULT '',
+  `etag` varchar(100) NOT NULL DEFAULT '',
+  `size` int(11) NOT NULL DEFAULT '0' COMMENT 'byte',
+  `mime` varchar(100) NOT NULL DEFAULT '' COMMENT 'mime type',
+  `image_height` int(11) NOT NULL DEFAULT '0' COMMENT '如果是图片的话这里是图片的宽度px',
+  `image_width` int(11) NOT NULL DEFAULT '0' COMMENT '如果是图片的话这里是图片的宽度px',
+  `image_format` varchar(100) NOT NULL DEFAULT '' COMMENT '图片的格式',
+  `is_deleted` enum('N','Y') NOT NULL DEFAULT 'N',
+  `delete_time` int(11) NOT NULL DEFAULT '0' COMMENT '删除时间',
+  `create_time` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=265 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of az_assets
+-- ----------------------------
+INSERT INTO `az_assets` VALUES ('1', 'artzhe', 'other/artzhe/user/android2017-03-07-102557-9pgnrcgfz1.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488853566');
+INSERT INTO `az_assets` VALUES ('2', 'artzhe', 'other/artzhe/user/iosapp1488853645574654.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488853645');
+INSERT INTO `az_assets` VALUES ('3', 'artzhe', 'other/artzhe/user/android2017-03-07-103148-p0zpubqcr5.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488853916');
+INSERT INTO `az_assets` VALUES ('4', 'artzhe', 'other/artzhe/user/android2017-03-07-103257-0nruib662w.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488853977');
+INSERT INTO `az_assets` VALUES ('5', 'artzhe', 'other/artzhe/user/iosapp1488854021041469.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488854021');
+INSERT INTO `az_assets` VALUES ('6', 'artzhe', 'other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488854057');
+INSERT INTO `az_assets` VALUES ('7', 'artzhe', 'other/artzhe/user/android2017-03-07-103535-2h8gvdhzqh.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488854134');
+INSERT INTO `az_assets` VALUES ('8', 'artzhe', 'other/artzhe/user/iosapp1488854152555288.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488854153');
+INSERT INTO `az_assets` VALUES ('9', 'artzhe', 'other/artzhe/user/android2017-03-07-104022-d0j2c6jesv.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488854422');
+INSERT INTO `az_assets` VALUES ('10', 'artzhe', 'other/artzhe/user/iosapp1488854775267297.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488854776');
+INSERT INTO `az_assets` VALUES ('11', 'artzhe', 'other/artzhe/user/android2017-03-07-105136-xuiji7xd6b.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488855096');
+INSERT INTO `az_assets` VALUES ('12', 'artzhe', 'other/artzhe/user/android2017-03-07-105139-jbj2n20dws.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488855098');
+INSERT INTO `az_assets` VALUES ('13', 'artzhe', 'other/artzhe/user/android2017-03-07-105219-d435x4cw57.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488855142');
+INSERT INTO `az_assets` VALUES ('14', 'artzhe', 'other/artzhe/user/android2017-03-07-105254-pdi3tq58xx.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488855174');
+INSERT INTO `az_assets` VALUES ('15', 'artzhe', 'other/artzhe/user/android2017-03-07-105316-cmqpijs50p.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488855197');
+INSERT INTO `az_assets` VALUES ('16', 'artzhe', 'other/artzhe/user/android2017-03-07-105436-13muy6x4ee.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488855275');
+INSERT INTO `az_assets` VALUES ('17', 'artzhe', 'other/artzhe/user/android2017-03-07-105459-i68zbwq63p.jpeg', '52CD863291FBF48DAE3BB8873D516257', '874217', 'image/jpeg', '1080', '1920', 'jpg', 'N', '0', '1488855299');
+INSERT INTO `az_assets` VALUES ('18', 'artzhe', 'other/artzhe/user/iosapp1488855299895541.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488855300');
+INSERT INTO `az_assets` VALUES ('19', 'artzhe', 'other/artzhe/user/iosapp1488855372465813.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488855373');
+INSERT INTO `az_assets` VALUES ('20', 'artzhe', 'other/artzhe/user/iosapp1488856108630956.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488856108');
+INSERT INTO `az_assets` VALUES ('21', 'artzhe', 'other/artzhe/user/iosapp1488858862868871.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488858863');
+INSERT INTO `az_assets` VALUES ('22', 'artzhe', 'other/artzhe/user/iosapp1488859812329214.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488859813');
+INSERT INTO `az_assets` VALUES ('23', 'artzhe', 'other/artzhe/user/iosapp1488859854900063.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488859855');
+INSERT INTO `az_assets` VALUES ('24', 'artzhe', 'other/artzhe/user/634546cf1fbb14c2a8abc986dba3da6e.jpeg', '80C152D67214F365323592F0F7BF4436', '20240', 'image/jpeg', '638', '638', 'jpg', 'N', '0', '1488866295');
+INSERT INTO `az_assets` VALUES ('25', 'artzhe', 'other/artzhe/user/iosapp1488867152703283.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488867153');
+INSERT INTO `az_assets` VALUES ('26', 'artzhe', 'other/artzhe/user/634546cf1fbb14c2a8abc986dba3da6e.jpeg', '80C152D67214F365323592F0F7BF4436', '20240', 'image/jpeg', '638', '638', 'jpg', 'N', '0', '1488867208');
+INSERT INTO `az_assets` VALUES ('27', 'artzhe', 'other/artzhe/user/iosapp1488867841194457.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488867845');
+INSERT INTO `az_assets` VALUES ('28', 'artzhe', 'other/artzhe/user/iosapp1488868154281795.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488868155');
+INSERT INTO `az_assets` VALUES ('29', 'artzhe', 'other/artzhe/user/iosapp1488869083925587.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488869083');
+INSERT INTO `az_assets` VALUES ('30', 'artzhe', 'other/artzhe/user/iosapp1488869125437653.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488869125');
+INSERT INTO `az_assets` VALUES ('31', 'artzhe', 'other/artzhe/user/iosapp1488869192077690.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488869193');
+INSERT INTO `az_assets` VALUES ('32', 'artzhe', 'other/artzhe/user/iosapp1488869212882804.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488869213');
+INSERT INTO `az_assets` VALUES ('33', 'artzhe', 'other/artzhe/user/iosapp1488869251299489.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488869252');
+INSERT INTO `az_assets` VALUES ('34', 'artzhe', 'other/artzhe/user/iosapp1488869363062746.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488869417');
+INSERT INTO `az_assets` VALUES ('35', 'artzhe', 'other/artzhe/user/iosapp1488869744036853.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488869758');
+INSERT INTO `az_assets` VALUES ('36', 'artzhe', 'other/artzhe/user/iosapp1488869840191442.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488869841');
+INSERT INTO `az_assets` VALUES ('37', 'artzhe', 'other/artzhe/user/iosapp1488869964835378.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488869965');
+INSERT INTO `az_assets` VALUES ('38', 'artzhe', 'other/artzhe/user/iosapp1488870384911618.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488870385');
+INSERT INTO `az_assets` VALUES ('39', 'artzhe', 'other/artzhe/user/iosapp1488870486471098.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488870487');
+INSERT INTO `az_assets` VALUES ('40', 'artzhe', 'other/artzhe/user/iosapp1488870710984517.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488870711');
+INSERT INTO `az_assets` VALUES ('41', 'artzhe', 'other/artzhe/user/iosapp1488870790119400.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488870791');
+INSERT INTO `az_assets` VALUES ('42', 'artzhe', 'other/artzhe/user/iosapp1488870929595990.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488870929');
+INSERT INTO `az_assets` VALUES ('43', 'artzhe', 'other/artzhe/user/iosapp1488870997787099.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488870998');
+INSERT INTO `az_assets` VALUES ('44', 'artzhe', 'other/artzhe/user/iosapp1488871078019534.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488871078');
+INSERT INTO `az_assets` VALUES ('45', 'artzhe', 'other/artzhe/user/iosapp1488871155331584.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488871155');
+INSERT INTO `az_assets` VALUES ('46', 'artzhe', 'other/artzhe/user/iosapp1488871506941667.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488871507');
+INSERT INTO `az_assets` VALUES ('47', 'artzhe', 'other/artzhe/user/iosapp1488871937873552.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488871937');
+INSERT INTO `az_assets` VALUES ('48', 'artzhe', 'other/artzhe/user/iosapp1488871963422863.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488871963');
+INSERT INTO `az_assets` VALUES ('49', 'artzhe', 'other/artzhe/user/iosapp1488871982802312.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488871983');
+INSERT INTO `az_assets` VALUES ('50', 'artzhe', 'other/artzhe/user/iosapp1488872008936725.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488872009');
+INSERT INTO `az_assets` VALUES ('51', 'artzhe', 'other/artzhe/user/iosapp1488872019576765.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488872019');
+INSERT INTO `az_assets` VALUES ('52', 'artzhe', 'other/artzhe/user/iosapp1488872129455402.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488872129');
+INSERT INTO `az_assets` VALUES ('53', 'artzhe', 'other/artzhe/user/iosapp1488872974308747.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488872974');
+INSERT INTO `az_assets` VALUES ('54', 'artzhe', 'other/artzhe/user/iosapp1488873022971898.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488873023');
+INSERT INTO `az_assets` VALUES ('55', 'artzhe', 'other/artzhe/user/iosapp1488873062846841.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488873063');
+INSERT INTO `az_assets` VALUES ('56', 'artzhe', 'other/artzhe/user/634546cf1fbb14c2a8abc986dba3da6e.jpeg', '0AC01BF1CEBBF51178181165E2E85863', '41905', 'image/jpeg', '640', '640', 'jpg', 'N', '0', '1488873408');
+INSERT INTO `az_assets` VALUES ('57', 'artzhe', 'other/artzhe/user/iosapp1488874579418379.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488874579');
+INSERT INTO `az_assets` VALUES ('58', 'artzhe', 'other/artzhe/user/iosapp1488874767179359.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488874767');
+INSERT INTO `az_assets` VALUES ('59', 'artzhe', 'other/artzhe/user/iosapp1488877171558624.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488877176');
+INSERT INTO `az_assets` VALUES ('60', 'artzhe', 'other/artzhe/user/iosapp1488877627830601.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488877628');
+INSERT INTO `az_assets` VALUES ('61', 'artzhe', 'other/artzhe/user/iosapp1488878320227751.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488878320');
+INSERT INTO `az_assets` VALUES ('62', 'artzhe', 'other/artzhe/user/iosapp1488881225169934.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488881226');
+INSERT INTO `az_assets` VALUES ('63', 'artzhe', 'other/artzhe/user/iosapp1488881330840750.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488881330');
+INSERT INTO `az_assets` VALUES ('64', 'artzhe', 'other/artzhe/user/iosapp1488881514061891.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488881514');
+INSERT INTO `az_assets` VALUES ('65', 'artzhe', 'other/artzhe/user/iosapp1488881614109331.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488881616');
+INSERT INTO `az_assets` VALUES ('66', 'artzhe', 'other/artzhe/user/iosapp1488883890643974.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488883891');
+INSERT INTO `az_assets` VALUES ('67', 'artzhe', 'other/artzhe/user/iosapp1488884005780893.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488884025');
+INSERT INTO `az_assets` VALUES ('68', 'artzhe', 'other/artzhe/user/iosapp1488884283532752.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488884284');
+INSERT INTO `az_assets` VALUES ('69', 'artzhe', 'other/artzhe/user/iosapp1488884355617955.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488884355');
+INSERT INTO `az_assets` VALUES ('70', 'artzhe', 'other/artzhe/user/iosapp1488884426522599.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488884426');
+INSERT INTO `az_assets` VALUES ('71', 'artzhe', 'other/artzhe/user/iosapp1488884484135939.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488884485');
+INSERT INTO `az_assets` VALUES ('72', 'artzhe', 'other/artzhe/user/iosapp1488884561708520.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488884562');
+INSERT INTO `az_assets` VALUES ('73', 'artzhe', 'other/artzhe/user/iosapp1488888338386288.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488888339');
+INSERT INTO `az_assets` VALUES ('74', 'artzhe', 'other/artzhe/user/iosapp1488888381508989.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488888382');
+INSERT INTO `az_assets` VALUES ('75', 'artzhe', 'other/artzhe/user/iosapp1488888794395442.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488888795');
+INSERT INTO `az_assets` VALUES ('76', 'artzhe', 'other/artzhe/user/iosapp1488888957685452.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488888957');
+INSERT INTO `az_assets` VALUES ('77', 'artzhe', 'other/artzhe/user/iosapp1488890903662427.jpg', '681FD09E9CD6AED07F526234E0F88F8C', '678593', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488890912');
+INSERT INTO `az_assets` VALUES ('78', 'artzhe', 'other/artzhe/user/iosapp1488891204553963.jpg', '681FD09E9CD6AED07F526234E0F88F8C', '678593', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488891213');
+INSERT INTO `az_assets` VALUES ('79', 'artzhe', 'other/artzhe/user/iosapp1488891695943078.jpg', '681FD09E9CD6AED07F526234E0F88F8C', '678593', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488891703');
+INSERT INTO `az_assets` VALUES ('80', 'artzhe', 'other/artzhe/user/iosapp1488891813690646.jpg', '681FD09E9CD6AED07F526234E0F88F8C', '678593', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488891821');
+INSERT INTO `az_assets` VALUES ('81', 'artzhe', 'other/artzhe/user/iosapp1488899100715780.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488906217');
+INSERT INTO `az_assets` VALUES ('82', 'artzhe', 'other/artzhe/user/iosapp1488937654710079.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488937655');
+INSERT INTO `az_assets` VALUES ('83', 'artzhe', 'other/artzhe/user/iosapp1488937713493571.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488937713');
+INSERT INTO `az_assets` VALUES ('84', 'artzhe', 'other/artzhe/user/iosapp1488940379011967.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488940379');
+INSERT INTO `az_assets` VALUES ('85', 'artzhe', 'other/artzhe/user/iosapp1488940507843046.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488940508');
+INSERT INTO `az_assets` VALUES ('86', 'artzhe', 'other/artzhe/user/iosapp1488952000203769.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488952001');
+INSERT INTO `az_assets` VALUES ('87', 'artzhe', 'other/artzhe/user/iosapp1488952123209534.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488952124');
+INSERT INTO `az_assets` VALUES ('88', 'artzhe', 'other/artzhe/user/iosapp1488952242356071.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488952243');
+INSERT INTO `az_assets` VALUES ('89', 'artzhe', 'other/artzhe/user/iosapp1488953792687673.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488953793');
+INSERT INTO `az_assets` VALUES ('90', 'artzhe', 'other/artzhe/user/iosapp1488957320360922.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488957321');
+INSERT INTO `az_assets` VALUES ('91', 'artzhe', 'other/artzhe/user/iosapp1488962572932051.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488962572');
+INSERT INTO `az_assets` VALUES ('92', 'artzhe', 'other/artzhe/user/iosapp1488965627258069.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488965628');
+INSERT INTO `az_assets` VALUES ('93', 'artzhe', 'other/artzhe/user/iosapp1488966256617095.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488966257');
+INSERT INTO `az_assets` VALUES ('94', 'artzhe', 'other/artzhe/user/iosapp1488966410890947.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488966411');
+INSERT INTO `az_assets` VALUES ('95', 'artzhe', 'other/artzhe/user/iosapp1488966692693950.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1488966693');
+INSERT INTO `az_assets` VALUES ('96', 'artzhe', 'other/artzhe/user/iosapp1489024325466159.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489024326');
+INSERT INTO `az_assets` VALUES ('97', 'artzhe', 'other/artzhe/user/iosapp1489025983545979.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489025984');
+INSERT INTO `az_assets` VALUES ('98', 'artzhe', 'other/artzhe/user/iosapp1489026019187257.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489026020');
+INSERT INTO `az_assets` VALUES ('99', 'artzhe', 'other/artzhe/user/iosapp1489027759874979.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489027759');
+INSERT INTO `az_assets` VALUES ('100', 'artzhe', 'other/artzhe/user/iosapp1489027921712707.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489027921');
+INSERT INTO `az_assets` VALUES ('101', 'artzhe', 'other/artzhe/user/iosapp1489027976961271.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489027976');
+INSERT INTO `az_assets` VALUES ('102', 'artzhe', 'other/artzhe/user/iosapp1489028032310554.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489028032');
+INSERT INTO `az_assets` VALUES ('103', 'artzhe', 'other/artzhe/user/iosapp1489030660714384.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489030660');
+INSERT INTO `az_assets` VALUES ('104', 'artzhe', 'other/artzhe/user/iosapp1489039332472400.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489039333');
+INSERT INTO `az_assets` VALUES ('105', 'artzhe', 'other/artzhe/user/iosapp1489039557681131.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489039558');
+INSERT INTO `az_assets` VALUES ('106', 'artzhe', 'other/artzhe/user/iosapp1489040899823383.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489040900');
+INSERT INTO `az_assets` VALUES ('107', 'artzhe', 'other/artzhe/user/iosapp1489044041572866', '56FE758D9E52970600DEE43E06C74314', '1489213', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489044043');
+INSERT INTO `az_assets` VALUES ('108', 'artzhe', 'other/artzhe/user/iosapp1489044750439747', '436E79BF762FE0996058456D9C932BD5', '1552148', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489044752');
+INSERT INTO `az_assets` VALUES ('109', 'artzhe', 'other/artzhe/user/iosapp1489044830419674', '56FE758D9E52970600DEE43E06C74314', '1489213', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489044831');
+INSERT INTO `az_assets` VALUES ('110', 'artzhe', 'other/artzhe/user/iosapp1489044866351179', 'A95727B912341C11CF91760ED8BCA9C1', '1375795', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489044868');
+INSERT INTO `az_assets` VALUES ('111', 'artzhe', 'other/artzhe/user/iosapp1489045114851900', '56FE758D9E52970600DEE43E06C74314', '1489213', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489045115');
+INSERT INTO `az_assets` VALUES ('112', 'artzhe', 'other/artzhe/user/iosapp1489045170440816', '436E79BF762FE0996058456D9C932BD5', '1552148', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489045172');
+INSERT INTO `az_assets` VALUES ('113', 'artzhe', 'other/artzhe/user/iosapp1489045272764560', '646261169971D58FDC01C4043918D3C2', '1251319', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489045273');
+INSERT INTO `az_assets` VALUES ('114', 'artzhe', 'other/artzhe/user/iosapp1489045646867680', '56FE758D9E52970600DEE43E06C74314', '1489213', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489045647');
+INSERT INTO `az_assets` VALUES ('115', 'artzhe', 'other/artzhe/user/iosapp1489063511550950', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489063513');
+INSERT INTO `az_assets` VALUES ('116', 'artzhe', 'other/artzhe/user/iosapp1489063511151178', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489063515');
+INSERT INTO `az_assets` VALUES ('117', 'artzhe', 'other/artzhe/user/iosapp1489063511476796', 'D0D97C68D0CB9F33CA53FAD7DE0617D5', '1090244', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489063515');
+INSERT INTO `az_assets` VALUES ('118', 'artzhe', 'other/artzhe/user/iosapp1489063511521718', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489063517');
+INSERT INTO `az_assets` VALUES ('119', 'artzhe', 'other/artzhe/user/iosapp1489063511352246', '6ACB681123AA8FA84319877536A05508', '993221', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489063519');
+INSERT INTO `az_assets` VALUES ('120', 'artzhe', 'other/artzhe/user/iosapp1489063511676752', '88A5B9D58339455BDA25A7A68EE7BBA6', '734902', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489063520');
+INSERT INTO `az_assets` VALUES ('121', 'artzhe', 'other/artzhe/user/iosapp1489063511379545', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489063521');
+INSERT INTO `az_assets` VALUES ('122', 'artzhe', 'other/artzhe/user/iosapp1489063511233414', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489063522');
+INSERT INTO `az_assets` VALUES ('123', 'artzhe', 'other/artzhe/user/iosapp1489063603108930', '96DAE79C1931F8C342A2C98C3E3AC9DE', '458233', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489063604');
+INSERT INTO `az_assets` VALUES ('124', 'artzhe', 'other/artzhe/user/iosapp1489063603822589', 'B6987A6582FDF9C6F07B448304DC7B6D', '69074', 'application/octet-stream', '76', '1000', 'jpg', 'N', '0', '1489063604');
+INSERT INTO `az_assets` VALUES ('125', 'artzhe', 'other/artzhe/user/iosapp1489063603817574', '9CA6DE2888F118187B956A2806BC71CA', '285214', 'application/octet-stream', '428', '1000', 'jpg', 'N', '0', '1489063605');
+INSERT INTO `az_assets` VALUES ('126', 'artzhe', 'other/artzhe/user/iosapp1489063603451045', 'BDFBD4A6B52F667E605E27F4CD21FE79', '929352', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489063607');
+INSERT INTO `az_assets` VALUES ('127', 'artzhe', 'other/artzhe/user/iosapp1489063603891281', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489063607');
+INSERT INTO `az_assets` VALUES ('128', 'artzhe', 'other/artzhe/user/iosapp1489063603212767', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489063610');
+INSERT INTO `az_assets` VALUES ('129', 'artzhe', 'other/artzhe/user/iosapp1489063603616375', '88A5B9D58339455BDA25A7A68EE7BBA6', '734902', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489063610');
+INSERT INTO `az_assets` VALUES ('130', 'artzhe', 'other/artzhe/user/iosapp1489063603202202', '6ACB681123AA8FA84319877536A05508', '993221', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489063612');
+INSERT INTO `az_assets` VALUES ('131', 'artzhe', 'other/artzhe/user/iosapp1489063603988266', 'D0D97C68D0CB9F33CA53FAD7DE0617D5', '1090244', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489063612');
+INSERT INTO `az_assets` VALUES ('132', 'artzhe', 'other/artzhe/user/iosapp1489065033409513', 'C893C8DBA2D30083780B88AFA4F50A9A', '1475330', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489065034');
+INSERT INTO `az_assets` VALUES ('133', 'artzhe', 'other/artzhe/user/iosapp1489065037985005', '065EC17AACEB9642714BC6FED7C29415', '710522', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489065038');
+INSERT INTO `az_assets` VALUES ('134', 'artzhe', 'other/artzhe/user/iosapp1489065040545311', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065045');
+INSERT INTO `az_assets` VALUES ('135', 'artzhe', 'other/artzhe/user/iosapp1489065040131501', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065044');
+INSERT INTO `az_assets` VALUES ('136', 'artzhe', 'other/artzhe/user/iosapp1489065040233923', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065046');
+INSERT INTO `az_assets` VALUES ('137', 'artzhe', 'other/artzhe/user/iosapp1489065040419797', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065046');
+INSERT INTO `az_assets` VALUES ('138', 'artzhe', 'other/artzhe/user/iosapp1489065040420916', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065047');
+INSERT INTO `az_assets` VALUES ('139', 'artzhe', 'other/artzhe/user/iosapp1489065049647304', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065051');
+INSERT INTO `az_assets` VALUES ('140', 'artzhe', 'other/artzhe/user/iosapp1489065049318533', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065052');
+INSERT INTO `az_assets` VALUES ('141', 'artzhe', 'other/artzhe/user/iosapp1489065049157110', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065053');
+INSERT INTO `az_assets` VALUES ('142', 'artzhe', 'other/artzhe/user/iosapp1489065049465332', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065055');
+INSERT INTO `az_assets` VALUES ('143', 'artzhe', 'other/artzhe/user/iosapp1489065049614746', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065056');
+INSERT INTO `az_assets` VALUES ('144', 'artzhe', 'other/artzhe/user/iosapp1489065059720287', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065060');
+INSERT INTO `az_assets` VALUES ('145', 'artzhe', 'other/artzhe/user/iosapp1489065058542666', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065061');
+INSERT INTO `az_assets` VALUES ('146', 'artzhe', 'other/artzhe/user/iosapp1489065058386365', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065063');
+INSERT INTO `az_assets` VALUES ('147', 'artzhe', 'other/artzhe/user/iosapp1489065059112239', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065064');
+INSERT INTO `az_assets` VALUES ('148', 'artzhe', 'other/artzhe/user/iosapp1489065058688640', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065065');
+INSERT INTO `az_assets` VALUES ('149', 'artzhe', 'other/artzhe/user/iosapp1489065068755467', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065070');
+INSERT INTO `az_assets` VALUES ('150', 'artzhe', 'other/artzhe/user/iosapp1489065068878819', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065071');
+INSERT INTO `az_assets` VALUES ('151', 'artzhe', 'other/artzhe/user/iosapp1489065068846791', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065074');
+INSERT INTO `az_assets` VALUES ('152', 'artzhe', 'other/artzhe/user/iosapp1489065068376597', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065074');
+INSERT INTO `az_assets` VALUES ('153', 'artzhe', 'other/artzhe/user/iosapp1489065068115711', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065075');
+INSERT INTO `az_assets` VALUES ('154', 'artzhe', 'other/artzhe/user/iosapp1489065078629343', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065079');
+INSERT INTO `az_assets` VALUES ('155', 'artzhe', 'other/artzhe/user/iosapp1489065078959206', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065082');
+INSERT INTO `az_assets` VALUES ('156', 'artzhe', 'other/artzhe/user/iosapp1489065078564772', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065083');
+INSERT INTO `az_assets` VALUES ('157', 'artzhe', 'other/artzhe/user/iosapp1489065078039201', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065083');
+INSERT INTO `az_assets` VALUES ('158', 'artzhe', 'other/artzhe/user/iosapp1489065078179538', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065084');
+INSERT INTO `az_assets` VALUES ('159', 'artzhe', 'other/artzhe/user/iosapp1489065087363823', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065089');
+INSERT INTO `az_assets` VALUES ('160', 'artzhe', 'other/artzhe/user/iosapp1489065087348568', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065091');
+INSERT INTO `az_assets` VALUES ('161', 'artzhe', 'other/artzhe/user/iosapp1489065087510154', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065091');
+INSERT INTO `az_assets` VALUES ('162', 'artzhe', 'other/artzhe/user/iosapp1489065087615119', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065092');
+INSERT INTO `az_assets` VALUES ('163', 'artzhe', 'other/artzhe/user/iosapp1489065087118594', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065093');
+INSERT INTO `az_assets` VALUES ('164', 'artzhe', 'other/artzhe/user/iosapp1489065096006882', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065098');
+INSERT INTO `az_assets` VALUES ('165', 'artzhe', 'other/artzhe/user/iosapp1489065096018775', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065099');
+INSERT INTO `az_assets` VALUES ('166', 'artzhe', 'other/artzhe/user/iosapp1489065096337088', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065101');
+INSERT INTO `az_assets` VALUES ('167', 'artzhe', 'other/artzhe/user/iosapp1489065096598770', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065102');
+INSERT INTO `az_assets` VALUES ('168', 'artzhe', 'other/artzhe/user/iosapp1489065096566988', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065102');
+INSERT INTO `az_assets` VALUES ('169', 'artzhe', 'other/artzhe/user/iosapp1489065104953649', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065106');
+INSERT INTO `az_assets` VALUES ('170', 'artzhe', 'other/artzhe/user/iosapp1489065104919165', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065107');
+INSERT INTO `az_assets` VALUES ('171', 'artzhe', 'other/artzhe/user/iosapp1489065104633118', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065109');
+INSERT INTO `az_assets` VALUES ('172', 'artzhe', 'other/artzhe/user/iosapp1489065104544063', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065110');
+INSERT INTO `az_assets` VALUES ('173', 'artzhe', 'other/artzhe/user/iosapp1489065104926640', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065111');
+INSERT INTO `az_assets` VALUES ('174', 'artzhe', 'other/artzhe/user/iosapp1489065114773068', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065115');
+INSERT INTO `az_assets` VALUES ('175', 'artzhe', 'other/artzhe/user/iosapp1489065114287395', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065116');
+INSERT INTO `az_assets` VALUES ('176', 'artzhe', 'other/artzhe/user/iosapp1489065114678713', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065119');
+INSERT INTO `az_assets` VALUES ('177', 'artzhe', 'other/artzhe/user/iosapp1489065114898373', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065120');
+INSERT INTO `az_assets` VALUES ('178', 'artzhe', 'other/artzhe/user/iosapp1489065114395483', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065121');
+INSERT INTO `az_assets` VALUES ('179', 'artzhe', 'other/artzhe/user/iosapp1489065123375709', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065125');
+INSERT INTO `az_assets` VALUES ('180', 'artzhe', 'other/artzhe/user/iosapp1489065123977483', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065126');
+INSERT INTO `az_assets` VALUES ('181', 'artzhe', 'other/artzhe/user/iosapp1489065123302389', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065129');
+INSERT INTO `az_assets` VALUES ('182', 'artzhe', 'other/artzhe/user/iosapp1489065123109466', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065129');
+INSERT INTO `az_assets` VALUES ('183', 'artzhe', 'other/artzhe/user/iosapp1489065123596547', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065130');
+INSERT INTO `az_assets` VALUES ('184', 'artzhe', 'other/artzhe/user/iosapp1489065132801101', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065135');
+INSERT INTO `az_assets` VALUES ('185', 'artzhe', 'other/artzhe/user/iosapp1489065132102890', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065136');
+INSERT INTO `az_assets` VALUES ('186', 'artzhe', 'other/artzhe/user/iosapp1489065132969931', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065136');
+INSERT INTO `az_assets` VALUES ('187', 'artzhe', 'other/artzhe/user/iosapp1489065132546504', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065138');
+INSERT INTO `az_assets` VALUES ('188', 'artzhe', 'other/artzhe/user/iosapp1489065132065965', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065139');
+INSERT INTO `az_assets` VALUES ('189', 'artzhe', 'other/artzhe/user/iosapp1489065142563690', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065144');
+INSERT INTO `az_assets` VALUES ('190', 'artzhe', 'other/artzhe/user/iosapp1489065142805731', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065145');
+INSERT INTO `az_assets` VALUES ('191', 'artzhe', 'other/artzhe/user/iosapp1489065142631729', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065145');
+INSERT INTO `az_assets` VALUES ('192', 'artzhe', 'other/artzhe/user/iosapp1489065142712409', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065147');
+INSERT INTO `az_assets` VALUES ('193', 'artzhe', 'other/artzhe/user/iosapp1489065142452715', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065148');
+INSERT INTO `az_assets` VALUES ('194', 'artzhe', 'other/artzhe/user/iosapp1489065151595421', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065152');
+INSERT INTO `az_assets` VALUES ('195', 'artzhe', 'other/artzhe/user/iosapp1489065151150694', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065154');
+INSERT INTO `az_assets` VALUES ('196', 'artzhe', 'other/artzhe/user/iosapp1489065151970578', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065155');
+INSERT INTO `az_assets` VALUES ('197', 'artzhe', 'other/artzhe/user/iosapp1489065151189753', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065156');
+INSERT INTO `az_assets` VALUES ('198', 'artzhe', 'other/artzhe/user/iosapp1489065151127891', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065157');
+INSERT INTO `az_assets` VALUES ('199', 'artzhe', 'other/artzhe/user/iosapp1489065160371937', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065163');
+INSERT INTO `az_assets` VALUES ('200', 'artzhe', 'other/artzhe/user/iosapp1489065160980657', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065163');
+INSERT INTO `az_assets` VALUES ('201', 'artzhe', 'other/artzhe/user/iosapp1489065160618522', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065164');
+INSERT INTO `az_assets` VALUES ('202', 'artzhe', 'other/artzhe/user/iosapp1489065160148773', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065165');
+INSERT INTO `az_assets` VALUES ('203', 'artzhe', 'other/artzhe/user/iosapp1489065160696692', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065166');
+INSERT INTO `az_assets` VALUES ('204', 'artzhe', 'other/artzhe/user/iosapp1489065168779202', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065170');
+INSERT INTO `az_assets` VALUES ('205', 'artzhe', 'other/artzhe/user/iosapp1489065168054958', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065172');
+INSERT INTO `az_assets` VALUES ('206', 'artzhe', 'other/artzhe/user/iosapp1489065168157613', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065172');
+INSERT INTO `az_assets` VALUES ('207', 'artzhe', 'other/artzhe/user/iosapp1489065168170443', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065174');
+INSERT INTO `az_assets` VALUES ('208', 'artzhe', 'other/artzhe/user/iosapp1489065168038594', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065174');
+INSERT INTO `az_assets` VALUES ('209', 'artzhe', 'other/artzhe/user/iosapp1489065177400593', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065179');
+INSERT INTO `az_assets` VALUES ('210', 'artzhe', 'other/artzhe/user/iosapp1489065177161184', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065180');
+INSERT INTO `az_assets` VALUES ('211', 'artzhe', 'other/artzhe/user/iosapp1489065177524390', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065182');
+INSERT INTO `az_assets` VALUES ('212', 'artzhe', 'other/artzhe/user/iosapp1489065177209662', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065183');
+INSERT INTO `az_assets` VALUES ('213', 'artzhe', 'other/artzhe/user/iosapp1489065177767366', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065183');
+INSERT INTO `az_assets` VALUES ('214', 'artzhe', 'other/artzhe/user/iosapp1489065268128210', '1AAA5D0311EB3EC0D7FE80FBA405D8E8', '1453718', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489065270');
+INSERT INTO `az_assets` VALUES ('215', 'artzhe', 'other/artzhe/user/iosapp1489065272267579', '5050C845A53613DF02C73139AAD0E5A7', '910690', 'application/octet-stream', '696', '1239', 'jpg', 'N', '0', '1489065273');
+INSERT INTO `az_assets` VALUES ('216', 'artzhe', 'other/artzhe/user/iosapp1489065275313351', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065277');
+INSERT INTO `az_assets` VALUES ('217', 'artzhe', 'other/artzhe/user/iosapp1489065275647603', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065279');
+INSERT INTO `az_assets` VALUES ('218', 'artzhe', 'other/artzhe/user/iosapp1489065275866372', '6ACB681123AA8FA84319877536A05508', '993221', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065280');
+INSERT INTO `az_assets` VALUES ('219', 'artzhe', 'other/artzhe/user/iosapp1489065275312728', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065281');
+INSERT INTO `az_assets` VALUES ('220', 'artzhe', 'other/artzhe/user/iosapp1489065275961607', 'D0D97C68D0CB9F33CA53FAD7DE0617D5', '1090244', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065285');
+INSERT INTO `az_assets` VALUES ('221', 'artzhe', 'other/artzhe/user/iosapp1489065275305131', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065286');
+INSERT INTO `az_assets` VALUES ('222', 'artzhe', 'other/artzhe/user/iosapp1489065275756464', '88A5B9D58339455BDA25A7A68EE7BBA6', '734902', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489065286');
+INSERT INTO `az_assets` VALUES ('223', 'artzhe', 'other/artzhe/user/iosapp1489065275916867', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065287');
+INSERT INTO `az_assets` VALUES ('224', 'artzhe', 'other/artzhe/user/iosapp1489065275169780', 'BDFBD4A6B52F667E605E27F4CD21FE79', '929352', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489065288');
+INSERT INTO `az_assets` VALUES ('225', 'artzhe', 'other/artzhe/user/iosapp1489065291152890', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065294');
+INSERT INTO `az_assets` VALUES ('226', 'artzhe', 'other/artzhe/user/iosapp1489065291697246', 'D0D97C68D0CB9F33CA53FAD7DE0617D5', '1090244', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065296');
+INSERT INTO `az_assets` VALUES ('227', 'artzhe', 'other/artzhe/user/iosapp1489065291604673', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065297');
+INSERT INTO `az_assets` VALUES ('228', 'artzhe', 'other/artzhe/user/iosapp1489065291979932', '88A5B9D58339455BDA25A7A68EE7BBA6', '734902', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489065299');
+INSERT INTO `az_assets` VALUES ('229', 'artzhe', 'other/artzhe/user/iosapp1489065291885379', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065300');
+INSERT INTO `az_assets` VALUES ('230', 'artzhe', 'other/artzhe/user/iosapp1489065291879507', '6ACB681123AA8FA84319877536A05508', '993221', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065304');
+INSERT INTO `az_assets` VALUES ('231', 'artzhe', 'other/artzhe/user/iosapp1489065291509894', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065304');
+INSERT INTO `az_assets` VALUES ('232', 'artzhe', 'other/artzhe/user/iosapp1489065291274067', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065304');
+INSERT INTO `az_assets` VALUES ('233', 'artzhe', 'other/artzhe/user/iosapp1489065291557419', 'BDFBD4A6B52F667E605E27F4CD21FE79', '929352', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489065304');
+INSERT INTO `az_assets` VALUES ('234', 'artzhe', 'other/artzhe/user/iosapp1489065447846593', '5050C845A53613DF02C73139AAD0E5A7', '910690', 'application/octet-stream', '696', '1239', 'jpg', 'N', '0', '1489065447');
+INSERT INTO `az_assets` VALUES ('235', 'artzhe', 'other/artzhe/user/iosapp1489065448530773', '87C3439C8EBF48F6DA03166C8D6D5FCD', '1766052', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489065451');
+INSERT INTO `az_assets` VALUES ('236', 'artzhe', 'other/artzhe/user/iosapp1489065453727292', '5DDDAD6C6023B56946E0089BB8EA5849', '472863', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065453');
+INSERT INTO `az_assets` VALUES ('237', 'artzhe', 'other/artzhe/user/iosapp1489065453903994', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489065455');
+INSERT INTO `az_assets` VALUES ('238', 'artzhe', 'other/artzhe/user/iosapp1489065453260588', 'D0D97C68D0CB9F33CA53FAD7DE0617D5', '1090244', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065456');
+INSERT INTO `az_assets` VALUES ('239', 'artzhe', 'other/artzhe/user/iosapp1489065458397238', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489065460');
+INSERT INTO `az_assets` VALUES ('240', 'artzhe', 'other/artzhe/user/iosapp1489065458871593', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065462');
+INSERT INTO `az_assets` VALUES ('241', 'artzhe', 'other/artzhe/user/iosapp1489065458437082', '24F2DC31E7D77DC83C1CBA6A0C37EDB2', '1550884', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489065462');
+INSERT INTO `az_assets` VALUES ('242', 'artzhe', 'other/artzhe/user/iosapp1489114778275715', 'E6BF7AB6D71F3D18747CFDA5E6662C15', '1255933', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489114779');
+INSERT INTO `az_assets` VALUES ('243', 'artzhe', 'other/artzhe/user/iosapp1489114781823877', '47AD8A4FC3BBBDD77A07949B5EC4F235', '1350188', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489114782');
+INSERT INTO `az_assets` VALUES ('244', 'artzhe', 'other/artzhe/user/iosapp1489114785699748', '58DE3B5AB02819AB7E9E0FAABF6DF702', '956832', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489114790');
+INSERT INTO `az_assets` VALUES ('245', 'artzhe', 'other/artzhe/user/iosapp1489114785509873', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489114790');
+INSERT INTO `az_assets` VALUES ('246', 'artzhe', 'other/artzhe/user/iosapp1489114785307227', 'BDFBD4A6B52F667E605E27F4CD21FE79', '929352', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489114791');
+INSERT INTO `az_assets` VALUES ('247', 'artzhe', 'other/artzhe/user/iosapp1489114785595846', '88A5B9D58339455BDA25A7A68EE7BBA6', '734902', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489114792');
+INSERT INTO `az_assets` VALUES ('248', 'artzhe', 'other/artzhe/user/iosapp1489114785716143', '345F2FCE7E143BFE1F59C3D9002B9390', '1454831', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489114793');
+INSERT INTO `az_assets` VALUES ('249', 'artzhe', 'other/artzhe/user/iosapp1489114796427203', '180FBEA0BF7D9B9A512313DFFAA05FD2', '794178', 'application/octet-stream', '1779', '1000', 'jpg', 'N', '0', '1489114799');
+INSERT INTO `az_assets` VALUES ('250', 'artzhe', 'other/artzhe/user/iosapp1489114796890202', '3D2C216208ACB61260125191AD2D02A2', '504420', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489114801');
+INSERT INTO `az_assets` VALUES ('251', 'artzhe', 'other/artzhe/user/iosapp1489114796949950', '1FBA80E6CA382982B8B9E20FF2894BEB', '1055042', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489114802');
+INSERT INTO `az_assets` VALUES ('252', 'artzhe', 'other/artzhe/user/iosapp1489114796119820', '58DE3B5AB02819AB7E9E0FAABF6DF702', '956832', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489114802');
+INSERT INTO `az_assets` VALUES ('253', 'artzhe', 'other/artzhe/user/iosapp1489114796193636', '88A5B9D58339455BDA25A7A68EE7BBA6', '734902', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489114804');
+INSERT INTO `az_assets` VALUES ('254', 'artzhe', 'other/artzhe/user/iosapp1489114796066333', '441CC2D8C9DF79E0ED3EC0F7A2A08A8E', '518098', 'application/octet-stream', '563', '1000', 'jpg', 'N', '0', '1489114805');
+INSERT INTO `az_assets` VALUES ('255', 'artzhe', 'other/artzhe/user/iosapp1489114796665079', '345F2FCE7E143BFE1F59C3D9002B9390', '1454831', 'application/octet-stream', '1778', '1000', 'jpg', 'N', '0', '1489114808');
+INSERT INTO `az_assets` VALUES ('256', 'artzhe', 'other/artzhe/user/iosapp1489114796522234', 'BDFBD4A6B52F667E605E27F4CD21FE79', '929352', 'application/octet-stream', '1334', '1000', 'jpg', 'N', '0', '1489114808');
+INSERT INTO `az_assets` VALUES ('257', 'artzhe', 'other/artzhe/user/iosapp1489129346745149', '436E79BF762FE0996058456D9C932BD5', '1552148', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489129348');
+INSERT INTO `az_assets` VALUES ('258', 'artzhe', 'other/artzhe/user/iosapp1489130879872193', '56FE758D9E52970600DEE43E06C74314', '1489213', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489130880');
+INSERT INTO `az_assets` VALUES ('259', 'artzhe', 'other/artzhe/user/iosapp1489131224936022', 'F6624545CBE965B5AD52F788AD5B8D39', '951969', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489131224');
+INSERT INTO `az_assets` VALUES ('260', 'artzhe', 'other/artzhe/user/iosapp1489132158832308', '1AAA5D0311EB3EC0D7FE80FBA405D8E8', '1453718', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489132160');
+INSERT INTO `az_assets` VALUES ('261', 'artzhe', 'other/artzhe/user/iosapp1489132174314772', '1AAA5D0311EB3EC0D7FE80FBA405D8E8', '1453718', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489132176');
+INSERT INTO `az_assets` VALUES ('262', 'artzhe', 'other/artzhe/user/iosapp1489132187759486', '1AAA5D0311EB3EC0D7FE80FBA405D8E8', '1453718', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489132188');
+INSERT INTO `az_assets` VALUES ('263', 'artzhe', 'other/artzhe/user/iosapp1489132522910348', '1AAA5D0311EB3EC0D7FE80FBA405D8E8', '1453718', 'application/octet-stream', '1242', '1239', 'jpg', 'N', '0', '1489132524');
+INSERT INTO `az_assets` VALUES ('264', 'artzhe', 'other/artzhe/user/iosapp1489143472134543.jpg', 'D2B2DEE5E0258210F6838775AD96991B', '680873', 'image/jpeg', '476', '595', 'png', 'N', '0', '1489143472');
+
+-- ----------------------------
+-- Table structure for az_comment
+-- ----------------------------
+DROP TABLE IF EXISTS `az_comment`;
+CREATE TABLE `az_comment` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1表示没有父级其它表示az_comment.id',
+  `commenter` int(11) NOT NULL DEFAULT '-1' COMMENT '评论者az_user.id',
+  `comment_to` int(11) NOT NULL DEFAULT '-1' COMMENT 'az_user.id',
+  `content` text NOT NULL COMMENT '评论内容',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '评论创建时间',
+  `topic_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定type为1az_artwork.id 2则为az_artwork_update_log.id',
+  `type` tinyint(4) NOT NULL DEFAULT '-1' COMMENT '-1未指定1作品评论2作品更新评论',
+  `delete_time` int(11) NOT NULL DEFAULT '0' COMMENT '删除时间',
+  `level` tinyint(3) NOT NULL DEFAULT '1' COMMENT '1为第一层评论2为评论下面的回复',
+  `is_published` enum('N','Y') NOT NULL DEFAULT 'Y' COMMENT '是否立即发布 主要是为了后台假数据评论准备的',
+  `publish_time` int(11) NOT NULL DEFAULT '0' COMMENT '发布时间',
+  `is_deleted` enum('N','Y') NOT NULL DEFAULT 'N',
+  `like_total` int(10) unsigned DEFAULT '0' COMMENT '被喜欢的总数',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='评论';
+
+-- ----------------------------
+-- Records of az_comment
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_comment_like
+-- ----------------------------
+DROP TABLE IF EXISTS `az_comment_like`;
+CREATE TABLE `az_comment_like` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `comment_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定az_comment.id',
+  `liker` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定 点赞者az_user.id',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `is_deleted` enum('N','Y') NOT NULL DEFAULT 'N' COMMENT '是否删除',
+  `delete_time` int(11) NOT NULL DEFAULT '0' COMMENT '删除时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='评论点赞表';
+
+-- ----------------------------
+-- Records of az_comment_like
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_config
+-- ----------------------------
+DROP TABLE IF EXISTS `az_config`;
+CREATE TABLE `az_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cn_name` varchar(255) NOT NULL DEFAULT '',
+  `en_name` varchar(255) NOT NULL DEFAULT '',
+  `value` text NOT NULL,
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  `creator_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='系统配置';
+
+-- ----------------------------
+-- Records of az_config
+-- ----------------------------
+INSERT INTO `az_config` VALUES ('1', '画作色彩配置', 'ARTWORK_COLOR_LIST', '[\r\n{\"color\":\"#e51f20\", \"sort\":1, \"id\":\"1\"},\r\n{\"color\":\"#ec8e2a\", \"sort\":2, \"id\":\"2\"},\r\n{\"color\":\"#eddb23\", \"sort\":3, \"id\":\"3\"},\r\n{\"color\":\"#43c956\", \"sort\":4, \"id\":\"4\"},\r\n{\"color\":\"#2f76e0\", \"sort\":5, \"id\":\"5\"},\r\n{\"color\":\"#c949d2\", \"sort\":6, \"id\":\"6\"},\r\n{\"color\":\"#a1a1a1\", \"sort\":7, \"id\":\"7\"},\r\n{\"color\":\"#ffffff,1b1b1b\", \"sort\":8, \"id\":\"8\"},\r\n{\"color\":\"#ac6c25\", \"sort\":9, \"id\":\"9\"}\r\n]', '0', '0', '-1');
+INSERT INTO `az_config` VALUES ('2', '画作标签配置', 'ARTWORK_TAG_LIST', '[\r\n{\"id\":1, \"sort\":1, \"value\":\"人物\"},\r\n{\"id\":2, \"sort\":2, \"value\":\"风景\"},\r\n{\"id\":3, \"sort\":3, \"value\":\"静物\"},\r\n{\"id\":4, \"sort\":4, \"value\":\"动植物\"},\r\n{\"id\":5, \"sort\":5, \"value\":\"萌化\"},\r\n{\"id\":6, \"sort\":6, \"value\":\"宗教\"},\r\n{\"id\":7, \"sort\":7, \"value\":\"具象\"},\r\n{\"id\":8, \"sort\":8, \"value\":\"抽象\"},\r\n{\"id\":9, \"sort\":9, \"value\":\"古典\"},\r\n{\"id\":10, \"sort\":10, \"value\":\"观念\"},\r\n{\"id\":11, \"sort\":11, \"value\":\"表现\"},\r\n{\"id\":12, \"sort\":12, \"value\":\"少女\"},\r\n{\"id\":13, \"sort\":13, \"value\":\"儿童\"},\r\n{\"id\":14, \"sort\":14, \"value\":\"戏曲戏剧\"},\r\n{\"id\":15, \"sort\":15, \"value\":\"写实\"},\r\n{\"id\":16, \"sort\":16, \"value\":\"抽象\"},\r\n{\"id\":17, \"sort\":17, \"value\":\"科幻\"},\r\n{\"id\":18, \"sort\":18, \"value\":\"动漫风\"},\r\n{\"id\":29, \"sort\":19, \"value\":\"人体\"},\r\n{\"id\":20, \"sort\":20, \"value\":\"花鸟\"}\r\n]', '0', '0', '-1');
+
+-- ----------------------------
+-- Table structure for az_gallery
+-- ----------------------------
+DROP TABLE IF EXISTS `az_gallery`;
+CREATE TABLE `az_gallery` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `artist` int(11) NOT NULL DEFAULT '-1' COMMENT '艺术家id az_user.id',
+  `tag_ids` varchar(1000) NOT NULL DEFAULT '' COMMENT '艺术家的所作的画作标签id列表并英文逗号分隔',
+  `category_ids` varchar(1000) NOT NULL DEFAULT '' COMMENT '艺术品分类id列表并使用英文逗号分隔',
+  `cover` int(11) NOT NULL DEFAULT '-1' COMMENT '封面id -1未指定az_assets.id',
+  `view_total` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '浏览总量并非所有画作的浏览总量之和',
+  `share_total` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '分享次数',
+  `like_total` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '被喜欢的次数',
+  `is_deleted` enum('N','Y') NOT NULL DEFAULT 'N' COMMENT '是否删除',
+  `delete_time` int(11) NOT NULL DEFAULT '0' COMMENT '删除时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='艺术画廊';
+
+-- ----------------------------
+-- Records of az_gallery
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_invite_log
+-- ----------------------------
+DROP TABLE IF EXISTS `az_invite_log`;
+CREATE TABLE `az_invite_log` (
+  `id` int(11) NOT NULL,
+  `invite_user_id` int(11) NOT NULL DEFAULT '-1' COMMENT '邀请者',
+  `invited_user_id` int(11) NOT NULL DEFAULT '-1' COMMENT '被邀请者',
+  `invite_code` varchar(255) NOT NULL DEFAULT '' COMMENT '邀请码',
+  `invite_time` int(11) DEFAULT '0' COMMENT '邀请成功申请艺术家认证的时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of az_invite_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_message
+-- ----------------------------
+DROP TABLE IF EXISTS `az_message`;
+CREATE TABLE `az_message` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` tinyint(4) NOT NULL DEFAULT '-1' COMMENT '-1未指定 1艺术家收到艺术品评论 2艺术家收到艺术品更新评论 3艺术家收到艺术品点赞 4欣赏者收到评论回复 5欣赏者收到评论喜欢 6欣赏者收到喜欢的艺术品更新 7欣赏者收到关注的艺术家的作品更新 这里的作品我没关注 8系统消息',
+  `topic_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定 根据type字段变更',
+  `content` varchar(500) NOT NULL DEFAULT '' COMMENT '消息内容',
+  `from_user_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定',
+  `to_user_id` int(11) NOT NULL DEFAULT '-1' COMMENT '-1未指定',
+  `is_deleted` enum('N','Y') NOT NULL DEFAULT 'N',
+  `delete_time` int(11) NOT NULL DEFAULT '0' COMMENT '删除时间',
+  `is_read` enum('N','Y') NOT NULL DEFAULT 'N',
+  `read_time` int(11) NOT NULL DEFAULT '0' COMMENT '查阅时间',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='消息';
+
+-- ----------------------------
+-- Records of az_message
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_session
+-- ----------------------------
+DROP TABLE IF EXISTS `az_session`;
+CREATE TABLE `az_session` (
+  `session_id` varchar(255) NOT NULL DEFAULT '-1',
+  `session_expire` varchar(11) NOT NULL DEFAULT '0',
+  `session_data` text,
+  UNIQUE KEY `uni_sess_id` (`session_id`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of az_session
+-- ----------------------------
+INSERT INTO `az_session` VALUES ('31kvs9a9hrk3h6qo6uvcphtj60', '1489312289', 'adminId|s:1:\"1\";');
+
+-- ----------------------------
+-- Table structure for az_third
+-- ----------------------------
+DROP TABLE IF EXISTS `az_third`;
+CREATE TABLE `az_third` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` tinyint(3) NOT NULL DEFAULT '-1' COMMENT '1WECHAT 2QQ 3WEIBO',
+  `union_id` varchar(255) NOT NULL DEFAULT '' COMMENT '同一平台下的统一登录id',
+  `open_id` varchar(255) NOT NULL DEFAULT '' COMMENT '第三方open_id',
+  `bind_user_id` int(11) NOT NULL DEFAULT '-1' COMMENT 'az_user.id -1未绑定',
+  `nickname` varchar(255) NOT NULL DEFAULT '' COMMENT 'nickname',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name',
+  `email` varchar(255) NOT NULL DEFAULT '' COMMENT '邮件地址',
+  `gender` tinyint(2) NOT NULL DEFAULT '1' COMMENT '1男 2女 3未知',
+  `face_url` varchar(255) NOT NULL DEFAULT '' COMMENT '头像链接',
+  `country` varchar(255) NOT NULL DEFAULT '' COMMENT '国家',
+  `province` varchar(255) NOT NULL DEFAULT '' COMMENT '省、直辖市、自治区名称',
+  `city` varchar(255) NOT NULL DEFAULT '' COMMENT '城市名称',
+  `third_full_json` text NOT NULL COMMENT '第三方返回的用户完整信息',
+  `is_unbind` enum('N','Y') NOT NULL DEFAULT 'N' COMMENT '是否已经解绑',
+  `state` tinyint(2) NOT NULL DEFAULT '2' COMMENT '2正常， 1不可用',
+  `bind_time` int(11) NOT NULL DEFAULT '0' COMMENT '绑定时间',
+  `unbind_time` int(11) NOT NULL DEFAULT '0' COMMENT '解绑时间',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='第三方用户表';
+
+-- ----------------------------
+-- Records of az_third
+-- ----------------------------
+INSERT INTO `az_third` VALUES ('1', '1', 'shukaiming2', 'shukaiming1', '1', '舒开铭', '舒开铭', '', '1', 'http://wx.qlogo.cn/mmopen/9ueQbEiaO3eoiblC3iaQV4G4P8X8GonVJwkTwSv1zsp1TRjd2nLqxKvlEWic90CicHMefWia9ESjzEXEH3wSmM9So6Rq0r70rJrSV2/0', '', '', '', '{}', 'N', '2', '1488866294', '0', '1488866294');
+INSERT INTO `az_third` VALUES ('2', '1', 'oOnPgsqcul_2t1P1XE8S3_LFQG9k', 'o3t2z0vJyIrTN05H2PPhB0yOquys', '2', '李坤', '李坤', '', '1', 'http://wx.qlogo.cn/mmopen/9ueQbEiaO3eoiblC3iaQV4G4P8X8GonVJwkTwSv1zsp1TRjd2nLqxKvlEWic90CicHMefWia9ESjzEXEH3wSmM9So6Rq0r70rJrSV2/0', '', '', '', '{}', 'N', '2', '1488867207', '0', '1488867207');
+
+-- ----------------------------
+-- Table structure for az_third_login_log
+-- ----------------------------
+DROP TABLE IF EXISTS `az_third_login_log`;
+CREATE TABLE `az_third_login_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL DEFAULT '-1' COMMENT 'az_user.id',
+  `ip` int(11) NOT NULL DEFAULT '0' COMMENT '数字化的ip',
+  `from` varchar(255) NOT NULL DEFAULT '' COMMENT '来源',
+  `extra` text NOT NULL COMMENT '额外的json信息',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='第三方登录日志表';
+
+-- ----------------------------
+-- Records of az_third_login_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for az_user
+-- ----------------------------
+DROP TABLE IF EXISTS `az_user`;
+CREATE TABLE `az_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '真实姓名',
+  `en_name` varchar(255) NOT NULL DEFAULT '' COMMENT '英文名',
+  `nickname` varchar(255) NOT NULL DEFAULT '' COMMENT '昵称',
+  `account` varchar(255) NOT NULL DEFAULT '' COMMENT '账户名称',
+  `motto` text NOT NULL COMMENT '个性签名、格言',
+  `resume` text NOT NULL COMMENT '个人履历',
+  `enc_password` varchar(255) NOT NULL DEFAULT '' COMMENT '密文的密码',
+  `enc_salt` char(12) NOT NULL DEFAULT '' COMMENT 'salt',
+  `password_reset_token` varchar(255) NOT NULL DEFAULT '' COMMENT '密码重置token',
+  `birthday` int(11) NOT NULL DEFAULT '0' COMMENT '生日unix时间戳',
+  `age` double NOT NULL DEFAULT '0',
+  `gender` tinyint(3) NOT NULL DEFAULT '3' COMMENT '1男2女3未知',
+  `face` int(11) NOT NULL DEFAULT '-1' COMMENT '用户头像-1未指定 az_assets.id',
+  `email` varchar(255) NOT NULL DEFAULT '' COMMENT '电子邮件',
+  `qq` varchar(255) NOT NULL DEFAULT '',
+  `wechat` varchar(255) NOT NULL DEFAULT '',
+  `mobile` varchar(255) NOT NULL DEFAULT '',
+  `telephone` varchar(255) NOT NULL DEFAULT '',
+  `level` tinyint(4) NOT NULL DEFAULT '-1' COMMENT '等级',
+  `ip` int(11) NOT NULL DEFAULT '0' COMMENT '用户ipv4',
+  `longitude` int(11) NOT NULL DEFAULT '0' COMMENT '精确到小数点后6位的整型值',
+  `latitude` int(11) NOT NULL DEFAULT '0' COMMENT '精确到小数点后6位的整型值',
+  `mp` bigint(20) NOT NULL DEFAULT '0' COMMENT '用户总积分member point',
+  `is_deleted` enum('N','Y') NOT NULL DEFAULT 'N' COMMENT '是否删除',
+  `login_times` int(11) NOT NULL DEFAULT '0' COMMENT '登录次数',
+  `banned_to` int(11) NOT NULL DEFAULT '-1' COMMENT ' 禁用时间到0永久封禁-1表示正常',
+  `from` varchar(100) NOT NULL DEFAULT '' COMMENT '用户来源',
+  `type` int(11) NOT NULL DEFAULT '1' COMMENT '用户类型-1未指定0x1欣赏者属性0x10艺术家属性0x100收藏者属性',
+  `device_info_json` text NOT NULL COMMENT ' 用户设备信息json格式',
+  `last_login_time` int(11) NOT NULL DEFAULT '0' COMMENT '上次登录时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '资料更新时间',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '账号创建时间',
+  `follower_total` int(11) unsigned NOT NULL DEFAULT '0' COMMENT ' 被关注总人数',
+  `follow_total` int(11) unsigned DEFAULT '0' COMMENT '用户自己关注的人数',
+  `invite_total` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='基本用户表';
+
+-- ----------------------------
+-- Records of az_user
+-- ----------------------------
+INSERT INTO `az_user` VALUES ('1', '舒开铭', '', '舒开铭', '', '', '', '/uZZpmTWw4LZBqoEwcQb5g==', 'VNOuSAPv74Ic', '', '0', '0', '1', '24', '', '', '', '18588260187', '', '-1', '989467376', '0', '0', '0', 'N', '3', '-1', '', '3', '{}', '1488875590', '1488866294', '1488866294', '0', '0', '0');
+INSERT INTO `az_user` VALUES ('2', '李坤', '', '收到风格更好', '', '也很多很多年对你的鸡蛋鸡蛋鸡ddddd', '好的鸡蛋好多好多好的鸡蛋鸡蛋卷呃呵呵呵鸡蛋鸡蛋鸡蛋hhhhhh', '8n5+8SRoPjB/1RsI+ddjaw==', '1eMImHWjuGda', '', '1489218909', '0', '1', '261', '', '', '', '15038325872', '', '-1', '2005649230', '0', '0', '0', 'N', '9', '-1', '', '3', '{}', '1489128131', '1488867207', '1488867207', '0', '0', '0');
+
+-- ----------------------------
+-- Table structure for az_user_follower
+-- ----------------------------
+DROP TABLE IF EXISTS `az_user_follower`;
+CREATE TABLE `az_user_follower` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `follower` int(11) NOT NULL DEFAULT '-1' COMMENT ' 关注者用户id',
+  `user_id` int(11) NOT NULL DEFAULT '-1' COMMENT '用户id',
+  `follow_time` int(11) NOT NULL DEFAULT '0' COMMENT ' 关注时间',
+  `is_follow` enum('N','Y') NOT NULL DEFAULT 'Y' COMMENT '是否关注',
+  `unfollow_time` int(11) NOT NULL DEFAULT '0' COMMENT '取消关注时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户关注者记录表';
+
+-- ----------------------------
+-- Records of az_user_follower
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for _az_delivery
+-- ----------------------------
+DROP TABLE IF EXISTS `_az_delivery`;
+CREATE TABLE `_az_delivery` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='快递物流日志';
+
+-- ----------------------------
+-- Records of _az_delivery
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for _az_delivery_log
+-- ----------------------------
+DROP TABLE IF EXISTS `_az_delivery_log`;
+CREATE TABLE `_az_delivery_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='物流日志';
+
+-- ----------------------------
+-- Records of _az_delivery_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for _az_interview
+-- ----------------------------
+DROP TABLE IF EXISTS `_az_interview`;
+CREATE TABLE `_az_interview` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='艺术家专访';
+
+-- ----------------------------
+-- Records of _az_interview
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for _az_order
+-- ----------------------------
+DROP TABLE IF EXISTS `_az_order`;
+CREATE TABLE `_az_order` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of _az_order
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for _az_org
+-- ----------------------------
+DROP TABLE IF EXISTS `_az_org`;
+CREATE TABLE `_az_org` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='机构';
+
+-- ----------------------------
+-- Records of _az_org
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for _az_org_follower
+-- ----------------------------
+DROP TABLE IF EXISTS `_az_org_follower`;
+CREATE TABLE `_az_org_follower` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='机构关注者';
+
+-- ----------------------------
+-- Records of _az_org_follower
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for _az_reward
+-- ----------------------------
+DROP TABLE IF EXISTS `_az_reward`;
+CREATE TABLE `_az_reward` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='打赏';
+
+-- ----------------------------
+-- Records of _az_reward
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for _az_user_action_log
+-- ----------------------------
+DROP TABLE IF EXISTS `_az_user_action_log`;
+CREATE TABLE `_az_user_action_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户行为日志';
+
+-- ----------------------------
+-- Records of _az_user_action_log
+-- ----------------------------

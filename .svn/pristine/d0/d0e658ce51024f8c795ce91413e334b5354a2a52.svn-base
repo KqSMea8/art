@@ -1,0 +1,10 @@
+<?php
+
+namespace V60\Model;
+
+
+use V60\Base\BaseModel;
+
+class ArtworkConsultationModel extends BaseModel{
+    protected $tableName = 'artwork_consultation';
+}

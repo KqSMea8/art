@@ -1,0 +1,102 @@
+<extend name="Public:base"/>
+<style type="text/css" rel="stylesheet">
+    div.row {
+        margin-bottom: 10px;
+    }
+</style>
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    专题-{$subinfo['sub_name']}详情如下：
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">专题名称</div>
+                        <div class="col-md-10">{$subinfo['sub_name']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row">
+                        <div class="col-md-2">专题封面</div>
+                        <div class="col-md-10"><img src="{$subinfo['cover']}" width="193" height="168"/></div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row">
+                        <div class="col-md-2">专题内容</div>
+                        <div class="col-md-10">{$subinfo['description']|htmlspecialchars_decode}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row">
+                        <div class="col-md-2">浏览数</div>
+                        <div class="col-md-10">{$subinfo['view_num']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row" hidden>
+                        <div class="col-md-2">喜欢数</div>
+                        <div class="col-md-10">{$subinfo['love_num']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc" hidden></div>
+                    <div class="row" hidden>
+                        <div class="col-md-2">评论数</div>
+                        <div class="col-md-10">{$subinfo['comment_num']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc" hidden></div>
+                    <div class="row">
+                        <div class="col-md-2">参与画作</div>
+                        <div class="col-md-10">{$count}幅</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc;margin-bottom: 10px;"></div>
+                    <notempty name="info">
+                        <table class="table table-hover">
+                            <tr>
+                                <td>画作名</td>
+                                <td>艺术家</td>
+                                <td>查看画作</td>
+                            </tr>
+                            <volist name="info" id="vo">
+                                <tr>
+                                    <td>{$vo['artname']}</td>
+                                    <td>{$vo['username']}</td>
+                                    <td><a href="{:U('Art/detail',['id'=>$vo['id']])}">查看详情</a></td>
+                                </tr>
+                            </volist>
+                           <!-- <tr>
+                                <td colspan="3"><a href="{:U('Subject/addArtwork',['subid'=>$subid])}"
+                                                   class="btn btn-default">添加画作</a></td>
+                            </tr>-->
+                        </table>
+                        <else/>
+                       <!-- <tr>
+                            <td colspan="3"><a href="{:U('Subject/addArtwork',['subid'=>$subid])}"
+                                               class="btn btn-default">添加画作</a></td>
+                        </tr>-->
+                    </notempty>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+           <!-- <a href="{:U('RecommendSubject/index')}" class="btn btn-default">返回</a>-->
+            <a href="javascript:history.go(-1);"  class="btn btn-default">返回</a>
+            <!-- /.panel -->
+            <!-- /.col-lg-12 -->
+        </div>
+    </div>
+</block>
+<block name="customJs">
+    <script>
+        // $(document).ready(function(){
+        //     $('#az-id-date-selector').datetimepicker({
+        //         format:'yyyy-mm-dd',
+        //         language:  'zh-CN',
+        //         weekStart: 1,
+        //         todayBtn:  1,
+        //         autoclose: 1,
+        //         todayHighlight: 1,
+        //         startView: 2,
+        //         minView: 2,
+        //         forceParse: 0
+        //     })
+        // });
+    </script>
+</block>

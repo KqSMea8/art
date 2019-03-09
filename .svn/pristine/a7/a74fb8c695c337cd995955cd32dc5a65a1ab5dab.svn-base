@@ -1,0 +1,152 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Util;
+use Custom\Helper\Oss;
+use Custom\Helper\Nav;
+use Common\Logic\SubjectLogic;
+
+
+//主页-推荐 栏目
+class HomeColumnController extends AdminBaseController
+{
+
+    //推荐栏目列表
+    public function index()
+    {
+        $columns = M('home_column')->order("sort asc")->select();
+        foreach ($columns as &$data) {
+            //栏目的类型    1--艺术家   2--画作   3---花絮   4--艺术号    5--专题
+            switch($data['type']){
+                case 1:
+                    $data['type'] = '艺术家';break;
+                case 2:
+                    $data['type'] = '画作';break;
+                case 3:
+                    $data['type'] = '花絮';break;
+                case 4:
+                    $data['type'] = '艺术号';break;
+                case 5:
+                    $data['type'] = '专题';break;
+            }
+            $data['is_show'] = $data['is_show'] == 'Y'?'开':'关';
+        }
+
+        $this->assign('lists', $columns);
+        $this->display('index');
+    }
+
+
+    //网添栏目
+    public function showAdd()
+    {
+        $this->display('add');
+    }
+
+    //添加栏目操作
+    public function add()
+    {
+        $sort = intval(trim(I('post.sort')));  //序号
+        $type = intval(trim(I('post.type')));  //类型
+        $name = addslashes(trim(I('post.name')));  //名称
+        $show_number = intval(trim(I('post.show_number')));  //数量
+        $is_show = addslashes(trim(I('post.is_show')));  //是否开启
+
+        $data = [
+            'sort' => $sort,
+            'type' => $type,
+            'name' => $name,
+            'show_number' => $show_number,
+            'is_show' => $is_show,
+        ];
+        //插入数据，返回插入后的id
+        $insert_id = M('home_column')->add($data);
+        if ($insert_id) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '添加失败，请重试'];
+            echo json_encode($response);
+        }
+
+    }
+
+    //删除图片操作
+    public function delete()
+    {
+        $ids = I('post.id');
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+
+        $where['id'] = array('in',$ids);
+        $num = M('home_column')->where($where)->delete();
+        $return=['error'=>0,'delete_num'=>$num];
+        echo json_encode($return);
+    }
+
+    //修改序号
+    public function updateSort(){
+        $id = intval(trim(I('post.id')));  //id
+        $sort = intval(trim(I('post.sort')));  //序号
+        $where['id'] = $id;
+        $data['sort'] = $sort;
+        $insertId = M('home_column')->where(['id'=>$id])->save($data);
+        if ($insertId) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+
+    }
+
+    //编辑页面显示
+    public function showEdit()
+    {
+        $id = intval(I('get.id'));
+
+        $data = M('home_column')->find($id);
+        $this->assign('data', $data);
+        $this->display('edit');
+    }
+
+    //编辑图片操作
+    public function edit()
+    {
+        $id = intval(I('post.id'));  //ID
+        $sort = intval(trim(I('post.sort')));  //序号
+        $type = intval(trim(I('post.type')));  //类型
+        $name = addslashes(trim(I('post.name')));  //名称
+        $show_number = intval(trim(I('post.show_number')));  //数量
+        $is_show = addslashes(trim(I('post.is_show')));  //是否开启
+
+
+        $data = [
+            'sort' => $sort,
+            'type' => $type,
+            'name' => $name,
+            'show_number' => $show_number,
+            'is_show' => $is_show,
+        ];
+        $where['id'] = $id;
+        $result = M('home_column')->where($where)->save($data);  //更新记录
+        if (false !== $result) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '添加失败，请重试'];
+            echo json_encode($response);
+        }
+    }
+
+}

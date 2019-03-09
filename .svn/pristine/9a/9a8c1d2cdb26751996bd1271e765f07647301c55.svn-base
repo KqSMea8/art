@@ -1,0 +1,206 @@
+<extend name="Public:base" />
+<block name="content">
+    <link href="/Public/Admin/js/thickbox/thickbox.css" rel="stylesheet">
+    <style type="text/css">
+        .label-td{
+            border: 1px solid #ddd;
+            background-color: #9a9a9a1c;
+            width: 135px;
+            text-align:right;
+            vertical-align: middle;
+            padding: 10px 10px;
+        }
+
+        .table-div,.table-div a{
+            width: 250px;
+            padding: 10px 10px;
+            word-wrap: break-word;
+        }
+
+        .div-td{
+            width: 250px;
+            height: 70px;
+            border: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+        .custom-table1{
+            width: 1200px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .table-div-image a img{
+            padding: 5px;
+        }
+
+        .table-content{
+            padding: 5px;
+        }
+
+    </style>
+    <div class="row" style="min-width: 1300px">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    画作花絮详情
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div style="padding: 10px 0px">基本信息</div>
+                    <table class="custom-table1">
+                        <tr>
+                            <td rowspan="5" colspan="2" style="text-align: center;">
+                                <!-- <img src="{$detail['cover']}" style="width:400px;padding: 5px;">-->
+                                <div class="az-cls-popup-group">
+                                    <a href="{$detail['artcover']}" ><img src="{$detail['artcover_small']}"></a>
+                                </div>
+                            </td>
+                            <td class="label-td">
+                                <label>ID</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">
+                                    <if condition="$showType == 1">
+                                        <a href="{$detail['link']}" target="_blank">{$detail['id']}</a>
+                                        <else />
+                                        <a href="{:U('Art/artCircleDetail')}?id={$data['id']}&keepThis=true&TB_iframe=true&height=650&width=490" title="艺术圈花絮" class="thickbox">
+                                            {$detail['id']}</a>
+                                    </if>
+                                </div>
+                            </td>
+                            <td class="label-td">
+                                <label>艺术家</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div"><a href="{:U('Admin/User/showDetail',['id'=>$detail['artist']])}">{$detail['nickname']}</a></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>画作名称</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div"><a href="{:U('Admin/Art/detail',['id'=>$detail['artwork_id']])}">{$detail['artname']}</a></div>
+                            </td>
+                            <td class="label-td">
+                                <label>花絮标题</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['title']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>更新第几次</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['number']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label><if condition="$showType == 1">标签<else />地址</if></label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div"><if condition="$showType == 1">{$detail['tag']}<else />{$detail['address']}</if></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>浏览数</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['view_total']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>喜欢数</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['like_total']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>评论数</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['comment_total']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>创建时间</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['create_time']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>图片</label>
+                            </td>
+                            <td class="div-td" colspan="5">
+                                <div class="table-div-image az-cls-popup-group">
+                                    <!-- <foreach name="detail['topography_ids']" item="data" key="k">
+                                    <a style="margin-left: 20px" href="{:U('User/bigImage')}?src={$data}&keepThis=true&TB_iframe=true&height=600&width=600" title="局部图" class="thickbox">
+                                        <img src="{$detail['topography_ids_small'][$k]}" style="width:100px;height: 100px;padding: 5px 5px 5px 5px;">
+                                    </a>
+                                </foreach>-->
+
+                                <foreach name="detail['image']" item="groupPhotoUrlPair">
+                                        <a href="{$groupPhotoUrlPair['raw']}" ><img src="{$groupPhotoUrlPair['mini']}"></a>
+                                </foreach>
+
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>花絮内容描述</label>
+                            </td>
+                            <td class="div-td" colspan="5">
+                                <div class="table-content">{$detail['content']}</div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="padding: 10px 0px">评论(共计{$commentList|count}条)</div>
+                    <table style="width: 760px;" border="1" align="center" cellpadding="0" cellspacing="0" class="table table-striped table-bordered table-hover">
+                        <tr style="font-weight:bold">
+                            <td style="width: 200px;">时间</td>
+                            <td style="width: 360px;">内容</td>
+                            <td style="width: 200px;">用户</td>
+                        </tr>
+                        <foreach name="commentList" item="data" key="k">
+                            <tr>
+                                <td>{$data['create_time']}</td>
+                                <td style="width:360px;word-wrap: break-word;">{$data['content']}</td>
+                                <td style="width:200px;word-wrap: break-word;">{$data['nickname']}</td>
+                            </tr>
+                        </foreach>
+                    </table>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+    <script language="javascript" type="text/javascript" src="/Public/Admin/js/thickbox/thickbox.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.az-cls-popup-group').magnificPopup({
+                delegate: 'a',
+                type: 'image',
+                tLoading: 'Loading image #%curr%...',
+                mainClass: 'mfp-img-mobile',
+                gallery: {
+                    enabled: true,
+                    navigateByImgClick: true,
+                    preload: [0,1] // Will preload 0 - before current, and 1 after the current image
+                },
+
+            });
+        });
+
+    </script>
+</block>

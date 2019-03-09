@@ -1,0 +1,14 @@
+<?php
+
+namespace V30\Model;
+
+
+use V30\Base\BaseModel;
+
+class CommentModel extends BaseModel
+{
+    protected $tableName = 'comment';
+
+    const TYPE_ARTWORK = 1;
+    const TYPE_ARTWORK_UPDATE = 2;
+}

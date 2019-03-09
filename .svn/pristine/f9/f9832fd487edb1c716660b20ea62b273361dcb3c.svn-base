@@ -1,0 +1,62 @@
+<?php
+
+namespace V51\Logic;
+
+use V51\Base\BaseLogic;
+use V51\Logic\ArtCircleLogic;
+use V51\Logic\MessageLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+//话题关注
+class TopicFollowLogic extends BaseLogic
+{
+    //关注话题
+    public function followTopic($userId, $topicId){
+        $info = $this->model->where(['topic_id'=>$topicId,'follower_id'=>$userId,'is_follow'=>'Y'])->find();
+        if($info){
+            return false;
+        }else{
+            $topicLogic = new TopicLogic();
+            $topic = $topicLogic->where(['topic_id'=>$topicId,'status'=>['neq',0]])->find();
+            if(!$topic){
+                return false;
+            }
+            $followInfo = $this->model->where(['topic_id'=>$topicId,'follower_id'=>$userId])->find();
+            if($followInfo){
+                $this->model->where(['topic_id'=>$topicId,'follower_id'=>$userId])->setField('is_follow','Y');
+            }else{
+                $this->model->add(['topic_id'=>$topicId,'follower_id'=>$userId,'is_follow'=>'Y','follow_time'=>time()]);
+            }
+            $topicLogic->where(['topic_id'=>$topicId])->setInc('follow_num',1);
+            return true;
+        }
+
+    }
+
+    //取消关注话题
+    public function unfollowTopic($userId, $topicId){
+        $info = $this->model->where(['topic_id'=>$topicId,'follower_id'=>$userId,'is_follow'=>'N'])->find();
+        if($info){
+            return false;
+        }else{
+            $this->model->where(['topic_id'=>$topicId,'follower_id'=>$userId])->save(['is_follow'=>'N','unfollow_time'=>time()]);
+            $topicLogic = new TopicLogic();
+            $topic = $topicLogic->field('follow_num')->where(['topic_id'=>$topicId])->find();
+            if($topic && $topic['follow_num']>0){
+                $topicLogic->where(['topic_id'=>$topicId])->setDec('follow_num',1);
+            }else{
+                $topicLogic->where(['topic_id'=>$topicId])->setField('follow_num',0);
+            }
+
+            return true;
+        }
+
+    }
+
+    //用户是否关注话题
+    public function isFollowTopic($userId, $topicId){
+        return $this->model->where(['topic_id'=>$topicId,'follower_id'=>$userId,'is_follow'=>'Y'])->find();
+    }
+}

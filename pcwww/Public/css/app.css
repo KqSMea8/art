@@ -1,0 +1,283 @@
+
+/*banner*/
+.banner {
+  width: 100%;
+  height: 440px;
+  text-align: center;
+  background-color: #ffc045;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-image: url(../image/app/banner-bg.png);
+}
+.banner .banner-info {
+  margin-left: 630px;
+  padding-top: 75px;
+}
+.banner .banner-info h2 {
+  height: 66px;
+  text-indent: -4000px;
+  background: url(../image/app/app-title.png) left center no-repeat;
+}
+.banner .banner-info .slogan {
+  margin-top: 10px;
+  text-align: left;
+  font-size: 24px;
+  font-weight: 100;
+  text-indent: 3px;
+  text-shadow: 0px 2px 3px rgba(244,173,35,0.7);
+  color: #fff;
+}
+.banner .banner-info .ewm-wrap {
+  margin-top: 50px;
+}
+.banner .banner-info .code-info {
+  float: left;
+  padding-top: 5px;
+  width: 110px;
+  color: #1a1a1a;
+  background-color: #fff;
+  box-shadow: 0px 3px 10px rgba(244,173,35,0.7);
+}
+.banner .banner-info .code-info img {
+  width: 94px;
+  height: 94px;
+}
+.banner .banner-info .code-info p {
+  height: 30px;
+  font-size: 16px;
+  line-height: 30px;
+}
+.ewm-wrap .ewm-txt {
+  margin-left: 
+}
+.ewm-wrap .ewm-txt a {
+  display: block;
+  margin-left: 158px;
+  padding-left: 65px;
+  width: 170px;
+  height: 50px;
+  font-size: 20px;
+  line-height: 50px;
+  text-align: left;
+  /*color: #1a1a1a;*/
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: 20px center;
+  border-radius: 25px;
+  box-shadow: 0px 3px 10px rgba(244,173,35,0.7);
+}
+
+.ewm-wrap .ewm-txt .ewm-ios {
+  margin-top: 30px;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAeCAMAAADuMkXpAAAAclBMVEUAAAD0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSMgeVI8AAAAJXRSTlMABMsn89nPQwjr4NbSwrudf1Y8Dui3saWUkIN3ZEw3IsZsai0UgQzbOQAAALZJREFUKM+t0kcWhCAQRVFEMeec7VT732IXgiP/6VG/ofcglCj+kFPlCoLrE2UImpiIViQzQxIiUQwu3IbSVyhg98fB1GXD8+BD12WeyKK+jirJ5HcRmfqPht2je6rhF8QAooCXVAC8t+AKIKXQpUDMtGh/OzeoOSUCUp0igUhHy0igQtNGqKzmb9BC8nnRAmVjCWMAD3M7QHYz7HSD5fr9ervrYIebLTCtitLy0Pc7tl4eiJ99ARdHN8LrltYQAAAAAElFTkSuQmCC);
+}
+.ewm-wrap .ewm-txt .ewm-android {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAeCAMAAADuMkXpAAAAbFBMVEUAAAD0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSP0rSMta8f9AAAAI3RSTlMAzS20PB2bMdWH9rlU6NyWjYN7RyESDPDIv3JOQj0jr2kkEBYQlzQAAACuSURBVCjPzdG3EsIwEEXRlUHBEWfjSHj//4/sDCJIKlzQcJs3s6fSiHZrFrItjUdlR9u6btSV5KVNDi432oM6gS2pHVAQ0RlcoVOoL5gBo62MwPwRAyfzhhZe7c4TRSpvwkvLVFAOqAheRwUQ7yGUw59LAZShxCyRqvpQ+ur5FaHwcUfugwuJpFcyuwJIs+zCM2XO90gAJ6KYJyL6VXoAMVHNI8ltGgSfujGp7OEB0I0z6dRNenEAAAAASUVORK5CYII=);
+}
+/*banner end*/
+
+/*内容区域*/
+.con-wrap {
+  padding-bottom: 80px;
+}
+.con-wrap h3 {
+  padding-bottom: 20px;
+  font-size: 36px;
+  color: #1a1a1a;
+}
+.con-wrap p {
+  font-size: 16px;
+  line-height: 36px;
+  color: #989898;
+}
+.con-wrap .info {
+  float: left;
+}
+.con-wrap .imgs {
+  float: right;
+  wi
+}
+.con-wrap .shape,
+.con-wrap .mobile,
+.con-wrap .pc {
+  position: absolute;
+}
+.con-wrap .mobile,
+.con-wrap .pc {
+  position: absolute;
+  box-shadow: 0px 8px 24px rgba(125, 138, 165, 0.25);
+}
+/*第一部分*/
+.con-wrap .part-1 {
+  position: relative;
+  height: 445px;
+}
+.con-wrap .part-1 h3 {
+  padding-top: 150px;
+}
+.con-wrap .part-1 .imgs {
+  position: relative;
+  float: right;
+  width: 420px;
+  height: 445px;
+}
+.con-wrap .part-1 .info {
+  opacity: 0;
+  transform: translate3d(-100%, 0, 0);
+  transition: all 1s;
+}
+.con-wrap .part-1 .shape {
+  top: 43px;
+  right: -8px;
+  transform: scale(0);
+  transition: all 1s;
+}
+.con-wrap .part-1 .mobile {
+  top: 80px;
+  left: 0px;
+  opacity: 0;
+  transform: translate3d(0, -60%, 0);
+  transition: all 1s ease .5s;
+}
+.con-wrap .part-1 .pc {
+  right: 0px;
+  bottom: 0px;
+  opacity: 0;
+  transform: translate3d(60%, 0, 0);
+  transition: all 1s ease 1s;
+}
+.con-wrap .part-1.animated .info {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.con-wrap .part-1.animated .shape {
+  transform: scale(1);
+}
+.con-wrap .part-1.animated .mobile {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.con-wrap .part-1.animated .pc {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+/*第一部分 end*/
+
+/*第二部分*/
+.con-wrap .part-2 {
+  position: relative;
+  height: 415px;
+}
+.con-wrap .part-2 .info {
+  float: right;
+  text-align: right;
+  transform: translate3d(100%, 0, 0);
+  opacity: 0;
+  transition: all 1s;
+}
+.con-wrap .part-2 h3 {
+  padding-top: 145px;
+}
+.con-wrap .part-2 .imgs {
+  position: relative;
+  float: left;
+  width: 450px;
+  height: 412px;
+}
+.con-wrap .part-2 .shape {
+  top: 10px;
+  right: 0px;
+  transform: scale(0);
+  transition: all 1s;
+}
+.con-wrap .part-2 .mobile {
+  top: 50px;
+  left: 16px;
+  opacity: 0;
+  transform: translate3d(-60%, 0, 0);
+  transition: all 1s ease .5s;
+}
+.con-wrap .part-2 .pc {
+  right: 25px;
+  bottom: 0px;
+  /*opacity: 0;*/
+  transform: scale(0);
+  /*transform: translate3d(60%, 0, 0);*/
+  transition: all 1s ease 1s;
+}
+.con-wrap .part-2.animated .info {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.con-wrap .part-2.animated .shape {
+  transform: scale(1);
+}
+.con-wrap .part-2.animated .mobile {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.con-wrap .part-2.animated .pc {
+  opacity: 1;
+  transform: scale(1);
+  /*transform: translate3d(0, 0, 0);*/
+}
+/*第二部分 end*/
+
+/*第三部分*/
+.con-wrap .part-3 {
+  position: relative;
+  height: 480px;
+}
+.con-wrap .part-3 .info {
+  opacity: 0;
+  transform: translate3d(0, -100%, 0);
+  transition: all 1s;
+}
+.con-wrap .part-3 h3 {
+  padding-top: 185px;
+}
+.con-wrap .part-3 .imgs {
+  position: relative;
+  float: right;
+  width: 415px;
+  height: 480px;
+}
+.con-wrap .part-3 .shape {
+  top: 75px;
+  right: 30px;
+  transform: scale(0);
+  transition: all 1s;
+}
+.con-wrap .part-3 .mobile {
+  top: 115px;
+  left: 0px;
+  opacity: 0;
+  transform: translate3d(0, -60%, 0);
+  transition: all 1s ease .5s;
+}
+.con-wrap .part-3 .pc {
+  right: 0px;
+  bottom: 0px;
+  opacity: 0;
+  transform: translate3d(60%, 0, 0);
+  transition: all 1s ease 1s;
+}
+.con-wrap .part-3.animated .info {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.con-wrap .part-3.animated .shape {
+  transform: scale(1);
+}
+.con-wrap .part-3.animated .mobile {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.con-wrap .part-3.animated .pc {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+/*第三部分 end*/
+
+/*内容区域 end*/
+

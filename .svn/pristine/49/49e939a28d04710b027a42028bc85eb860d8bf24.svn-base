@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者">
+    <title>艺术家免费认证</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <!-- <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" /> -->
+    <link href="/Public/Home/js/lib/element/index.css" rel="stylesheet">
+    <link href="/Public/Home/css/global.css" rel="stylesheet">
+    <link href="/Public/Home/css/gcommon.css" rel="stylesheet">
+    <link href="/Public/Home/css/auth.css?v=0.0.1" rel="stylesheet">
+  </head>
+  <body>
+    <div v-cloak id="app">
+      <header class="ysz-header">
+        <div class="y-header">
+          <div class="w clearfix">
+            <h1 class="y-head">
+            <img class="logo" src="/Public/Home/image/logo.png" alt="logo">
+            <span class="y-title">创作平台</span>
+            </h1>
+          </div>
+        </div>
+      </header>
+      <div id="main">
+        <div class="w clearfix">
+          <div class="main-wrap mb-72" id="auth">
+            <h2 class="title">艺术家免费认证</h2>
+            <div class="stage-wrap">
+              <p class="info"><i class="icons icon-info"></i>以下信息必须真实可信</p>
+              <form class="yszform">
+                <div class="first-wrap form">
+                  <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="457px" class="demo-ruleForm">
+                    <el-form-item label="手机号码" prop="mobile">
+                      <el-input class="w-350" v-model="ruleForm.mobile" placeholder="请输入您的手机号码，便于回访" :maxlength="11"></el-input>
+                    </el-form-item>
+                    <el-form-item class="verify" label="验证码" prop="verifyCode">
+                      <el-input class="w-350 input-m" v-model="ruleForm.verifyCode" placeholder="请输入验证码" :maxlength="6"></el-input>
+                      <el-button :class="[isClickgetVerify ? 'clicked' : '', 'btn-14', 'fr']" type="primary" @click.prevent="getVerifyCode">{{getVerifyCodeText}}</el-button>
+                    </el-form-item>
+                    <el-form-item label="邀请码" prop="inviteCode">
+                      <el-input class="w-350" v-model="ruleForm.inviteCode" placeholder="已入驻艺术家的邀请码" :maxlength="11"></el-input>
+                    </el-form-item>
+                    <div class="btn-group next">
+                      <p class="error-text">{{errorTip}}</p>
+                      <el-button class="btn-24" type="primary" @click="submitForm('ruleForm')">下一步</el-button>
+                    </div>
+                  </el-form>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <div class="y-footer">
+          <div class="w clearfix">
+            <p class="mail">联系邮箱：yishuzhe@gaosouyi.com</p>
+            <p class="qrcode">
+              <img src="/Public/Home/image/qrcode-wx.png">
+              <img src="/Public/Home/image/qrcode-app.png">
+            </p>
+            <p>
+              Copyright 2017 www.artzhe.com. All Rights Reserved<br>
+              粤ICP备17041531号-1
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+  <script src="/Public/Home/js/lib/vue.js"></script>
+  <script src="/Public/Home/js/lib/element/index.js"></script>
+  <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+  <script src="//cdn.bootcss.com/blueimp-md5/1.1.0/js/md5.min.js"></script>
+  <script src="/Public/Home/js/service/agent.js"></script>
+  <script src="/Public/Home/js/common.js"></script>
+  <script src="/Public/Home/js/auth/first.js"></script>
+</html>

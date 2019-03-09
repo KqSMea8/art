@@ -1,0 +1,546 @@
+<?php
+
+namespace M\Logic;
+
+use M\Base\BaseLogic;
+use M\Logic\ArtworkLogic;
+use M\Logic\CommentLogic;
+use M\Logic\UserLogic;
+use M\Logic\ArtworkLikeLogic;
+use M\Logic\ArtworkCategoryLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+
+class ArtworkUpdateLogic extends BaseLogic
+{
+    public function getLastUpdateCover($artworkId)
+    {
+        return $this->model->where(['artwork_id' => $artworkId])->order('id DESC')->getField('cover');
+    }
+
+    public function getLastUpdateDetail($artworkId)
+    {
+        $data = $this->model->where(['artwork_id' => $artworkId])->order('id DESC')->find();
+        if (empty($data)) {
+            return [];
+        } else {
+            return $data;
+        }
+    }
+
+    public function related($upId)
+    {
+
+        $artLogic = new ArtworkLogic();
+        $info = $this->where(['id' => $upId])->find();
+        $artInfo = $artLogic->where(['id' => $info['artwork_id']])->find();
+        $list = $this->field('id,wit,summary,create_date,cover,title')->where("artwork_id = {$info['artwork_id']} AND id != {$upId} and is_deleted='N'")->order('create_date asc,create_time asc')->limit(8)->select();
+
+        if (empty($list)) {
+            $my = $this->field('az_artwork_update.id,az_artwork_update.artwork_id,az_artwork_update.number,az_artwork_update.wit,az_artwork_update.summary,az_artwork_update.create_date,az_artwork_update.cover,az_artwork_update.title')
+                ->join('az_artwork B ON B.id=az_artwork_update.artwork_id')
+                ->where("az_artwork_update.artist = {$artInfo['artist']} AND az_artwork_update.id!= {$upId}  and az_artwork_update.is_deleted='N' and B.state=1")
+                ->order('az_artwork_update.create_date desc,az_artwork_update.create_time desc')
+                ->limit(5)
+                ->select();
+            if (!$my) {//没有数据，就显示同类型的艺术品更新 ,随机查询用缓存
+                $my_cache_key = 'artzhe_updateDetail_related' . intval($artInfo['category']);
+                $my = S($my_cache_key);
+                if (!$my) {
+                    $my = $this
+                        ->join('az_artwork B ON B.id=az_artwork_update.artwork_id')
+                        ->field('B.cover,az_artwork_update.id,az_artwork_update.artwork_id,az_artwork_update.number,az_artwork_update.wit,az_artwork_update.summary,az_artwork_update.create_date,az_artwork_update.title')
+                        ->where(" B.category=" . intval($artInfo['category']) . " and B.state=1 and B.is_deleted='N' and az_artwork_update.is_deleted='N' AND az_artwork_update.id!= {$upId}")
+                        ->order("RAND()")->limit(5)->select();
+                    S($my_cache_key, $my, 1800);
+                }
+                //S($my_cache_key, null);
+            }
+            foreach ($my as $k => $v) {
+                //获取里面的视频
+                preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $match);
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $array);
+
+                if(empty($v['cover'])){//无封面
+                    if(empty($match[1])){//无视频
+                        $cover= empty($array[1])?'':$array[1][0];
+                    }else{//有视频
+                        $cover = $match[1][0];
+                    }
+                }else{
+                    $cover = $v['cover'];
+                }
+
+                $images = Util::getHtmlImgSrc($v['wit']);
+                $coverImg = $images[0] == '' ? $v['cover'] : $images[0];
+                $my[$k]['cover'] =$cover==''?'': Util::getImageResize($cover, 300, 300);
+
+                //截取简介
+                $wit = Util::stripHtmlImageTag($v['wit']);
+                $my[$k]['summary']=html_deconvert_content_cut($wit, 54);
+
+                $res = $artLogic->field('name')->find($v['artwork_id']);//花絮关联作品名称
+
+               /* if (strpos("{$res['name']}", "《") !== false) {
+                    $artName = $res['name'] . '纪录';
+                } else {
+                    $artName = '《' . $res['name'] . '》纪录';
+                }*/
+
+                $artwork_name=trim($res['name']);
+                if(preg_match("/《(.*)》/",$artwork_name)){
+                    $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+                }else{
+                    $artwork_name = '《' .$artwork_name. '》';
+                }
+                $my[$k]['title'] = empty(trim($v['title']))?$artwork_name.'花絮':$v['title']; //作品id
+
+                unset($my[$k]['wit']);//不需要显示wit
+               // $my[$k]['name'] = $artName;
+                unset($my[$k]['artwork_id']);
+            }
+            return $my;
+        } else {
+            foreach ($list as $key => $value) {
+                preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $value['wit'], $match);
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $value['wit'], $array);
+
+                if(empty($v['cover'])){//无封面
+                    if(empty($match[1])){//无视频
+                        $cover= empty($array[1])?'':$array[1][0];
+                    }else{//有视频
+                        $cover = $match[1][0];
+                    }
+                }else{
+                    $cover = $v['cover'];
+                }
+
+                $images = Util::getHtmlImgSrc($value['wit']);
+                $coverImg = $images[0] == '' ? $value['cover'] : $images[0];
+                $coverImg = trim($coverImg) == '' ? $artInfo['cover'] : $coverImg;
+                $list[$key]['cover'] = $cover==''?'': Util::getImageResize($cover, 300, 300);
+                //截取简介
+                $wit = Util::stripHtmlImageTag($value['wit']);
+                $list[$key]['summary']=html_deconvert_content_cut($wit, 54);
+
+               /* if (strpos("{$artInfo['name']}", "《") !== false) {
+                    $artName = $artInfo['name'] . '纪录';
+                } else {
+                    $artName = '《' . $artInfo['name'] . '》纪录';
+                }*/
+                $artwork_name=trim($artInfo['name']);
+                if(preg_match("/《(.*)》/",$artwork_name)){
+                    $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+                }else{
+                    $artwork_name = '《' .$artwork_name. '》';
+                }
+                $list[$key]['title'] = empty(trim($value['title']))?$artwork_name.'花絮':$value['title'];
+                unset($list[$key]['wit']);//不需要显示wit
+               // $list[$key]['name'] = $artName;
+            }
+            return $list;
+        }
+    }
+
+    public function getDetailWithComment($id, $loginUid)
+    {
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $userLogic = new UserLogic();
+        $artLikeLogic = new ArtworkLikeLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $updateInfo = $this->where(['id' => $id, 'is_deleted' => 'N'])->find();
+        if (!$updateInfo) {
+            return false;
+        }
+        $artInfo = $artLogic->where(['id' => $updateInfo['artwork_id'], 'is_deleted' => 'N'])->find();
+        if ($artInfo['state'] == 2 && $artInfo['artist'] != $loginUid) {//画作仅自己看的时候，不是作者就隐藏
+            return false;
+        }
+        $max = 5;
+        $commentList = $commentLogic->getList($updateInfo['id'], 2, 1, $max, $loginUid);
+        $orgImgs = Util::extractWitImgUrl($updateInfo['wit'], 'org', 'org');
+        $imgUrls = Util::getHtmlImgSrc($updateInfo['wit']);
+        $fillImgUrls = Util::getFillImages($imgUrls, Image::galleryWidth, '');
+        //$updateInfo['wit'] = Util::replaceHtmlImgSrc($imgUrls,$fillImgUrls,$updateInfo['wit']);
+        $updateInfo['wit'] = $this->replaceHtmlImgSrc($imgUrls, $updateInfo['wit']);
+        $updateInfo['wit'] = html_entity_decode($updateInfo['wit'],ENT_QUOTES);
+        $this->where(['is_deleted' => 'N', 'id' => $updateInfo['id']])->setInc('view_total');
+        $publisher = $userLogic->getUserField('id,nickname,face', $artInfo['artist']);
+        $artistid = key($publisher);
+        $artistname = $publisher[$artistid];
+        $likes = $artLikeLogic->getLikesByArtUpdate($updateInfo['id'], 'face');
+        $publisherInfo = $userLogic->getUserDesc($artInfo['artist'], $loginUid);
+        $res = M('ArtzheCustom')->field('cn_name')->where(['artworkid' => $updateInfo['artwork_id'], 'type' => 4])->find();
+        $res2 = M('ArtzheCustom')->field('cn_name')->where(['artworkid' => $updateInfo['artwork_id'], 'type' => 1])->find();
+        if (strpos("{$res2['cn_name']}", "，") !== false) {
+            $res2['cn_name'] = trim($res2['cn_name'], '，');
+            $catName2 = str_replace('，', '/', $res2['cn_name']);
+        } else {
+            $res2['cn_name'] = trim($res2['cn_name'], ',');
+            $catName2 = str_replace(',', '/', $res2['cn_name']);
+        }
+
+        if (strpos("{$artInfo['name']}", "《") !== false) {
+            $artName = $artInfo['name'];
+        } else {
+            $artName = '《' . $artInfo['name'] . '》';
+        }
+
+        if (strpos("{$res['cn_name']}", "，") !== false) {
+            $res['cn_name'] = str_replace("，", ",", $res['cn_name']);
+            $res['cn_name'] = trim($res['cn_name'], ',');
+            $catTag = explode(',', $res['cn_name']);
+        } elseif (strpos("{$res['cn_name']}", ",") !== false) {
+            $res['cn_name'] = str_replace("，", ",", $res['cn_name']);
+            $res['cn_name'] = trim($res['cn_name'], ',');
+            $catTag = explode(',', $res['cn_name']);
+        } else {
+            $catTag = ['0' => $res['cn_name']];
+        }
+        $catTag = empty($catTag) ? [] : $catTag;
+        //water
+
+        $artwork_name=trim($artInfo['name']);
+        if(preg_match("/《(.*)》/",$artwork_name)){
+            $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+        }else{
+            $artwork_name = '《' .$artwork_name. '》';
+        }
+        $title = empty($updateInfo['title'])?$artwork_name.'花絮':$updateInfo['title']; //作品id
+        return [
+            'title' => $title,
+            'id' => $updateInfo['id'],
+            'artwork_id' => $updateInfo['artwork_id'],
+            'artname' => $artInfo['name'],
+            'artwork_cover' => empty($artInfo['cover'])?'':Util::getImageResize($artInfo['cover'], 300, 300),
+            //'orgImages' => Util::imageWaters($orgImgs),
+            'orgImages' => self::thumbnails($orgImgs),
+            //'thumbnail' => self::thumbnails($orgImgs),
+            'time' => $updateInfo['create_date'],
+            'artistid' => $artistid,
+            'publisher' => $publisherInfo['nickname'],
+            // 'wit' => $updateInfo['wit'],
+            'html5_wit' => C('m_site') . '/artwork/content/' . $updateInfo['id'],
+            'cover' => $updateInfo['cover'],
+            'tags' => empty($res['cn_name']) ? [] : $catTag,
+            'commentList' => $commentList['list'],
+            'commentTotal' => $commentList['total'],
+            'is_repay' => $loginUid == $artInfo['artist'] ? 'Y' : 'N',
+            'is_edit' => $loginUid == $artInfo['artist'] ? 'Y' : 'N',
+            'is_finished' => $artInfo['is_finished'],
+            'is_like' => $artLikeLogic->islike($updateInfo['id'], '2', $loginUid),
+            'likes' => $likes,
+            'number' => $updateInfo['number'],
+            //'like_total' => $artLikeLogic->total($updateInfo['id'],2),
+            'like_total' => $updateInfo['like_total'],
+            'view_total' => $updateInfo['view_total'],
+            'create_time' => date('Y-m-d', $updateInfo['create_time']),
+            'publisherInfo' => $publisherInfo,
+            'shareTitle' => "{$publisherInfo['nickname']} {$title}",
+            'shareDesc' => $updateInfo['summary'],
+            'shareImg' => Util::getFillImage(Util::getImgUrlById($artInfo['cover']), Image::faceWidth, Image::faceHeight),
+            'shareLink' => C('m_site') . '/artwork/update/' . $id,
+            'related' => $this->related($updateInfo['id']),
+            'shareInfo' => [
+                'cover' => $updateInfo['cover'],
+                'face' => $userLogic->where(['id' => $artInfo['artist']])->getField('face'),
+                'name' => $userLogic->where(['id' => $artInfo['artist']])->getField('nickname'),
+                'motto' => $userLogic->where(['id' => $artInfo['artist']])->getField('motto'),
+                'category' => $artInfo['category'] != 10 || ($artInfo['category'] == 10 && $catName2 == '') ? $categoryLogic->getCategoryByUser($artInfo['artist']) : $catName2,
+                'link' => C('m_site') . '/artwork/update/' . $id
+            ]
+        ];
+    }
+
+    public function getDetailWithCommentSimple($id, $loginUid)
+    {
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $userLogic = new UserLogic();
+        $artLikeLogic = new ArtworkLikeLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $updateInfo = $updateInfo_nochange = $this->where(['id' => $id, 'is_deleted' => 'N'])->find();
+        if (!$updateInfo) {
+            return false;
+        }
+        $artInfo = $artLogic->where(['id' => $updateInfo['artwork_id'], 'is_deleted' => 'N'])->find();
+        if ($artInfo['state'] == 2 && $artInfo['artist'] != $loginUid) {//画作仅自己看的时候，不是作者就隐藏
+            return false;
+        }
+        //版画
+        $prints_Info = M('artwork_prints')->where(['artwork_id' => $updateInfo['artwork_id'], 'status' => 1, 'is_for_sale' => 1])->order('id desc')->find();
+        $printsinfo = [
+            'is_for_sale' => $prints_Info ? 1 : 0,
+            'sale_url' => $prints_Info ? trim($prints_Info['sale_url']) : '',
+        ];
+
+        $max = 5;
+        $commentList = $commentLogic->getList($updateInfo['id'], 2, 1, $max, $loginUid);
+        $orgImgs = Util::extractWitImgUrl($updateInfo['wit'], 'org', 'org');
+        $imgUrls = Util::getHtmlImgSrc($updateInfo['wit']);
+        $fillImgUrls = Util::getFillImages($imgUrls, Image::galleryWidth, '');
+        //$updateInfo['wit'] = Util::replaceHtmlImgSrc($imgUrls,$fillImgUrls,$updateInfo['wit']);
+        $updateInfo['wit'] = $this->replaceHtmlImgSrc($imgUrls, $updateInfo['wit']);
+        $updateInfo['wit'] = html_entity_decode($updateInfo['wit'],ENT_QUOTES);
+        $this->where(['is_deleted' => 'N', 'id' => $updateInfo['id']])->setInc('view_total');
+        $publisher = $userLogic->getUserField('id,nickname,face', $artInfo['artist']);
+        $artistid = key($publisher);
+        $artistname = $publisher[$artistid];
+        //$likes = $artLikeLogic->getLikesByArtUpdate($updateInfo['id'],'face');
+        $publisherInfo = $userLogic->getUserDesc($artInfo['artist'], $loginUid);
+        $res = M('ArtzheCustom')->field('cn_name')->where(['artworkid' => $updateInfo['artwork_id'], 'type' => 4])->find();
+        $res2 = M('ArtzheCustom')->field('cn_name')->where(['artworkid' => $updateInfo['artwork_id'], 'type' => 1])->find();
+        if (strpos("{$res2['cn_name']}", "，") !== false) {
+            $res2['cn_name'] = trim($res2['cn_name'], '，');
+            $catName2 = str_replace('，', '/', $res2['cn_name']);
+        } else {
+            $res2['cn_name'] = trim($res2['cn_name'], ',');
+            $catName2 = str_replace(',', '/', $res2['cn_name']);
+        }
+
+        if (strpos("{$artInfo['name']}", "《") !== false) {
+            $artName = $artInfo['name'];
+        } else {
+            $artName = '《' . $artInfo['name'] . '》';
+        }
+
+        if (strpos("{$res['cn_name']}", "，") !== false) {
+            $res['cn_name'] = str_replace("，", ",", $res['cn_name']);
+            $res['cn_name'] = trim($res['cn_name'], ',');
+            $catTag = explode(',', $res['cn_name']);
+        } elseif (strpos("{$res['cn_name']}", ",") !== false) {
+            $res['cn_name'] = str_replace("，", ",", $res['cn_name']);
+            $res['cn_name'] = trim($res['cn_name'], ',');
+            $catTag = explode(',', $res['cn_name']);
+        } else {
+            $catTag = ['0' => $res['cn_name']];
+        }
+        $catTag = empty($catTag) ? [] : $catTag;
+        //water
+
+
+        //封面图片判断,花絮封面图>内容里面的图
+        if(trim($updateInfo['cover']) != '') {
+            $cover = $updateInfo['cover'];
+        }else{
+            preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $updateInfo_nochange['wit'], $array);
+            $first_pic = trim($array[1][0]);
+            $cover = $first_pic;
+        }
+
+        $summary = html_deconvert_content_cut(str_replace('&nbsp;', ' ', html_entity_decode($updateInfo['wit'],ENT_QUOTES)), 45);
+        //获取更新记录里面的视频
+        preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $updateInfo_nochange['wit'], $match);
+        $video_poster = empty($match[1]) ? '' : $match[1][0];
+
+        //花絮标题
+        $artwork_name=trim($artInfo['name']);
+        if(preg_match("/《(.*)》/",$artwork_name)){
+            $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+        }else{
+            $artwork_name = '《' .$artwork_name. '》';
+        }
+        $title = empty($updateInfo['title'])?$artwork_name.'花絮':$updateInfo['title']; //作品id
+
+        return [
+            'title' => $title,
+            'id' => $updateInfo['id'],
+            'artwork_id' => $updateInfo['artwork_id'],
+            'artname' => $artInfo['name'],
+            //'orgImages' => Util::imageWaters($orgImgs),
+            'orgImages' => self::thumbnails($orgImgs),
+            //'thumbnail' => self::thumbnails($orgImgs),
+            'time' => $updateInfo['create_date'],
+            'summary' => $summary,
+            'video_poster' => $video_poster,
+            'artistid' => $artistid,
+            'publisher' => $publisherInfo['nickname'],
+            'prints' => $printsinfo,
+            // 'wit' => $updateInfo['wit'],
+            // 'html5_wit'=> C('m_site') . '/artwork/content/' . $updateInfo['id'],
+            // 'cover' => $updateInfo['cover'],
+            //'tags' => empty($res['cn_name'])?[]:$catTag,
+            // 'commentList' => $commentList['list'],
+            'commentTotal' => $commentList['total'],
+            'is_repay' => $loginUid == $artInfo['artist'] ? 'Y' : 'N',
+            'is_edit' => $loginUid == $artInfo['artist'] ? 'Y' : 'N',
+            'is_finished' => $artInfo['is_finished'],
+            'is_like' => $artLikeLogic->islike($updateInfo['id'], '2', $loginUid),
+            //'likes' => $likes,
+            'number' => $updateInfo['number'],
+            //'like_total' => $artLikeLogic->total($updateInfo['id'],2),
+            'like_total' => $updateInfo['like_total'],
+            'view_total' => $updateInfo['view_total'],
+            'create_time' => date('Y-m-d', $updateInfo['create_time']),
+            // 'publisherInfo' => $publisherInfo,
+            'shareTitle' => $title,
+            'shareDesc' => html_deconvert_content_cut($updateInfo['wit'], 45),
+            'shareImg' => trim($cover) == '' ? '' :Util::getFillImage($cover, Image::faceWidth, Image::faceHeight),
+            'shareLink' => C('m_site') . '/artwork/update/' . $id,
+            // 'related' => $this->related($updateInfo['id']),
+            'shareInfo' => [
+                'cover' => trim($cover) == '' ? '' : Util::getImageResize($cover, Image::recommendListWidth, Image::recommendListHeight),
+                'face' => Util::getImageResize($publisher[$artInfo['artist']]['face'], Image::faceWidth, Image::faceHeight),
+                'name' => $userLogic->where(['id' => $artInfo['artist']])->getField('nickname'),
+                'motto' => $userLogic->where(['id' => $artInfo['artist']])->getField('motto'),
+                'category' => $artInfo['category'] != 10 || ($artInfo['category'] == 10 && $catName2 == '') ? $categoryLogic->getCategoryByUser($artInfo['artist']) : $catName2,
+                'link' => C('m_site') . '/artwork/update/' . $id
+            ]
+        ];
+    }
+
+    public function getDetailWithCommentH5($id, $loginUid)
+    {
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $userLogic = new UserLogic();
+        $artLikeLogic = new ArtworkLikeLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $updateInfo = $this->where(['id' => $id, 'is_deleted' => 'N'])->find();
+        if (!$updateInfo) {
+            return false;
+        }
+        $artInfo = $artLogic->where(['id' => $updateInfo['artwork_id'], 'is_deleted' => 'N'])->find();
+        if ($artInfo['state'] == 2 && $artInfo['artist'] != $loginUid) {//画作仅自己看的时候，不是作者就隐藏
+            return false;
+        }
+
+        preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $updateInfo['wit'], $array);
+        $first_pic = trim($array[1][0]);
+        $cover = $first_pic;
+
+
+        $max = 5;
+        $commentList = $commentLogic->getList($updateInfo['id'], 2, 1, $max, $loginUid);
+        $orgImgs = Util::extractWitImgUrl($updateInfo['wit'], 'org', 'org');
+        $imgUrls = Util::getHtmlImgSrc($updateInfo['wit']);
+        $fillImgUrls = Util::getFillImages($imgUrls, Image::galleryWidth, '');
+        //$updateInfo['wit'] = Util::replaceHtmlImgSrc($imgUrls,$fillImgUrls,$updateInfo['wit']);
+        $updateInfo['wit'] = $this->replaceHtmlImgSrc($imgUrls, $updateInfo['wit']);
+        $updateInfo['wit'] = html_entity_decode($updateInfo['wit'],ENT_QUOTES);
+        $this->where(['is_deleted' => 'N', 'id' => $updateInfo['id']])->setInc('view_total');
+        $publisher = $userLogic->getUserField('id,nickname,face', $artInfo['artist']);
+        $artistid = key($publisher);
+        $artistname = $publisher[$artistid];
+        $likes = $artLikeLogic->getLikesByArtUpdate($updateInfo['id'], 'face');
+        $publisherInfo = $userLogic->getUserDesc($artInfo['artist'], $loginUid);
+        $res = M('ArtzheCustom')->field('cn_name')->where(['artworkid' => $updateInfo['artwork_id'], 'type' => 4])->find();//标签
+        $res2 = M('ArtzheCustom')->field('cn_name')->where(['artworkid' => $updateInfo['artwork_id'], 'type' => 1])->find();//分类
+        if (strpos("{$res2['cn_name']}", "，") !== false) {
+            $res2['cn_name'] = trim($res2['cn_name'], '，');
+            $catName2 = str_replace('，', '/', $res2['cn_name']);
+        } else {
+            $res2['cn_name'] = trim($res2['cn_name'], ',');
+            $catName2 = str_replace(',', '/', $res2['cn_name']);
+        }
+
+        if (strpos("{$artInfo['name']}", "《") !== false) {
+            $artName = $artInfo['name'];
+        } else {
+            $artName = '《' . $artInfo['name'] . '》';
+        }
+
+        $catTag=[];
+        if(empty($updateInfo['tag'])){//以前的花絮，没有标签
+            if (strpos("{$res['cn_name']}", "，") !== false) {
+                $res['cn_name'] = str_replace("，", ",", $res['cn_name']);
+                $res['cn_name'] = trim($res['cn_name'], ',');
+                $catTag = explode(',', $res['cn_name']);
+            } elseif (strpos("{$res['cn_name']}", ",") !== false) {
+                $res['cn_name'] = str_replace("，", ",", $res['cn_name']);
+                $res['cn_name'] = trim($res['cn_name'], ',');
+                $catTag = explode(',', $res['cn_name']);
+            } else {
+                $catTag = ['0' => $res['cn_name']];
+            }
+            $catTag = empty($catTag) ? [] : $catTag;
+        }else{
+            $catTag=explode(',',trim($updateInfo['tag']));
+        }
+
+
+
+        $artwork_name=trim($artInfo['name']);
+        if(preg_match("/《(.*)》/",$artwork_name)){
+            $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+        }else{
+            $artwork_name = '《' .$artwork_name. '》';
+        }
+        $title = empty($updateInfo['title'])?$artwork_name.'花絮':$updateInfo['title']; //作品id
+
+
+        //water
+        return [
+            'title' => $title,
+            'id' => $updateInfo['id'],
+            'artwork_id' => $updateInfo['artwork_id'],
+            'artname' => $artInfo['name'],
+            'artwork_cover' => empty($artInfo['cover'])?'':$artInfo['cover'],
+            //'orgImages' => Util::imageWaters($orgImgs),
+            'orgImages' => self::thumbnails($orgImgs),
+            //'thumbnail' => self::thumbnails($orgImgs),
+            'time' => $updateInfo['create_date'],
+            'artistid' => $artistid,
+            'publisher' => $publisherInfo['nickname'],
+            'wit' => $updateInfo['wit'],
+            //'html5_wit'=> C('m_site') . '/artwork/content/' . $updateInfo['id'],
+            'cover' => $cover,
+            'tags' => empty($catTag) ? [] : $catTag,
+            'commentList' => $commentList['list'],
+            'commentTotal' => $commentList['total'],
+            'is_repay' => $loginUid == $artInfo['artist'] ? 'Y' : 'N',
+            'is_edit' => $loginUid == $artInfo['artist'] ? 'Y' : 'N',
+            'is_finished' => $artInfo['is_finished'],
+            'is_like' => $artLikeLogic->islike($updateInfo['id'], '2', $loginUid),
+            'likes' => $likes,
+            'number' => $updateInfo['number'],
+            //'like_total' => $artLikeLogic->total($updateInfo['id'],2),
+            'like_total' => $updateInfo['like_total'],
+            'view_total' => $updateInfo['view_total'],
+            'create_time' => date('Y-m-d', $updateInfo['create_time']),
+            'publisherInfo' => $publisherInfo,
+            'shareTitle' => "{$publisherInfo['nickname']} {$title}",
+            'shareDesc' => $updateInfo['summary'],
+            'shareImg' => Util::getFillImage(Util::getImgUrlById($artInfo['cover']), Image::faceWidth, Image::faceHeight),
+            'shareLink' => C('m_site') . '/artwork/update/' . $id,
+            'related' => $this->related($updateInfo['id']),
+            'shareInfo' => [
+                'cover' => $updateInfo['cover'],
+                'face' => $userLogic->where(['id' => $artInfo['artist']])->getField('face'),
+                'name' => $userLogic->where(['id' => $artInfo['artist']])->getField('nickname'),
+                'motto' => $userLogic->where(['id' => $artInfo['artist']])->getField('motto'),
+                'category' => $categoryLogic->getCategoryByUser($artInfo['artist']),
+                'link' => C('m_site') . '/artwork/update/' . $id
+            ]
+        ];
+    }
+
+    private static function thumbnails($images)
+    {//加水印，质量压缩
+
+        foreach ($images as $key => $image) {
+            $obj = Util::waterObject($image);
+            $images[$key] = $image . '?x-oss-process=image/watermark,image_' . $obj . ',t_50,g_se,x_10,y_10/quality,q_50';
+        }
+        return $images;
+    }
+
+    public static function replaceHtmlImgSrc($find, $content)
+    {
+        foreach ($find as $key => $value) {
+            $content = str_replace($value, $value . '?x-oss-process=image/resize,m_fixed,w_702,q=50,image/format,jpg', $content);
+        }
+        return $content;
+    }
+
+    //去掉imgurl
+    public static function cutHtmlImgSrc($find, $content)
+    {
+        foreach ($find as $key => $value) {
+            $content = str_replace($value, '', $content);
+        }
+        return $content;
+    }
+
+}

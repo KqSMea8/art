@@ -1,0 +1,63 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2018/1/23
+ * Time: 18:21
+ */
+
+namespace Mp\Base;
+
+
+class MpHttp
+{
+    function getContent($url,  $referer = '')
+    {
+        //设置Header头
+        $header[] = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8";
+        $header[] = "Accept-Encoding: gzip";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        if ($referer != '') curl_setopt($ch, CURLOPT_REFERER, $referer);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_ENCODING, "gzip");
+        //清除DNS缓存
+        curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+        //设置连接超时时间
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        //设置访问超时
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        //设置User-agent
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36 OPR/49.0.2725.64');
+        if (strpos(trim(strtolower($url)), 'https') === 0) {
+            //不对认证证书来源的检查
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            //从证书中检查SSL加密算法是否存在
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);
+        }
+        $html = curl_exec($ch);
+        curl_close($ch);
+        return $html;
+    }
+
+
+    function post_data($url, array $post_data)
+    {
+        //$post_data = array("username" => "bob", "key" => "12345");
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        return $output;
+    }
+}

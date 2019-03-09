@@ -1,0 +1,214 @@
+<extend name="Public:base" />
+<block name="content">
+    <script language="javascript" type="text/javascript" src="/Public/Admin/js/tinymce/tinymce.min.js"></script>
+    <script language="javascript" type="text/javascript">
+        tinymce.init({
+            selector: 'textarea#contenttext',
+            height:380,
+            width:'100%',
+            plugins: [
+                'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                'searchreplace wordcount visualblocks visualchars code fullscreen',
+                'insertdatetime media nonbreaking save table contextmenu directionality',
+                'emoticons template paste textcolor colorpicker textpattern imagetools codesample toc help'
+            ],
+            toolbar1: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+            toolbar2: 'print preview  | forecolor backcolor  | codesample help',
+            image_advtab: true,
+            language:'zh_CN',
+            file_browser_callback: function(field_name, url, type, win) {
+
+                if(type=='image'){
+
+                    $('#my_form input').click();
+                }
+                if (type == 'media') {
+                    $('#my_form_video input').click();
+                    //callback('movie.mp4', {source2: 'alt.ogg', poster: 'image.jpg'});
+                }
+            }
+
+        });
+
+        function uploaddd(){
+            $('.mce-btn.mce-open').parent().find('.mce-textbox').before('<div style="height: 30px;">上传中...</div>');
+            $('#my_form').submit();this.value='';
+
+        }
+        function uploaddd2(){
+            $('.mce-btn.mce-open').parent().find('.mce-textbox').before('<div style="height: 30px;">上传中...</div>');
+            $('#my_form_video').submit();this.value='';
+
+        }
+    </script>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    添加动态
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" action="{:U('WebsiteConfig/addNews')}" method="post" enctype="multipart/form-data" onsubmit="return addNews();">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">标题</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="title" name="title" class="form-control" placeholder="标题" value="" maxlength="150">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">数据类型</label>
+                            <div class="col-sm-8">
+                                <label><input name="type" type="radio" id="radio1" onclick="return changeType()" value="1" checked="checked"/>
+                                内容</label> &nbsp;&nbsp;
+                                <label><input type="radio" name="type" id="radio2" value="2" onclick="return changeType()"/>
+                                    外部链接</label>
+                            </div>
+                        </div>
+                        <div id="content" class="form-group">
+                            <label class="col-sm-2 control-label">内容</label>
+                            <div class="col-sm-8">
+                                <textarea id="contenttext" name="content" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div id="url" class="form-group" hidden>
+                            <label class="col-sm-2 control-label">链接</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="urltext" name="url" class="form-control" placeholder="链接" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">动态显示时间</label>
+                            <div class="col-sm-2">
+                                <input type="text" id="newsDate" name="news_date" class="form-control" value="" >
+                            </div>
+                        </div>
+                        <!--<div class="form-group">
+                            <label class="col-sm-2 control-label">数据来源</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="source" class="form-control" placeholder="数据来源" value="" maxlength="50">
+                            </div>
+                        </div>-->
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success">确定</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="{:U('WebsiteConfig/news')}" class="btn btn-default">返回</a>
+                            </div>
+                        </div>
+                    </form>
+                    <iframe id="form_target" name="form_target" style="display:none"></iframe>
+
+                    <form id="my_form" action="{:U('WebsiteConfig/uploadpic')}" target="form_target" method="post" enctype="multipart/form-data" style="width:0px;height:0;overflow:hidden">
+                        <input name="image" type="file" accept="image/x-png,image/gif,image/jpeg" onchange="return uploaddd()">
+                    </form>
+                    <form id="my_form_video" action="{:U('WebsiteConfig/uploadvideo')}"  target="form_target"  method="post" enctype="multipart/form-data" style="width:0px;height:0;overflow:hidden">
+                        <input name="image" type="file" accept="video/mp4" onchange="return uploaddd2()">
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="customJs">
+    <script>
+        $(document).ready(function() {
+            //动态时间选择器
+            $("#newsDate").datetimepicker({
+                autoclose: true,
+                language: 'zh-CN',
+                pickerPosition: 'bottom-right',
+                startView: 2,
+                todayHighlight: true,
+            });
+        });
+
+
+        function changeType(){
+            var type=$("input[name='type']:checked").val();
+            if(type==1){
+                $("#content").show();
+                $("#url").hide();
+            }else{
+                $("#url").show();
+                $("#content").hide();
+            }
+        }
+
+        function addNews() {
+            var title = $("#title").val();
+
+            var type = $("input[name='type']:checked").val();
+            //var contenttext = $("#contenttext").val();
+            var urltext = $("#urltext").val();
+            var tinymcetext= tinymce.get('contenttext').getContent();
+            $("#contenttext").val(tinymcetext);
+
+            var check = true;
+            var message = "";
+            if ($.trim(title) == '') {
+                check = false;
+                message = message + "<li>标题不能为空</li>";
+            }
+            if (type!=1&&type!=2) {
+                check = false;
+                message = message + "<li>请选择类型 </li>";
+            }else{
+                if(type==1){
+                    if ($.trim(tinymcetext) == '') {
+                        check = false;
+                        message = message + "<li>内容不能为空</li>";
+                    }
+                }
+                if(type==2){
+                    if ($.trim(urltext) == '') {
+                        check = false;
+                        message = message + "<li>链接不能为空</li>";
+                    }
+                }
+
+            }
+
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo U('WebsiteConfig/addNews');?>',
+                    data: $(".form-horizontal").serialize(),
+                    cache: false,
+                    dataType: 'json',
+                    error: function (data) {
+                        alert("error");
+                    },
+                    success: function (data) {
+                        //alert(data);
+                        if (data.error == 0) {
+                            $.prompt("添加成功！", {
+                                title: "提示",
+                                buttons: {"确定": true},
+                                submit: function (e, v, m, f) {
+                                    if (v == true) {
+                                        window.location.href="{:U('WebsiteConfig/news')}";
+                                    }
+                                }
+                            });
+
+                        }else{
+                            $.prompt("<span style=\" color:#F00\">"+data.message+"</span>", {
+                                title: "提示",
+                                buttons: {"确定": false}
+                            });
+                        }
+
+                    }
+                });
+                return false;
+            }
+        }
+
+    </script>
+</block>

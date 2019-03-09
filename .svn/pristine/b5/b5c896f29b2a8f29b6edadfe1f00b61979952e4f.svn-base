@@ -1,0 +1,311 @@
+body {
+  background: -moz-linear-gradient(-45deg, rgba(0,3,51,1) 0%, rgba(22,22,22,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(-45deg, rgba(0,3,51,1) 0%,rgba(22,22,22,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(135deg, rgba(0,3,51,1) 0%,rgba(22,22,22,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000333', endColorstr='#161616',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
+/* gallery-nav */
+#header {
+  width: 10.0rem;
+  height: 1.0rem;
+}
+.gallery-nav {
+  position: fixed;
+  width: 10.0rem;
+  height: 1.0rem;
+  z-index: 10;
+}
+.gallery-nav .title {
+  height: 1.0rem;
+  line-height: 1.0rem;
+  text-align: center;
+  font-size: 0.42667rem;
+  background: #000;
+  color: #fff;
+}
+.title .all {
+  vertical-align: middle;
+}
+.title .icon.icon-arrow {
+  width: 0.33333rem;
+  height: 0.53333rem;
+  background-image: url(../image/gallery/icon-arrow.png);
+  -webkit-transition: -webkit-transform .5s ease-out;
+  -moz-transition: -moz-transform .5s ease-out;
+  -o-transition: -o-transform .5s ease-out;
+  -ms-transition: -ms-transform .5s ease-out;
+}
+.gallery-nav.active .title .icon.icon-arrow {
+  -webkit-transform: rotateZ(180deg);
+  -moz-transform: rotateZ(180deg);
+  -o-transform: rotateZ(180deg);
+  -ms-transform: rotateZ(180deg);
+  transform: rotateZ(180deg);
+}
+
+  /* gallery-tab */
+.gallery-tab {
+  position: absolute;
+  display: none;
+  top: 1.0rem;
+  margin: 0 2.4rem;
+  width: 5.2rem;
+  color: #666;
+  box-shadow: 0.10667rem 0.10667rem 0.16rem rgba(0,0,0,.3);
+}
+.gallery-nav.active .gallery-tab {
+  display: block;
+}
+.gallery-tab-list {
+  position: absolute;
+  table-layout: fixed;
+  right: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1.17333rem;
+  z-index: 10;
+}
+.gallery-tab-item {
+  position: relative;
+  display: table-cell;
+  width: 1%;
+  height: 1.17333rem;
+  text-align: center;
+  vertical-align: middle;
+  background: #fff;
+}
+.gallery-tab-item .icons {
+  position: relative;
+  margin: 0 auto 0.10667rem;
+  width: 0.4rem;
+  height: 0.4rem;
+}
+.gallery-tab-item .icons,
+.gallery-tab-label {
+  display: block;
+  position: relative;
+}
+.gallery-tab-item .gallery-tab-label {
+  height: 0.37333rem;
+  line-height: 0.37333rem;
+  font-size: 0.37333rem;
+  color: #666;
+}
+.gallery-tab-item:nth-child(2)::before {
+  content: '';
+  position: absolute;
+  top: -0.10667rem;
+  left: 50%;
+  margin-left: -0.08rem;
+  width: 0;
+  height: 0;
+  border-right: 0.08rem solid transparent;
+  border-bottom: 0.13333rem solid #fff;
+  border-left: 0.08rem solid transparent;
+}
+.gallery-tab-item.current:nth-child(2)::before {
+  border-bottom: 0.13333rem solid #f6cc3e;
+}
+.gallery-tab-item.current {
+  background-color: #f6cc3e;
+}
+.gallery-tab-item.current .gallery-tab-label {
+  font-weight: bold;
+}
+.icons.icon-printer-man {
+  background-position: -2.30667rem -3.13333rem;
+}
+
+.icons.icon-printer {
+  background-position: -4.30667rem -3.13333rem;
+}
+
+.icons.icon-printer-woman {
+  background-position: -3.32rem -3.13333rem;
+}
+.gallery-tab-content {
+  margin-top: 1.17333rem;
+  border-radius: 0 0 0.08rem 0.08rem;
+  background-color: rgba(247,243,233, .7);
+}
+.gallery-tab-content-item {
+  margin: 0 0.32rem;
+  height: 0.96rem;
+  line-height: 0.96rem;
+  font-size: 0.37333rem;
+  border-bottom: 1px solid #999;
+}
+.gallery-tab-content-item:last-of-type {
+  border-bottom: none;
+}
+.gallery-tab-content-item .gallery-tab-num {
+  float: right;
+  color: #888;
+}
+  /* gallery-tab end */
+
+/* gallery-nav end */
+
+/* gallery-list */
+.gallery-list {
+  position: relative;
+  margin: 0 0.32rem;
+}
+.gallery-item {
+  position: relative;
+  margin-top: 0.24rem;
+  height: 9.36rem;
+  opacity: 0;
+  -webkit-transform: translate3d(0,100%,0);
+  -ms-transform: translate3d(0,100%,0);
+  transform: translate3d(0,100%,0);
+}
+
+.gallery-item:first-of-type {
+  margin-top: 0;
+  opacity: 1;
+  -webkit-transform: translate3d(0,0,0);
+  -ms-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
+}
+.gallery-item:last-of-type {
+  margin-bottom: 1.30667rem;
+}
+
+.gallery-item .best-print {
+  width: 100%;
+  height: 9.36rem;
+}
+
+/* 用户信息模块 */
+.userinfo {
+  position: absolute;
+  top: 0.33333rem;
+  left: 0.37333rem;
+}
+
+.userinfo .userinfo-avatar {
+  position: absolute;
+  width: 1.06667rem;
+  height: 1.06667rem;
+  border: 1px solid #fff;
+  border-radius: 50%;
+}
+.userinfo .userinfo-detail {
+  padding-left: 1.33333rem;
+  color: #fff;
+}
+.userinfo .userinfo-detail .userinfo-nickname {
+  height: 0.66667rem;
+  line-height: 0.66667rem;
+  font-size: 0.48rem;
+}
+.userinfo-nickname span {
+  display: inline-block;
+  line-height: 0.66667rem;
+  vertical-align: top;
+}
+.icons.icon-sex {
+  width: 0.4rem;
+  height: 0.66667rem;
+}
+.icon-sex-woman {
+  background-position: -1.30667rem -3.13333rem;
+}
+.icon-sex-man {
+  background-position: -0.32rem -3.13333rem;
+}
+.userinfo .userinfo-detail .userinfo-flag {
+  height: 0.4rem;
+  line-height: 0.4rem;
+  font-size: 0.32rem;
+}
+/* 用户信息模块 end */
+
+/*关注模块*/
+.follow {
+  position: absolute;
+  top: 0.33333rem;
+  right: 0.33333rem;
+  height: 0.57333rem;
+  padding: 0 0.16rem;
+  line-height: 0.53333rem;
+  font-size: 0.26667rem;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  color: #fff;
+}
+.icons.icon-follow {
+  width: 0.42667rem;
+  height: 0.53333rem;
+  background-position: -5.26667rem -3.13333rem;
+}
+
+.follow.followed {
+  color: #000;
+  background-color: #fff;
+}
+.followed .icons.icon-follow {
+  background-position: -6.29333rem -3.13333rem;
+}
+
+.follow .follow-number {
+  padding-left: 0.08rem;
+  vertical-align: middle;
+}
+/* 关注模块 end */
+
+/* 作品列表 */
+.gallery-list .print-list {
+  position: absolute;
+  bottom: 0.24rem;
+  right: 0;
+  width: 4.4rem;
+  height: 1.33333rem;
+  overflow: hidden;
+}
+.gallery-list .print-list .print-item {
+  position: relative;
+  float: right;
+  margin-right: 0.33333rem;
+  display: inline-block;
+  width: 1.12rem;
+  height: 1.12rem;
+  box-shadow: 0.13333rem 0.13333rem 0.13333rem rgba(0,0,0, .5);
+}
+.print-item .print-list-info {
+  position: absolute;
+  top: 0.02667rem;
+  left: 0.02667rem;
+  width: 1.06667rem;
+  height: 1.06667rem;
+  color: #fff;
+  vertical-align: middle;
+  border-radius: 0.06667rem;
+  background-color: rgba(0,0,0,.3);
+}
+.print-list-info .print-list-num {
+  display: inline-block;
+  padding-left: 0.16rem;
+  height: 1.06667rem;
+  line-height: 1.06667rem;
+  font-size: 0.26667rem;
+  vertical-align: middle;
+}
+
+.icons.icon-more {
+  width: 0.26667rem;
+  height: 0.26667rem;
+  background-position: -7.44rem -3.13333rem;
+}
+.gallery-list .print-list .print-item img {
+  width: 100%;
+  height: 100%;
+  border: 0.02667rem solid #fff;
+  border-radius: 0.06667rem;
+}
+/* 作品列表 end */
+
+

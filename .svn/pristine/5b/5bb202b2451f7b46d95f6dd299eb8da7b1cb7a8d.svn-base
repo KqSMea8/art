@@ -1,0 +1,10 @@
+<?php
+
+namespace V2\Model;
+
+use V2\Base\BaseModel;
+
+class ArtworkStatModel extends BaseModel
+{
+    protected $tableName = 'artwork_stat';
+}

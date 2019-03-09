@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>画廊</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <script src="/Public/H5/js/lib/vue.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <script src="/Public/H5/js/lib/zepto.js"></script>
+    <script src="/Public/H5/js/util.js"></script>
+
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/gallery.css">
+</head>
+<body>
+  <div id="header">
+    <div id="gallery-nav" class="gallery-nav" :class="{ active: isActive }">
+      <div class="title" @click="toggle">
+        <span class="all">全部</span>
+        <i class="icon icon-arrow"></i>
+      </div>
+      <div class="gallery-tab">
+        <nav class="gallery-tab-list">
+          <a v-for="(item, index) in tabs" class="gallery-tab-item" :class="{ current: current == index }" @click="choosePrinter(index)">
+            <i :class="['icons', item.class]"></i>
+            <span class="gallery-tab-label">{{item.label}}</span>
+          </a>
+        </nav>
+        <div class="gallery-tab-content">
+          <a class="gallery-tab-content-item" v-for="(item, index) in tabContent" @click=chooseCate(index)>
+            <span class="gallery-tab-cate">{{item.cate}}</span>
+            <span class="gallery-tab-num">{{item.num}}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="main">
+    <ol class="gallery-list">
+      <li class="gallery-item"  data-id="printer-id">
+        <div class="userinfo">
+          <a href="/H5/gallery/gallerydetail">
+            <img class="userinfo-avatar" src="/Public/H5/image/gallery/avatar.png"></img>
+            <div class="userinfo-detail">
+              <p class="userinfo-nickname">
+                <span>李亚</span>
+                <i class="icons icon-sex icon-sex-man"></i>
+              </p>
+              <p class="userinfo-flag">油画/插画/水彩</p>
+            </div>
+          </a>
+        </div>
+        
+        <div class="follow followed">
+          <i class="icons icon-follow"></i>
+          <span class="follow-number">2207</span>
+        </div>
+        <a href="/H5/gallery/gallerydetail">
+          <img class="best-print" src="/Public/H5/image/gallery/painting.png">
+        </a>
+        <ol class="print-list">
+          <li class="print-item">
+            <img src="/Public/H5/image/gallery/painting.png">
+            <div class="print-list-info">
+              <span class="print-list-num">154</span>
+              <i class="icons icon-more"></i>
+            </div>
+          </li>
+          <li class="print-item"><img src="/Public/H5/image/gallery/painting.png"></li>
+          <li class="print-item"><img src="/Public/H5/image/gallery/painting.png"></li>
+        </ol>
+      </li>
+      <li class="gallery-item"  data-id="printer-id">
+        <a href="#id">
+          <div class="userinfo">
+            <img class="userinfo-avatar" src="/Public/H5/image/gallery/avatar.png"></img>
+            <div class="userinfo-detail">
+              <p class="userinfo-nickname">
+                <span>李亚</span>
+                <i class="icons icon-sex icon-sex-woman"></i>
+              </p>
+              <p class="userinfo-flag">油画/插画/水彩</p>
+            </div>
+          </div>
+          <div class="follow">
+            <i class="icons icon-follow"></i>
+            <span class="follow-number">2207</span>
+          </div>
+          <img class="best-print" src="/Public/H5/image/gallery/painting.png">
+          <ol class="print-list">
+            <li class="print-item">
+              <img src="/Public/H5/image/gallery/painting.png">
+              <div class="print-list-info">
+                <span class="print-list-num">154</span>
+                <i class="icons icon-more"></i>
+              </div>
+            </li>
+            <li class="print-item"><img src="/Public/H5/image/gallery/painting.png"></li>
+            <li class="print-item"><img src="/Public/H5/image/gallery/painting.png"></li>
+          </ol>
+        </a>
+      </li>
+      <li class="gallery-item"  data-id="printer-id">
+        <a href="#id">
+          <div class="userinfo">
+            <img class="userinfo-avatar" src="/Public/H5/image/gallery/avatar.png"></img>
+            <div class="userinfo-detail">
+              <p class="userinfo-nickname">
+                <span>李亚</span>
+                <i class="icons icon-sex icon-sex-woman"></i>
+              </p>
+              <p class="userinfo-flag">油画/插画/水彩</p>
+            </div>
+          </div>
+          <div class="follow">
+            <i class="icons icon-follow"></i>
+            <span class="follow-number">2207</span>
+          </div>
+          <img class="best-print" src="/Public/H5/image/gallery/painting.png">
+          <ol class="print-list">
+            <li class="print-item">
+              <img src="/Public/H5/image/gallery/painting.png">
+              <div class="print-list-info">
+                <span class="print-list-num">154</span>
+                <i class="icons icon-more"></i>
+              </div>
+            </li>
+            <li class="print-item"><img src="/Public/H5/image/gallery/painting.png"></li>
+            <li class="print-item"><img src="/Public/H5/image/gallery/painting.png"></li>
+          </ol>
+        </a>
+      </li>
+    </ol>
+  </div>
+  <div id="tab-bar">
+    <nav class="tab-bar-list">
+      <a class="tab-bar-item" href="/H5/Index/index">
+        <i class="icons icon-recommend"></i>
+        <span class="tab-label">推荐</span>
+      </a>
+      <a class="tab-bar-item active" href="/H5/Gallery/index">
+        <i class="icons icon-gallery"></i>
+        <span class="tab-label">画廊</span>
+      </a>
+      <a class="tab-bar-item" href="/H5/User/index">
+        <i class="icons icon-user"></i>
+        <span class="tab-label">我</span>
+      </a>
+    </nav>
+  </div>
+  <script type="text/javascript" src="/Public/H5/js/gallery/gallery.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      fadeInUp('.gallery-list', '.gallery-item', 0.2);
+    });
+  </script>
+</body>
+</html>

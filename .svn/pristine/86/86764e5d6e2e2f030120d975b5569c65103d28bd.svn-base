@@ -1,0 +1,141 @@
+<?php
+
+namespace Admin\Controller;
+
+use Think\Controller;
+use Custom\Helper\Oss;
+
+class WxArticleImportController extends Controller
+{
+    private $Verification_code='r32g3gart2017';//登陆验证
+
+
+    public function checkVerification(){
+        $VerificationKey = trim(I('post.VerificationKey'));
+        if($VerificationKey==$this->Verification_code){
+            $response = ['status' => 1];
+            echo json_encode($response);
+            exit;
+        }else{
+            $response = ['status' => 0];
+            echo json_encode($response);
+            exit;
+        }
+    }
+    public function ArticleExist()
+    {
+        $import_uniqid = trim(I('post.import_uniqid'));
+        if($import_uniqid==''){
+            return;
+        }
+        $article = M('article');
+        $result = $article->where(['import_uniqid' => $import_uniqid])->find();
+        if ($result) {
+            $response = ['status' => 1];
+            echo json_encode($response);
+            exit;
+        } else {
+            $response = ['status' => 0];
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+    public function ImportContent()
+    {
+        $Verification = I('post.VerificationKey');
+        $title = trim(I('post.title'));
+        $content = trim(I('post.content'));
+        $author = trim(I('post.author'));
+        $wechat_account = trim(I('post.wechat_account'));
+        $file_path_auto = trim(I('post.file_path_auto'));
+        $import_from = trim(I('post.import_from'));
+        $import_uniqid = trim(I('post.import_uniqid'));
+        $cover = trim(I('post.cover'));
+
+
+        $article = M('article');
+
+        if ($Verification != $this->Verification_code) {
+            header("HTTP/1.0 404 Not Found");
+            echo 'error';
+            exit();
+        }
+        $time = time();
+        if ($title != '' && $content != '' && $file_path_auto != '' && $import_from != ''&&$import_uniqid!='') {
+            $result = $article->where(['import_uniqid' => $import_uniqid])->find();
+            if (!$result) {
+                $insertid=$article->add([
+                    'artist' => 0,
+                    'title' => $title,
+                    'content' => $content,
+                    'excerpt' => '',
+                    'import_author' => $author,
+                    'wechat_account' => $wechat_account,
+                    'create_time' => $time,
+                    'modified_time' => $time,
+                    'import_from' => $import_from,
+                    'import_uniqid' => $import_uniqid,
+                    'file_path_auto' => $file_path_auto,
+                    'cover' => $cover,
+                    'status' => 2,
+                ]);
+               if($insertid>0) {
+                   $response = ['error' => 0, 'msg' => 'ok'];
+                   echo json_encode($response);
+                   exit;
+               }else{
+                   $response = ['error' => 1,'msg'=>'添加失败'];
+                   echo json_encode($response);
+                   exit;
+               }
+            }else{
+                $response = ['error' => 1,'msg'=>'记录已经存在'];
+                echo json_encode($response);
+                exit;
+            }
+        }
+
+    }
+
+    public function ImportImg()
+    {
+        $Verification = I('post.VerificationKey');
+        $save_url = I('post.save_url');
+        $save_url = str_replace('\\', '/', $save_url);//斜杠替换
+
+        if ($Verification != $this->Verification_code) {
+            header("HTTP/1.0 404 Not Found");
+            echo 'error';
+            exit();
+        }
+        if ($_FILES['img']['error'] == 4) {
+            $response = ['status' => 0, 'msg' => 'no pic'];
+            echo json_encode($response);
+            exit;
+        } else {
+            //处理上传图片
+
+            $pos = strpos('https://artzhe.oss-cn-shenzhen.aliyuncs.com/' . $save_url, '/../');
+            if ($pos !== false) {
+                return;
+            }
+
+            $url = 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/' . $save_url . '?x-oss-process=image/info';
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            $result = curl_exec($ch);
+            $ImageWidth = json_decode($result)->ImageWidth->value;
+            if (intval($ImageWidth) > 0) {
+                return;
+            }
+
+            $imgbuff = file_get_contents($_FILES['img']['tmp_name']);
+            $result = Oss::uploadWithUrl($imgbuff, $save_url);
+            $response = ['status' => 1];
+            echo json_encode($response);
+            exit;
+        }
+    }
+}

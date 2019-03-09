@@ -1,0 +1,264 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Util;
+use Custom\Helper\Oss;
+use Custom\Helper\Nav;
+
+
+//艺术家-推荐艺术家
+class RecommendArtistController extends AdminBaseController
+{
+
+    //推荐艺术家列表
+    public function index_20180330()
+    {
+        $name = I('get.name');  //用户名称
+        //获取推荐的10位艺术家
+        $where = " az_user.type = 3 and az_user.is_deleted = 'N'
+        and az_user.banned_to = -1 and az_artwork.is_deleted='N' and az_artwork.state=1 and az_artwork.update_times>0";
+
+        if(!empty($name)){//搜索艺术家
+            $type = 0;//没有推荐
+            $where=$where."  and az_user.is_recommend='N' and az_user.nickname like '%{$name}%'";
+        }else{//显示推荐艺术家
+            $type = 1;//推荐
+            $where=$where." and az_user.is_recommend='Y'";
+        }
+
+        $thedate = date('Ymd');
+        $list = M('user')->field("(case when FROM_UNIXTIME(az_user.last_add_artupdate_time,'%Y%m%d')= '" . $thedate . "' then 999999999+az_user.last_add_artupdate_time else az_artwork_weight.weight end) as the_order,az_user.id,az_user.nickname as name,az_user.gender,az_user.face")
+            ->join('az_artwork on az_user.last_add_artupdate_artid =az_artwork.id')
+            ->join('az_artwork_weight on az_artwork.id=az_artwork_weight.artwork_id', 'left')
+            ->where($where)
+            ->order("FROM_UNIXTIME(az_user.last_add_artupdate_time,'%Y%m%d') desc,the_order desc,az_user.last_add_artupdate_time desc")
+            ->limit(10)
+            ->select();
+        foreach ($list as $key => $value) {
+            $list[$key]['face'] = empty($value['face']) ? '' : $value['face']; //用户头像
+            $list[$key]['gender'] = $value['gender']==1? '男' : ($value['gender']==2?'女':'未知'); //用户头像
+            unset($list[$key]['the_order']);
+        }
+        $this->assign('lists', $list);
+        $this->assign('type', $type);
+        $this->display('index');
+    }
+
+    //推荐艺术家列表
+    public function index()
+    {
+        $name = I('get.name');  //用户名称
+        $page = I('get.page', '1');
+        $perPageCount = I('get.perPageCount', '6');
+
+        if(!empty($name)){//搜索艺术家
+            $type = 0;//搜索
+            $where = " az_user.type = 3 and az_user.is_deleted = 'N' and az_user.banned_to = -1 and az_artwork.is_deleted='N'
+           and az_artwork.state=1 and az_artwork.update_times>0 and az_user.nickname like '%{$name}%'";
+            $thedate = date('Ymd');
+            $list = M('user')->field("(case when FROM_UNIXTIME(az_user.last_add_artupdate_time,'%Y%m%d')= '" . $thedate . "' then 999999999+az_user.last_add_artupdate_time else az_artwork_weight.weight end) as the_order,az_user.id,az_user.nickname as name,az_user.gender,az_user.face")
+                ->join('az_artwork on az_user.last_add_artupdate_artid =az_artwork.id')
+                ->join('az_artwork_weight on az_artwork.id=az_artwork_weight.artwork_id', 'left')
+                ->where($where)
+                ->order("FROM_UNIXTIME(az_user.last_add_artupdate_time,'%Y%m%d') desc,the_order desc,az_user.last_add_artupdate_time desc")
+                ->page($page, $perPageCount)
+                ->select();
+            $totalCount = M('user')
+                ->join('az_artwork on az_user.last_add_artupdate_artid =az_artwork.id')
+                ->join('az_artwork_weight on az_artwork.id=az_artwork_weight.artwork_id', 'left')
+                ->where($where)
+                ->count();
+        }else{//显示推荐艺术家
+            $type = 1;//推荐
+            $where=[];
+            $list = M('recommend_artist')
+                ->field("az_recommend_artist.id as recommend_id,az_recommend_artist.sort,az_artwork.name as artname,az_user.id,az_user.nickname as name,az_user.gender,az_user.face")
+                ->join('az_user on az_user.id=az_recommend_artist.artist_id', 'left')
+                ->join('az_artwork on az_artwork.id=az_recommend_artist.artwork_id', 'left')
+                ->order('sort')
+                ->page($page, $perPageCount)
+                ->select();
+            $totalCount = M('recommend_artist')->count();
+        }
+
+        //以推荐艺术家id
+        $recommendArtist = M('recommend_artist')->field('artist_id')->select();
+        $recommendArtistIds = array_column($recommendArtist,'artist_id');
+        foreach ($list as $key => $value) {
+            $list[$key]['face'] = empty($value['face']) ? '' : $value['face']; //用户头像
+            $list[$key]['gender'] = $value['gender']==1? '男' : ($value['gender']==2?'女':'未知'); //用户头像
+            if(in_array($value['id'],$recommendArtistIds)){//已推荐
+                $list[$key]['type'] = 1;
+            }else{//未推荐
+                $list[$key]['type'] = 0;
+            }
+            unset($list[$key]['the_order']);
+        }
+
+        $queryParam=[
+            'name'=>$name,
+        ];
+        $nav = Nav::render(U('Admin/RecommendArtist/index'), $queryParam, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $list);
+        $this->assign('type', $type);
+        $this->assign('queryParam', $queryParam);
+        $this->display('index');
+    }
+
+
+    //艺术家推荐作品列表
+    public function artwork()
+    {
+        $artist = intval(I('get.artist'));  //用户id
+        $artwork_name = addslashes(trim(I('get.artwork_name')));  //作品名称
+        $page = I('get.page', '1');
+        $perPageCount = I('get.perPageCount', '6');
+
+
+        if(!empty($artwork_name)){//搜索艺术家作品
+            $where = "az_artwork.artist=".$artist." and az_artwork.is_deleted='N' and az_artwork.state=1 and az_artwork.update_times>0";
+            if(!empty($artwork_name)){
+                $where = $where." and az_artwork.name like '%{$artwork_name}%'";
+            }
+            $list = M('artwork')
+                ->field('az_artwork.id,az_artwork.name,az_artwork.cover,az_user.nickname as artist')
+                ->join('az_user on az_artwork.artist=az_user.id', 'left')
+                ->where($where)
+                ->page($page,$perPageCount)
+                ->select();
+            $totalCount = M('artwork')
+                ->join('az_user on az_artwork.artist=az_user.id', 'left')
+                ->where($where)
+                ->count();
+        }else{//显示艺术家作品
+            $where = "az_artwork.artist=".$artist." and az_artwork.is_deleted='N' and az_artwork.state=1 and az_artwork.update_times>0";
+            $list = M('artwork')
+                ->field('az_artwork.id,az_artwork.name,az_artwork.cover,az_user.nickname as artist')
+                ->join('az_user on az_artwork.artist=az_user.id', 'left')
+                ->where($where)
+                ->page($page, $perPageCount)
+                ->select();
+            $totalCount = M('artwork')
+                ->join('az_user on az_artwork.artist=az_user.id', 'left')
+                ->where($where)
+                ->count();
+        }
+
+        //艺术家已推荐作品id
+        $recommendArtist = M('RecommendArtist')->field('artwork_id')->where(['artist_id'=>$artist])->select();
+        $recommendArtistIds = array_column($recommendArtist,'artwork_id');
+        foreach ($list as $key => $value) {
+            $list[$key]['cover'] = empty($value['cover']) ? '' : $value['cover']; //作品封面图
+            if(in_array($value['id'],$recommendArtistIds)){//已推荐
+                $list[$key]['type'] = 1;
+            }else{//未推荐
+                $list[$key]['type'] = 0;
+            }
+        }
+
+        $queryParam=[
+            'artwork_name'=>$artwork_name,
+            'artist'=>$artist,
+        ];
+        $nav = Nav::render(U('Admin/RecommendArtist/artwork'), $queryParam, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $list);
+        $this->assign('artist', $artist);
+        $this->assign('queryParam', $queryParam);
+        $this->display();
+    }
+
+
+    //修改序号
+    public function updateSort(){
+        $id = intval(trim(I('post.id')));  //id
+        $sort = intval(trim(I('post.sort')));  //序号
+        $where['id'] = $id;
+        $data['sort'] = $sort;
+        $insertId = M('recommend_artist')->where(['id'=>$id])->save($data);
+        if ($insertId) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+
+    }
+
+    //推荐艺术家
+    public function recommend()
+    {
+        $id = intval(trim(I('post.id')));  //id
+        $artid = empty(I('post.artid'))?0:intval(trim(I('post.artid')));  //artid
+        $where['id'] = $id;
+        $where['type'] = 3;
+        $artist = M('user')->where($where)->find();
+        $recommendArtist = M('recommend_artist')->where(['artist_id' => $id])->find();
+        if(empty($artist)){
+            $response = ['error' => 0, 'message' => '参数错误'];
+            echo json_encode($response);
+        }else{
+            if(!empty($recommendArtist)){//艺术家已推荐
+                if($artid){
+                    $insertId = M('recommend_artist')->where(['artist_id' => $id])->save(['artwork_id'=>$artid]);
+                }else{
+                    $insertId=0;
+                }
+            }else{
+                $data['is_recommend'] = 'Y';
+                M('user')->where($where)->save($data);
+                $insertId = M('recommend_artist')->add(['artist_id'=>$id,'artwork_id'=>$artid]);
+            }
+            if ($insertId) {
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '推荐失败或艺术家已经推荐'];
+                echo json_encode($response);
+            }
+        }
+
+    }
+
+    //取消推荐艺术家
+    public function cancelRecommend()
+    {
+        $ids = I('post.id');
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+
+        $where['id'] = array('in',$ids);
+        $where['type'] = 3;
+        $artist = M('user')->where($where)->select();
+        if(empty($artist)){
+            $response = ['error' => 0, 'message' => '参数错误'];
+            echo json_encode($response);
+        }else{
+            $data['is_recommend'] = 'N';
+            M('user')->where($where)->save($data);
+            $insertId = M('recommend_artist')->where(['artist_id'=>['in',$ids]])->delete();
+            if ($insertId) {
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '操作失败或艺术家已经取消推荐'];
+                echo json_encode($response);
+            }
+        }
+
+    }
+
+
+
+}

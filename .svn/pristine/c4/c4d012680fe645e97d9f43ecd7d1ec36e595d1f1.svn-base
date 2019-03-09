@@ -1,0 +1,31 @@
+<?php
+
+namespace Common\Model;
+
+
+use Common\Base\BaseModel;
+
+class AgencyModel extends BaseModel{
+
+    const VERIFY_STATE_CN_LIST = [
+        -1=>'未通过',
+        0 => '未提交审核',
+        1=>"未审核",
+        2=>"审核通过"
+    ];
+
+    //机构类型
+    const AGENCY_TYPE_LIST = [
+        1=>'画廊',
+        2=>"艺术博物馆",
+        3=>"艺术美术馆",
+        4=>'私人美术馆',
+        5=>"艺术博览会",
+        6=>"艺术院校",
+        7=>'艺术媒体',
+        8=>"艺术空间",
+
+    ];
+
+    protected $tableName = 'agency';
+}

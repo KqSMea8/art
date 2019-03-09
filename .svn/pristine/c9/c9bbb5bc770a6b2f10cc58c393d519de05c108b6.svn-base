@@ -1,0 +1,10 @@
+<?php
+
+namespace V2\Model;
+
+use V2\Base\BaseModel;
+
+class AssetsModel extends BaseModel
+{
+    protected $tableName = 'assets';
+}

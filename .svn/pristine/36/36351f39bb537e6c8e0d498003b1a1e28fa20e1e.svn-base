@@ -1,0 +1,96 @@
+<?php
+namespace H5\Controller;
+
+use Custom\Helper\Util;
+use Think\Controller;
+
+//画廊模块
+class GalleryController extends Controller {
+
+	//列表
+	public function getData(){
+
+		//获取分页列表画廊
+
+
+		//获取所包含画家头像
+
+		//获取所包含画廊点赞数
+
+		$data = [
+					'list'=>[
+								[
+									'id'=>1,
+									'artist'=>[
+													[
+														'id'=>'1',
+														'nickname'=>'油画',
+														'motto'=>'motto',
+														'gender'=>'gender',
+														'face'=>'face',
+														'level'=>'level',
+														'mp'=>'mp',
+													],
+												],
+									'tags'=>[
+												['id'=>'1','name'=>'温暖'],
+												['id'=>'2','name'=>'快乐'],
+											],
+									'category'=>[
+													['id'=>'1','name'=>'油画'],
+												],
+									'cover'=>[
+												['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+											],
+									'view_total'=>234,
+									'share_total'=>231,
+									'like_total'=>123,
+								],
+								[
+									'id'=>2,
+									'artist'=>[
+													[
+														'id'=>'1',
+														'nickname'=>'油画',
+														'motto'=>'motto',
+														'gender'=>'gender',
+														'face'=>'face',
+														'level'=>'level',
+														'mp'=>'mp',
+													]
+												],
+									'tags'=>[
+												['id'=>'1','name'=>'温暖'],
+												['id'=>'2','name'=>'快乐'],
+											],
+									'category'=>[
+													['id'=>'1','name'=>'油画'],
+												],
+									'cover'=>[
+												['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+											],
+									'view_total'=>234,
+									'share_total'=>231,
+									'like_total'=>123,
+								],
+							],
+					'total'=>138,
+					'curpage'=>2,
+					'size'=>20,
+					'last'=>7,
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//统计数据
+	public function statistics(){
+
+		$data = [
+					['id'=>'0','name'=>'所有','count'=>1234],
+					['id'=>'1','name'=>'油画','count'=>45],
+					['id'=>'2','name'=>'水彩','count'=>789],
+					['id'=>'3','name'=>'插画','count'=>132],
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+}

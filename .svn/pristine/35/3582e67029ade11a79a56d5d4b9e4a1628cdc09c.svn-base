@@ -1,0 +1,10 @@
+<?php
+
+namespace V47\Model;
+
+use V47\Base\BaseModel;
+
+class ArtCircleLikeModel extends BaseModel
+{
+    protected $tableName = 'art_circle_like';
+}

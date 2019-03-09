@@ -1,0 +1,385 @@
+<?php
+
+namespace V30\Controller;
+
+use Custom\Helper\Util;
+use Think\Cache\Driver\Redis;
+use Think\Controller;
+
+class ActiveController extends Controller{
+
+    //获取画作api
+    private  $share_disk='/mnt/ossfs/artzhe/image/active/';
+    private  $share_disk_face='/mnt/ossfs/artzhe/image/active/face/';
+
+    private $FacePath='Public/image/active/face/';
+    private $ActiveFilepath='Public/image/active/';
+
+    //private  $share_disk='Public/image/active/';
+    //private  $share_disk_face='Public/image/active/face/';
+
+    public function getNextImages(){
+
+        //随机从画作列表中获取10条数据
+        $sql = <<<SQL
+SELECT * FROM `az_tast_activity` 
+WHERE id >= (SELECT floor( RAND() * ((SELECT MAX(id) FROM `az_tast_activity`)-(SELECT MIN(id) FROM `az_tast_activity`)) + (SELECT MIN(id) FROM `az_tast_activity`)))  
+ORDER BY id LIMIT 10;
+SQL;
+
+        //获取活动画作数据
+        $data = M('TastActivity')->query($sql);
+
+        foreach ($data as $k=>$v){
+            //$data[$k]['arturl'] = $v['arturl'].'?x-oss-process=image/resize,m_mfit,h_400,w_600';
+            $data[$k]['arturl'] = Util::imageWaterSize(340,505,$v['arturl']);
+            if(strpos("{$v['artname']}","《")!==false){
+                $artName = trim($v['artname'],'《');
+                $artName = trim($artName,'》');
+                $data[$k]['artname'] = $artName;
+            }else{
+                $data[$k]['artname'] = $v['artname'];
+            }
+        }
+
+        //将10条画作拆成每组2条
+        $temp = array_chunk($data, 2);
+
+        //返回json数据
+        $this->ajaxReturn(['code'=>3000,'data'=>$temp]);
+    }
+
+    //微信授权
+    public function shenmei(){
+
+        //公众号appid
+        $appid = C('WECHAT_APPID');
+        //公众号appsecret
+        $secret = C('WECHAT_SECRET');
+
+        $redis = new Redis();
+
+        $code = I('code');
+        //判断有没有code
+        if(empty($code)){
+            //授权后跳转url
+            $url = urlEncode(C('WECHAT_OAUTH_CALLBACK'));
+            $state = 'EaDnY9AUNmBBx5jGCT7MPUQ7c8c';
+
+            //跳转至微信授权登录页面
+            header("Location: https://open.weixin.qq.com/connect/oauth2/authorize?appid={$appid}&redirect_uri={$url}&response_type=code&scope=snsapi_userinfo&state={$state}#wechat_redirect");
+        }else{
+
+            $uri = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$appid}&secret={$secret}&code={$code}&grant_type=authorization_code";
+            $res = $this->httpGet($uri);
+            $res = json_decode($res, true);
+            //获取access_token
+            $access_token = $res['access_token'];
+            //获取openid
+            $openid = $res['openid'];
+
+            //拉取用户信息url
+            $useruri = "https://api.weixin.qq.com/sns/userinfo?access_token={$access_token}&openid={$openid}&lang=zh_CN";
+
+            //拉取用户信息
+            $ufo = $this->httpGet($useruri);
+            $userinfo = json_decode($ufo,true);
+
+            $matsql = <<<SQL
+SELECT * FROM `az_active_match` 
+WHERE id >= (SELECT floor( RAND() * ((SELECT MAX(id) FROM `az_active_match`)-(SELECT MIN(id) FROM `az_active_match`)) + (SELECT MIN(id) FROM `az_active_match`)))  
+ORDER BY id LIMIT 1;
+SQL;
+
+
+            $result = M('ActiveResult')->where(['friendtoken'=>$userinfo['openid']])->order('id desc')->find();
+            //判断微信头像是否为空
+            if(empty($userinfo['headimgurl'])){
+                $face = $this->ActiveFilepath."face.jpg";
+            }elseif(empty($result)){
+                $face = $this->saveWeiImage($userinfo['headimgurl']); //保存微信头像到服务器
+            }else{
+                $face=$result['faceimg'];
+                $face = str_replace(C('SERVER_URL'), "", $face);
+            }
+
+
+            if(empty($result)&&trim($userinfo['openid'])!=''){
+
+                $flag = 0; //表示未测试
+                $imgurl = $this->createImage($face,base64_encode($userinfo['nickname']));
+            }else{
+                $flag = $result['isflag']; //表示已测试
+                /*if($flag==1){
+                    $resulturl = C('ACTIVITY_RESULT');
+                    redirect("$resulturl?uid={$userinfo['openid']}&nickname={$userinfo['nickname']}",0);
+                    //header("Location: $resulturl?uid={$userinfo['openid']}");
+                }*/
+                $imgurl = $result['imgurl'];
+            }
+
+            $list = M('ActiveMatch')->query($matsql);
+
+            $activeData = [
+                'nickname' => base64_encode($userinfo['nickname']),
+                'faceimg' => C('SERVER_URL').$face,
+                'percent' => $list[0]['match'],
+                'friendtoken' => $userinfo['openid'],
+                'color' => $list[0]['color'],
+                'remark' => $list[0]['remark'],
+                'imgurl' => $imgurl
+            ];
+
+            $shareid = $redis->get('shareid');
+
+            //判断点击分享链接是否是同一个人
+            if(!empty($shareid) && $shareid!=$userinfo['openid']&&trim($userinfo['openid'])!=''){
+                if(empty($result)){
+                    $shareData = [
+                        'nickname' => base64_encode($userinfo['nickname']),
+                        'faceimg' => C('SERVER_URL').$face,
+                        'percent' => $list[0]['match'],
+                        'friendtoken' => $userinfo['openid'],
+                        'sharetoken' => $shareid,
+                        'color' => $list[0]['color'],
+                        'remark' => $list[0]['remark'],
+                        'imgurl' => $imgurl
+                    ];
+                }else{
+                    $shareData = [
+                        'nickname' => base64_encode($userinfo['nickname']),
+                        'faceimg' => C('SERVER_URL').$face,
+                        'percent' => $list[0]['match'],
+                        'friendtoken' => $userinfo['openid'],
+                        'sharetoken' => $shareid,
+                        'color' => $list[0]['color'],
+                        'remark' => $list[0]['remark'],
+                        'imgurl' => $imgurl,
+                        'isflag' => '1'
+                    ];
+                }
+
+                $shres = M('ActiveResult')->where(['friendtoken'=>$userinfo['openid'],'sharetoken' => $shareid])->find();
+                if(empty($shres)&&trim($userinfo['openid'])!=''){
+                    M('ActiveResult')->add($shareData);
+                    $redis->rm('shareid');  //删除缓存
+                }
+            }else{
+                if(empty($result)&&trim($userinfo['openid'])!=''){
+                    M('active_result')->add($activeData);
+                }
+            }
+
+            //跳转至活动页面
+            $activurl = C('ACTIVITY_URL');
+            header("Location: $activurl?imgurl=$imgurl&uid={$userinfo['openid']}&nickname={$userinfo['nickname']}&isflag={$flag}");
+        }
+
+    }
+
+    private function httpGet($url)
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 500);
+        // 为保证第三方服务器与微信服务器之间数据传输的安全性，所有微信接口采用https方式调用，必须使用下面2行代码打开ssl安全校验。
+        // 如果在部署过程中代码在此处验证失败，请到 http://curl.haxx.se/ca/cacert.pem 下载新的证书判别文件。
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, true);
+        curl_setopt($curl, CURLOPT_URL, $url);
+
+        $res = curl_exec($curl);
+        curl_close($curl);
+
+        return $res;
+    }
+
+    //根据标签生成图片
+    public function createImage($face,$nickname=''){
+
+        $im = imagecreatefromjpeg($this->ActiveFilepath.'01.jpg'); //载入的图片
+        $src = imagecreatefromstring(file_get_contents($face));
+        $goodtagsql = <<<SQL
+SELECT * FROM `az_activity_tag`
+WHERE id >= (SELECT floor( RAND() * ((SELECT MAX(id) FROM `az_activity_tag` WHERE `type`='1')-(SELECT MIN(id) FROM `az_activity_tag`)) + (SELECT MIN(id) FROM `az_activity_tag`))) AND `type`='1' AND length(`tagname`) < 13 
+ORDER BY id LIMIT 7;
+SQL;
+        $badtagsql = <<<SQL
+SELECT * FROM `az_activity_tag`
+WHERE id >= (SELECT floor( RAND() * ((SELECT MAX(id) FROM `az_activity_tag`)-(SELECT MIN(id) FROM `az_activity_tag` WHERE `type`='2')) + (SELECT MIN(id) FROM `az_activity_tag` WHERE `type`='2'))) AND `type`='2'  AND length(`tagname`) < 13 
+ORDER BY id LIMIT 7;
+SQL;
+        $consql = <<<SQL
+SELECT * FROM `az_activty_content`
+WHERE id >= (SELECT floor( RAND() * ((SELECT MAX(id) FROM `az_activty_content`)-(SELECT MIN(id) FROM `az_activty_content`)) + (SELECT MIN(id) FROM `az_activty_content`)))  
+ORDER BY id LIMIT 1;
+SQL;
+        $goodtagData = M('ActivityTag')->query($goodtagsql);
+        $badtagData = M('ActivityTag')->query($badtagsql);
+        $content = M('ActivtyContent')->query($consql);
+
+        //获取水印图片的宽高
+        //list($src_w, $src_h) = getimagesize('face.jpg');
+
+        $black=imagecolorallocate($im,0,0,0);//黑色
+        $be=imagecolorallocate($im,255,0,0);//红色
+        $white=imagecolorallocate($im,255,255,255);//白色
+
+        //putenv('GDFONTPATH=' . realpath('.')); //如果载入字体文件时出错，可以试着加这句
+        imagettftext($im,40,-3,0,50,$be,$this->ActiveFilepath.'font1.ttf',$goodtagData[0]['tagname']);
+        imagettftext($im,40,-3,370,50,$be,$this->ActiveFilepath.'font1.ttf',$badtagData[0]['tagname']);
+        imagettftext($im,43,-3,20,130,$be,$this->ActiveFilepath.'font1.ttf',$goodtagData[1]['tagname']);
+        imagettftext($im,33,-3,360,110,$be,$this->ActiveFilepath.'font1.ttf',$badtagData[1]['tagname']);
+        imagettftext($im,25,-3,250,340,$be,$this->ActiveFilepath.'font1.ttf',$goodtagData[2]['tagname']);
+        imagettftext($im,25,-3,380,160,$be,$this->ActiveFilepath.'font1.ttf',$badtagData[2]['tagname']);
+        imagettftext($im,45,-3,10,340,$be,$this->ActiveFilepath.'font1.ttf',$goodtagData[3]['tagname']);
+        imagettftext($im,35,-3,390,340,$be,$this->ActiveFilepath.'font1.ttf',$badtagData[3]['tagname']);
+        imagettftext($im,30,-3,350,410,$be,$this->ActiveFilepath.'font1.ttf',$goodtagData[4]['tagname']);
+        imagettftext($im,45,-3,100,400,$be,$this->ActiveFilepath.'font1.ttf',$badtagData[4]['tagname']);
+
+        imagettftext($im,25,-3,300,450,$be,$this->ActiveFilepath.'font1.ttf',$goodtagData[5]['tagname']);
+        imagettftext($im,35,-3,110,470,$be,$this->ActiveFilepath.'font1.ttf',$badtagData[5]['tagname']);
+        imagettftext($im,25,-3,330,510,$be,$this->ActiveFilepath.'font1.ttf',$goodtagData[6]['tagname']);
+        imagettftext($im,50,-3,50,530,$be,$this->ActiveFilepath.'font1.ttf',$badtagData[6]['tagname']);
+        imagecopymerge($im, $src, 250, 40, 0, 0, 100, 100, 100); //用户头像
+        imagettftext($im,18,0,265,168,$black,$this->ActiveFilepath.'font2.ttf',base64_decode($nickname)); //昵称
+        imagettftext($im,25,-3,60,240,$white,$this->ActiveFilepath.'font1.ttf',$content[0]['content']); //随机评语
+
+        $time_rand = time().mt_rand(10000,99999);
+        //header("Content-type:image/png");//设置格式
+        $Active_save_path=$this->share_disk.date('Y/m/d/H/');
+        $this->mkdirs($Active_save_path);
+        imagejpeg($im,$this->share_disk.date('Y/m/d/H/').$time_rand.'.jpg');//输出 新图片，有相同名字图片会被覆盖，否则自动创建
+
+        $imgurl = C('SERVER_URL').$this->ActiveFilepath.date('Y/m/d/H/').$time_rand.'.jpg';
+
+        return $imgurl;
+        //echo "<img src='/Public/image/{$time}.jpg' />";
+    }
+
+    //获取结果
+    public function getFriendsResult(){
+
+        $redis = new Redis();
+        if(IS_POST){
+            //接收传过来的openid
+            $openid = I('uid');
+            //session_id($openid);
+            $redis->set('shareid',$openid);
+        }else{
+            $openid = I('uid');
+            $redis->rm('shareid');
+        }
+
+        $list = M('ActiveResult')->field('imgurl')->where(['friendtoken'=>$openid])->find();
+        //查询数据
+        $res = M('ActiveResult')->field('sharetoken')->where(['friendtoken'=>$openid,'sharetoken'=>['neq','']])->order('id desc')->select();
+        $data = M('ActiveResult')->where(['sharetoken'=>$openid])->order('id desc')->select();
+        $temp = [];
+        if(!empty($data)){
+            foreach ($data as $k=>$v){
+                $data[$k]['nickname'] = base64_decode($v['nickname']);
+            }
+            $mydata = $data;
+        }else{
+            if(!empty($res)){
+                foreach ($res as $k=>$v){
+                    $one = M('ActiveResult')->where(['friendtoken'=>$v['sharetoken']])->find();
+                    $temp[$k]['id'] = $one['id'];
+                    $temp[$k]['nickname'] = base64_decode($one['nickname']);
+                    $temp[$k]['faceimg'] = $one['faceimg'];
+                    $temp[$k]['percent'] = $one['percent'];
+                    $temp[$k]['friendtoken'] = $one['friendtoken'];
+                    $temp[$k]['sharetoken'] = $one['sharetoken'];
+                    $temp[$k]['color'] = $one['color'];
+                    $temp[$k]['remark'] = $one['remark'];
+                    $temp[$k]['imgurl'] = $one['imgurl'];
+                    $temp[$k]['isflag'] = $one['isflag'];
+                }
+                $mydata = $temp;
+            }else{
+                $mydata = [];
+            }
+        }
+
+        //返回json数据
+        $this->ajaxReturn(['code'=>3000,'data'=>$mydata,'imgurl'=>$list['imgurl']]);
+    }
+
+    //保存微信头像到服务器
+    private function saveWeiImage($imgurl){
+        $face_save_path=$this->share_disk_face.date('Y/m/d/H/');
+        $this->mkdirs($face_save_path);
+        $filename=date('YmdHis').mt_rand(10000,99999).'.jpg';
+        $savePathFile = $this->FacePath.date('Y/m/d/H/').$filename;
+        $saveshare_dis_path = $this->share_disk_face.date('Y/m/d/H/').$filename;
+        $targetName = $saveshare_dis_path;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        $fp = fopen($targetName,'wb');
+        curl_setopt($ch,CURLOPT_URL,$imgurl);
+        curl_setopt($ch,CURLOPT_FILE,$fp);
+        curl_setopt($ch,CURLOPT_HEADER,0);
+        curl_exec($ch);
+        curl_close($ch);
+        fclose($fp);
+
+        $image = new \Think\Image();
+        $image->open($saveshare_dis_path);
+        $image->thumb(100, 100)->save($saveshare_dis_path);
+        return $savePathFile;
+    }
+
+    public function isFinished(){
+
+        $token = I('uid');
+        if(!empty($token)){
+            $saveData = ['isflag'=>'1'];
+            M('ActiveResult')->where(['friendtoken'=>$token])->save($saveData);
+            $this->ajaxReturn(['code'=>3000]);
+        }else{
+            $this->ajaxReturn(['code'=>3001]);
+        }
+
+
+    }
+
+    //判断用户是否测试过
+    public function Judge(){
+        //公众号appid
+        $appid = C('WECHAT_APPID');
+        //公众号appsecret
+        $secret = C('WECHAT_SECRET');
+
+        $code = I('access_code');
+
+        //拉取用户基本信息
+        $uri = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$appid}&secret={$secret}&code={$code}&grant_type=authorization_code";
+        $res = $this->httpGet($uri);
+        $res = json_decode($res, true);
+        //获取openid
+        $useropenid = $res['openid'];
+
+        $mylist = M('ActiveResult')->field('id')->where(['friendtoken'=>$useropenid])->find();
+        if(empty($mylist)){
+            $istest = 0;
+        }else{
+            $istest = 1;
+        }
+
+        //返回json数据
+        $this->ajaxReturn(['code'=>3000,'istest'=>$istest,'useropenid'=>$useropenid]);
+    }
+    function mkdirs($path, $mode = 0777) {
+        if (is_dir($path)) {
+            return false;
+        } else {
+            if (mkdir($path, $mode, true)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+}

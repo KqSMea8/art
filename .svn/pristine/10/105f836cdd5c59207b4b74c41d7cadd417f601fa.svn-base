@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <!-- <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" /> -->
+    <!-- <link href="/Public/Home/js/plugin/validform/validate.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="/Public/Home/js/lib/element/index.css">
+    <link href="/Public/Home/css/iconfont/iconfont.css" rel="stylesheet">
+    <link href="/Public/Home/css/global.css" rel="stylesheet">
+    <link href="/Public/Home/css/gcommon.css" rel="stylesheet">
+    <link href="/Public/Home/css/forget.css?v=0.0.1" rel="stylesheet">
+    <title>忘记密码</title>
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者">
+  </head>
+  <body>
+    <header class="ysz-header">
+      <div class="y-header">
+        <div class="w clearfix">
+          <h1 class="y-head fl">
+          <img class="logo" src="/Public/Home/image/logo.png" alt="logo">
+          <span class="y-title">创作平台</span>
+          </h1>
+          <p class="login fr">已有账号？<a href="/home/index">登录</a></p>
+        </div>
+      </div>
+    </header>
+    <div id="main">
+      <div class="w clearfix">
+        <div class="main-wrap mb-60" id="reg">
+          <h2 class="title">忘记密码</h2>
+          <div class="stage-wrap">
+            <!-- <div class="stage-info">
+              <ul class="navul clearfix">
+                  <li class="active">
+                      <i class="i-num">1</i>输入手机号
+                    </li>
+                  <li class="active">
+                      <i class="i-num">2</i>验证并设置密码
+                    </li>
+                  <li>
+                      <i class="i-num iconfont">&#xe601;</i>注册完成
+                    </li>
+                </ul>
+            </div> -->
+            <div class="forget-wrap">
+              <form class="yszform">
+                <div class="second-wrap form">
+                    <div class="item clearfix">
+                      <div class="tit"><label for="mobile">设置新密码</label></div>
+                      <div class="con">
+                        <div class="box" >
+                          <input v-model="mobile" class="input" id="mobile" name="mobile" type="text" datatype="/^W$/" nullmsg="请输入密码" errormsg="密码格式有误" placeholder="请设置密码" maxlength="16">
+                        </div>
+                        <div class="tip"><div class="Validform_checktip"></div></div>
+                      </div>
+                    </div>
+                    <div class="item clearfix">
+                      <div class="tit"><label for="mobile">再次输入</label></div>
+                      <div class="con">
+                        <div class="box" >
+                          <input v-model="mobile" class="input" id="mobile" name="mobile" type="text" datatype="/^W$/" nullmsg="请输入密码" errormsg="密码格式有误" placeholder="请再次输入密码" maxlength="16">
+                        </div>
+                        <div class="tip"><div class="Validform_checktip"></div></div>
+                      </div>
+                    </div>
+                    <div class="btn-group next">
+                      <input @click="goToThird" class="btn btn-24" type="button" value="完成">
+                    </div>
+                </div>
+              </form>
+            </el-form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="y-footer">
+        <div class="w clearfix">
+          <p class="mail">联系邮箱：yishuzhe@gaosouyi.com</p>
+          <p class="qrcode">
+            <img src="/Public/Home/image/qrcode-wx.png">
+            <img src="/Public/Home/image/qrcode-app.png">
+          </p>
+          <p>
+            Copyright 2017 www.artzhe.com. All Rights Reserved<br>
+            粤ICP备17041531号-1
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+  <script src="/Public/Home/js/lib/vue.js"></script>
+  <script src="/Public/Home/js/lib/element/index.js"></script>
+  <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+  <script src="/Public/Home/js/plugin/validform/validform.js"></script>
+  <script src="/Public/Home/js/forget/second.js"></script>
+  <script>
+  //   // $(".yszform").Validform();
+  //   $(".yszform").Validform({
+  //   tiptype:function(msg,o,cssctl){
+  //     if(!o.obj.is("form")){
+  //       var tip = o.obj.parent().next().find(".Validform_checktip");
+  //       tip.removeClass('Validform_right Validform_wrong Validform_loading');
+  //       if(o.type == 1){
+  //         tip.addClass('Validform_loading');
+  //         tip.text(' ');
+  //       }
+  //       else if(o.type == 2){
+  //         tip.addClass('Validform_right');
+  //         tip.text(' ');
+  //       }
+  //       else if(o.type == 3) {
+  //         tip.addClass('Validform_wrong');
+  //         tip.text(msg);
+  //       } 
+  //     }
+  //   },
+  //   showAllError:true,
+  //   ajaxPost:true,
+  //   callback:function(result){
+  //     if(result.status==1){
+  //       window.location.href=result.url;
+  //     }else{
+  //       $(".imgcode").click();
+  //       $("#imgcode").addClass('Validform_error');
+  //       $("#finalTips").find('div').addClass('Validform_wrong');
+  //       // $("#finalTips").text(result.info);
+  //     }
+  //       },
+  //   btnSubmit:"#btn1",
+  //   datatype:{
+  //     "checkAccount":function(){ 
+  //     }
+  //   },
+  // });
+
+  </script>
+</html>

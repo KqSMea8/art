@@ -1,0 +1,1382 @@
+<extend name="Public:base" />
+<block name="content">
+    <link href="/Public/Admin/js/lib/element/index.css" rel="stylesheet">
+    <style>
+       .ztbox{
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 99999;
+            left: 0;
+            top: 0;
+            background: rgba(0,0,0,.7);
+        }
+        .ztfrm{
+            width: 800px;
+            height: 600px;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            margin-left: -400px;
+            margin-top: -300px;
+            z-index: 99999;
+            background: #fff;
+        }
+        .yulanbox{
+          position: fixed;
+          width: 100%;
+          height: 100%;
+          z-index: 99999;
+          left: 0;
+          top: 0;
+          background: rgba(0,0,0,.7);
+        }
+        .yulanphonediv{
+          position: fixed;
+          z-index: 10002;
+          padding: 82px 21px 82px 21px;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%,-60%);
+          width: 337px;
+          height: 683px;
+          background: url('/Public/Admin/image/phone.png') no-repeat;
+        }
+        .yulanfram{
+          width: 100%;
+          height: 100%;
+        }
+        .closeyulan{
+          position: absolute;
+          bottom: -40px;
+          left: 50%;
+          margin-left: -27px;
+        }
+        .showArtBox ul,.showArtBox li{
+            list-style: none;
+            padding: 0;
+        }
+        .showArtBox a{
+            text-decoration: none;
+        }
+        .search-wrap {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin-top: -370px;
+            margin-left: -450px;
+            width: 900px;
+            height: 685px;
+            background: #fff;
+            z-index: 1004;
+        }
+        .search-wrap .search-con {
+            margin: 48px 70px 0 80px;
+        }
+        .title-tab .tab-navs {
+            text-align: center;
+            line-height: 40px;
+            border-bottom: 1px solid #e7e7eb;
+        }
+        .title-tab .tab-nav.selected {
+            background: 0;
+            border-bottom: 2px solid #FFC12F;
+        }
+        .title-tab .tab-nav {
+            float: left;
+            font-size: 14px;
+        }
+        .title-tab .tab-nav a {
+            display: block;
+            text-decoration: none;
+            color: #222;
+            outline: 0;
+            padding: 0 20px;
+        }
+        .biz_link_form .frm_label {
+            width: 6em;
+        }
+        .frm_label {
+            float: left;
+            width: 80px;
+            margin-right: 20px;
+            font-size: 16px;
+            line-height: 35px;
+            text-align: right;
+        }
+
+        .frm_control_group {
+            margin-top: 10px;
+        }
+        .frm_controls {
+            display: table-cell;
+            vertical-align: top;
+            float: none;
+            width: auto;
+        }
+        .frm_vertical_lh {
+            line-height: 35px;
+        }
+
+        .frm_radio_label, .frm_checkbox_label {
+            display: inline-block;
+            font-size: 16px;
+            text-align: left;
+            cursor: pointer;
+            margin-right: 30px;
+        }
+        .frm_radio_label:hover, .frm_checkbox_label:hover {
+            color: #ffd87d;
+        }
+        .icon_radio {
+            background-image: url("data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAY1BMVEUAAADS0tLS0tLS0tLS0tLU1NTT09PS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tL////5+fnm5ubc3Nzw8PDX19f29vbq6urj4+PW1tZt/cIVAAAAF3RSTlMA9retFvry09zWo5mGgnVvTx4TA886OAZt4HsAAABlSURBVBjTZc9XDoAgEATQwd67Ls1y/1MKIUYC72832TKwjrbK2dbNcJZUX5zoFHm/2jqrBTlcNjASU3/kAEySfrzIkCry3CMK8qkEmny8xBM2WDASLY3Oho+Fr8fhnL2tGCtd/BdpGxGgIxOTOQAAAABJRU5ErkJggg==");
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        .icon_radio, .icon_checkbox {
+            margin-right: 3px;
+            margin-top: -2px;
+        }
+        .icon_radio.selected, .selected .icon_radio {
+            background-image: url("data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAh1BMVEUAAADS0tLS0tLS0tLU1NTS0tLS0tLU1NTS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tL/////wgf7+/v39/fl5eX/+end3d3Y2Nj/8tH/xBr//PTy8vLu7u7r6+vn5+fU1NT/3ID/2XT/01//z0//zEL/yTX/xifqyaIpAAAAFnRSTlMA3KmG9vD7+dLQvLKqmXp0RDYhGRQQoGHKjQAAAHdJREFUGNNlz0cSgzAMBVDR0nv5lh0ICb3d/3wYw7DR20kzKp8m97O3CffBg2ZvP8k1WBfbwNWvnWE4HPtkHQ1W8YXolgD4NulQfwAOn3TKbJ0qq7cdc6WIgVY5FfA/UAn81KwDtCcaYkQsFWfFY+J1EW6NHy3xRyO1EwxyTY2qAAAAAElFTkSuQmCC");
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+            box-sizing: border-box;
+            padding: 0;
+        }
+        .frm_radio, .frm_checkbox {
+            position: absolute;
+            left: -999em;
+        }
+
+        .frm_input_box.search.with_del {
+            padding-right: 60px;
+            width: 644px;
+        }
+        .biz_link_form .link_address_input, .biz_link_form .search_input_box {
+            display: block;
+            width: auto;
+        }
+        .frm_input_box.append {
+            padding-right: 30px;
+        }
+        .frm_input_box.search {
+            border-radius: 0;
+            -moz-border-radius: 0;
+            -webkit-border-radius: 0;
+        }
+        .frm_input, .frm_textarea {
+            width: 100%;
+            background-color: transparent;
+            border: 0;
+            outline: 0;
+        }
+        .frm_input_box {
+            display: inline-block;
+            position: relative;
+            height: 35px;
+            line-height: 33px;
+            vertical-align: middle;
+            width: 278px;
+            font-size: 14px;
+            padding: 0 10px;
+            border: 1px solid #e7e7eb;
+            box-shadow: none;
+            -moz-box-shadow: none;
+            -webkit-box-shadow: none;
+            border-radius: 0;
+            -moz-border-radius: 0;
+            -webkit-border-radius: 0;
+            background-color: #fff;
+        }
+        .frm_input_box.append .frm_input_append {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 33px;
+            text-align: center;
+            background: #e7e7e7;
+        }
+        .frm_input_box.search .search_gray {
+            vertical-align: -webkit-baseline-middle;
+            margin-top: -10px;
+        }
+        .icon16_common.search_gray {
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAMAAAC6V+0/AAAAhFBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8g2+bRAAAALHRSTlMAWvjyB/3gdhXIw7myoZmKhYBBMS8n6OW9pXtzX1BHNhfZz823q5CMbGljPr9fSwgAAACiSURBVBjTdY/VDsQgEEWRAnX3ra3b///fZqBBsul9uDM5MIakfBFS1saTh4ze9CKWdc46Xmr2oFglXk7wzl601u8TqVQ/+KeVhjKMV2RpIyuE4IRsRQU4LR2Y38FZ5UARgbeLA58D+C3XwIz4cPu4mjXyDF5YsE9ULAk2u3fbns009VVtzxvdqwpJXIgsYInvnU3ZN4ujYYQZGJq5OqawwL9+YzIG6ylee7oAAAAASUVORK5CYII=);
+        }
+        .icon16_common {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+            display: inline-block;
+            line-height: 100px;
+            overflow: hidden;
+        }
+
+        /*æœç´¢åˆ—è¡¨*/
+        .search-list {
+        margin-left: 100px;
+        width: 644px;
+        height: 420px;
+        margin-top: 9px;
+        }
+        .search-item {
+        position: relative;
+        height: 105px;
+        line-height: 104px;
+        border: 1px solid #e7e7e7;
+        border-top: none;
+        }
+        .search-list span[class^="search-col"] {
+        display: inline-block;
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow:ellipsis;
+        white-space: nowrap;
+        }
+        .search-list .search-col1 {
+        width: 350px;
+        text-indent: 10px;
+        color: #333;
+        }
+        .search-list .search-col2 {
+        width: 150px;
+        text-align: right;
+        color: #999;
+        }
+        .search-list .search-col3 {
+        width: 80px;
+        text-align: center;
+        }
+        .search-list .add-btn {
+        display: inline-block;
+        padding: 0 6px;
+        height: 28px;
+        line-height: 28px;
+        vertical-align: middle;
+        border: 1px solid #b7b7b7;
+        border-radius: 4px;
+        cursor: pointer;
+        }
+        .search-list .add-btn:hover {
+        background: #fff;
+        border-color: #f4ad23;
+        color: #f4ad23;
+        }
+        .search-list .el-loading-mask {
+        background-color: rgba(255, 255, 255, 0.6)
+        }
+        .search-err {
+        line-height: 1.6;
+        text-align: center;
+        color: #999;
+        }
+
+        .upload-page {
+        margin: 15px 0 0 100px;
+        width: 600px;
+        text-align: right;
+        }
+        .upload-jump.is-plain{height: 30px;line-height: 30px; padding:0 6px;vertical-align: bottom;border-color: #E7E7E7;}
+        .upload-jump.is-plain span{width:60px;height: 30px;line-height: 30px;}
+        /*.el-pagination__editor2{border-color: #E7E7E7;}*/
+        .upload-page .btn-prev,.upload-page .btn-next{width: 30px;height: 30px;border-radius: 4px;border:1px solid #E7E7E7;}
+        .upload-page .btn-next{
+        background: url('/Public/image/forwardPage.png') no-repeat center center;
+        }
+        .upload-page .btn-prev{
+        background: url('/Public/image/backPage.png') no-repeat center center;
+        }
+
+        span.upload-num{font-size: 16px;color: #7b7b7b;text-align: center;padding: 0 10px;}
+
+        .insertArtLink{
+            display: none;
+        }
+        .artBox {
+            position: fixed;
+            z-index: 1001;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background: rgba(0,0,0,.7);
+        }
+
+
+        /*艺术圈选项 s*/
+.frm_input_box.search.with_del2 {
+    padding-right: 14px;
+    width: 320px;
+}
+.frm_controls .pickerOptions1{
+  width: 310px;
+  display: inline-block;
+  position: relative;
+  height: 35px;
+  line-height: 33px;
+  vertical-align: middle;
+  font-size: 14px;
+  margin-right: 14px;
+}
+.pickerOptions1 .el-input__inner{
+  height: 35px;
+  line-height: 33px;
+  vertical-align: middle;
+  font-size: 14px;
+}
+.plcolor::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color:#C0C0C0;
+}
+.plcolor:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color:#C0C0C0;
+}
+.plcolor::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color:#C0C0C0;
+}
+.plcolor:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   color:#C0C0C0;
+}
+.uppage1{
+  position: absolute;
+  bottom: 35px;
+  right: 70px;
+}
+
+.nowrap1{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.search-list li:first-child{
+  border-top: 1px solid #e7e7e7;
+}
+.topline li:nth-child(1){
+  border-top: 1px solid #e7e7e7;
+}
+.linenone{
+  line-height: normal;
+}
+.picAndText,.onlyAndText,.onlyVedio{
+  height: 100%;
+  padding: 21px 21px 19px 21px;
+}
+.onlyVedio .contentvideoimg{
+  float: left;
+  clear: both;
+  width: 65px;
+  height: 65px;
+  position: relative;
+}
+.onlyVedio .contentvideoimg img{
+  width: 65px;
+  height: 65px;
+}
+.onlyVedio .contentvideoimg .playbtnimg{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -20px;
+  margin-top: -20px;
+  z-index: 100;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA4RpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo5Njc0YzJmOS04ZDgyLWJkNGMtOWI3OS0wNzc3ZjQ0OGQyNjAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QzY3OTIxODI2MzIzMTFFOEFFRjlGRDQ2MkZBRDVEODYiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QzY3OTIxODE2MzIzMTFFOEFFRjlGRDQ2MkZBRDVEODYiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6YjdjMjk2MGYtZmQ5Ny0zYTRhLWI1NmItYTY5OGYzZjA5Y2VhIiBzdFJlZjpkb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6NGI2YzNmNDgtNjMyMy0xMWU4LTk1YTgt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') no-repeat center center;
+  background-size: 100% 100%;
+}
+.picAndText img{
+  width: 65px;
+  height: 65px;
+  float: left;
+  clear: both;
+}
+ .contentDiv{
+  height: 100%;
+  padding-left: 21px;
+  display: inline-block;
+}
+ .ttcontent{
+  height: 100%;
+  width: 400px;
+}
+.ttcontent .pt{
+  font-size: 16px;
+  color:#1a1a1a;
+  font-weight: bolder;
+}
+.ttcontent .ptm{
+  font-size: 12px;
+  color: #999;
+  font-weight: normal;
+}
+.ttcontent .pc{
+  font-size: 14px;
+  color: #333;
+  font-weight: normal;
+}
+.search-item .addbtnbox1,.contentDiv .addbtnbox1{
+  width: 61px;
+  height: 27px;
+  line-height: 27px;
+  border: 1px solid #FFC12F;
+  border-radius: 3px;
+  color:#FFC12F;
+  font-weight: bolder;
+  cursor: pointer;
+  position: absolute;
+  right: 21px;
+  top: 41px;
+}
+.onlyAndText{
+  padding-left: 4px;
+}
+
+/*艺术圈选项 end*/
+    </style>
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <!-- <script src="/Public/Admin/js/laravel-ueditor/ueditor_article.config.js"></script>
+
+    <script src="/Public/Admin/js/laravel-ueditor/ueditor.all.js?v=2.0.1"></script>
+    <script src="/Public/Admin/js/laravel-ueditor/lang/zh-cn/zh-cn.js"></script>
+    <script src="/Public/Admin/js/laravel-ueditor/ueditor.plugins.dumpimage.js?v=1.0.2"></script> -->
+
+    <script language="javascript" type="text/javascript" src="/Public/Admin/js/tinymce/tinymce.min.js"></script>
+    <script language="javascript" type="text/javascript">
+        tinymce.init({
+            selector: 'textarea',
+            height:730,
+          width:1200,
+            plugins: [
+                'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                'searchreplace wordcount visualblocks visualchars code fullscreen',
+                'insertdatetime media nonbreaking save table contextmenu directionality',
+                'artupload',
+                'emoticons template paste textcolor colorpicker textpattern imagetools codesample toc help'
+            ],
+            statusbar:false,
+            paste_auto_cleanup_on_paste : false,
+            paste_remove_styles: false,
+            paste_remove_styles_if_webkit: false,
+            paste_strip_class_attributes: false,
+            font_formats:"微软雅黑='微软雅黑';宋体='宋体';黑体='黑体';仿宋='仿宋';楷体='楷体';隶书='隶书';幼圆='幼圆';Arial='Arial';",
+			fontsize_formats: "8px 9px 10px 11px 12px 13px 14px 15px 16px 17px 18px 19px 20px 21px 22px 23px 24px 25px 26px 27px 28px 29px 30px 32px 48px",
+            toolbar1: ' undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link',
+            toolbar2: 'styleselect |  formatselect |  fontselect |  fontsizeselect |print preview  | forecolor backcolor  | codesample help | artuploadimage | artuploadvideo | insertArtzheContentButton',
+            image_advtab: true,
+            language:'zh_CN',
+            file_browser_callback: function(field_name, url, type, win) {
+
+                if(type=='image'){
+
+                    $('#my_form input').click();
+                }
+                if (type == 'media') {
+                    $('#my_form_video input').click();
+                    // callback('movie.mp4', {source2: 'alt.ogg', poster: 'image.jpg'});
+                }
+            },
+            init_instance_callback: function (editor) {
+
+              editor.on('paste', function (e) {
+
+            	  paste_str=e.clipboardData.getData('text/html');
+                paste_str =paste_str.replace('<body>','<body><p>');     //粘贴时可能找不到图片，body加入p标签
+                paste_str =paste_str.replace('</body>','</p></body>');  //粘贴时可能找不到图片，body加入p标签
+
+                var framhtml = $.parseHTML( paste_str ) //获取粘贴板内容
+
+                var imglen = $(framhtml).find('img').length;
+                var nimgarr = []; //当前粘贴板内的图片
+
+                $(framhtml).find('img').each(function(){
+                  if($(this).attr('data-src')){ //清空粘贴板内图片的ata-src
+                    $(this).attr('src',$(this).attr('data-src'))
+                    $(this).removeAttr('data-src');
+                  }
+                  $(this).attr('src',$(this).attr('src').replace('tp=webp','tp=webpp')) //去除webp图片
+                  nimgarr.push($(this).attr('src'))
+                })
+                $.each($('#description_ifr').contents().find('img'),function(){
+                  if($(this).attr('data-src')){ //清空编辑器内图片的ata-src
+                    $(this).attr('src',$(this).attr('data-src'))
+                    $(this).removeAttr('data-src');
+                  }
+                  $(this).attr('src',$(this).attr('src').replace('tp=webp','tp=webpp')) //去除webp图片
+                })
+
+                $.each($('#description_ifr').contents().find('img'),function(){ //编辑器内图片替换为loading图片，保留原图片地址
+                  if($.inArray($(this).attr('src'), nimgarr)>=0){ //判断是否为粘贴板里的图片
+                      $(this).attr('data-oldsrc',$(this).attr('src')) //将原图片链接放入data-oldsrc中
+                      $(this).attr('src','https://artzhe.oss-cn-shenzhen.aliyuncs.com/static/mp/loading.gif')
+                    }
+                })
+                $(framhtml).find('img').each(function(){
+                  upload_queue.push($(this).attr('src')); //图片上队列
+                  if(isload == false){ //防止多次粘贴时，同时上传图片
+                    geturl() //上传替换图片ajax
+                  }
+                });
+                function geturl(){
+
+                  if(upload_queue.size() <=0 ){ //判断上传队列为空时，停止上传，并重置上传状态
+                    isload = false;
+                    return
+                  };
+
+                  isload = true; //正在上传状态
+                  var imgurl = [upload_queue.pop()]; //从队列每次取出一张图片
+                  $.ajax({
+                    url:'/Admin/Ueditor/Server?action=catchimage&',
+                    type:'post',
+                    data:{
+                      source:imgurl
+                    },
+                    dataType:'json',
+                    timeout:20000,
+                    success:function(res){
+                      var framimgs =$('#description_ifr').contents().find('img');
+                      if(res.state == 'SUCCESS'){
+                        framimgs.each(function(){
+                          if($(this).attr('data-oldsrc') == res.list[0].source){ //替换编辑器中的loading图为新图src
+                            $(this).attr('src',res.list[0].url);
+
+                            $(this).removeAttr('data-oldsrc'); //移除无用的data-oldsrc
+                          }
+                        })
+                      }
+                    },
+                    error:function(err){
+                      console.log('error:'+err.state)
+
+                    },
+                    complete:function(){
+                      geturl()  //ajax完成时,继续请求
+                    }
+                  })
+                }
+              });
+            },
+            setup: function(editor) {
+
+                function insertArtzheContent() {
+                    $('.insertArtLink').show();
+                    // str="<a href=\"ffffffffffff\">"+editor.selection.getContent()+"</a>";
+                    // editor.selection.setContent(str);
+                }
+
+                editor.addButton('insertArtzheContentButton', {
+                    icon: 'insertdatetime',
+                    // image: 'http://p.yusukekamiyamane.com/icons/search/fugue/icons/calendar-blue.png',
+                    tooltip: "Insert Artlink",
+                    onclick: insertArtzheContent
+                });
+            }
+        });
+
+        var upload_queue = new Queue(300);
+        var isload=false;
+        function Queue(size) {
+            var list = [];
+
+            //向队列中添加数据
+            this.push = function(data) {
+                if (data==null) {
+                    return false;
+                }
+                //如果传递了size参数就设置了队列的大小
+                if (size != null && !isNaN(size)) {
+                    if (list.length == size) {
+                        this.pop();
+                    }
+                }
+                list.unshift(data);
+                return true;
+            }
+
+            //从队列中取出数据
+            this.pop = function() {
+                return list.pop();
+            }
+
+            //返回队列的大小
+            this.size = function() {
+                return list.length;
+            }
+
+            //返回队列的内容
+            this.quere = function() {
+                return list;
+            }
+        }
+        // var ue = UE.getEditor('zttext', {
+        //   toolbars: [
+        //         [
+        //             'undo', 'redo', '|',
+        //             'fontsize', '|',
+        //             'fontfamily', '|',
+        //             'blockquote',
+        //             'horizontal', '|',
+        //             'removeformat',
+        //             'formatmatch',
+        //             'link',
+        //             'searchreplace', //查询替换
+        //             'paragraph', //段落格式
+        //             'strikethrough', //删除线
+        //             'subscript', //下标
+        //             'fontborder', //字符边框
+        //             'superscript', //上标
+        //         ],
+        //         [
+        //             'horizontal', //分隔线
+        //             'inserttable', //插入表格
+        //             'edittable', //表格属性
+        //             'edittd', //单元格属性
+        //             'insertrow', //前插入行
+        //             'insertcol', //前插入列
+        //             'mergeright', //右合并单元格
+        //             'mergedown', //下合并单元格
+        //             'deleterow', //删除行
+        //             'deletecol', //删除列
+        //             'splittorows', //拆分成行
+        //             'splittocols', //拆分成列
+        //             'splittocells', //完全拆分单元格
+        //             'deletecaption', //删除表格标题
+        //             'inserttitle', //插入标题
+        //             'mergecells', //合并多个单元格
+        //             'deletetable', //删除表格
+        //             'insertparagraphbeforetable', //"表格前插入行"
+        //         ],
+        //         ['bold', 'italic', 'underline', 'forecolor', 'backcolor', '|', 'indent', 'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|',
+        //         'rowspacingtop', 'rowspacingbottom', 'lineheight', '|', 'insertorderedlist', 'insertunorderedlist', '|', 'imagenone', 'imageleft', 'imageright',
+        //         'imagecenter', '|', 'insertimg', 'insertslfvideo']
+        //   ],
+        //   labelMap: {
+        //     'insertimg': '插入图片',
+        //     'insertslfvideo':'插入视频',
+        //   },
+        //   // initialFrameHeight:600,
+        //   // initialFrameWidth:800,
+        //   // autoHeightEnabled:false,
+        //   enableContextMenu: false,
+        //   elementPathEnabled: false,
+        //   wordCount: false,
+        //   enableAutoSave: true,
+        //   imagePopup:true,
+        //   // autoFloatEnabled:false,
+        //   allowDivTransToP:false,
+        //   filterRules: function () {
+        //     // autoFloatEnabled:false,
+        //     // topOffset:30,
+        //     return{
+        //       span:{ $: {'style':1,'class':1}},
+        //       p: { $: {'style':1,'contenteditable':1,'class':1}},
+        //       div: { $: {'style':1,'class':1, 'id': 1, 'contenteditable':1}},
+        //       //$:{}表示不保留任何属性
+        //       br: { $: {}},
+        //       a:{ $: {'style':1, 'href':1, 'target':1, 'contenteditable':1, 'class':1, 'data-artzhe-typeDetail':1, 'data-artzhe-id':1, 'data-artzhe-params':1, 'data-artzhe-type':1}},
+        //       ol:{ $: {'style':1}},
+        //       ul: { $: {'style':1}},
+        //       img: { $: {'style':1, 'src':1,'class':1, 'contenteditable':1}},
+        //       dl:{ $: {'style':1}},
+        //       dt:{ $: {'style':1}},
+        //       dd:{ $: {'style':1}},
+        //       li:{ $: {'style':1}},
+        //       blockquote: { $: {'style':1,'class':1,'id':1}},
+        //       quote: { $: {'style':1}},
+        //       video: { $: {'src':1, 'poster':1, 'controls':1, 'preload':1}},
+        //       audio: { $: {'src':1, 'autoplay':1, 'controls':1, 'loop':1,'preload':1,'style':1,'class':1}},
+        //       source: { $: {'type':1, 'src':1}},
+        //       article: { $: {'style':1}},
+        //       section:{ $: {'style':1}},
+        //       table: function (node) {
+        //           UE.utils.each(node.getNodesByTagName('table'), function (t) {
+        //               UE.utils.each(t.getNodesByTagName('tr'), function (tr) {
+        //                   var p = UE.uNode.createElement('p'), child, html = [];
+        //                   while (child = tr.firstChild()) {
+        //                       html.push(child.innerHTML());
+        //                       tr.removeChild(child);
+        //                   }
+        //                   p.innerHTML(html.join('&nbsp;&nbsp;'));
+        //                   t.parentNode.insertBefore(p, t);
+        //               })
+        //               t.parentNode.removeChild(t)
+        //           });
+        //           var val = node.getAttr('width');
+        //           node.setAttr();
+        //           if (val) {
+        //               node.setAttr('width', val);
+        //           }
+        //       },
+        //       tbody: { $: {}},
+        //       caption: { $: {}},
+        //       th: { $: {}},
+        //       td: { $: {valign: 1, align: 1,rowspan:1,colspan:1,width:1,height:1}},
+        //       tr: { $: {}},
+        //       h1: { $: {'style':1}},
+        //       h2: { $: {'style':1}},
+        //       h3: { $: {'style':1}},
+        //       h4: { $: {'contenteditable':1, 'style':1, 'class':1}},
+        //       h5: { $: {'style':1, 'class':1, 'contenteditable':1}},
+        //       h6: { $: {'style':1}},
+        //       strong: { $: {'style':1,'class':1}},
+        //       i: { $: {'style':1}},
+        //       b: { $: {'style':1}},
+        //       //黑名单，以下标签及其子节点都会被过滤掉
+        //       '-': 'script style meta iframe embed object'
+        //     }
+        //   }()
+        // });
+        //
+        // ue.ready(function() {
+        //     // this.setHeight(600);
+        //     //因为Laravel有防csrf防伪造攻击的处理所以加上此行
+        //     var _token = $('meta[name="csrf-token"]').attr('content');
+        //     ue.execCommand('serverparam', '_token', _token);
+        //     ue.commands['insertimg'] = { //ueditor自定义图片上传事件初始化，触发
+        //         execCommand: function() {
+        //             $('#ztmaskbox').show();
+        //             $('#ztiframe').attr('src','/Admin/Attachment/uploadPicForm');
+        //         }
+        //     };
+        //
+        //     ue.commands['insertslfvideo'] = { //ueditor自定义视频上传事件初始化，触发
+        //         execCommand: function() {
+        //             $('#ztmaskbox').show();
+        //             $('#ztiframe').attr('src','/Admin/Attachment/uploadVideoForm');
+        //         }
+        //     };
+        // })
+
+        function uploaddd(){
+            $('.mce-btn.mce-open').parent().find('.mce-textbox').before('<div style="height: 30px;">上传中...</div>');
+            $('#my_form').submit();this.value='';
+
+        }
+        function uploaddd2(){
+            $('.mce-btn.mce-open').parent().find('.mce-textbox').before('<div style="height: 30px;">上传中...</div>');
+            $('#my_form_video').submit();this.value='';
+
+        }
+
+    </script>
+
+    <link href="/Public/Admin/vendor/bootstrap-select/bootstrap-select.css" rel="stylesheet">
+    <script language="javascript" type="text/javascript" src="/Public/Admin/vendor/bootstrap-select/bootstrap-select.js"></script>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    添加艺术专题
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" action="{:U('Subject/addSub')}" method="post" enctype="multipart/form-data" onsubmit="return checkForm();">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">专题名称</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="sub_name" class="form-control" placeholder="专题名称" value="" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">副标题</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="sub_title" class="form-control" placeholder="副标题" value="" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">封面</label>
+                            <div class="col-sm-10">
+                                <input name="cover" type="text" id="cover" value="{$list['cover']}" class="form-control" onfocus="$('#cover_preview').attr('src',this.value);$('#cover_preview').show();" onblur="$('#cover_preview').attr('src',this.value);$('#cover_preview').show();"/>
+                                <img src="{$list['cover']}" style="max-height:288px;" id="cover_preview" <?php if(trim($list['cover'])=='')echo 'style="display:none"';?>/>
+                                <a href="#" style="color:#F0F; font-size:18px;" class="btn btn-default"  id="PicCropper_button_subject">上传&amp;裁剪图片</a>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">描述</label>
+                            <div id="edtorbox" class="col-sm-10" style="position: relative;">
+                                <textarea name="description" class="form-control" rows="3"></textarea>
+                                <!-- <script id="zttext" name="description" type="text/plain" style="width:100%;height:523px;"></script> -->
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">类别</label>
+                            <div class="col-sm-2">
+                                <select  name="type" id="type" class="selectpicker form-control" data-dropup-auto="false" >
+                                    <option value="0">请选择
+                                    </option>
+                                    <option value="1">微画展
+                                    </option>
+                                    <option value="2">微专访
+                                    </option>
+                                    <option value="3">PA画展
+                                    </option>
+                                    <option value="4">展讯
+                                    </option>
+                                    <option value="99">其他
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" id="exhibition_date" style="display:none">
+                            <label class="col-sm-2 control-label">展讯推荐截止日期</label>
+                            <div class="col-sm-2">
+                               <input type="date" id="recommend_time_end" name="recommend_time_end" class="form-control" value="" min="2017-01-01" max="{:date('Y-m-d',strtotime('+10 year'))}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">艺术家</label>
+                            <div class="col-sm-2">
+                                <select id="artist" name="artist" class="selectpicker form-control" data-dropup-auto="false" data-live-search="true" data-live-search-placeholder="搜索" data-size="5">
+                                    <option style="padding: 6px 12px;" value="0">请选择</option>
+                                    <foreach name="artists" item="artist" key="k" >
+                                        <option value="{$artist['id']}">{$artist['nickname']}</option>
+                                    </foreach>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">开始时间</label>
+                            <div class="col-sm-2">
+                                <input type="date" id="start_time" name="start_time" class="form-control" value="" min="2017-01-01" max="{:date('Y-m-d',strtotime('+10 year'))}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">结束时间</label>
+                            <div class="col-sm-2">
+                                <input type="date" id="end_time" name="end_time" class="form-control" value="" min="2017-01-01" max="{:date('Y-m-d',strtotime('+10 year'))}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <a id="yulanbtn" class="btn btn-info" href="javascript:;" role="button">预览</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <button type="submit" class="btn btn-success">确定</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="{:U('Subject/index')}" class="btn btn-default">返回</a>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- <iframe id="form_target" name="form_target" style="display:none"></iframe>
+
+                    <form id="my_form" action="{:U('Subject/uploadpic')}" target="form_target" method="post" enctype="multipart/form-data" style="width:0px;height:0;overflow:hidden">
+                        <input name="image" type="file" accept="image/x-png,image/gif,image/jpeg" onchange="return uploaddd()">
+                    </form>
+                    <form id="my_form_video" action="{:U('Subject/uploadvideo')}"  target="form_target"  method="post" enctype="multipart/form-data" style="width:0px;height:0;overflow:hidden">
+                        <input name="image" type="file" accept="video/mp4" onchange="return uploaddd2()">
+
+                    </form> -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="ztmaskbox" class="ztbox ivbox" style="display:none">
+        <iframe id="ztiframe" class="ztfrm" src="" height="500px" width="500px"></iframe>
+    </div>
+    <!-- 预览 -->
+    <div class="yulanbox" style="display:none;">
+      <div class="yulanphonediv">
+        <iframe src="" scrolling="no" frameborder="0" width="" height="" class="yulanfram"></iframe>
+        <button type="button" class="btn btn-info closeyulan">关闭</button>
+      </div>
+    </div>
+     <!-- 插入艺术者链接 -->
+<div class="showArtBox">
+    <div class="insertArtLink">
+        <div class="artBox"></div>
+        <div class="search-wrap" id="insertArtLinkEl">
+            <div class="title-tab">
+                <ul class="tab-navs clearfix">
+                <!-- <li class="tab-nav selected">
+                    <p href="javascript:;">插入链接</p>
+                </li> -->
+                </ul>
+            </div>
+            <div class="search-con">
+                <div class="frm_control_group">
+                <label for="" class="frm_label">插入内容</label>
+                <div class="frm_controls frm_vertical_lh">
+                    <label v-for="(item,index) in typeList" @click="chooseType(item.type)" :class="[item.selected? 'selected' : '', 'frm_radio_label']" :for="'checkbox' + index">
+                        <i class="icon_radio"></i>
+                        <span class="lbl_content">{{item.text}}</span>
+                        <input type="radio" name="link_type" :value="index" class="frm_radio" :id="'checkbox' + index">
+                    </label>
+                </div>
+                </div>
+                <div class="frm_control_group">
+                <label for="" class="frm_label">搜索</label>
+                <div v-if="isArtistCircle==false" class="frm_controls">
+                    <span class="js_acc_search_main frm_input_box search_input_box search with_del append" style="display: block;">
+                        <a style="display: block;" class="js_acc_search_del del_btn" href="javascript:">
+                            <i class="icon_search_del"></i>
+                        </a>
+                        <a @click="gotoSearch(1)" href="javascript:void(0);" class="js_acc_search_btn frm_input_append">
+                            <i class="icon16_common search_gray"></i>
+                        </a>
+                        <input v-model="searchInputText" @keyup.enter="gotoSearch(1)" type="text" placeholder="输入名称，回车进行搜索" class="frm_input js_acc_search_input valid">
+                    </span>
+                </div>
+                <div v-else-if="isArtistCircle==true" class="frm_controls">
+                <el-date-picker v-model="timeSelect" type="date" :editable="false" :picker-options="timeLines" class="pickerOptions1 frm_input_box.search" placeholder="选择日期" format @focus="cleardatavalue" @change="gotoDateSearch(1)"></el-date-picker>
+                    <span class="js_acc_search_main frm_input_box search_input_box search with_del2 append" style="display: inline-block;">
+                        <a style="display: block;" class="js_acc_search_del del_btn" href="javascript:">
+                            <i class="icon_search_del"></i>
+                        </a>
+                        <a @click="gotoSearch(1)" href="javascript:void(0);" class="js_acc_search_btn frm_input_append">
+                            <i class="icon16_common search_gray"></i>
+                        </a>
+                        <input v-model="searchInputText" @keyup.enter="gotoSearch(1)" @focus="clearsearchedvalue" type="text" placeholder="输入用户名搜索" class="frm_input js_acc_search_input valid plcolor">
+                    </span>
+                </div>
+                </div>
+                <ul v-if="isArtistCircle==false" class="search-list topline" v-loading="searchLoading" element-loading-text="拼命加载中">
+                <li v-for="item in searchInfo.list" class="search-item">
+                    <div v-if="activeType == 'artwork' || activeType == 'article' || activeType == 'artwork_update'">
+                    <span class="search-col1">{{item.title}}</span>
+                    <span class="search-col2">{{item.user.nickname}}</span>
+                    <span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>
+                    </div>
+                    <div v-else>
+                    <span class="search-col1">{{item.nickname}}</span>
+                    <span class="search-col2">{{item.category_names}}艺术家</span>
+                    <span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>
+                    </div>
+                </li>
+                </ul>
+                <ul v-else-if="isArtistCircle==true" class="search-list" v-loading="searchLoading" element-loading-text="拼命加载中">
+                <li v-for="item in searchInfo.list" class="search-item linenone">
+                    <div v-if="item.type==2" class="picAndText">
+                    <img :src="item.images_url[0]">
+                    <div class="contentDiv">
+                        <div class="ttcontent ">
+                        <p class="pt nowrap1">{{item.user.nickname}}</p>
+                        <p class="ptm">{{item.datetime}}</p>
+                        <p class="pc nowrap1">{{item.excerpt}}</p>
+                        </div>
+                        <span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>
+                    </div>
+                    </div>
+                    <div v-if="item.type==3" class="onlyVedio">
+                    <div class="contentvideoimg">
+                        <img :src="item.video_poster">
+                        <div class="playbtnimg"></div>
+                    </div>
+                    <div class="contentDiv">
+                        <div class="ttcontent ">
+                        <p class="pt nowrap1">{{item.user.nickname}}</p>
+                        <p class="ptm">{{item.datetime}}</p>
+                        <p class="pc nowrap1">{{item.excerpt}}</p>
+                        </div>
+                        <span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>
+                    </div>
+                    </div>
+                    <div v-if="item.type==1" class="onlyAndText">
+                    <div class="contentDiv">
+                        <div class="ttcontent ">
+                        <p class="pt nowrap1">{{item.user.nickname}}</p>
+                        <p class="ptm">{{item.datetime}}</p>
+                        <p class="pc nowrap1">{{item.excerpt}}</p>
+                        </div>
+                        <span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>
+                    </div>
+                    </div>
+                    <div v-if="item.type>10" class="onlyAndText">
+                    <div class="contentDiv">
+                        <div class="ttcontent ">
+                        <p class="pt nowrap1">{{item.user.nickname}}</p>
+                        <p class="ptm">{{item.datetime}}</p>
+                        <p class="pc looklikelink nowrap1">链接：{{item.share_link.title}}</p>
+                        </div>
+                        <span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>
+                    </div>
+                    </div>
+                </li>
+                </ul>
+                <div class="upload-page uppage1 el-pagination" v-if="searchInfo.maxpage > 1">
+                <button type="button" v-show="searchInfo.page > 1"  :class="[ searchInfo.page == 1 ? 'disabled' : '','btn-prev']" @click="pagePrev()" ></button>
+                <span class="upload-num" >{{searchInfo.page}}/{{searchInfo.maxpage}}</span>
+                <button type="button" v-show="searchInfo.page != searchInfo.maxpage " :class="[ searchInfo.page == searchInfo.maxpage ? 'disabled' : '','btn-next']" @click="pageNext" ></button>
+                <span class="el-pagination__jump "><input type="number" min="1" number="true" v-model="inputpage" class="el-pagination__editor el-pagination__editor2" style="width: 58px;"> <a href="javascript:;" @click="gotoPage"  class="el-button el-button--info is-plain upload-jump"><span>跳转</span></a></span>
+                </div>
+            </div>
+            </ul>
+            </div>
+        
+
+    </div>
+</div>
+<script type="text/javascript" src="/Public/Admin/js/service/agent.js"></script>
+<script type="text/javascript" src="/Public/Admin/js/lib/vue.min.js"></script>
+<script type="text/javascript" src="/Public/Admin/js/lib/element/index.js"></script>
+<script>
+    // 默认环境
+var mEnv = switchDomin('m').indexOf('local-') > -1 ? 'https://dev-m.artzhe.com' : switchDomin('m');
+
+//各环境domain转换
+function switchDomin(str) { //str:mp|m|www|api
+  var myDomin, aDomin, aFirst, sFirst, sFirstNew;
+
+  aDomin = window.location.host.split('.'); //域名数组
+  sFirst = aDomin[0]; //获取二级域名前缀
+  if (aDomin.length > 2) {
+    aDomin.shift();
+  }
+  sMain = aDomin.join('.');
+  aFirst = sFirst.split('-');
+  sFirstNew = '';
+
+  if (aFirst.length > 1) {
+    sFirstNew = aFirst[0] + '-';
+  }
+  myDomin = 'https:' + '//' + sFirstNew + str + '.' + sMain;
+
+  return myDomin;
+}
+var eventBus = new Vue({});
+//插入艺术者控件弹窗
+var insertArtVue = new Vue({
+    el:'#insertArtLinkEl',
+    data: function(){
+        return {
+            isArtistCircle:false,
+            timeSelect:null, //选择时间
+            searchLoading: false,
+            activeType: 'artwork',
+            searchInputText: '', //搜索框值
+            searchInfo: {
+                type: '',
+                list:[],
+                page: 1,
+                pagesize:4,
+                maxpage:1
+            },
+            searchErrorText: '',
+            typeList: [
+                {type: 'artwork', text: '画作', selected: true},
+                {type: 'article', text: '文章', selected: false},
+                {type: 'artwork_update', text: '创作花絮', selected: false},
+                {type: 'artist', text: '艺术家', selected: false},
+                // {type: 'art_circle', text: '艺术圈', selected: false}
+            ],
+            totalpage: 6,
+            curpage: 1,
+            inputpage: '',
+            timeLines: {
+                disabledDate(time) {
+                return time.getTime() > Date.now();
+                }
+            },
+        }
+    },
+    created: function () {
+        console.log(123)
+    },
+    methods: {
+    chooseType: function (type) {
+      this.searchInputText='';
+      this.timeSelect =null;
+      var that = this;
+      this.typeList.forEach(function (item) {
+        if (item.selected == true && that.activeType == item.type) {
+          return false;
+        } else {
+          item.selected = false;
+          if (item.type == type) {
+            item.selected = true;
+            that.activeType = type;
+            if(type == 'art_circle'){
+              that.isArtistCircle = true;
+            }else {
+              that.isArtistCircle = false;
+            }
+          }
+          that.resetSearch();
+        }
+      });
+    },
+    resetSearch: function () {
+      this.searchInfo = {
+        type: '',
+        list:[],
+        page: 0,
+        pagesize:4,
+        maxpage:1
+      };
+    },
+    gotoSearch: function (page) {
+      var that = this;
+
+      if (that.searchInputText == '') {
+        that.$message({
+          message: '关键字不能为空'
+        });
+      }
+      var data = {
+        type: that.activeType,
+        page: page ? page : 1,
+        pagesize: 4,
+        keyword: that.searchInputText
+      };
+      that.searchLoading = true;
+      if (that.activeType == 'artwork' || that.activeType == 'article' || that.activeType == 'artwork_update' || that.activeType == 'art_circle') {
+        artzheAgent.callAdmin('Article/ImportContentList', data, function(response) {
+          that.searchLoading = false;
+          if (response.data.status == 1000 && response.code == 30000) {
+            if (response.data.info.page == 1 && response.data.info.list.length == 0) {
+              that.$message({
+                message: '没有相关内容'
+              });
+            }
+
+            that.searchInfo = response.data.info;
+        }
+        }, function(res) {
+          that.searchLoading = false;
+        });
+      } else {
+        artzheAgent.callAdmin('Article/ImportUserList', data, function(response) {
+          that.searchLoading = false;
+          if (response.data.status == 1000 && response.code == 30000) {
+            if (response.data.info.page == 1 && response.data.info.list.length == 0) {
+              that.$message({
+                message: '没有相关内容'
+              });
+            }
+            that.searchInfo = response.data.info;
+
+        }
+        }, function(res) {
+          that.searchLoading = false;
+        });
+      }
+
+    },
+    gotoDateSearch: function (page) {
+      // console.log('ajax:'+ this.timeSelect)
+      var that = this;
+      if (this.timeSelect == null) {
+
+        return
+      }
+      var data = {
+        type: that.activeType,
+        page: page ? page : 1,
+        pagesize: 4,
+        keyword: '',
+        date: that.changedate(that.timeSelect)
+      };
+      that.searchLoading = true;
+      if (that.activeType == 'art_circle') {
+        artzheAgent.callAdmin('Article/ImportContentList', data, function(response) {
+          that.searchLoading = false;
+          if (response.data.status == 1000 && response.code == 30000) {
+            if (response.data.info.page == 1 && response.data.info.list.length == 0) {
+              that.$message({
+                message: '没有相关内容'
+              });
+            }
+            that.searchInfo = response.data.info;
+            console.log(that.searchInfo)
+        }
+        }, function(res) {
+          that.searchLoading = false;
+        });
+      }
+
+    },
+    pagePrev: function () {
+      if (this.searchInfo.page <= 1) return;
+      if(this.timeSelect!=null){
+        this.gotoDateSearch(--this.searchInfo.page)
+      }else{
+        this.gotoSearch(--this.searchInfo.page);
+      }
+
+    },
+    pageNext: function () {
+      if (this.searchInfo.page >= this.searchInfo.maxpage) return;
+      console.log(this.timeSelect)
+      if(this.timeSelect!=null){
+        this.gotoDateSearch(++this.searchInfo.page)
+      }else{
+        this.gotoSearch(++this.searchInfo.page);
+      }
+
+    },
+    gotoPage: function () {
+      if (this.inputpage > this.searchInfo.maxpage || this.inputpage < 1) {
+        this.$message({
+          message: '请输入正确的页码'
+        });
+        return false;
+      }
+      if(this.timeSelect!=null){
+        this.gotoDateSearch(this.inputpage)
+      }else{
+        this.gotoSearch(this.inputpage);
+      }
+
+    },
+    addToRich: function (item) {
+      var keyLink = '', keyType = '';
+      if (this.activeType == 'artwork_update') {
+        keyLink = '/artwork/update/' + item.id;
+        keyType = 'artworkUpdate';
+      } else if (this.activeType == 'artwork') {
+        keyLink = '/artwork/detail/' + item.id;
+        keyType = 'artworkDetail';
+      } else if (this.activeType == 'article') {
+        keyLink = '/article/detail/' + item.id;
+        keyType = 'articleDetail';
+      } else if (this.activeType == 'artist') {
+        keyLink = '/gallery/detail/' + item.id;
+        keyType = 'galleryDetail';
+      }else if (this.activeType == 'art_circle') {
+
+        keyLink = '/article/detail/' + item.id;
+        keyType = 'artCircleDetail';
+      }
+      var data = {
+        link: mEnv + keyLink,
+        type: keyType,
+        id: item.id
+      };
+      var strData = JSON.stringify(data);
+
+      var content = '';
+      if (this.activeType == 'artwork_update') {
+        // test
+        content="<a href="+data.link+" data-artzhe-typedetail="+data.type+" data-artzhe-id="+data.id+" data-artzhe-type='link'>"+tinymce.activeEditor.selection.getContent()+"</a>";
+
+      } else if (this.activeType == 'artist') {
+         content="<a href="+data.link+" data-artzhe-typedetail="+data.type+" data-artzhe-id="+data.id+" data-artzhe-type='link'>"+tinymce.activeEditor.selection.getContent()+"</a>";
+      } else if (this.activeType == 'article' || this.activeType == 'artwork') {
+         content="<a href="+data.link+" data-artzhe-typedetail="+data.type+" data-artzhe-id="+data.id+" data-artzhe-type='link'>"+tinymce.activeEditor.selection.getContent()+"</a>";
+      }else if (this.activeType == 'art_circle') {
+        //
+        if(item.type==1){
+           content="<a href="+data.link+" data-artzhe-typedetail="+data.type+" data-artzhe-id="+data.id+" data-artzhe-type='link'>"+tinymce.activeEditor.selection.getContent()+"</a>";
+        }
+        if(item.type==2){
+           content="<a href="+data.link+" data-artzhe-typedetail="+data.type+" data-artzhe-id="+data.id+" data-artzhe-type='link'>"+tinymce.activeEditor.selection.getContent()+"</a>";
+        }
+        if(item.type==3){
+           content="<a href="+data.link+" data-artzhe-typedetail="+data.type+" data-artzhe-id="+data.id+" data-artzhe-type='link'>"+tinymce.activeEditor.selection.getContent()+"</a>";
+        }
+        if(item.type>10){
+           content="<a href="+data.link+" data-artzhe-typedetail="+data.type+" data-artzhe-id="+data.id+" data-artzhe-type='link'>"+tinymce.activeEditor.selection.getContent()+"</a>";
+        }
+      }
+      console.log(content)
+    //   if(tinymce.activeEditor.selection.getNode()){}
+      tinymce.activeEditor.selection.setContent(content);
+      $('.insertArtLink').hide();
+
+    },
+    clearsearchedvalue: function(){
+      this.timeSelect =null;
+      this.inputpage= '';
+      this.resetSearch()
+    },
+    cleardatavalue: function(){
+      this.searchInputText = '';
+      this.inputpage= '';
+      this.resetSearch()
+    },
+    changedate: function (str) {
+
+      console.log(str)
+      if(str== null){
+        return
+      }
+      str = str.toString();
+      var date;
+      var std;
+      // str = str.replace(/ GMT.+$/, '');
+      std = str.substring(0, 24)
+      var d = new Date(std);
+      var a = [d.getFullYear(), d.getMonth() + 1, d.getDate()];
+      for(var i = 0, len = a.length; i < len; i ++) {
+          if(a[i] < 10) {
+              a[i] = '0' + a[i];
+          }
+      }
+      return date = a[0] + '-' + a[1] + '-' + a[2];
+    }
+  }
+})
+</script>
+</block>
+<block name="customJs">
+    <script>
+
+
+      $('#ztmaskbox').click(function(){
+          $(this).hide();
+      });
+      $('.yulanbox').click(function(){
+        $(this).hide();
+        $('.yulanfram').attr('src','')
+      });
+      $('.closeyulan').click(function(){
+        $('.yulanbox').hide();
+        $('.yulanfram').attr('src','')
+      });
+      $('#yulanbtn').click(function(){
+        $('.yulanbox').show();
+        $('.yulanfram').attr('src','/Admin/Attachment/previewmobile')
+      });
+
+        function checkForm(){
+            var start_time = $("#start_time").val();
+            var end_time = $("#end_time").val();
+			var type = $("#type").val();
+		    var recommend_time_end = $("#recommend_time_end").val();
+            var check = true;
+            var message = "";
+			if(type==4&&recommend_time_end==""){
+				var check = false;
+                message = message + "<li>展讯需要设置推荐截止日期!</li>";
+				}
+            if(start_time==''){
+                var check = false;
+                message = message + "<li>开始时间不能为空!</li>";
+            }
+            if(end_time==''){
+                var check = false;
+                message = message + "<li>结束时间不能为空!</li>";
+            }
+            if(start_time!='' && end_time!='' && start_time>end_time){
+                var check = false;
+                message = message + "<li>开始时间不能晚于结束时间!</li>";
+            }
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+                return true;
+            }
+
+        }
+
+        $('.artBox').click(function(){
+            $('.insertArtLink').hide();
+        })
+		
+		$("#type").change(function(){
+      		 if($(this).val()==4){
+		     $("#exhibition_date").show();
+		   }else{
+			    $("#exhibition_date").hide();
+			}
+		});
+    </script>
+   <script type="text/javascript" src="/Public/Admin/js/artzhe_pop/artzhe_pop.js"></script>
+<link rel="stylesheet" type="text/css" href="/Public/Admin/js/artzhe_pop/artzhe_pop.css" />
+<script type="text/javascript" src="/Public/Admin/js/public.js"></script>
+</block>

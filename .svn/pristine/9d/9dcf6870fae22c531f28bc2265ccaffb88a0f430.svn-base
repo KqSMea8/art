@@ -1,0 +1,10 @@
+<?php
+
+namespace V22\Model;
+
+use V22\Base\BaseModel;
+
+class MessageModel extends BaseModel
+{
+    protected $tableName = 'message';
+}

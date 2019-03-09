@@ -1,0 +1,10 @@
+<?php
+
+namespace Mp\Model;
+
+use Mp\Base\BaseModel;
+
+class ImageModel extends BaseModel
+{
+    protected $tableName = 'image';
+}

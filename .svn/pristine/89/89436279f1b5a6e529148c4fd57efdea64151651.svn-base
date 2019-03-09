@@ -1,0 +1,62 @@
+<?php
+namespace Admin\Controller;
+
+use Common\Base\AdminBaseController;
+use OSS\OssClient;
+class PicCropperController extends AdminBaseController
+{
+
+    public function Cropper()
+    {
+        $pic_url = trim(I('get.pic_url'));
+        $upload2tagId=trim(I('get.upload2tagId'));
+        $default_Ratio = floatval(I('get.default_Ratio'));
+      
+        $this->assign('pic_url', $pic_url);
+        $this->assign('upload2tagId', $upload2tagId);
+        $this->assign('default_Ratio', $default_Ratio);
+        $this->display();
+    }
+    
+    //base64 图片上传
+    public function uploadPicBase64()
+    {
+        $base64_image = I('post.base64_image');
+        if (trim($base64_image) != '') {
+            if (preg_match('/^data:image\/(.+);base64,/', $base64_image, $result)) {
+                $ossConfig = C('OSS'); // 获取OSS配置信息
+                $ossClient = new OssClient($ossConfig['appKeyId'], $ossConfig['appKeySecret'], $ossConfig['endPoint']);
+                $object = 'uploads/'.date('Y/m/d/H/', time()).'CropperPic_'.uniqid().'_'.rand(10000, 99999).'.jpg';
+                
+                $base64_image_content = base64_decode(str_replace($result[0], '', $base64_image)); // 图片
+                $ossClient->putObject($ossConfig['bucket'], $object, $base64_image_content);
+                
+                $response = [
+                    'error' => 0,
+                    'image_url' => "https://" . $ossConfig['bucket'] . ".oss-cn-shenzhen.aliyuncs.com/" . $object,
+                    'msg' => '上传成功'
+                
+                ];
+                echo json_encode($response);
+                exit();
+            } else {
+                $response = [
+                    'error' => 1,
+                    'msg' => '错误'
+                ];
+                echo json_encode($response);
+                exit();
+            }
+        } else {
+            $response = [
+                'error' => 1,
+                'msg' => '图片不能为空'
+            ];
+            echo json_encode($response);
+            exit();
+        }
+    }
+    
+    
+}
+

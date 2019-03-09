@@ -1,0 +1,279 @@
+<?php
+namespace Admin\Controller;
+
+use Common\Base\AdminBaseController;
+use OSS\OssClient;
+
+class UeditorController extends AdminBaseController
+{
+    private $Ueditor_config=<<<conffff
+{
+    /* 上传图片配置项 */
+    "imageActionName": "uploadimage", /* 执行上传图片的action名称 */
+    "imageFieldName": "upfile", /* 提交的图片表单名称 */
+    "imageMaxSize": 2048000, /* 上传大小限制，单位B */
+    "imageAllowFiles": [".png", ".jpg", ".jpeg", ".gif", ".bmp"], /* 上传图片格式显示 */
+    "imageCompressEnable": true, /* 是否压缩图片,默认是true */
+    "imageCompressBorder": 1600, /* 图片压缩最长边限制 */
+    "imageInsertAlign": "none", /* 插入的图片浮动方式 */
+    "imageUrlPrefix": "", /* 图片访问路径前缀 */
+    "imagePathFormat": "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+                                /* {filename} 会替换成原文件名,配置这项需要注意中文乱码问题 */
+                                /* {rand:6} 会替换成随机数,后面的数字是随机数的位数 */
+                                /* {time} 会替换成时间戳 */
+                                /* {yyyy} 会替换成四位年份 */
+                                /* {yy} 会替换成两位年份 */
+                                /* {mm} 会替换成两位月份 */
+                                /* {dd} 会替换成两位日期 */
+                                /* {hh} 会替换成两位小时 */
+                                /* {ii} 会替换成两位分钟 */
+                                /* {ss} 会替换成两位秒 */
+                                /* 非法字符 \ : * ? " < > | */
+                                /* 具请体看线上文档: fex.baidu.com/ueditor/#use-format_upload_filename */
+
+    /* 涂鸦图片上传配置项 */
+    "scrawlActionName": "uploadscrawl", /* 执行上传涂鸦的action名称 */
+    "scrawlFieldName": "upfile", /* 提交的图片表单名称 */
+    "scrawlPathFormat": "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "scrawlMaxSize": 2048000, /* 上传大小限制，单位B */
+    "scrawlUrlPrefix": "", /* 图片访问路径前缀 */
+    "scrawlInsertAlign": "none",
+
+    /* 截图工具上传 */
+    "snapscreenActionName": "uploadimage", /* 执行上传截图的action名称 */
+    "snapscreenPathFormat": "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "snapscreenUrlPrefix": "", /* 图片访问路径前缀 */
+    "snapscreenInsertAlign": "none", /* 插入的图片浮动方式 */
+
+    /* 抓取远程图片配置 */
+    "catcherLocalDomain": ["127.0.0.1", "localhost", "img.baidu.com"],
+    "catcherActionName": "catchimage", /* 执行抓取远程图片的action名称 */
+    "catcherFieldName": "source", /* 提交的图片列表表单名称 */
+    "catcherPathFormat": "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "catcherUrlPrefix": "", /* 图片访问路径前缀 */
+    "catcherMaxSize": 2048000, /* 上传大小限制，单位B */
+    "catcherAllowFiles": [".png", ".jpg", ".jpeg", ".gif", ".bmp"], /* 抓取图片格式显示 */
+
+    /* 上传视频配置 */
+    "videoActionName": "uploadvideo", /* 执行上传视频的action名称 */
+    "videoFieldName": "upfile", /* 提交的视频表单名称 */
+    "videoPathFormat": "/ueditor/php/upload/video/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "videoUrlPrefix": "", /* 视频访问路径前缀 */
+    "videoMaxSize": 102400000, /* 上传大小限制，单位B，默认100MB */
+    "videoAllowFiles": [
+        ".flv", ".swf", ".mkv", ".avi", ".rm", ".rmvb", ".mpeg", ".mpg",
+        ".ogg", ".ogv", ".mov", ".wmv", ".mp4", ".webm", ".mp3", ".wav", ".mid"], /* 上传视频格式显示 */
+
+    /* 上传文件配置 */
+    "fileActionName": "uploadfile", /* controller里,执行上传视频的action名称 */
+    "fileFieldName": "upfile", /* 提交的文件表单名称 */
+    "filePathFormat": "/ueditor/php/upload/file/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "fileUrlPrefix": "", /* 文件访问路径前缀 */
+    "fileMaxSize": 51200000, /* 上传大小限制，单位B，默认50MB */
+    "fileAllowFiles": [
+        ".png", ".jpg", ".jpeg", ".gif", ".bmp",
+        ".flv", ".swf", ".mkv", ".avi", ".rm", ".rmvb", ".mpeg", ".mpg",
+        ".ogg", ".ogv", ".mov", ".wmv", ".mp4", ".webm", ".mp3", ".wav", ".mid",
+        ".rar", ".zip", ".tar", ".gz", ".7z", ".bz2", ".cab", ".iso",
+        ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".txt", ".md", ".xml"
+    ], /* 上传文件格式显示 */
+
+    /* 列出指定目录下的图片 */
+    "imageManagerActionName": "listimage", /* 执行图片管理的action名称 */
+    "imageManagerListPath": "/ueditor/php/upload/image/", /* 指定要列出图片的目录 */
+    "imageManagerListSize": 20, /* 每次列出文件数量 */
+    "imageManagerUrlPrefix": "", /* 图片访问路径前缀 */
+    "imageManagerInsertAlign": "none", /* 插入的图片浮动方式 */
+    "imageManagerAllowFiles": [".png", ".jpg", ".jpeg", ".gif", ".bmp"], /* 列出的文件类型 */
+
+    /* 列出指定目录下的文件 */
+    "fileManagerActionName": "listfile", /* 执行文件管理的action名称 */
+    "fileManagerListPath": "/ueditor/php/upload/file/", /* 指定要列出文件的目录 */
+    "fileManagerUrlPrefix": "", /* 文件访问路径前缀 */
+    "fileManagerListSize": 20, /* 每次列出文件数量 */
+    "fileManagerAllowFiles": [
+        ".png", ".jpg", ".jpeg", ".gif", ".bmp",
+        ".flv", ".swf", ".mkv", ".avi", ".rm", ".rmvb", ".mpeg", ".mpg",
+        ".ogg", ".ogv", ".mov", ".wmv", ".mp4", ".webm", ".mp3", ".wav", ".mid",
+        ".rar", ".zip", ".tar", ".gz", ".7z", ".bz2", ".cab", ".iso",
+        ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".txt", ".md", ".xml"
+    ] /* 列出的文件类型 */
+
+}
+conffff;
+    
+    public function Server(){
+        //header('Access-Control-Allow-Origin: http://www.baidu.com'); //设置http://www.baidu.com允许跨域访问
+        //header('Access-Control-Allow-Headers: X-Requested-With,X_Requested_With'); //设置允许的跨域header
+        date_default_timezone_set("Asia/chongqing");
+        error_reporting(E_ERROR);
+        header("Content-Type: text/html; charset=utf-8");
+        
+        $CONFIG = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", "", $this->Ueditor_config), true);
+        $action = $_GET['action'];
+        
+        switch ($action) {
+            case 'config':
+                $result =  json_encode($CONFIG);
+                break;
+                
+                /* 上传图片 */
+            case 'uploadimage':
+                /* 上传涂鸦 */
+            case 'uploadscrawl':
+                /* 上传视频 */
+            case 'uploadvideo':
+                /* 上传文件 */
+            case 'uploadfile':
+                $result = include("action_upload.php");
+                break;
+                
+                /* 列出图片 */
+            case 'listimage':
+                $result = include("action_list.php");
+                break;
+                /* 列出文件 */
+            case 'listfile':
+                $result = include("action_list.php");
+                break;
+                
+                /* 抓取远程文件 */
+            case 'catchimage':
+                $source_list = I('post.source', '', false);
+                $list = [];
+                foreach ($source_list as $source) {
+                    
+                    if (strpos($source, '.oss-cn-shenzhen.aliyuncs.com/') !== false) { // 艺术者的图片不用上传，直接放回原地址
+                        array_push($list, array(
+                            'state' => 'SUCCESS',
+                            "url" => $source,
+                            "size" => 0,
+                            "title" => '黏贴上传',
+                            "original" => '',
+                            "source" => $source
+                        ));
+                    } else {
+                        
+                        // 下载
+                        $header = [
+                            'Connection: keep-alive',
+                            'Pragma: no-cache',
+                            'Cache-Control: no-cache',
+                            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0',
+                            'Accept-Encoding: gzip, deflate',
+                            'Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2'
+                        ];
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $source);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_HEADER, 0);
+                        if (substr(strtolower(ltrim($source)), 0, 5) == 'https') { // 是否ssl
+                            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查
+                            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true); // 从证书中检查SSL加密算法是否存在
+                        }
+                        $file_content = curl_exec($ch);
+                        curl_close($ch);
+                        // 下载 end
+                        if (trim($file_content) != '') { // 是否下载有内容
+                            $minimime = $this->minimime($file_content);
+                            
+                            if (preg_match('/image\//', $minimime)) { // 图片格式判断
+                                // 上传
+//                                 $Suffix_name=
+                                switch ($minimime) {
+                                    case 'image/png':
+                                        $Suffix_name='png';
+                                        break;
+                                    case 'image/gif':
+                                        $Suffix_name='gif';
+                                        break;
+                                    default:
+                                        $Suffix_name='jpg';
+                                }
+                                $ossConfig = C('OSS'); // 获取OSS配置信息
+                                $ossClient = new OssClient($ossConfig['appKeyId'], $ossConfig['appKeySecret'], $ossConfig['endPoint']);
+                                $object = 'uploads/' . date('Y/m/d/H/i/', time()) . 'PastePic_' . uniqid() . '_' . rand(10000, 99999) . '.'.$Suffix_name;
+                                
+                                $ossClient->putObject($ossConfig['bucket'], $object, $file_content);
+                                // 上传 end
+                                
+                                // 成功
+                                array_push($list, array(
+                                    'state' => 'SUCCESS',
+                                    "url" => "https://" . $ossConfig['bucket'] . ".oss-cn-shenzhen.aliyuncs.com/" . $object,
+                                    "size" => strlen($file_content),
+                                    "title" => '黏贴上传',
+                                    "original" => '',
+                                    "source" => $source
+                                ));
+                            } else {
+                                // 失败，格式不对
+                                array_push($list, array(
+                                    'state' => 'ERROR',
+                                    "url" => '',
+                                    "size" => strlen($file_content),
+                                    "title" => '黏贴上传',
+                                    "original" => '图片格式不对' . $minimime,
+                                    "source" => $source
+                                ));
+                            }
+                        } else {
+                            // 失败，下载失败
+                            array_push($list, array(
+                                'state' => 'ERROR',
+                                "url" => '',
+                                "size" => strlen($file_content),
+                                "title" => '黏贴上传',
+                                "original" => '获取不到图片',
+                                "source" => $source
+                            ));
+                        }
+                    }
+                }
+                $result = [
+                    'state' => count($list) ? 'SUCCESS' : 'ERROR',
+                    'list' => $list
+                ];
+                echo json_encode($result);
+                exit();
+                
+                break;
+                
+            default:
+                $result = json_encode(array(
+                'state'=> '请求地址出错'
+                    ));
+                break;
+        }
+        
+        /* 输出结果 */
+        if (isset($_GET["callback"])) {
+            if (preg_match("/^[\w_]+$/", $_GET["callback"])) {
+                echo htmlspecialchars($_GET["callback"]) . '(' . $result . ')';
+            } else {
+                echo json_encode(array(
+                    'state'=> 'callback参数不合法'
+                ));
+            }
+        } else {
+            echo $result;
+        }
+    }
+    
+    private function minimime($file_content) {
+        
+        if (trim($file_content)!='') {
+            $bytes6= substr($file_content,0,6);
+            if ($bytes6===false) return false;
+            if (substr($bytes6,0,3)=="\xff\xd8\xff") return 'image/jpeg';
+            if ($bytes6=="\x89PNG\x0d\x0a") return 'image/png';
+            if ($bytes6=="GIF87a" || $bytes6=="GIF89a") return 'image/gif';
+            return 'application/octet-stream';
+        }
+        return '';
+        
+    }
+}
+

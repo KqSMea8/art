@@ -1,0 +1,770 @@
+/*侧边栏*/
+
+.upload-left {
+  position: relative;
+  float: left;
+  width: 210px;
+  padding-bottom: 2000px;
+  margin-bottom: -2000px;
+  text-align: center;
+  background-color: #fff;
+  font-size: 18px;
+  color: #999;
+  border-right: 1px solid #eee;
+}
+
+.upload-left>li {
+  position: relative;
+  /*border: 1px solid #e0e0e0;*/
+  background-color: #fff;
+}
+
+.upload-left a {
+  display: block;
+  padding-left: 50px;
+  height: 48px;
+  line-height: 48px;
+  font-size: 16px;
+  text-align: left;
+  color: #333;
+}
+
+.upload-left a:hover {
+  color: #333;
+  border-bottom: 2px solid #f4ad23;
+}
+
+.upload-left a.cur {
+  color: #fff;
+  background-color: #f4ad23;
+}
+
+.upload-left>li>span {
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.upload-left span {
+  position: relative;
+  display: block;
+  height: 50px;
+  line-height: 50px;
+  padding-left: 50px;
+  text-align: left;
+}
+
+.upload-left .icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50px;
+  height: 50px;
+}
+
+.icons.icon-manage {
+  background-position: 0 -80px;
+}
+
+.icons.icon-promote {
+  background-position: -50px -80px;
+}
+
+.icons.icon-invite {
+  background-position: -102px -80px;
+}
+
+.icons.icon-auth {
+  background-position: -50px -172px;
+}
+
+.icons.icon-trade {
+  background-position: -102px -172px;
+}
+
+/*侧边栏 end*/
+
+/*element reset*/
+
+.el-form-item.is-required .el-form-item__label:before {
+  content: '';
+}
+
+.el-form-item__label {
+  font-size: 16px;
+  color: #333;
+  line-height: 48px;
+  height: 48px;
+  padding: 0;
+  padding-right: 12px;
+  white-space: nowrap;
+}
+
+.el-input {
+  font-size: 16px;
+}
+
+.el-button {
+  height: 48px;
+  font-size: 16px;
+}
+
+.el-button--primary {
+  color: #141414;
+  background-color: #f4ad23;
+  border-color: #f4ad23;
+}
+
+.el-button--primary.is-active, .el-button--primary:active, .el-button--primary:focus, .el-button--primary:hover {
+  color: #141414;
+}
+
+.el-button.btn-14.clicked {
+  color: #fff;
+  background-color: #999;
+  border-color: #999;
+}
+
+.input-m.el-input, .input-m.el-input input {
+  width: 202px;
+}
+
+.el-input__inner {
+  border-radius: 0;
+  border: 1px solid #dcdcdc;
+  color: #333;
+  font-size: 16px;
+  height: 48px;
+  line-height: 1;
+}
+
+.el-form-item {
+  margin-bottom: 30px;
+}
+
+.error-text {
+  height: 20px;
+  line-height: 20px;
+  font-size: 14px;
+  text-align: center;
+  color: #ff4949;
+}
+
+.el-textarea__inner {
+  padding: 12px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #555;
+  background-color: #fff;
+  border-radius: 0;
+}
+
+.icons {
+  display: inline-block;
+  background-repeat: no-repeat;
+  -webkit-background-size: 1000px 1000px;
+  background-size: 1000px 1000px;
+  background-image: url('../image/icons/pc-icons.png?v=2.0.1');
+}
+
+.eyesopen{
+  width: 19px;
+  height: 14px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url('../image/eyes_open.png');
+  cursor: pointer;
+  position: absolute;
+  bottom: 16px;
+  right: 70px;
+}
+
+.eyesclose{
+  width: 19px;
+  height: 14px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url('../image/eyes_close.png');
+  cursor: pointer;
+  position: absolute;
+  bottom: 16px;
+  right: 70px;
+}
+
+.toping{
+  width: 15px;
+  height: 17px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url('../image/toping.png');
+  cursor: pointer;
+  position: absolute;
+  bottom: 16px;
+  right: 42px;
+}
+
+
+.btn-group {
+  text-align: center;
+}
+
+.btn {
+  display: inline-block;
+  height: 48px;
+  font-size: 16px;
+  line-height: 48px;
+  color: #141414;
+  background-color: #f4ad23;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.btn.disabled {
+  background-color: #d0ceca;
+  cursor: not-allowed;
+}
+
+.btn-s:hover, .btn:hover {
+  transition: background-position 0.1s linear 0s;
+  box-shadow: 0 1px 2px 0 #bbb;
+}
+
+.btn-24 {
+  width: 240px;
+}
+
+.btn-14 {
+  width: 140px;
+}
+
+.btn-166 {
+  width: 166px;
+}
+
+.btn-250 {
+  width: 250px;
+}
+
+.btn-14.clicked {
+  color: #fff;
+  background-color: #999;
+  border-color: #999;
+}
+
+/*输入框&文本区域*/
+
+.input {
+  display: block;
+  width: 100%;
+  height: 48px;
+  padding: 6px 12px;
+  font-size: 18px;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #dcdcdc;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.text {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #dcdcdc;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.text:focus, .input:focus {
+  border-color: #f4ad23;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(244, 173, 35, .6);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(244, 173, 35, .6);
+}
+
+/*输入框&文本区域 end*/
+
+/*头部*/
+
+.y-header {
+  position: relative;
+  height: 66px;
+  min-width: 1190px;
+  background-color: #fff;
+  border-top: 4px solid #ebac1a;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+.y-header .login {
+  margin-top: 21px;
+  font-size: 16px;
+  line-height: 1;
+  color: #666;
+}
+
+.y-header .user {
+  /*width: 186px;*/
+  margin-top: 11px;
+}
+
+.y-header .user .info {
+  float: left;
+}
+
+.y-header .user .info img {
+  width: 40px;
+  height: 40px;
+  vertical-align: top;
+  border-radius: 3px;
+}
+
+.y-header .user .info span {
+  margin-right: 20px;
+  font-size: 16px;
+  line-height: 40px;
+  color: #333;
+  vertical-align: top;
+}
+
+.y-header .user a {
+  padding-left: 20px;
+  line-height: 40px;
+  font-size: 16px;
+  vertical-align: top;
+  color: #666;
+  border-left: 1px solid #e0e0e0;
+}
+
+.y-header .user a:hover {
+  color: #e82c3a;
+}
+
+.y-head {
+  margin-top: 10px;
+}
+
+.y-head .logo {
+  width: 103px;
+  height: 41px;
+  vertical-align: top;
+}
+
+.y-title {
+  margin-left: 13px;
+  padding-left: 10px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 26px;
+  vertical-align: top;
+  color: #999;
+  border-left: 2px solid #e0e0e0;
+}
+
+/*底部*/
+
+.y-footer {
+  position: relative;
+  height: 80px;
+  min-width: 1190px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 80px;
+  color: #989898;
+  background-color: #303030;
+}
+
+.y-footer .mail {
+  float: left;
+}
+
+.y-footer .qrcode {
+  margin-bottom: 32px;
+}
+
+.y-footer .qrcode img:first-of-type {
+  margin-right: 20px;
+}
+
+.y-footer .copyright {
+  float: right;
+}
+
+.y-footer .copyright span {
+  margin-left: 20px;
+}
+
+/*主要内容框*/
+
+.main-wrap {
+  margin-top: 62px;
+  margin-bottom: 96px;
+  width: 100%;
+  background-color: #fff;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, .1);
+  overflow: hidden;
+}
+
+.mb-72, .main-wrap.mb-72 {
+  margin-bottom: 72px;
+}
+
+.mb-60, .main-wrap.mb-60 {
+  margin-bottom: 60px;
+}
+
+.main-wrap .title {
+  padding-left: 20px;
+  height: 65px;
+  font-size: 22px;
+  color: #666;
+  border-bottom: 1px solid #eee;
+  line-height: 65px;
+}
+
+.main-wrap .rule-wrap {
+  padding: 66px 255px 88px 280px;
+}
+
+/*主要内容框 end*/
+
+/* TODO: 2018.01.02 */
+
+/*上传音乐的弹层*/
+
+.audioUploadBox {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.5);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.audioBox {
+  width: 900px;
+  height: 526px;
+  background: #fff;
+}
+
+.audioBox .el-tabs__header {
+  margin-bottom: 0px;
+}
+
+.audioBox .el-tabs__item {
+  color: #000;
+}
+
+.audioBox .el-tabs__item.is-active {
+  color: #f4ad23;
+}
+
+.audioBox .title {
+  font-size: 16px;
+  margin: 22px 0 37px 23px;
+}
+
+.listBox {
+  height: 60px;
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+}
+
+.listBox .localUpladBtn {
+  width: 100px;
+  height: 30px;
+  font-size: 14px;
+  float: right;
+  clear: both;
+  background: #FFC12F;
+  margin: 15px 49px 15px 0;
+}
+
+.upladedAudioList {
+  height: 240px;
+  width: 900px;
+  overflow-y: auto;
+}
+
+/*搜索*/
+
+.audioUploadBox .el-radio-group .el-radio {
+  font-size: 14px;
+  display: block;
+  margin-left: 0px;
+  height: 80px;
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.audioUploadBox .el-radio__input {
+  white-space: nowrap;
+  cursor: pointer;
+  outline: 0;
+  line-height: 5.7;
+  vertical-align: middle;
+  margin-left: 39px;
+}
+
+.audioUploadBox .el-radio__label {
+  display: inline-block;
+  width: 93%;
+  font-size: 14px;
+  padding-left: 6px;
+  clear: both;
+}
+
+.uploadDate {
+  display: inline-block;
+  margin-right: 80px;
+  float: right;
+}
+
+.audioLong {
+  display: inline-block;
+  margin-right: 49px;
+}
+
+/*搜索end*/
+
+.sureBox {
+  /* display: inline-block; */
+  margin-top: 50px;
+  margin-bottom: 10px;
+}
+
+.sureAndCancle {
+  display: inline-block;
+  margin-left: 360px;
+  margin-right: 77px;
+}
+
+.audioPage {
+  display: inline-block;
+}
+
+.sureAndCancle>div {
+  width: 80px;
+  height: 30px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 30px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.sureAndCancle>div:nth-child(1) {
+  background: #FFC12F;
+  margin-right: 26px;
+}
+
+.sureAndCancle:nth-child(2) {
+  background: #fff;
+}
+
+.addurlBox {
+  margin-top: 50px;
+  margin-bottom: 262px;
+  clear: both;
+}
+
+.addurlBox .listBox {
+  border-bottom: none;
+  width: 500px;
+  height: 37px;
+  display: inline-block;
+  border: 1px solid #ccc;
+}
+
+.shearchTitle {
+  display: block;
+  float: left;
+  height: 36px;
+  line-height: 36px;
+  margin-left: 167px;
+  margin-right: 13px;
+  font-size: 14px;
+}
+
+.addurl {
+  height: 35px;
+  width: 462px;
+  padding-left: 12px;
+  float: left;
+  display: block;
+}
+
+.addUrlBtn {
+  display: inline-block;
+  width: 36px;
+  height: 35px;
+  background: url("../image/searchimg.png") no-repeat center center;
+}
+
+.shearchSureBox {
+  /* display: inline-block; */
+  margin-top: 50px;
+}
+
+.shearSureAndCancle {
+  display: inline-block;
+  margin-left: 360px;
+  margin-right: 77px;
+}
+
+.shearSureAndCancle>div {
+  width: 80px;
+  height: 30px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 30px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.shearSureAndCancle>div:nth-child(1) {
+  background: #E7E7E7;
+  margin-right: 26px;
+}
+
+.shearSureAndCancle:nth-child(2) {
+  background: #fff;
+}
+
+/*搜索tab*/
+
+.s_Box {
+  width: 410px;
+  height: 37px;
+  border: 1px solid #ccc;
+  margin: 13px 0 11px 40px;
+}
+
+.s_Box_addurl {
+  height: 35px;
+  width: 372px;
+  padding-left: 12px;
+  float: left;
+  display: block;
+}
+
+.s_Box_addUrlBtn {
+  display: inline-block;
+  width: 36px;
+  height: 35px;
+  background: url("../image/searchimg.png") no-repeat center center;
+}
+
+.searchAudio {
+  border-top: 1px solid #ccc;
+}
+
+.searchAudioList {
+  height: 240px;
+  overflow-y: auto;
+}
+
+.searchAudioList li {
+  height: 80px;
+  line-height: 80px;
+  border-bottom: 1px solid #ccc;
+}
+
+.searchAudioList li label {
+  display: block;
+  height: 80px;
+  width: 100%;
+  clear: both;
+}
+
+.searchAudioList li p {
+  display: inline-block;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.searchAudioList li p input {
+  width: 18px;
+  height: 17px;
+  display: inline-block;
+  margin-top: 31px;
+  margin-right: 6px;
+  margin-left: 38px;
+}
+
+/*上传音乐的弹层 end*/
+
+.pageBox {
+  display: inline-block;
+}
+
+.allPage {
+  display: inline-block;
+}
+
+.pageBox .goPageBack {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 30px;
+  margin: 0 8px;
+  background: url("../image/backPage.png") no-repeat center center;
+}
+
+.pageBox .goPageforward {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 30px;
+  margin: 0 8px;
+  background: url("../image/forwardPage.png") no-repeat center center;
+}
+
+.fullBox {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 30px;
+  margin: 0 8px;
+}
+
+.goToPage {
+  padding: 4px 6px;
+}
+
+.text1line {
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

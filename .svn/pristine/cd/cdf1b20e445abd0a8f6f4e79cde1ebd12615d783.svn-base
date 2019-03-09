@@ -1,0 +1,41 @@
+<?php
+
+namespace V47\Logic;
+
+use V47\Base\BaseLogic;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+
+class SubjectCommentLogic extends BaseLogic
+{
+    public function addcomment($subjectId,$commenter,$content,$comment_to){
+        $addId = $this->add([
+            'parent_id' => 0,
+            'commenter' => $commenter,
+            'comment_to' => $comment_to,
+            'content' => $content,
+            'create_time' => time(),
+            'subject_id' => $subjectId,
+            'status' => 1,
+            'like_total' => 0,
+        ]);
+        if(!$addId){
+            return [];
+        }
+        $subjectLogic = new SubjectLogic();
+        $subjectLogic->where(['id' => $subjectId])->setInc('comment_num', 1);
+        $comment = $this->find($addId);
+        $userLogic = new UserLogic();
+        $userinfo = $userLogic->where(['id'=>$commenter])->find();
+        $data= [
+            'commentId' => $comment['id'],
+            'artist' => $userinfo['id'],
+            'faceUrl' => Util::getFillImage($userinfo['face'],Image::faceWidth,Image::faceHeight),
+            'nickname' => $userinfo['nickname'],
+            'time' => Util::simpleTimeShow($comment['create_time']),
+            'content' => $comment['content'],
+        ];
+        return $data;
+
+    }
+}

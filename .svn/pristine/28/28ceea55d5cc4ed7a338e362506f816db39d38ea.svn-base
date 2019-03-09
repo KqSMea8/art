@@ -1,0 +1,83 @@
+<?php
+
+namespace Mp\Logic;
+
+use Mp\Base\BaseLogic;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+//艺术圈评论
+class ArtCircleCommentLogic extends BaseLogic
+{
+    /**
+     * 评论动态
+     * @param string $data
+     * @return bool|mixed
+     */
+    public function comment($data){
+        $artCircle = new ArtCircleLogic();
+        $artCircleinfo = $artCircle->where(['id' => $data['art_circle_id'], 'status' => 1])->find();
+        if ($artCircleinfo) {//存在艺术圈动态
+            $id = $this->add($data);
+            $artCircle->where(['id' => $data['art_circle_id']])->setInc('comment_count', 1);
+            if($artCircleinfo['user_id'] != $data['commenter']) {//如果不是自己评论自己发表的动态，则发送消息
+                $messageLogic = new MessageLogic();
+                $messageLogic->sendMessage($data['commenter'], $artCircleinfo['user_id'], $data['content'], $messageLogic->type['artCircleComment'], MessageLogic::$showmsg, '', $id, false, '', $data['art_circle_id']);
+            }
+            $commentInfo = $this->find($id);
+            return empty($commentInfo)?[]:$commentInfo;
+        } else {//不存在艺术圈动态
+            return [];
+        }
+    }
+
+    /**
+     * 回复动态评论
+     * @param $data
+     * @return bool|mixed
+     */
+    public function replyComment($data){
+        $artCircle = new ArtCircleLogic();
+        $artCircleinfo = $artCircle->where(['id' => $data['art_circle_id'], 'status' => 1])->find();
+        if ($artCircleinfo) {//存在艺术圈动态
+            $id = $this->add($data);
+            //给发表动态的人和评论的人发消息，如果发表动态的人和评论的人是同一个人，则只发一条消息
+            $artCircle->where(['id' => $data['art_circle_id']])->setInc('comment_count', 1);
+            $messageLogic = new MessageLogic();
+            //如果不是自己回复自己发表的动态的评论且发表动态的人和评论的人不是同一个人则发送消息给发表动态的人,
+            if($artCircleinfo['user_id'] != $data['commenter'] && $data['comment_to'] != $artCircleinfo['user_id']) {
+                $messageLogic->sendMessage($data['commenter'], $artCircleinfo['user_id'], $data['content'], $messageLogic->type['artCircleReplyComment'], MessageLogic::$showmsg, '', $id, false, '', $data['art_circle_id']);
+            }
+            $messageLogic->sendMessage($data['commenter'], $data['comment_to'],  $data['content'], $messageLogic->type['artCircleReplyComment'], MessageLogic::$showmsg, '', $id, false, '',$data['art_circle_id']);
+            $replyInfo = $this->find($id);
+            return empty($replyInfo)?[]:$replyInfo;
+        } else {//不存在艺术圈动态
+            return [];
+        }
+    }
+
+    /**
+     * 获取评论信息
+     * @param $commentId 评论id
+     */
+    public function getCommentInfo($commentId){
+        $Commentinfo = $this->model->where(['id' => $commentId, 'status' => 1])->find();
+        return empty($Commentinfo)?[]:$Commentinfo;
+    }
+
+    /**
+     * 删除评论
+     * @param $data 评论信息
+     * @return array
+     */
+    public function deleteComment($data){
+        $artCircle = new ArtCircleLogic();
+        $artCircleinfo = $artCircle->where(['id' => $data['art_circle_id'], 'status' => 1])->find();
+        if (empty($artCircleinfo)) {//艺术圈动态不存在
+            return false;
+        }
+
+        $result = $this->where(['id' => $data['id'], 'status' => 1])->delete();
+        $artCircle->where(['id' => $data['art_circle_id']])->setDec('comment_count', 1);
+        return $result;
+    }
+}

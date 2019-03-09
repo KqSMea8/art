@@ -1,0 +1,187 @@
+<?php
+
+namespace Admin\Controller;
+
+use Admin\Logic\AdminLogic;
+use Common\Base\AdminBaseController;
+use Common\Logic\ArtistApplyLogic;
+use Common\Logic\AssetsLogic;
+use Common\Logic\GalleryLogic;
+use Common\Logic\MessageLogic;
+use Common\Logic\UserLogic;
+use Common\Logic\InviteLogLogic;
+use Common\Model\ArtistApplyModel;
+use Common\Model\AreaModel;
+use Custom\Helper\Nav;
+use Custom\Helper\Util;
+
+
+class ArtistController extends AdminBaseController
+{
+    public function index()
+    {
+        $page = I('get.page', 1);
+        $perPageCount = I('get.perPageCount', 10);
+        $state = I('get.verifyState',null);
+        $date = I('get.date',null);
+
+        $artistApplyLogic = new ArtistApplyLogic();
+        $applyListInfo = $artistApplyLogic->getApplyList($state, $date, $page, $perPageCount);
+        foreach ($applyListInfo['list'] as &$apply) {
+            $apply['createDatetime'] = date('Y-m-d H:i:s', $apply['create_time']);
+            $apply['verifyState'] = ArtistApplyModel::VERIFY_STATE_CN_LIST[$apply['verify_state']];
+        }
+        $queryParams = [
+            'page'=>$page,
+            'perPageCount'=>$perPageCount,
+            'verifyState'=>$state,
+            'date'=>$date
+        ];
+        $totalCount = $applyListInfo['total'];
+        $nav = Nav::render(U('Admin/Artist/index'), ['verifyState'=>$state, 'date'=>$date], $page, $perPageCount, $totalCount);
+        $this->assign('applyList', $applyListInfo['list']);
+        $this->assign('nav', $nav);
+        $this->assign('queryParams', $queryParams);
+        $this->display('getApplyList');
+    }
+    public function getApplyDetail()
+    {
+        $id = I('get.id');//applyId
+        $artistApplyLogic = new ArtistApplyLogic();
+
+        $assetsLogic = new AssetsLogic();
+        $detail = $artistApplyLogic->getDetail($id);
+
+        $detail['createDate'] = date('Y年m月d日', $detail['create_time']);
+
+        $process = 'image/resize,m_lfit,h_100,w_100';
+
+
+        $certImageIdList = explode(',', $detail['images']);
+        $certImageUrlList = $assetsLogic->getUrlList($certImageIdList);
+        foreach ($certImageUrlList as $certImageUrl) {
+            $certImageUrlMini = AssetsLogic::processImage($certImageUrl, $process);
+            $detail['certImageUrlListPair'][] = ['raw'=>$certImageUrl, 'mini'=>$certImageUrlMini];
+        }
+        
+        $contract_imgList = explode(',', $detail['contract_img']);
+        $contract_imgList_url = $assetsLogic->getUrlList($contract_imgList);
+        foreach ($contract_imgList_url as $contract_img) {
+            if(trim($contract_img)=='')continue;
+            $contract_imgMini = AssetsLogic::processImage($contract_img, $process);
+            $detail['contract_img_list'][] = ['raw'=>$contract_img, 'mini'=>$contract_imgMini];
+        }
+        
+       
+       
+        $userM = M("user");
+        $agency_info_where['az_agency_artist_relation.artist_user_id']=$detail['user_id'];
+        $agency_info_where['az_agency_artist_relation.status']=1;
+        $agency_info=$userM->field('az_user.nickname')
+        ->join('az_agency_artist_relation on az_user.id=az_agency_artist_relation.agency_user_id','left')
+        ->where($agency_info_where)->find();
+        $detail['agency']=trim($agency_info['nickname']);
+        
+        $detail['verifyState'] = ArtistApplyModel::VERIFY_STATE_CN_LIST[$detail['verify_state']];
+        $adminLogic = new AdminLogic();
+        $verifierInfo = $adminLogic->getDetail($detail['verifier']);
+        $detail['verifierName'] = $verifierInfo['name'];
+        $detail['verifyDatetime'] = date("Y-m-d H:i:s", $detail['verify_time']);
+        $areaModel = new AreaModel();
+        $detail['address']=$areaModel->getAddress($detail['province'],$detail['city'],$detail['area']);
+        $this->assign('detail', $detail);
+        $this->display();
+    }
+    public function verify()
+    {
+        if (!IS_POST) {
+            $this->error('错误的访问方式！');
+        }
+        $id = I('post.id');
+        if (!preg_match('/^\d+$/',$id)) {
+            $this->error("id参数不正确！");
+        }
+        $adminId = (int)$_SESSION['adminId'];
+        //2 pass -1 not pass
+        $verifyState = I('post.verifyState');
+        $verifyMemo = I('post.verifyMemo');
+
+        if ($verifyState != -1 && $verifyState != 2) {
+            $this->error('审核状态没有变更！');
+        }
+        $artistApplyLogic = new ArtistApplyLogic();
+        $artistApplyInfo = $artistApplyLogic->getDetail($id);
+        if (empty($artistApplyInfo)) {
+            $this->error("审核信息不存在！");
+        }
+        //check invite code
+        $userLogic = new UserLogic();
+        $messageLogic = new MessageLogic();
+        $inviteLogLogic = new InviteLogLogic();
+        $inviteUserInfo = $userLogic->getDetail(Util::inviteCodeToUserId($artistApplyInfo['invite_code']));
+        $count = $userLogic->where(['banned_to'=>'-1','is_deleted'=>'N','type'=>3])->count();
+        // if($count > 0){
+        //   if(!$inviteLogLogic->checkInvite($artistApplyInfo['invite_code']))
+        //   {
+        //     // $this->error("邀请码无效！");
+        //   }
+        // }
+        if ($verifyState == -1) {
+            //change apply state.
+            $applyUpdateInfo = ['verify_state'=>-1, 'verify_memo'=>$verifyMemo, 'verifier'=>$adminId, 'verify_time'=>$_SERVER['REQUEST_TIME']];
+            $updateResult = $artistApplyLogic->update($artistApplyInfo['id'], $applyUpdateInfo);
+            //send system message.
+            if (empty($verifyMemo)) {
+                $verifyMemo = '抱歉，您的审核未能通过，请按照艺术者平台审核要求重新申请！';
+            }
+            $messageLogic->authFailed($artistApplyInfo['user_id']);
+            //$messgeId = $messageLogic->addSystemMessage($verifyMemo, $artistApplyInfo['user_id']);
+            $this->redirect('Admin/Artist/getApplyDetail',['id'=>$id], 3, '跳转中，请稍后');
+        } else if($verifyState == 2) {
+            $the_user_info=$userLogic->where(['id'=>$artistApplyInfo['user_id']])->find();
+
+            //$role=$the_user_info['role'];
+            $role=role_str_add($the_user_info['role'],'artist');//添加artist角色
+
+
+            //change apply state.
+            $applyUpdateInfo = ['verify_state'=>2, 'verify_memo'=>$verifyMemo, 'verifier'=>$adminId, 'verify_time'=>$_SERVER['REQUEST_TIME']];
+            $applyUpdateResult = $artistApplyLogic->update($artistApplyInfo['id'], $applyUpdateInfo);
+            //fill in artist info.
+            $updateUserInfo = [
+                'motto'=>$artistApplyInfo['motto'],
+                'memo' =>$artistApplyInfo['memo'],
+                'resume'=>$artistApplyInfo['resume'],
+                'id_card_no'=>$artistApplyInfo['id_card_no'],
+                'role'=>$role,
+                'type'=>3,
+                'update_time'=>$_SERVER['REQUEST_TIME'],
+                'ip'=>get_client_ip(1),
+                'name'=>$artistApplyInfo['name'],//通过审核时，用户表的名字跟着修改
+                'nickname'=>$artistApplyInfo['name'],//通过审核时，用户表的名字跟着修改
+            ];
+            $userUpdateResult =$userLogic->update($artistApplyInfo['user_id'], $updateUserInfo);
+            //init a gallery.
+            $galleryLogic = new GalleryLogic();
+            $galleryData = [
+                'artist'=>$artistApplyInfo['user_id'],
+                'cover'=>$artistApplyInfo['cover_image_id'],
+                'create_time'=>$_SERVER['REQUEST_TIME']
+            ];
+            $galleryId = $galleryLogic->addOne($galleryData);
+            $inviteLogLogic->using($artistApplyInfo['invite_code'],$artistApplyInfo['user_id']);
+            //send a system message.
+            if (empty($verifyMemo)) {
+                $verifyMemo = '恭喜您，正式成为艺术者尊贵的认证艺术家~';
+            }
+            $messageLogic->authSuccess($artistApplyInfo['user_id']);
+            //$messgeId = $messageLogic->addSystemMessage($verifyMemo, $artistApplyInfo['user_id']);
+            $this->redirect('Admin/Artist/getApplyDetail',['id'=>$id], 3, '跳转中，请稍后');
+        } else {
+            $this->error('!');
+        }
+
+    }
+
+
+}

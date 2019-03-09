@@ -1,0 +1,191 @@
+<extend name="Public:base" />
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    艺术家认证资料
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">申请时间</div><div class="col-md-10">{$detail['createDate']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">申请人账号</div><div class="col-md-10">{$detail['user_id']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">真实姓名</div><div class="col-md-10">{$detail['name']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">手机号码</div><div class="col-md-10">{$detail['mobile']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">毕业院校</div><div class="col-md-10">{$detail['school']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">所在地区</div><div class="col-md-10">{$detail['address']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">邀请码</div><div class="col-md-10">{$detail['invite_code']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">个人履历</div><div class="col-md-10">{$detail['resume']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">备注说明</div><div class="col-md-10">{$detail['memo']}</div>
+                    </div>
+                    <?php if($detail['agency']!=''){?>
+                    <div class="row">
+                        <div class="col-md-2">所属机构</div>
+                        <div class="col-md-10 az-cls-popup-group">
+                          <?php echo $detail['agency'];?>
+                        </div>
+                    </div>
+                    <?php }?>
+                    <div class="row">
+                        <div class="col-md-2">艺术家与画作合影</div>
+                        <div class="col-md-10 az-cls-popup-group">
+                            <foreach name="detail['certImageUrlListPair']" item="groupPhotoUrlPair">
+                                <a href="{$groupPhotoUrlPair['raw']}" ><img style="margin: 0 8px;" src="{$groupPhotoUrlPair['mini']}"></a>
+                            </foreach>
+                        </div>
+                    </div>
+                    <?php if(count($detail['contract_img_list'])>0){?>
+                    <div class="row" style="margin: 10px 0;">
+                        <div class="col-md-2">艺术家与机构合同图片</div>
+                        <div class="col-md-10 az-cls-popup-group">
+                            <foreach name="detail['contract_img_list']" item="contract_img">
+                                <a href="{$contract_img['raw']}" ><img style="margin: 0 8px;" src="{$contract_img['mini']}"></a>
+                            </foreach>
+                        </div>
+                    </div>
+                    <?php }?>
+                    <if condition="$detail.verify_state neq 1">
+                        <div class="row">
+                            <div class="col-md-2">审核状态</div><div class="col-md-10">{$detail['verifyState']}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">处理人</div><div class="col-md-10">{$detail['verifierName']}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">处理时间</div><div class="col-md-10">{$detail['verifyDatetime']}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">审核者备注</div><div class="col-md-10">{$detail['verify_memo']}</div>
+                        </div>
+                        <else />
+                        <form method="post" action="{:U('Admin/Artist/verify')}" id="az-verify-form">
+                            <div class="row">
+                                <div class="col-md-2">审核状态</div>
+                                <div class="col-md-10">
+                                    <select name="verifyState">
+                                        <option value="1" selected>审核中</option>
+                                        <option value="-1">审核未通过</option>
+                                        <option value="2">审核通过</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2">审核者备注</div>
+                                <div class="col-md-10">
+                                    <textarea name="verifyMemo" placeholder="请备注通过或不通过原因，便于电话回访。" cols="50" rows="10"></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2"></div>
+                                <div class="col-md-10">
+                                    <a href="#" class="btn btn-success btn-sm" data-toggle="modal" data-target="#az-id-modal" id="az-btn-submit">提交</a>
+                                </div>
+                            </div>
+                            <input type="hidden" name="id" value="{$detail['id']}">
+                        </form>
+                    </if>
+
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <div class="modal fade" id="az-id-modal" tabindex="-1" role="dialog" aria-labelledby="az-label-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="az-label-modal">温馨提示</h4>
+                </div>
+                <div class="modal-body">
+                    该用户将成为平台认证艺术家，是否确认通过？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-success" id="az-id-btn-ok">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="customJs">
+    <script >
+        $(document).ready(function () {
+            $('.az-image-popup').magnificPopup({
+                type:"image"
+            });
+            $('.az-cls-popup-cert').magnificPopup({
+                delegate: 'a',
+                type: 'image',
+                tLoading: 'Loading image #%curr%...',
+                mainClass: 'mfp-img-mobile',
+                gallery: {
+                    enabled: true,
+                    navigateByImgClick: true,
+                    preload: [0,1] // Will preload 0 - before current, and 1 after the current image
+                }
+            });
+            $('.az-cls-popup-group').magnificPopup({
+                delegate: 'a',
+                type: 'image',
+                tLoading: 'Loading image #%curr%...',
+                mainClass: 'mfp-img-mobile',
+                gallery: {
+                    enabled: true,
+                    navigateByImgClick: true,
+                    preload: [0,1] // Will preload 0 - before current, and 1 after the current image
+                }
+            });
+            $('#az-btn-submit').click(function () {
+                var state = $("select[name=verifyState]").val();
+                if (state == 1) {
+
+                }
+            });
+            $("#az-id-modal").on('show.bs.modal', function (e) {
+                var modal = $(this);
+                var state = $("select[name=verifyState]").val();
+                if (state == 1) {
+                    modal.find('.modal-body').text('你还未审核！');
+                    modal.find('.modal-footer').hide();
+                } else if(state == -1)
+                {
+                    modal.find('.modal-body').text('该艺术家将不通过审核，确定此操作吗？');
+                    modal.find('.modal-footer').show();
+                } else if (state == 2)
+                {
+                    modal.find('.modal-body').text('该艺术家将通过审核，确定此操作吗？');
+                    modal.find('.modal-footer').show();
+                } else {
+                    return false;
+                }
+            });
+            var isSubmit = false;
+            $('#az-id-btn-ok').click(function () {
+                if(isSubmit === false) {
+                    isSubmit = true;
+                    $('#az-verify-form').submit();
+                }
+            });
+        })
+    </script>
+</block>

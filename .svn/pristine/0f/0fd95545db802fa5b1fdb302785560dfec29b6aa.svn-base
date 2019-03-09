@@ -1,0 +1,104 @@
+
+var mphone = /^1[34578]{1}\d{9}$/;
+var passreg = /^\w{6,16}$/;
+var chinese = /^[^\u4e00-\u9fa5]{6,16}$/;
+
+var mobile = getCookie('mobile');
+
+
+// 点击注册 btn-reg
+var vmReg = new Vue({
+  // element to mount to
+  el: '#reg-wrap',
+  // initial data
+  data: {
+    mobile: mobile,
+    verifycode: '',
+    password: '',
+    getVerifyCodeText: '获取验证码',
+    isClickgetVerify: false,
+    count: 60,
+    isSubmit: false
+  },
+  // methods
+  methods: {
+    getVerifyCode: function () {
+    var that = this;
+
+    if (this.isClickgetVerify) {
+      return false;
+    }
+
+    this.setTime();
+
+    // $.ajax({
+    //   type: "POST",
+    //   url: urlHead + 'Api/user/sendVerifyCode ', //发送手机验证码
+    //   data: {'mobile': this.mobile},
+    //   success: function(res){
+    //     that.verifycode = res.data.verifycode
+    //   }
+    // });
+    },
+    reg: function () {
+      // body...
+      var verifycode = this.verifycode;
+      var password = this.password;
+      if(verifycode == ""){
+        TipsShow.showtips({
+          info: "请填写验证码"
+        });
+        return false;
+      } else if (password == ""){
+        TipsShow.showtips({
+          info: "请填写密码"
+        });
+        return false;
+      } else if (!passreg.test(password)){
+        TipsShow.showtips({
+          info: "密码长度在6~16之间，只能包含字母、数字和下划线"
+        });
+        return false;
+      } 
+      else {
+        //避免重复点击提交
+        if (this.isSubmit) {
+          return false;
+        }
+        this.isSubmit = true;
+
+        TipsShow.showtips({
+          info: "提交中,请稍后"
+        });
+        // $.ajax({
+        //   type: "POST",
+        //   url: "/Passport/checkExistUser",
+        //   data: {'mobile': this.mobile},
+        //   success: function(result){
+        //     rememberUser.remember(this.mobile);
+        //     window.location.href = result.url;
+        //   }
+        // });
+      }
+    },
+    setTime: function () {
+      var that = this;
+      var count = this.count;
+      if (this.count == 0) {
+        this.isClickgetVerify = false;
+        this.getVerifyCodeText = "重新发送";
+        this.count = 60;
+        return false;
+      } else {
+        this.isClickgetVerify = true;
+        this.getVerifyCodeText = this.count +"s";
+        this.count = --count;
+        console.log(this.count);
+      }
+
+      setTimeout(function () {
+        that.setTime();
+      }, 1000);
+    }
+  }
+});

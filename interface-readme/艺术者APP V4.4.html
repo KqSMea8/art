@@ -1,0 +1,990 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>艺术者APP V4.4</title>
+</head>
+<body>
+<div id="wmd-preview" class="wmd-preview"><div class="md-section-divider"></div><p data-anchor-id="58wy"><div class="toc">
+<ul>
+<li><a href="#艺术者app-v44">艺术者APP V4.4</a><ul>
+<li><a href="#1-app">1 app</a><ul>
+<li><a href="#11-添加新画作修改">1.1 添加新画作（修改）</a></li>
+<li><a href="#12-添加画作属性修改">1.2  添加画作属性（修改）</a></li>
+<li><a href="#13-获取画作属性修改">1.3  获取画作属性（修改）</a></li>
+<li><a href="#14-添加画作系列">1.4  添加画作系列</a></li>
+<li><a href="#15-获取艺术家的画作系列">1.5  获取艺术家的画作系列</a></li>
+<li><a href="#16-获取画作系列中艺术家最近添加的画作的画作属性">1.6  获取画作系列中艺术家最近添加的画作的画作属性</a></li>
+<li><a href="#17-获取艺术家画廊作品列表">1.7  获取艺术家画廊作品列表</a></li>
+<li><a href="#18-获取作品集修改">1.8  获取作品集（修改）</a></li>
+</ul>
+</li>
+<li><a href="#2-pc">2 pc</a><ul>
+<li><a href="#21-添加新画作修改">2.1 添加新画作（修改）</a></li>
+<li><a href="#22-添加画作属性修改">2.2  添加画作属性（修改）</a></li>
+<li><a href="#23-获取画作属性修改">2.3  获取画作属性（修改）</a></li>
+<li><a href="#24-添加画作系列">2.4  添加画作系列</a></li>
+<li><a href="#25-修改画作系列">2.5  修改画作系列</a></li>
+<li><a href="#26-获取艺术家的画作系列全部">2.6  获取艺术家的画作系列（全部）</a></li>
+<li><a href="#27-获取艺术家的画作系列分页">2.7  获取艺术家的画作系列（分页）</a></li>
+<li><a href="#28-获取画作系列中艺术家最近添加的画作的画作属性">2.8  获取画作系列中艺术家最近添加的画作的画作属性</a></li>
+<li><a href="#29-获取我的所有作品修改">2.9  获取我的所有作品（修改）</a></li>
+<li><a href="#210-删除画作系列中的画作">2.10  删除画作系列中的画作</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</p><div class="md-section-divider"></div><h1 data-anchor-id="hly1" id="艺术者app-v44">艺术者APP V4.4</h1><div class="md-section-divider"></div><h2 data-anchor-id="ol3g" id="1-app">1 app</h2><div class="md-section-divider"></div><h3 data-anchor-id="e0dy" id="11-添加新画作修改">1.1 添加新画作（修改）</h3><blockquote data-anchor-id="gf92" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/V44/Artwork/addArtworkInfo" target="_blank">https://test-api.artzhe.com/V44/Artwork/addArtworkInfo</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="ce7u"><strong>修改说明</strong></p><blockquote data-anchor-id="yid2" class="white-blockquote">
+  <p>添加请求参数：series_id  //画作系列id</p>
+</blockquote><p data-anchor-id="37q5"><strong>请求参数列表</strong></p><table data-anchor-id="d13a" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>artworkName</td>
+ <td style="text-align:center;">艺术品名称</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>state</td>
+ <td style="text-align:center;">作品权限</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1.所有人可见 2.仅自己可见，默认1</td>
+</tr>
+<tr>
+ <td>color</td>
+ <td style="text-align:center;">色调</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1,2,3</td>
+</tr>
+<tr>
+ <td>shape</td>
+ <td style="text-align:center;">形状</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1.方形 2.圆形</td>
+</tr>
+<tr>
+ <td>length</td>
+ <td style="text-align:center;">长</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>width</td>
+ <td style="text-align:center;">宽</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>diameter</td>
+ <td style="text-align:center;">直径</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>panorama</td>
+ <td style="text-align:center;">全景图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>topography</td>
+ <td style="text-align:center;">局部图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>category</td>
+ <td style="text-align:center;">类别</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">油画,风景</td>
+</tr>
+<tr>
+ <td>subject</td>
+ <td style="text-align:center;">题材</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">自然,素描</td>
+</tr>
+<tr>
+ <td>style</td>
+ <td style="text-align:center;">风格</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">自然,素描</td>
+</tr>
+<tr>
+ <td>story</td>
+ <td style="text-align:center;">创作描述</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>cover</td>
+ <td style="text-align:center;">封面图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>artworkDate</td>
+ <td style="text-align:center;">创作年份（日期），</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">2017</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>series_id</td>
+ <td style="text-align:center;">画作系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">默认是0-不是系列画作</td>
+</tr>
+</tbody></table><p data-anchor-id="c23v"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="oo1k" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"percent"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">73</span><span class="pun">,</span><span class="pln"> </span><span class="com">//百分比</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">73</span><span class="pun">,</span><span class="pln"> </span><span class="com">//画作id</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">  </span><span class="pun">},</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">  </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span><span class="com">//其它非30000表示错误的情况</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">  </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">  </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L9"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="n8c8" id="12-添加画作属性修改">1.2  添加画作属性（修改）</h3><blockquote data-anchor-id="hj0j" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/V44/Artwork/addArtworkAttribute" target="_blank">https://test-api.artzhe.com/V44/Artwork/addArtworkAttribute</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="opoz"><strong>修改说明</strong></p><blockquote data-anchor-id="7loi" class="white-blockquote">
+  <p>添加请求参数：series_id 画作系列id</p>
+</blockquote><p data-anchor-id="88r9"><strong>请求参数列表</strong></p><table data-anchor-id="izyl" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>artworkId</td>
+ <td style="text-align:center;">艺术品Id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">艺术品Id</td>
+</tr>
+<tr>
+ <td>artworkName</td>
+ <td style="text-align:center;">艺术品名称</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>state</td>
+ <td style="text-align:center;">作品权限</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1.所有人可见 2.仅自己可见</td>
+</tr>
+<tr>
+ <td>color</td>
+ <td style="text-align:center;">色调</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1,2,3</td>
+</tr>
+<tr>
+ <td>shape</td>
+ <td style="text-align:center;">形状</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1.方形 2.圆形</td>
+</tr>
+<tr>
+ <td>length</td>
+ <td style="text-align:center;">长</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>width</td>
+ <td style="text-align:center;">宽</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>diameter</td>
+ <td style="text-align:center;">直径</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>panorama</td>
+ <td style="text-align:center;">全景图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>topography</td>
+ <td style="text-align:center;">局部图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>category</td>
+ <td style="text-align:center;">类别</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">油画,风景</td>
+</tr>
+<tr>
+ <td>subject</td>
+ <td style="text-align:center;">题材</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">自然,素描</td>
+</tr>
+<tr>
+ <td>style</td>
+ <td style="text-align:center;">风格</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">自然,素描</td>
+</tr>
+<tr>
+ <td>story</td>
+ <td style="text-align:center;">创作描述</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>cover</td>
+ <td style="text-align:center;">封面图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>series_id</td>
+ <td style="text-align:center;">画作系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="jq67"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="d45m" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"percent"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">73</span><span class="pln"> </span><span class="com">//百分比</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">  </span><span class="pun">},</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">  </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span><span class="com">//其它非30000表示错误的情况</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">  </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">  </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L8"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="d18m" id="13-获取画作属性修改">1.3  获取画作属性（修改）</h3><blockquote data-anchor-id="algy" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/V44/Artwork/Artwork/getAttributePercent" target="_blank">https://test-api.artzhe.com/V44/Artwork/Artwork/getAttributePercent</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="pmet"><strong>修改说明</strong></p><blockquote data-anchor-id="w9p9" class="white-blockquote">
+  <p>添加返回参数：series_id 画作系列id <br>
+  添加返回参数：series_name 画作系列名称</p>
+</blockquote><p data-anchor-id="044y"><strong>请求参数列表</strong></p><table data-anchor-id="dly2" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>artworkId</td>
+ <td style="text-align:center;">艺术品Id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">艺术品Id</td>
+</tr>
+</tbody></table><p data-anchor-id="kd94"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="clsk" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"天空之城"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//画作名称</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"state"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//状态 1.所有人可见 2.仅自己可见</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"cover"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"beijing.aliyuncs.com/other/artzhe/user/iosapp1491986418657707"</span><span class="pun">,</span><span class="com">//封面</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"color_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="pln"> </span><span class="com">//色调</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">{</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">          </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"5"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">          </span><span class="str">"cn_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"蓝色"</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="pun">{</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">          </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"6"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">          </span><span class="str">"cn_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紫色"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">      </span><span class="pun">],</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"shape"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//形状 1.方形 2.圆形</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="str">"length"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"125"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//长</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">        </span><span class="str">"width"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"300"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//宽</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="str">"diameter"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//直径</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"panorama_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="pln"> </span><span class="com">//全景图</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/1.jpg"</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/2.jpg"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/3.jpg"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="pun">],</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"topography_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/a.png"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/b.png"</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/c.png"</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="pun">],</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"category"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//类别</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"subject"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//题材</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"style"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//风格</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"story"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"这种毒的隐隐约约yy英国国歌哈哈哈哈哈换"</span><span class="pun">，</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"artwork_date"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017"</span><span class="pun">,</span><span class="com">//创作年份</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"is_finished"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="pun">,</span><span class="com">//是否完成</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span><span class="com">//画作系列id</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"ff"</span><span class="com">//画作系列名称</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"percent"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">73</span><span class="pln"> </span><span class="com">//百分比</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">  </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">  </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">  </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L5"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="su6h" id="14-添加画作系列">1.4  添加画作系列</h3><blockquote data-anchor-id="z3my" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/V44/Artwork/addArtworkSeries" target="_blank">https://test-api.artzhe.com/V44/Artwork/addArtworkSeries</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="7ib4"><strong>请求参数列表</strong></p><table data-anchor-id="x9kg" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>series_name</td>
+ <td style="text-align:center;">画作系列名称</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="mlm6"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="77iy" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//系列id</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紧紧"</span><span class="com">//系列</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L9"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="lpnt" id="15-获取艺术家的画作系列">1.5  获取艺术家的画作系列</h3><blockquote data-anchor-id="bii2" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/V44/Artwork/getArtworkSeries" target="_blank">https://test-api.artzhe.com/V44/Artwork/getArtworkSeries</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="6j39"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="3i1q" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//系列id</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紧紧"</span><span class="com">//系列名称</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="pun">}</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="rj23" id="16-获取画作系列中艺术家最近添加的画作的画作属性">1.6  获取画作系列中艺术家最近添加的画作的画作属性</h3><blockquote data-anchor-id="s634" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/V44/Artwork/getSeriesAttribute" target="_blank">https://test-api.artzhe.com/V44/Artwork/getSeriesAttribute</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="uskt"><strong>请求参数列表</strong></p><table data-anchor-id="bhvd" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>series_id</td>
+ <td style="text-align:center;">系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="le2a"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="1vi2" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">             </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"天空之城"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//画作名称</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"state"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//状态 1.所有人可见 2.仅自己可见</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"cover"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"beijing.aliyuncs.com/other/artzhe/user/iosapp1491986418657707"</span><span class="pun">,</span><span class="com">//封面</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"color_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="pln"> </span><span class="com">//色调</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">{</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">          </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"5"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">          </span><span class="str">"cn_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"蓝色"</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="pun">{</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">          </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"6"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">          </span><span class="str">"cn_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紫色"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">      </span><span class="pun">],</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"shape"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//形状 1.方形 2.圆形</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="str">"length"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"125"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//长</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">        </span><span class="str">"width"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"300"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//宽</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="str">"diameter"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//直径</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"panorama_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="pln"> </span><span class="com">//全景图</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/1.jpg"</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/2.jpg"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/3.jpg"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="pun">],</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"topography_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/a.png"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/b.png"</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/c.png"</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="pun">],</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"category"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//类别</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"subject"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//题材</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"style"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//风格</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"story"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"这种毒的隐隐约约yy英国国歌哈哈哈哈哈换"</span><span class="pun">，</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"artwork_date"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017"</span><span class="pun">,</span><span class="com">//创作年份</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"is_finished"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="pun">,</span><span class="com">//是否完成</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="com">//画作系列id</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="srue" id="17-获取艺术家画廊作品列表">1.7  获取艺术家画廊作品列表</h3><blockquote data-anchor-id="g1cw" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V44/Gallery/getArtworkDetailList" target="_blank">http://test-api.artzhe.com/V44/Gallery/getArtworkDetailList</a>  <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="ofhq"><strong>修改说明</strong></p><blockquote data-anchor-id="2dd7" class="white-blockquote">
+  <p>添加返回参数： <br>
+      series_id ：画作系列id，如果画作不是序列作品则值为0 <br>
+      series_name ：画作系列名称，如果画作不是序列作品则值为""</p>
+</blockquote><p data-anchor-id="974a"><strong>请求参数列表</strong></p><table data-anchor-id="hh0p" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>artistId</td>
+ <td style="text-align:center;">艺术家ID</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">当前页</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页记录数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="dl7t"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="e0q1" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="pun">{</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"298"</span><span class="pun">,</span><span class="com">//作品编号</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"黑熊与野兔"</span><span class="pun">,</span><span class="com">//作品名称</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"updatetimes"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//更新次数</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"shape"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//形状1方形2圆形</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"length"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="com">//长</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                    </span><span class="str">"width"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="com">//宽</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                    </span><span class="str">"diameter"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="com">//直径</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                    </span><span class="str">"story"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"喜欢从中找到自己并且表达出来"</span><span class="pun">,</span><span class="com">//作品故事</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                    </span><span class="str">"last_update_time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017-08-11 17:10"</span><span class="pun">,</span><span class="com">//最后更新时间</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                    </span><span class="str">"isfinished"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"liketotal"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"25"</span><span class="pun">,</span><span class="com">//喜欢人数</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"viewtotal"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"39"</span><span class="pun">,</span><span class="com">//浏览人数</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"category_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//作品类型</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"coverUrl"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/iosapp1502442634243311.jpg"</span><span class="pun">,</span><span class="com">//作品封面</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"is_like"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="pun">,</span><span class="com">//是否喜欢</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                    </span><span class="str">"series_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//系列id</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                    </span><span class="str">"series_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紧紧"</span><span class="com">//系列名称</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                </span><span class="pun">},</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="pun">],</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"page"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">            </span><span class="str">"total"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"3"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"pagesize"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">10</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="str">"maxpage"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L4"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="0rvf" id="18-获取作品集修改">1.8  获取作品集（修改）</h3><blockquote data-anchor-id="hsxz" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V44/home/getArtList" target="_blank">http://test-api.artzhe.com/V44/home/getArtList</a>  <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="2cp5"><strong>修改说明</strong></p><blockquote data-anchor-id="pkii" class="white-blockquote">
+  <p>添加请求参数：series_id ：画作系列id</p>
+</blockquote><p data-anchor-id="mfk4"><strong>请求参数列表</strong></p><table data-anchor-id="uiph" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>category</td>
+ <td style="text-align:center;">作品种类</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>series_id</td>
+ <td style="text-align:center;">系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">当前页</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页记录数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="vma7"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="6a6h" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">      </span><span class="str">"flag"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">3</span><span class="pun">,</span><span class="com">//0--表示所有作品集   1--表示分类下作品集 2--表示猜你喜欢数据  3--系列作品</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">      </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="pun">{</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">          </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"37"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//作品ID</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">          </span><span class="str">"imgname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"lala"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//作品名称</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">          </span><span class="str">"imgurl"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"作品URL"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">          </span><span class="str">"width"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">500</span><span class="pun">,</span><span class="pln"> </span><span class="com">//作品宽度</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">          </span><span class="str">"height"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">274</span><span class="pln"> </span><span class="com">//作品高度</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="pun">},</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">      </span><span class="pun">],</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">      </span><span class="str">"page"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">      </span><span class="str">"total"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"3"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">      </span><span class="str">"pagesize"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">5</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">      </span><span class="str">"maxpage"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="pun">}</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">  </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">  </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">  </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h2 data-anchor-id="62cd" id="2-pc">2 pc</h2><div class="md-section-divider"></div><h3 data-anchor-id="51hb" id="21-添加新画作修改">2.1 添加新画作（修改）</h3><blockquote data-anchor-id="zjok" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/mp/Artwork/addArtworkInfo" target="_blank">https://test-api.artzhe.com/mp/Artwork/addArtworkInfo</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="gzb8"><strong>修改说明</strong></p><blockquote data-anchor-id="nwhl" class="white-blockquote">
+  <p>添加请求参数：series_id  //画作系列id</p>
+</blockquote><p data-anchor-id="ezn5"><strong>请求参数列表</strong></p><table data-anchor-id="25hd" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>artworkName</td>
+ <td style="text-align:center;">艺术品名称</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>state</td>
+ <td style="text-align:center;">作品权限</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1.所有人可见 2.仅自己可见，默认1</td>
+</tr>
+<tr>
+ <td>color</td>
+ <td style="text-align:center;">色调</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1,2,3</td>
+</tr>
+<tr>
+ <td>shape</td>
+ <td style="text-align:center;">形状</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1.方形 2.圆形</td>
+</tr>
+<tr>
+ <td>length</td>
+ <td style="text-align:center;">长</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>width</td>
+ <td style="text-align:center;">宽</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>diameter</td>
+ <td style="text-align:center;">直径</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>panorama</td>
+ <td style="text-align:center;">全景图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>topography</td>
+ <td style="text-align:center;">局部图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>category</td>
+ <td style="text-align:center;">类别</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">油画,风景</td>
+</tr>
+<tr>
+ <td>subject</td>
+ <td style="text-align:center;">题材</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">自然,素描</td>
+</tr>
+<tr>
+ <td>style</td>
+ <td style="text-align:center;">风格</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">自然,素描</td>
+</tr>
+<tr>
+ <td>story</td>
+ <td style="text-align:center;">创作描述</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>cover</td>
+ <td style="text-align:center;">封面图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>artworkDate</td>
+ <td style="text-align:center;">创作年份（日期），</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">2017</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>series_id</td>
+ <td style="text-align:center;">画作系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">默认是0-不是系列画作</td>
+</tr>
+</tbody></table><p data-anchor-id="yzb9"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="8igu" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"percent"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">73</span><span class="pun">,</span><span class="pln"> </span><span class="com">//百分比</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">73</span><span class="pun">,</span><span class="pln"> </span><span class="com">//画作id</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">  </span><span class="pun">},</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">  </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span><span class="com">//其它非30000表示错误的情况</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">  </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">  </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L9"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="h00w" id="22-添加画作属性修改">2.2  添加画作属性（修改）</h3><blockquote data-anchor-id="3kg7" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/mp/Artwork/addArtworkAttribute" target="_blank">https://test-api.artzhe.com/mp/Artwork/addArtworkAttribute</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="dp9l"><strong>修改说明</strong></p><blockquote data-anchor-id="x6ix" class="white-blockquote">
+  <p>添加请求参数：series_id 画作系列id</p>
+</blockquote><p data-anchor-id="zfi1"><strong>请求参数列表</strong></p><table data-anchor-id="p2pe" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>artworkId</td>
+ <td style="text-align:center;">艺术品Id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">艺术品Id</td>
+</tr>
+<tr>
+ <td>artworkName</td>
+ <td style="text-align:center;">艺术品名称</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>state</td>
+ <td style="text-align:center;">作品权限</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1.所有人可见 2.仅自己可见</td>
+</tr>
+<tr>
+ <td>color</td>
+ <td style="text-align:center;">色调</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1,2,3</td>
+</tr>
+<tr>
+ <td>shape</td>
+ <td style="text-align:center;">形状</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1.方形 2.圆形</td>
+</tr>
+<tr>
+ <td>length</td>
+ <td style="text-align:center;">长</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>width</td>
+ <td style="text-align:center;">宽</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>diameter</td>
+ <td style="text-align:center;">直径</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>panorama</td>
+ <td style="text-align:center;">全景图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>topography</td>
+ <td style="text-align:center;">局部图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>category</td>
+ <td style="text-align:center;">类别</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">油画,风景</td>
+</tr>
+<tr>
+ <td>subject</td>
+ <td style="text-align:center;">题材</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">自然,素描</td>
+</tr>
+<tr>
+ <td>style</td>
+ <td style="text-align:center;">风格</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">自然,素描</td>
+</tr>
+<tr>
+ <td>story</td>
+ <td style="text-align:center;">创作描述</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>cover</td>
+ <td style="text-align:center;">封面图</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>series_id</td>
+ <td style="text-align:center;">画作系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="7mhi"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="qgut" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"percent"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">73</span><span class="pln"> </span><span class="com">//百分比</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">  </span><span class="pun">},</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">  </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span><span class="com">//其它非30000表示错误的情况</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">  </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">  </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L8"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="80p5" id="23-获取画作属性修改">2.3  获取画作属性（修改）</h3><blockquote data-anchor-id="h7ud" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/mp/Artwork/getAttributePercent" target="_blank">https://test-api.artzhe.com/mp/Artwork/getAttributePercent</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="hckh"><strong>修改说明</strong></p><blockquote data-anchor-id="u20m" class="white-blockquote">
+  <p>添加返回参数：series_id 画作系列id <br>
+  添加返回参数：series_name 画作系列名称</p>
+</blockquote><p data-anchor-id="4gnq"><strong>请求参数列表</strong></p><table data-anchor-id="ht9l" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>artworkId</td>
+ <td style="text-align:center;">艺术品Id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">艺术品Id</td>
+</tr>
+</tbody></table><p data-anchor-id="1yq9"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="0lnp" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"天空之城"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//画作名称</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"state"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//状态 1.所有人可见 2.仅自己可见</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"cover"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"beijing.aliyuncs.com/other/artzhe/user/iosapp1491986418657707"</span><span class="pun">,</span><span class="com">//封面</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"color_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="pln"> </span><span class="com">//色调</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">{</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">          </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"5"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">          </span><span class="str">"cn_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"蓝色"</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="pun">{</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">          </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"6"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">          </span><span class="str">"cn_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紫色"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">      </span><span class="pun">],</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"shape"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//形状 1.方形 2.圆形</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="str">"length"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"125"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//长</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">        </span><span class="str">"width"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"300"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//宽</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="str">"diameter"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//直径</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"panorama_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="pln"> </span><span class="com">//全景图</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/1.jpg"</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/2.jpg"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/3.jpg"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="pun">],</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"topography_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/a.png"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/b.png"</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/c.png"</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="pun">],</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"category"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//类别</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"subject"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//题材</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"style"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//风格</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"story"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"这种毒的隐隐约约yy英国国歌哈哈哈哈哈换"</span><span class="pun">，</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"artwork_date"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017"</span><span class="pun">,</span><span class="com">//创作年份</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"is_finished"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="pun">,</span><span class="com">//是否完成</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span><span class="com">//画作系列id</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紧紧3"</span><span class="com">//画作系列名称</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"percent"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">73</span><span class="pln"> </span><span class="com">//百分比</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">  </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">  </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">  </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L5"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="dlq7" id="24-添加画作系列">2.4  添加画作系列</h3><blockquote data-anchor-id="njlq" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/mp/Artwork/addArtworkSeries" target="_blank">https://test-api.artzhe.com/mp/Artwork/addArtworkSeries</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="reyd"><strong>请求参数列表</strong></p><table data-anchor-id="hk54" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>series_name</td>
+ <td style="text-align:center;">画作系列名称</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="s508"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="yrhp" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//系列id</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紧紧"</span><span class="com">//系列</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L9"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="605n" id="25-修改画作系列">2.5  修改画作系列</h3><blockquote data-anchor-id="7eyg" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/mp/Artwork/editArtworkSeries" target="_blank">https://test-api.artzhe.com/mp/Artwork/editArtworkSeries</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="5sua"><strong>请求参数列表</strong></p><table data-anchor-id="dzfk" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>series_id</td>
+ <td style="text-align:center;">画作系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>series_name</td>
+ <td style="text-align:center;">画作系列名称</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="04mo"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="m9s5" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//系列id</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紧紧"</span><span class="com">//系列</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L9"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="qm9l" id="26-获取艺术家的画作系列全部">2.6  获取艺术家的画作系列（全部）</h3><blockquote data-anchor-id="ih3x" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/mp/Artwork/getArtworkSeries" target="_blank">https://test-api.artzhe.com/mp/Artwork/getArtworkSeries</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="lvh4"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="gghr" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//系列id</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紧紧"</span><span class="com">//系列名称</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="pun">}</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="sjde" id="27-获取艺术家的画作系列分页">2.7  获取艺术家的画作系列（分页）</h3><blockquote data-anchor-id="edo4" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/mp/Artwork/getArtworkSeriesPage" target="_blank">https://test-api.artzhe.com/mp/Artwork/getArtworkSeriesPage</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="vhzc"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="wuat" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"list"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                </span><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//系列id</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紧紧3"</span><span class="pun">,</span><span class="com">//系列名称</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"create_time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2018-08-10"</span><span class="pun">,</span><span class="com">//创建时间</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"cover"</span><span class="pun">:</span><span class="com">//封面图 "http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/iosapp1503916322985599.jpg"</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                </span><span class="pun">}</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">            </span><span class="pun">],</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">            </span><span class="str">"page"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="str">"total"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"pagesize"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">10</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"maxpage"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L0"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="8zvn" id="28-获取画作系列中艺术家最近添加的画作的画作属性">2.8  获取画作系列中艺术家最近添加的画作的画作属性</h3><blockquote data-anchor-id="5vzs" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="https://test-api.artzhe.com/mp/Artwork/getSeriesAttribute" target="_blank">https://test-api.artzhe.com/mp/Artwork/getSeriesAttribute</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="4sdt"><strong>请求参数列表</strong></p><table data-anchor-id="xbxw" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>series_id</td>
+ <td style="text-align:center;">系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="c2b6"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="plb1" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">             </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"天空之城"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//画作名称</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"state"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//状态 1.所有人可见 2.仅自己可见</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"cover"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"beijing.aliyuncs.com/other/artzhe/user/iosapp1491986418657707"</span><span class="pun">,</span><span class="com">//封面</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"color_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="pln"> </span><span class="com">//色调</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">{</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">          </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"5"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">          </span><span class="str">"cn_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"蓝色"</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="pun">{</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">          </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"6"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">          </span><span class="str">"cn_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"紫色"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">      </span><span class="pun">],</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"shape"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//形状 1.方形 2.圆形</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="str">"length"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"125"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//长</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">        </span><span class="str">"width"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"300"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//宽</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="str">"diameter"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//直径</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"panorama_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="pln"> </span><span class="com">//全景图</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/1.jpg"</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/2.jpg"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/3.jpg"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="pun">],</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"topography_ids"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/a.png"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/b.png"</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">            </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/c.png"</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="pun">],</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"category"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//类别</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"subject"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//题材</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"style"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="pln"> </span><span class="com">//风格</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"story"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"这种毒的隐隐约约yy英国国歌哈哈哈哈哈换"</span><span class="pun">，</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"artwork_date"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017"</span><span class="pun">,</span><span class="com">//创作年份</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"is_finished"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="pun">,</span><span class="com">//是否完成</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"series_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="com">//画作系列id</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="753l" id="29-获取我的所有作品修改">2.9  获取我的所有作品（修改）</h3><blockquote data-anchor-id="d42i" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  请求地址：<a href="http://test-api.artzhe.com/mp/artwork/getMyUpdateArtworkList" target="_blank">http://test-api.artzhe.com/mp/artwork/getMyUpdateArtworkList</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="d75v"><strong>修改说明</strong></p><blockquote data-anchor-id="o9kc" class="white-blockquote">
+  <p>添加请求参数：series_id ：画作系列id</p>
+</blockquote><p data-anchor-id="7l5n"><strong>请求参数列表</strong></p><table data-anchor-id="juc3" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>series_id</td>
+ <td style="text-align:center;">系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">当前页</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页记录数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="bdm1"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="ryds" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pln"> </span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"info"</span><span class="pun">:[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">       </span><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"artistId"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"51"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//艺术品ID</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"coverUrl"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://gsy-other.oss-cn-beijing.aliyuncs.com/test.jpg"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//封面</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"风景"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//艺术品名称</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="str">"updateId"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"66"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//更新ID</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">        </span><span class="str">"state"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//状态 1.所有人可见 2.仅自己可见</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="str">"story"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"dfhfhggfjghjhbnmmgwegdfhfghgfhfhss"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//作品故事</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">        </span><span class="str">"updateTimes"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//更新次数</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"isEdit"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Y"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//是否可编辑</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"is_finished"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Y"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//是否已完成</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"last_update_time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017-05-31 10:59"</span><span class="pun">,</span><span class="pln"> </span><span class="com">//最后更新时间</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"finish_percent"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">50</span><span class="com">//属性百分比</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">      </span><span class="pun">}</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="pun">]</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">  </span><span class="pun">},</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">  </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span><span class="com">//其它非30000表示错误的情况</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">  </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">  </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L2"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="5ft0" id="210-删除画作系列中的画作">2.10  删除画作系列中的画作</h3><blockquote data-anchor-id="ndn4" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  请求地址：<a href="http://test-api.artzhe.com/mp/artwork/delSeriesArtwork" target="_blank">http://test-api.artzhe.com/mp/artwork/delSeriesArtwork</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="k9vr"><strong>请求参数列表</strong></p><table data-anchor-id="b9zr" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>series_id</td>
+ <td style="text-align:center;">系列id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>artwork_id</td>
+ <td style="text-align:center;">画作id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="06da"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="y4yw" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"artworkId"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">38</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L8"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre></div>
+</body>
+</html>

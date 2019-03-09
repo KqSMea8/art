@@ -1,0 +1,50 @@
+<?php
+
+namespace V30\Logic;
+
+use V30\Base\BaseLogic;
+use Custom\Helper\Util;
+
+class ArtCircleShareLogic extends BaseLogic
+{
+
+    public function share_link_list_indexArtCircleId(array $art_circle_id)
+    {
+
+        if (count($art_circle_id) == 0) {
+            return [];
+        }
+        $arr_length = count($art_circle_id);
+        for ($i = 0; $i < $arr_length; $i++) {
+            $art_circle_id[$i] = intval($art_circle_id[$i]);
+        }
+        $art_circle_share_list =$this->where("art_circle_id in(".implode(',',$art_circle_id).") ")->select();
+
+        if(!$art_circle_share_list){
+            return [];
+        }else{
+            $art_circle_share_list_new=[];
+            foreach($art_circle_share_list as $value){
+                $shareone=[];
+                $shareone['type']=$value['type'];
+                $shareone['id']=$value['share_id'];
+                $shareone['title']=$value['title'];
+                $shareone['content']=html_deconvert_content_cut(html_entity_decode($value['content'],ENT_QUOTES), 45);
+                if($value['type']=='artwork'){
+                    $shareone['thumbnail'] = Util::getImageResize_oldProportion($value['image_url'], 700);
+                }else {
+                    $shareone['thumbnail'] = Util::getImageResize($value['image_url'], 300, 300);
+                }
+                $shareone['image_url']=Util::imageWater($value['image_url']);
+                $shareone['video_poster']=$value['video_poster'];
+                $shareone['video_url']=$value['video_url'];
+                //$art_circle_share_list_new[$value['art_circle_id']][]=$shareone;//循环
+                $art_circle_share_list_new[$value['art_circle_id']]=$shareone;//单个
+            }
+            return $art_circle_share_list_new;
+        }
+
+
+    }
+
+}

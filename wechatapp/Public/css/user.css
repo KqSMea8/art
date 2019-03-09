@@ -1,0 +1,591 @@
+body {
+  background-color: #f4f4f4;
+}
+.banner {
+  width: 100%;
+  padding-top: 22px;
+  height: 140px;
+  text-align: center;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #000;
+  background-image: url(../image/user/banner.jpg);
+}
+.banner .banner-info h2 {
+  margin: 0 auto;
+  height: 96px;
+  width: 162px;
+  text-indent: -4000px;
+  background: url(../image/user/banner-logo.png) left center no-repeat;
+}
+
+/*主内容区*/
+#main .content {
+  padding: 20px 0 40px;
+  min-height: 570px;
+  background-color: #f4f4f4;
+}
+/*左内容区*/
+.left-wrap {
+  position: absolute;
+  /*float: left;*/
+  width: 175px;
+  box-shadow: 0 0 5px rgba(26,26,26,0.18);
+}
+.left-wrap .user-list {
+  width: 175px;
+}
+.left-wrap .user-list a {
+  display: block;
+}
+
+.right-wrap {
+  margin-left: 195px;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(26,26,26,0.18);
+}
+.my-info .user-list li {
+  position: relative;
+  padding-left: 55px;
+  height: 50px;
+  line-height: 50px;
+  font-size: 16px;
+  background-color: #fff;
+  cursor: pointer;
+}
+.my-info .icons {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  left: 15px;
+  top: 12px;
+}
+.my-info .user-list li.active .icons,
+.my-info .user-list li:hover .icons {
+  left: 13px;
+}
+.my-info .icons.icon-home {
+  background-position: 0 -100px;
+}
+.my-info .icons.icon-message {
+  background-position: -25px -100px;
+}
+.my-info .icons.icon-follow {
+  background-position: -50px -100px;
+}
+.my-info .icons.icon-like {
+  background-position: -75px -100px;
+}
+.my-info .icons.icon-fans {
+  background-position: -100px -100px;
+}
+.my-info .icons.icon-invite {
+  background-position: -125px -100px;
+}
+.my-info .icons.icon-agency {
+  background-position: -150px -100px;
+}
+.my-info .icons.icon-planer {
+  background-position: -175px -100px;
+}
+.my-info .icons.icon-logout {
+  background-position: -200px -100px;
+}
+.my-info .icons.icon-auth {
+  background-position: -225px -100px;
+}
+.my-info .icons.icon-orderlist {
+  background-position: -519px -100px;
+}
+.my-info .user-list li.active,
+.my-info .user-list li:hover {
+  border-left: 2px solid #f4ad23;
+  padding-left: 53px;
+  background-color: #f4f4f4;
+}
+.my-info .user-list li a {
+  color: #1a1a1a;
+}
+.my-info .user-list li.active a,
+.my-info .user-list li:hover a {
+  color: #f4ad23;
+}
+.my-info .user-list span {
+  position: absolute;
+  top: 7px;
+  padding: 0 5px;
+  height: 15px;
+  line-height: 15px;
+  -webkit-text-size-adjust:none;
+  font-size:9px;
+  color: #fff;
+  background-color: #ff4a3a;
+  border-radius: 8px;
+}
+
+/*个人信息页面*/
+.face-wrap {
+  padding-top: 36px;
+  margin: 0 auto;
+  text-align: center;
+}
+.face-wrap .img-wrap {
+  position: relative;
+  margin: 0 auto;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+}
+.face-wrap .img-wrap img {
+  width: 100px;
+  height: 100px;
+}
+.change {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  line-height: 100px;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+.face-wrap .img-wrap:hover .change {
+  display: block;
+}
+.face-wrap .nick {
+  margin-top: 16px;
+  margin-bottom: 28px;
+}
+.cover {
+  position: relative;
+  width: 100px;
+}
+.cover .img-wrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.cover .img-wrap img {
+  width: 100px;
+  height: 100px;
+}
+.cover .img-wrap:hover .change {
+  display: block;
+}
+.change-cover {
+  position: absolute;
+  left: 110px;
+  bottom: 0;
+  width: 50px;
+  line-height: 1;
+}
+
+#qrcode {
+  padding: 2px;
+  width: 150px;
+  height: 150px;
+  border: 1px solid #eee;
+}
+#qrcode img {
+  width: 144px;
+  height: 144px;
+}
+/*个人信息页面 end */
+
+/*message 页面*/
+.usermsg {
+  position: relative;
+  background-color: #fff;
+}
+.usermsg .nav {
+  position: relative;
+  table-layout: fixed;
+  right: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 57px;
+  border-bottom: 1px solid #f4f4f4;
+  background-color: #fff;
+  z-index: 10;
+}
+.usermsg .nav li {
+  position: relative;
+  display: table-cell;
+  /*width: 1%;*/
+  width: 191px;
+  height: 57px;
+  font-size: 16px;
+  text-align: center;
+  vertical-align: middle;
+  color: #989898;
+  cursor: pointer;
+}
+.usermsg .nav li.active {
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.usermsg .nav li.active:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -35px;
+  width: 70px;
+  border-bottom: 2px solid #f4ad23;
+}
+.usermsg .nav .cont {
+  position: relative;
+}
+.usermsg .nav .num {
+}
+.usermsg .nav li.active .num {
+  display: none;
+}
+.msg-wrap .list {
+  padding: 0 22px;
+}
+.msg-wrap .item {
+  position: relative;
+  padding: 20px 0;
+  border-bottom: 1px solid #f4f4f4;
+}
+.msg-wrap .item .info {
+  position: relative;
+  padding-left: 75px;
+}
+.msg-wrap .item .avatar {
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+.msg-wrap .item h3 {
+  padding-top: 10px;
+  font-size: 16px;
+  line-height: 26px;
+}
+.msg-wrap .item .time {
+  padding-left: 8px;
+  font-size: 12px;
+  color: #989898;
+}
+.msg-wrap .item .detail {
+  font-size: 14px;
+  line-height: 24px;
+}
+/*message 页面 end*/
+
+/*我的关注&我的邀请*/
+.friend-wrap .title{
+  padding-left: 25px;
+  height: 57px;
+  font-size: 16px;
+  line-height: 57px;
+  border-bottom: 1px solid #f4f4f4;
+}
+.friend-wrap .list {
+  padding: 0 22px;
+}
+.friend-wrap .item {
+  position: relative;
+  padding: 20px 0;
+  border-bottom: 1px solid #f4f4f4;
+}
+.friend-wrap .item .info {
+  position: relative;
+  padding-left: 75px;
+}
+.friend-wrap .item .avatar {
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+.friend-wrap .item h3 {
+  padding-top: 10px;
+  font-size: 16px;
+  line-height: 26px;
+}
+.friend-wrap .item .time {
+  padding-left: 8px;
+  font-size: 12px;
+  color: #989898;
+}
+.friend-wrap .item .detail {
+  height: 24px;
+  font-size: 12px;
+  line-height: 24px;
+  color: #989898;
+}
+.friend-wrap .btns {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  margin-top: -15px;
+}
+.btn-s {
+  height: 30px;
+  font-size: 16px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 15px;
+  cursor: pointer;
+}
+.btn-s.primary {
+  color: #fff;
+  background-color: #f4ad23;
+}
+.btn-s.default{
+  color: #1a1a1a;
+  background-color: #f4f4f4;
+}
+.btn-s.default:hover {
+  color: #f4ad23;
+}
+/*我的关注&我的邀请 end*/
+
+/*我的喜欢*/
+.art-list {
+
+}
+.art-list .list {
+  padding: 0 22px;
+}
+.art-list .item {
+  position: relative;
+  padding: 20px 0;
+  border-bottom: 1px solid #f4f4f4;
+}
+.art-list .item .info {
+  position: relative;
+  padding-left: 170px;
+}
+.art-list .item .art-pic {
+  position: absolute;
+  left: 0px;
+  top: 4px;
+  width: 150px;
+  height: 150px;
+}
+.art-list .item .info {
+  font-size: 14px;
+}
+.art-list a {
+  color: #1a1a1a;
+}
+.art-list a:hover {
+  color: #f4ad23;
+}
+.art-list .item .info h3 {
+  font-size: 16px;
+  line-height: 24px;
+}
+.art-list .item .info .artist-name {
+  line-height: 36px;
+  color: #989898;
+}
+.art-list .item .info .artist-name span {
+  vertical-align: top;
+}
+.art-list .item .info .detail {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  height: 96px;
+  line-height: 24px;
+  overflow: hidden;
+}
+.art-list .icons.icon-artist {
+  margin-left: 4px;
+  width: 80px;
+  height: 36px;
+  vertical-align: top;
+  background-position: -300px 6px;
+}
+/*我的喜欢 end */
+
+/*我的粉丝*/
+.fans-wrap .title{
+  padding-left: 25px;
+  height: 57px;
+  font-size: 16px;
+  line-height: 57px;
+  border-bottom: 1px solid #f4f4f4;
+}
+.fans-wrap .list {
+  padding: 0 22px;
+}
+.fans-wrap .item {
+  position: relative;
+  float: left;
+  width: 360px;
+  padding: 20px 0;
+  border-bottom: 1px solid #f4f4f4;
+}
+.fans-wrap .item .info {
+  position: relative;
+  padding-left: 75px;
+}
+.fans-wrap .item .avatar {
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+.fans-wrap .item h3 {
+  padding-top: 10px;
+  font-size: 16px;
+  line-height: 26px;
+}
+.fans-wrap .item .time {
+  padding-left: 8px;
+  font-size: 12px;
+  color: #989898;
+}
+.fans-wrap .item .detail {
+  height: 24px;
+  font-size: 12px;
+  line-height: 24px;
+  color: #989898;
+}
+.fans-wrap .pages {
+  padding-top: 10px;
+  height: 40px;
+  font-size: 16px;
+  line-height: 20px;
+  text-align: center;
+  color: #989898;
+}
+.fans-wrap .pages li {
+  display: inline-block;
+  margin: 0 3px;
+  padding: 0 7px;
+  font-size: 12px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.fans-wrap .pages .page {
+  font-size: 16px;
+  color: #1a1a1a;
+}
+.fans-wrap .pages li:hover {
+  color: #f4ad23;
+  background-color: #f4f4f4;
+}
+.fans-wrap .pages li.cur {
+  background-color: #f4f4f4;
+}
+/*我的粉丝 end */
+
+/*机构策展人特权页*/
+.agency-wrap {
+  height: 450px;
+  padding-top: 75px;
+  line-height: 36px;
+  text-align: center;
+  color: #989898;
+}
+.agency-wrap .icons.icon-coffee {
+  width: 120px;
+  height: 120px;
+  background-position: -798px 0;
+}
+.agency-wrap h3 {
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: 700;
+}
+.agency-wrap p {
+  font-size: 16px;
+}
+/*机构策展人特权页 end */
+
+/*认证*/
+.auth-wrap {
+  height: 450px;
+  padding-top: 120px;
+  padding-left: 70px;
+  font-size: 16px;
+  text-align: center;
+  color: #989898;
+}
+.auth-wrap .list {
+
+}
+.auth-wrap .list li {
+  float: left;
+  padding: 0 29px;
+  text-align: center;
+  cursor: pointer;
+}
+.auth-wrap .list li.no-click {
+  cursor: not-allowed;
+}
+.auth-wrap .list li .auth-info {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  color: #1a1a1a;
+  border: 1px solid #fff;
+  box-shadow: 0 3px 12px rgba(160, 160, 160, 0.5);
+}
+.auth-wrap .list li:nth-of-type(1) .auth-info:hover {
+  border: 1px solid #fbeab2;
+}
+.auth-wrap .list li:nth-of-type(2) .auth-info:hover {
+  border: 1px solid #c5f0dd;
+}
+.auth-wrap .list li:nth-of-type(3) .auth-info:hover {
+  border: 1px solid #cbd0f6;
+}
+.auth-wrap .list .auth-info {
+  padding-top: 23px;
+}
+.auth-wrap .list .icons {
+  width: 64px;
+  height: 64px;
+}
+.auth-wrap .list .icons.icon-pass {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 25px;
+  height: 25px;
+  background-position: -475px -100px;
+}
+.auth-wrap .list .icons.icon-auth1 {
+  background-position: 2px -130px;
+}
+.auth-wrap .list .icons.icon-auth2 {
+  background-position: -73px -130px;
+}
+.auth-wrap .list .icons.icon-auth3 {
+  background-position: -148px -130px;
+}
+.auth-wrap .list .auth-info h3 {
+  margin-top: 9px;
+  line-height: 40px;
+}
+.auth-wrap .remark {
+  margin-top: 25px;
+}
+.auth-wrap .remark.warn {
+  color: #ff4a3a;
+}
+/*认证 end */
+
+

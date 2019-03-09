@@ -1,0 +1,313 @@
+<?php
+
+namespace V44\Logic;
+
+
+use V44\Base\BaseLogic;
+use V44\Model\CommentModel;
+use V44\Model\CommentLikeModel;
+use V44\Logic\UserLogic;
+use V44\Logic\MessageLogic;
+use V44\Logic\ArtworkLogic;
+use V44\Logic\ArtworkUpdateLogic;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+
+class CommentLogic extends BaseLogic
+{
+
+  public function getAuthorByIdAndType($id,$type){
+    $artLogic = new ArtworkLogic();
+    $artUpLogic = new ArtworkUpdateLogic();
+    if($type == '1'){
+      $info = $artLogic->field('artist')->where(['id' =>$id,'is_deleted' =>'N'])->find();
+      return $info['artist'];
+    }elseif($type == '2'){
+      $info = $artUpLogic->field('artist')->where(['id' =>$id,'is_deleted' =>'N'])->find();
+      return $info['artist'];
+    }
+  }
+
+    public function repay($commentId,$from,$content){
+      $userLogic = new UserLogic();
+      $info = $this->find($commentId);
+      //$content = empty($content)?'':mb_convert_encoding(base64_encode($content),'UTF-8');
+      $addId = $this->add([
+        'parent_id' => $info['id'],
+        'nickname' => $userLogic->where(['id'=>$from])->getField('nickname'),
+        'commenter' => $from,
+        'comment_to' => $info['commenter'],
+        'content' => $content,
+        'create_time' => time(),
+        'topic_id' => $info['topic_id'],
+        'type' => $info['type'],
+        'delete_time' => '',
+        'is_published' => 'N',
+        'level' => '2',
+        'publish_time' =>time(),
+        'is_deleted' => 'N',
+        'like_total' => 0,
+          'flag' => '1' //1.表示没有转成base64编码,2.表示转成base64编码
+      ]);
+      $comment = $this->find($addId);
+      $userinfo = $userLogic->where(['id'=>$from])->find();
+
+          $data= [
+              'commentId' => $comment['id'],
+              'artist' => $userinfo['id'],
+              'faceUrl' => Util::getFillImage($userinfo['face'],Image::faceWidth,Image::faceHeight),
+              'nickname' => $userinfo['nickname'],
+              'time' => Util::simpleTimeShow($comment['create_time']),
+              'content' => $comment['content'],
+              'repayer' => '',
+              'repayContent' => '',
+              'repayTime' => ''
+          ];
+
+
+      $repay = $this->where(['parent_id' => $comment['id']])->find();
+      if(!empty($repay)){
+
+              $repayer = $userLogic->getUserInfo($repay['commenter']);
+              $data['repayer'] = $repayer['nickname'];
+              $data['repayContent'] = $repay['content'];
+              $data['repayTime'] = Util::simpleTimeShow($repay['create_time']);
+
+
+      }
+      $messageLogic = new MessageLogic();
+      if($info['type'] == '1'){
+        $messageLogic->repayComment($from,$info['commenter'],$info['topic_id'],$content,$addId,$info['id']);
+      }elseif($info['type'] == '2'){
+        //$artUpdateLogic = new ArtworkUpdateLogic();
+        //$artId = $artUpdateLogic->where(['id' => $info['topic_id']])->getField('artwork_id');
+        $messageLogic->repayMessage($from,$info['commenter'],$info['topic_id'],$content,$addId,$info['id']);
+      }
+      return $data;
+    }
+    public function comment($artId,$type,$commenter,$content,$comment_to=0){
+      $userLogic = new UserLogic();
+      $messageLogic = new MessageLogic();
+      //$artworkLogic = new ArtworkLogic();
+      //$content = empty($content)?'':mb_convert_encoding(base64_encode($content),'UTF-8');
+      $addId = $this->add([
+        'parent_id' => 0,
+        'nickname' => $userLogic->where(['id'=>$commenter])->getField('nickname'),
+        'commenter' => $commenter,
+        'comment_to' => $comment_to,
+        'content' => $content,
+        'create_time' => time(),
+        'topic_id' => $artId,
+        'type' => $type,
+        'delete_time' => '',
+        'is_published' => 'N',
+        'level' => '2',
+        'publish_time' =>time(),
+        'is_deleted' => 'N',
+        'like_total' => 0,
+          'flag' => '1' //1.表示没有转成base64编码,2.表示转成base64编码
+      ]);
+      if($type == '1'){
+          //评论作品
+        //$artist = $artworkLogic->where(['id' => $artId])->getField('artist');
+        $messageLogic->comment($commenter,$artId,$content,$addId);
+          $artwork = new ArtworkLogic();
+          $artwork->where(['id' => $artId])->setInc('comment_total', 1);
+      }elseif($type == '2'){
+          //评论画作更新
+        //$artUpdateLogic = new ArtworkUpdateLogic();
+        //$artId = $artUpdateLogic->where(['id' => $artId])->getField('artwork_id');
+        $messageLogic->message($commenter,$artId,$content,$addId);
+          $ArtworkUpdate = new ArtworkUpdateLogic();
+          $ArtworkUpdate->where(['id' => $artId])->setInc('comment_total', 1);
+      }
+      $comment = $this->find($addId);
+      $userinfo = $userLogic->where(['id'=>$commenter])->find();
+
+          $data= [
+              'commentId' => $comment['id'],
+              'artist' => $userinfo['id'],
+              'faceUrl' => Util::getFillImage($userinfo['face'],Image::faceWidth,Image::faceHeight),
+              'nickname' => $userinfo['nickname'],
+              'time' => Util::simpleTimeShow($comment['create_time']),
+              'content' => $comment['content'],
+              'repayer' => '',
+              'repayContent' => '',
+              'repayTime' => ''
+          ];
+
+
+      $repay = $this->where(['parent_id' => $comment['id']])->find();
+      if(!empty($repay)){
+
+              $repayer = $userLogic->getUserInfo($repay['commenter']);
+              $data['repayer'] = $repayer['nickname'];
+              $data['repayContent'] = $repay['content'];
+              $data['repayTime'] = Util::simpleTimeShow($repay['create_time']);
+
+      }
+      return $data;
+    }
+    public function getListDesc($topic_id,$type){
+      $userModel = new UserModel();
+      $list = $this->field('commenter,nickname')->where(['is_deleted' => 'N','topic_id' => $topic_id,'type' => $type])->order('create_time DESC')->select();
+      foreach ($list as $key => $value) {
+        $list[$key]['nickname'] = $userModel->where(['id' => $value['commenter']])->getField('nickname');
+      }
+      return $list;
+    }
+    public function getTotal($topic_id,$type = 1){
+      $list =  $this->distinct(true)->field('commenter')->where(['is_deleted' => 'N','topic_id' => $topic_id,'type' => $type,'parent_id'=>0])->select();
+
+      return count($list);
+    }
+    public function getLastFace($topic_id,$type = 1){
+      $userLogic = new UserLogic();
+      $return = []; //最多显示12个留言者头像
+      $list = $this->distinct(true)->field('commenter')->where(['is_deleted' => 'N','topic_id' => $topic_id,'type' => $type,'parent_id'=>0])->order('create_time desc')->limit(12)->select();
+
+      foreach ($list as $key => $value) {
+        $face = $userLogic->where(['id' => $value['commenter']])->getField('face');
+        $return[] = Util::getFillImage(Util::getImgUrlById($face),Image::faceWidth,Image::faceHeight);
+      }
+      return $return;
+    }
+    public function getList($topic_id,$type,$page,$pagesize,$loginUserId = ''){
+      $return = [];
+      $userLogic = new UserLogic();
+      $commentlikeModel = new CommentLikeModel();
+      //$where = ['is_deleted' => 'N','topic_id' => $topic_id,'type' => $type,'comment_to' => 0];
+        $where = ['is_deleted' => 'N','topic_id' => $topic_id,'type' => $type,'parent_id' => 0];
+      $list = $this->where($where)->order('like_total desc,create_time DESC')->page($page,$pagesize)->select();
+      $total = $this->where($where)->count();
+      $maxpage = intval($total/$pagesize)+1;
+      foreach ($list as $key => $value) {
+        $userinfo = $userLogic->getUserInfo($value['commenter']);
+        if('2'==$value['flag']){
+            $data= [
+                'commentId' => $value['id'],
+                'artist' => $userinfo['id'],
+                'faceUrl' => $userinfo['faceUrl'],
+                'nickname' => $userinfo['nickname'],
+                'gender' => $userinfo['gender'],
+                'time' => Util::simpleTimeShow($value['create_time']),
+                'content' => base64_decode($value['content']),
+                'repayer' => '',
+                'repayContent' => '',
+                'repayTime' => ''
+            ];
+        }else{
+            $data= [
+                'commentId' => $value['id'],
+                'artist' => $userinfo['id'],
+                'faceUrl' => $userinfo['faceUrl'],
+                'nickname' => $userinfo['nickname'],
+                'gender' => $userinfo['gender'],
+                'time' => Util::simpleTimeShow($value['create_time']),
+                'content' => $value['content'],
+                'repayer' => '',
+                'repayContent' => '',
+                'repayTime' => ''
+            ];
+        }
+
+        $repay = $this->where(['parent_id' => $value['id']])->find();
+        if(!empty($repay)){
+          $repayer = $userLogic->getUserInfo($repay['commenter']);
+          if('2'==$repay['flag']){
+              $data['repayer'] = $repayer['nickname'];
+              $data['repayContent'] = base64_decode($repay['content']);
+              $data['repayTime'] = Util::simpleTimeShow($repay['create_time']);
+          }else{
+              $data['repayer'] = $repayer['nickname'];
+              $data['repayContent'] = $repay['content'];
+              $data['repayTime'] = Util::simpleTimeShow($repay['create_time']);
+          }
+
+        }
+        if(!empty($loginUserId)){
+          $data['isLike'] = $commentlikeModel->isLike($value['id'],$loginUserId) ? 'Y' : 'N';
+        }
+        $data['likes'] = $commentlikeModel->likes($value['id']);
+        $return[] =$data;
+      }
+        //获取登录用户信息
+        if(1==$type){
+            $artid = M('Artwork')->field('artist')->find($topic_id);
+        }else{
+            $artid = M('ArtworkUpdate')->field('artist')->find($topic_id);
+        }
+        $ufo = $userLogic->field('nickname,face,motto')->find($artid['artist']);
+        $categoryLogic = new ArtworkCategoryLogic();
+        $shareInfo = [
+            'name' => $ufo['nickname'],
+            'face' => Util::getFillImage($ufo['face'],Image::faceWidth,Image::faceHeight),
+            'motto' => $ufo['motto'],
+            'category' => $categoryLogic->getCategoryByUser($artid['artist'])
+        ];
+      return [
+        'list' => empty($return) ? [] : $return,
+          'shareInfo' => $shareInfo,
+        'page' => $page,
+        'total' => $total,
+        'pagesize' => $pagesize,
+        'maxpage' => $maxpage
+      ];
+    }
+    public function getListByPage($id, $page =1, $perPageCount = 15 ,$type = 1)
+    {
+        if ($type == CommentModel::TYPE_ARTWORK || $type == CommentModel::TYPE_ARTWORK_UPDATE) {
+            $condition = [
+                'parent_id'=>-1,//the top level comment.
+                'is_deleted'=>'N',
+                'is_published'=>'Y',
+                'type' =>$type,
+                'topic_id'=>$id
+            ];
+            $list = $this->model
+                ->where($condition)
+                ->page($page, $perPageCount)
+                ->order('publish_time DESC, create_time DESC')
+                ->select();
+        } else {
+            $list = [];
+        }
+
+        return $list;
+    }
+    //获取艺术家回复列表
+    public function getArtistReplyList($commentIdList)
+    {
+
+    }
+
+    public function totalByArt($artId){
+      return $this->where(['is_deleted' => 'N','topic_id' => $artId,'type' => 1])->count();
+    }
+
+    public function zan($commentId,$uid){
+      $commentlikeModel = new CommentLikeModel();
+      $commentlikeModel->add([
+        'comment_id' => $commentId,
+        'liker' => $uid,
+        'create_time' => time(),
+        'is_deleted' => 'N'
+      ]);
+      $this->where(['id' => $commentId])->setInc('like_total',1);
+    }
+
+    //取消点赞
+    public function unzan($commentId,$uid){
+      $commentlikeModel = new CommentLikeModel();
+      $commentlikeModel->where(['comment_id' => $commentId,'liker' => $uid])->delete();
+      $this->where(['id' => $commentId])->setDec('like_total',1);
+      $info = $this->field('like_total')->find($commentId);
+      if($info['like_total'] < 0){
+          //如果喜欢数为负数，则置为0
+          $this->where(['id' => $commentId])->setField('like_total',0);
+      }
+    }
+    public function totalByUser($uid,$type){
+      return $this->where(['type' => $type,'commenter' => $uid,'is_deleted' => 'N'])->count();
+    }
+}

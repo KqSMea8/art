@@ -1,0 +1,737 @@
+<?php
+
+namespace Api\Controller;
+
+use Common\Base\ApiBaseController;
+use Common\Logic\ArtworkCategoryLogic;
+use Common\Logic\ArtworkColorLogic;
+use Common\Logic\ArtworkLikeLogic;
+use Common\Logic\MessageLogic;
+use Common\Logic\ArtworkLogic;
+use Common\Logic\ArtworkTagLogic;
+use Common\Logic\ArtworkUpdateLogic;
+use Common\Logic\CommentLogic;
+use Common\Logic\AssetsLogic;
+use Common\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+use Custom\Helper\Verify;
+use Common\Logic\RecommendLogic;
+
+//artwork upload
+class ArtworkController extends ApiBaseController
+{
+    public function addUpdate()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+
+        $artworkName = I('post.artworkName');
+        $categoryId = I('post.categoryId');
+        $artworkTagIds = I('post.artworkTagIds');//comma separated
+        $story = Util::cleanSpecific(I('post.story'));
+
+        $wit = I('post.wit');
+        $wit = htmlentities($wit,ENT_QUOTES, 'UTF-8');
+        $wit = Util::stripHtmlATag($wit);
+        $wit = Util::cleanSpecific($wit);
+        $createDate= I('post.createDate');
+        $coverId = I('post.coverId');
+        $pos = strpos($coverId, '?');
+        if($pos !==false){
+            $coverId = substr($coverId, 0,$pos);
+        }
+        $summary = Util::stripHtmlATag(I('post.summary'));
+
+        //if it is artwork update
+        $artworkId = I('post.artworkId');
+
+        $artworkLogic = new ArtworkLogic();
+        $userLogic = new UserLogic();
+        $recommendLogic = new RecommendLogic();
+        if (empty($artworkId)) {
+            //add artwork basic info.
+            $artworkData = [
+                'artist'=>$userId,//todo check if exists
+                'category'=>$categoryId, //todo check it
+                'name'=>$artworkName,
+                'story'=>$story,
+                'tag_ids'=>$artworkTagIds,
+                'last_update_time'=>$_SERVER['REQUEST_TIME'],
+                'update_times'=>1,
+                'create_time'=>$_SERVER['REQUEST_TIME'],
+                'cover'=>$coverId
+            ];
+            $artworkId = $artworkLogic->addOne($artworkData);
+            $messageLogic = new MessageLogic();
+            $messageLogic->artistUpdate($artworkId);
+            $recommendLogic->addArtwork($artworkId);
+            //todo judge whether add success
+            $updateNumber = 1;
+            $userLogic->where(['id' => $this->loginUserId])->setInc('art_total',1);
+        } else {
+            $updateNumber = $artworkLogic->getUpdateNumber($artworkId);
+            $updateNumber++;
+
+            //the category can be change
+            // if ($categoryId){
+            //     $artworkLogic->setFieldInfoById($artworkId, ['category'=>$categoryId]);
+            // }
+            // if ($artworkName) {
+            //     $artworkLogic->setFieldInfoById($artworkId, ['name'=>$artworkName]);
+            // }
+            $data =[
+              'category' => $categoryId,
+              'cover' => $coverId,
+              'update_times' => $updateNumber,
+              'last_update_time' => time()
+            ];
+            if(!empty($story)){
+              $data['story'] = $story;
+            }
+            $artworkLogic->ArtUpdate($data,$artworkId);
+            $messageLogic = new MessageLogic();
+            $messageLogic->artistUpdate($artworkId);
+            $recommendLogic->updateArtwork($artworkId);
+        }
+
+        //add artwork update.
+        $artworkUpdateLogic = new ArtworkUpdateLogic();
+        $artworkUpdateData = [
+            'artist'=>$userId,//todo check if exists
+            'artwork_id'=>$artworkId,
+            'number'=>$updateNumber,
+            'wit'=>$wit,
+            'cover'=>$coverId,
+            'create_date'=>$createDate,
+            'create_time'=>$_SERVER['REQUEST_TIME'],
+            'summary' => $story
+        ];
+        $artworkUpdateId = $artworkUpdateLogic->addOne($artworkUpdateData);
+        $userLogic->where(['id' => $this->loginUserId])->save(['last_update_time' => time()]);
+        $userLogic->statCategory($this->loginUserId);
+        $messageLogic = new MessageLogic();
+        $messageLogic->artworkUpdate($artworkId);
+        if ($artworkUpdateId) {
+            Util::jsonReturn(['status'=>1000]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+
+    }
+    public function finishArtwork()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+
+        $artworkName = I('post.artworkName');
+        $categoryId = I('post.categoryId');
+        $artworkTagIds = I('post.artworkTagIds');//comma separated
+        $story = Util::cleanSpecific(I('post.story'));
+
+        $wit = I('post.wit');
+        $wit = htmlentities($wit,ENT_QUOTES, 'UTF-8');
+        $wit = Util::stripHtmlATag($wit);
+        $wit = Util::cleanSpecific($wit);
+        $createDate= I('post.createDate');
+        $coverId = I('post.coverId');
+        $pos = strpos($coverId, '?');
+        if($pos !==false){
+            $coverId = substr($coverId, 0,$pos);
+        }
+
+        //here maybe first time or more times to update.
+        $artworkId = I('post.artworkId');
+
+        //if finished artwork
+        $colorIds = I('post.colorIds');
+        $artworkLength = I('post.artworkLength');
+        $artworkWidth = I('post.artworkWidth');
+        $panoramaIds = I('post.panoramaIds');
+        $topographyIds = I('post.topographyIds');
+
+        $artworkLogic = new ArtworkLogic();
+        $userLogic = new UserLogic();
+        $recommendLogic = new RecommendLogic();
+        if (empty($artworkId)) {
+            //add artwork basic info.
+            $artworkData = [
+                'artist'=>$userId,//todo check if exists
+                'category'=>$categoryId, //todo check it
+                'name'=>$artworkName,
+                'story'=>$story,
+                'color_ids'=>$colorIds,
+                'length'=>$artworkLength,
+                'width'=>$artworkWidth,
+                'panorama_ids'=>$panoramaIds,
+                'topography_ids'=>$topographyIds,
+                'cover' => $coverId,
+                'tag_ids'=>$artworkTagIds,
+                'last_update_time'=>time(),
+                'update_times'=>1,
+                'create_time'=>time(),
+                'is_finished' => 'Y'
+            ];
+            $artworkId = $artworkLogic->addOne($artworkData);
+            $messageLogic = new MessageLogic();
+            $messageLogic->artistUpdate($artworkId);
+            //todo judge whether add success
+            $updateNumber = 1;
+            $userLogic->where(['id' => $this->loginUserId])->setInc('art_total',1);
+            $recommendLogic->addArtwork($artworkId);
+        } else {
+            $updateNumber = $artworkLogic->getUpdateNumber($artworkId);
+            $updateNumber++;
+            //the category can be change
+            // if ($categoryId){
+            //     $artworkLogic->setFieldInfoById($artworkId, ['category'=>$categoryId]);
+            // }
+            // if ($artworkName) {
+            //     $artworkLogic->setFieldInfoById($artworkId, ['name'=>$artworkName]);
+            // }
+             $artworkLogic->ArtUpdate([
+                  'category' => $categoryId,
+                  'cover' => $coverId,
+                  'update_times' => $updateNumber,
+                  'length' => $artworkLength,
+                  'name' => $artworkName,
+                  'tag_ids' => $artworkTagIds,
+                  'width' => $artworkWidth,
+                  'color_ids' => $colorIds,
+                  'panorama_ids' => $panoramaIds,
+                  'topography_ids' => $topographyIds,
+                  'last_update_time'=>time(),
+                  'story' => $story,
+                  'is_finished' => 'Y'
+                ],$artworkId);
+                $messageLogic = new MessageLogic();
+                $messageLogic->artistUpdate($artworkId);
+        }
+        //add artwork update.
+        $artworkUpdateLogic = new ArtworkUpdateLogic();
+        $artworkUpdateData = [
+            'artist'=>$userId,//todo check if exists
+            'artwork_id'=>$artworkId,
+            'number'=>$updateNumber,
+            'wit'=>$wit,
+            'cover'=>$coverId,
+            'last_update_time'=>time(),
+            'create_date'=>$createDate,
+            'create_time'=>time(),
+            'summary' => $story
+        ];
+        $artworkUpdateId = $artworkUpdateLogic->addOne($artworkUpdateData);
+        $userLogic->where(['id' => $this->loginUserId])->save(['last_update_time' => time()]);
+        $recommendLogic->updateArtwork($artworkId);
+        $userLogic->statCategory($this->loginUserId);
+        if ($artworkUpdateId) {
+            Util::jsonReturn(['status'=>1000]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+    }
+    public function getUpdateList(){
+      $artId = I('post.artId','','number_int');
+      $updateLogic = new ArtworkUpdateLogic();
+      $artLogic = new ArtworkLogic();
+      $list = $updateLogic->where(['artwork_id' => $artId,'is_deleted' => 'N'])->order('create_time DESC')->select();
+      if(!empty($list)){
+        $time = time();
+        $artInfo = $artLogic->where(['id' => $artId])->find();
+        $Edit = $artInfo['is_finished'] == 'Y'  ? 'N' : 'Y' ;
+        foreach ($list as $key => $value) {
+          $list[$key]['wit'] = html_entity_decode($value['wit'],ENT_QUOTES ,'UTF-8');
+          // $isEdit = $time - $value['create_time'] >= 86400 ? false : true;
+          // $list[$key]['isEdit'] = $isEdit && $value['edit_count'] < 1 ? 'Y' : 'N';
+          $list[$key]['isEdit'] = 'Y';
+          $list[$key]['cover'] = Util::getImageToSq($value['cover']);
+        }
+        Util::jsonReturn(['status'=>1000,'info'=>['list' => $list,'isEdit' => $Edit]]);
+      }else{
+        Util::jsonReturn(null, Code::SYS_ERR);
+      }
+    }
+    public function getUpdateInfo(){
+      $id = I('post.id','','number_int');
+      $updateLogic = new ArtworkUpdateLogic();
+      $artworkLogic = new ArtworkLogic();
+      $artworkCategoryLogic = new ArtworkCategoryLogic();
+      $colorLogic = new ArtworkColorLogic();
+      $updateInfo = $updateLogic->find($id);
+      if(!empty($updateInfo)){
+        $color_ids = [];
+        $artInfo = $artworkLogic->find($updateInfo['artwork_id']);
+        if(!empty($artInfo['color_ids'])){
+          $color_ids = $colorLogic->field('id,cn_name,value')->where("id in ({$artInfo['color_ids']})")->select();
+        }
+        $updateInfo['wit'] = html_entity_decode($updateInfo['wit'],ENT_QUOTES ,'UTF-8');
+        $updateInfo['panorama_ids'] = $artInfo['panorama_ids'] ? explode(',',$artInfo['panorama_ids']) : [] ;
+        $updateInfo['topography_ids'] = $artInfo['topography_ids'] ? explode(',',$artInfo['topography_ids']) : [];
+        $updateInfo['length'] = empty($artInfo['length'])?'':$artInfo['length'];
+        $updateInfo['width'] = empty($artInfo['width'])?'':$artInfo['width'];
+        $updateInfo['color_ids'] = $color_ids;
+        $updateInfo['name'] = $artInfo['name'];
+        $updateInfo['tag_ids'] = explode(',',$artInfo['tag_ids']);
+        $updateInfo['story'] = $artInfo['story'];
+        $updateInfo['category'] = $artInfo['category'];
+        $updateInfo['categoryName'] = $artworkCategoryLogic->where(['id' => $artInfo['category']])->getField('cn_name');
+        Util::jsonReturn(['status'=>1000,'info'=>$updateInfo]);
+      }else{
+        Util::jsonReturn(null, Code::SYS_ERR);
+      }
+    }
+    //修改画作信息，艺术家提交成品画作之后的24h内可以再次编辑画作信息
+    public function edit()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        //todo  if the userId is matched with follow artworkUpdateId
+        $userId = $tokenInfo['userInfo']['id'];
+        $artworkUpdateId = I('post.artworkUpdateId');
+
+        $artworkUpdateLogic = new ArtworkUpdateLogic();
+        $artworkUpdateDetail = $artworkUpdateLogic->getDetail($artworkUpdateId);
+        //if >24hour
+        // if ($_SERVER['REQUEST_TIME'] > $artworkUpdateDetail['create_time'] + 24*3600)
+        // {
+        //     Util::jsonReturn(['status'=>1001]);//timeout
+        // }
+        $artworkId = $artworkUpdateDetail['artwork_id'];
+        $artworkLogic = new ArtworkLogic();
+        $artworkDetail  = $artworkLogic->getDetail($artworkId);
+        //todo useless need to remove it.
+        // if current update is last update,
+        // need to insure the artist whether or not publish the artwork,
+        // if not publish,then change the artwork finish status.
+
+        $artworkName = I('post.artworkName');
+        $categoryId = I('post.categoryId');
+        $artworkTagIds = I('post.artworkTagIds');//comma separated
+        $story = Util::cleanSpecific(I('post.story'));
+
+        $wit = I('post.wit');
+        $wit = htmlentities($wit,ENT_QUOTES, 'UTF-8');
+        $wit = Util::stripHtmlATag($wit);
+        $wit = Util::cleanSpecific($wit);
+        $createDate= I('post.createDate');
+        $coverId = I('post.coverId');
+        $colorIds = I('post.colorIds');
+        $artworkLength = I('post.artworkLength');
+        $artworkWidth = I('post.artworkWidth');
+        $panoramaIds = I('post.panoramaIds');
+        $topographyIds = I('post.topographyIds');
+
+
+        $artworkUpdateChangeInfo = [];
+        if (!empty($wit)) {
+            $artworkUpdateChangeInfo['wit'] = $wit;
+        }
+        if (!empty($createDate)) {
+            $artworkUpdateChangeInfo['create_date'] = $createDate;
+        }
+
+        $artworkChangeInfo = [];
+        if (!empty($coverId)) {
+            $pos = strpos($coverId, '?');
+            if($pos !==false){
+                $coverId = substr($coverId, 0,$pos);
+            }
+            $artworkChangeInfo['cover'] = $coverId;
+        }
+        if (!empty($categoryId)) {
+            $artworkChangeInfo['category'] = $categoryId;
+        }
+        if (!empty($artworkTagIds)) {
+            $artworkChangeInfo['tag_ids'] = $artworkTagIds;
+        }
+        if (!empty($story)) {
+            $artworkChangeInfo['story'] = $story;
+        }
+        if (!empty($artworkName)) {
+            $artworkChangeInfo['name'] = $artworkName;
+        }
+        if(!empty($colorIds)) {
+            $artworkChangeInfo['color_ids'] = $colorIds;
+        }
+        if (!empty($artworkLength)) {
+            $artworkChangeInfo['length'] = $artworkLength;
+        }
+        if (!empty($artworkWidth)) {
+            $artworkChangeInfo['width'] = $artworkWidth;
+        }
+        if (!empty($panoramaIds)) {
+            $artworkChangeInfo['panorama_ids'] = $panoramaIds;
+        }
+        if (!empty($topographyIds)) {
+            $artworkChangeInfo['topography_ids'] = $topographyIds;
+        }
+
+        if ($artworkDetail['update_times'] == 1 ) {
+
+            if ($artworkDetail['is_finished'] == 'Y')
+            {
+                if (!empty($artworkChangeInfo))
+                {
+                    $artworkLogic->setFieldInfoById($artworkId, $artworkChangeInfo);
+                }
+                if (!empty($artworkUpdateChangeInfo)) {
+                    $artworkUpdateChangeInfo['last_update_time'] = $_SERVER['REQUEST_TIME'];
+                    $artworkUpdateLogic->setFieldInfoById($artworkUpdateId, $artworkUpdateChangeInfo);
+                }
+            }
+            else
+            {
+                if (!empty($artworkUpdateChangeInfo)) {
+                    $artworkUpdateChangeInfo['last_update_time'] = $_SERVER['REQUEST_TIME'];
+                    $artworkUpdateLogic->setFieldInfoById($artworkUpdateId, $artworkUpdateChangeInfo);
+                }
+
+            }
+        }
+        if ($artworkDetail['update_times'] > 1 ) {
+            if ($artworkDetail['is_finished'] == 'Y')
+            {
+                if ($artworkDetail['update_times'] == $artworkUpdateDetail['number'])
+                {
+                    if (!empty($artworkChangeInfo))
+                    {
+                        if(isset($artworkChangeInfo['tag_ids'])) {
+                            //the second time not include the tag update.
+                            unset($artworkChangeInfo['tag_ids']);
+                        }
+                        $artworkLogic->setFieldInfoById($artworkId, $artworkChangeInfo);
+                    }
+                    if (!empty($artworkUpdateChangeInfo)) {
+                        $artworkUpdateChangeInfo['last_update_time'] = $_SERVER['REQUEST_TIME'];
+                        $artworkUpdateLogic->setFieldInfoById($artworkUpdateId, $artworkUpdateChangeInfo);
+                    }
+                }
+                if ($artworkDetail['update_times'] > $artworkUpdateDetail['number'])
+                {
+                    if (isset($artworkChangeInfo['category']))
+                    {
+                        $artworkLogic->setFieldInfoById($artworkId, ['category'=>$artworkChangeInfo['category']]);
+                    }
+                    if (!empty($artworkUpdateChangeInfo)) {
+                        $artworkUpdateChangeInfo['last_update_time'] = $_SERVER['REQUEST_TIME'];
+                        $artworkUpdateLogic->setFieldInfoById($artworkUpdateId, $artworkUpdateChangeInfo);
+                    }
+                }
+            }
+            else
+            {
+                //it is same with the above if block
+                if ($artworkDetail['update_times'] == $artworkUpdateDetail['number'])
+                {
+                    if (!empty($artworkChangeInfo))
+                    {
+                        if(isset($artworkChangeInfo['tag_ids'])) {
+                            //the second time not include the tag update.
+                            unset($artworkChangeInfo['tag_ids']);
+                        }
+                        $artworkLogic->setFieldInfoById($artworkId, $artworkChangeInfo);
+                    }
+                    if (!empty($artworkUpdateChangeInfo)) {
+                        $artworkUpdateChangeInfo['last_update_time'] = $_SERVER['REQUEST_TIME'];
+                        $artworkUpdateLogic->setFieldInfoById($artworkUpdateId, $artworkUpdateChangeInfo);
+                    }
+                }
+                if ($artworkDetail['update_times'] > $artworkUpdateDetail['number'])
+                {
+                    if (isset($artworkChangeInfo['category']))
+                    {
+                        $artworkLogic->setFieldInfoById($artworkId, ['category'=>$artworkChangeInfo['category']]);
+                    }
+                    if (!empty($artworkUpdateChangeInfo)) {
+                        $artworkUpdateChangeInfo['last_update_time'] = $_SERVER['REQUEST_TIME'];
+                        $artworkUpdateLogic->setFieldInfoById($artworkUpdateId, $artworkUpdateChangeInfo);
+                    }
+                }
+            }
+        }
+        $updateData = [
+          'length' => $artworkLength,
+          'width' => $artworkWidth,
+          'color_ids' => $colorIds,
+          'panorama_ids'=>$panoramaIds,
+          'topography_ids'=>$topographyIds,
+          'name' => $artworkName,
+          'category' => $categoryId,
+          'tag_ids' => $artworkTagIds
+        ];
+        if($artworkUpdateDetail['number'] == $artworkDetail['update_times']){
+          $updateData['cover'] = $coverId;
+          if(!empty($story)){
+            $updateData['story'] = $story;
+          }
+        }
+        if (!empty($colorIds) && !empty($artworkLength) && !empty($artworkWidth) && is_numeric($artworkWidth) && is_numeric($artworkLength) && strlen($panoramaIds)>=1 && strlen($topographyIds)>=1) {
+            $updateData['is_finished'] = 'Y';
+        }else{
+            $updateData['is_finished'] = 'N';
+        }
+        $artworkLogic->where(['id' => $artworkDetail['id']])->save($updateData);
+
+        $artworkUpdateLogic->where(['id' => $artworkUpdateId])->setInc('edit_count');
+        $artworkUpdateLogic->setFieldInfoById($artworkUpdateId, ['cover'=>$coverId]);
+        if(!empty($story)){
+          $artworkUpdateLogic->setFieldInfoById($artworkUpdateId, ['summary'=>$story]);
+        }
+        Util::jsonReturn();
+
+    }
+    public function canBePublished()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        //todo  if the userId is matched with follow artworkUpdateId
+        $userId = $tokenInfo['userInfo']['id'];
+        $artworkUpdateId = I('post.artworkUpdateId');
+
+        $artworkUpdateLogic = new ArtworkUpdateLogic();
+        $artworkUpdateDetail = $artworkUpdateLogic->getDetail($artworkUpdateId);
+        //if >24hour
+        // if ($_SERVER['REQUEST_TIME'] > $artworkUpdateDetail['create_time'] + 24*3600)
+        // {
+        //     Util::jsonReturn(['status'=>1001]);//timeout
+        // }
+        $artworkId = $artworkUpdateDetail['artwork_id'];
+        $artworkLogic = new ArtworkLogic();
+        $artworkDetail  = $artworkLogic->getDetail($artworkId);
+
+        //1. if current edit artwork update's update_times less then the artwork's max update_times,
+        //   then cannot be finish the artwork creation
+        if ($artworkDetail['update_times'] > $artworkUpdateDetail['number']) {
+            $canBePublished = false;
+        } else {
+            $canBePublished = true;
+        }
+        if ($canBePublished) {
+            Util::jsonReturn(['status'=>1000, 'rest'=>($_SERVER['REQUEST_TIME'] - $artworkUpdateDetail['create_time'])]);
+        } else {
+            Util::jsonReturn(['status'=>1002]);
+        }
+    }
+    public function getArtworkUpdateDetail()
+    {
+        $tokenInfo = Token::getTokenInfo($this->token);
+        //todo  if the userId is matched with follow artworkUpdateId
+        $userId = $tokenInfo['userInfo']['id'];
+        $artworkUpdateId = I('post.artworkUpdateId');
+
+        $artworkUpdateLogic = new ArtworkUpdateLogic();
+        $artworkUpdateDetail =$artworkUpdateLogic->getDetail($artworkUpdateId);
+
+        //if >24hour
+        // if ($_SERVER['REQUEST_TIME'] > $artworkUpdateDetail['create_time'] + 24*3600)
+        // {
+        //     Util::jsonReturn(['status'=>1001]);//timeout
+        // }
+        // rest time
+        $restTime = $_SERVER['REQUEST_TIME'] - $artworkUpdateDetail['create_time'];
+
+        $artworkId = $artworkUpdateDetail['artwork_id'];
+        $artworkLogic = new ArtworkLogic();
+        $artworkDetail  = $artworkLogic->getDetail($artworkId);
+        $assetsLogic = new AssetsLogic();
+        $ret = [
+            'createDate'=>$artworkUpdateDetail['create_date'],
+            'artworkName'=>$artworkDetail['name'],
+            'wit'=>$artworkUpdateDetail['wit'],
+            'coverUrl'=>['id'=>$artworkUpdateDetail['cover'], 'url'=>$assetsLogic->getUrl($artworkUpdateDetail['cover'])],
+            'story'=>$artworkDetail['story'],
+            'restTime'=>$restTime
+        ];
+        if (($artworkUpdateDetail['number'] == $artworkDetail['update_times']) &&
+            $artworkDetail['is_finished'] == 'Y')
+        {
+            $artworkColorLogic = new ArtworkColorLogic();
+            $artworkTagLogic = new ArtworkTagLogic();
+
+            $colorIdList = explode(',', $artworkDetail['color_ids']);
+            $panoramaIdList = explode(',', $artworkDetail['panorama_ids']);
+            $topographyIdList = explode(',', $artworkDetail['topography_ids']);
+            $tagIdList = explode(',', $artworkDetail['tag_ids']);
+            $artworkCategoryLogic = new ArtworkCategoryLogic();
+            $categoryList = $artworkCategoryLogic->getList();
+            $categoryConfig = ['id'=>$artworkDetail['category'], 'value'=>$categoryList[$artworkDetail['category']]];
+
+            $finishedInfo = [
+                'isFinished'=>1,//finished
+                'colorIdsConfig'=>$artworkColorLogic->getColorConfigByIdList($colorIdList),
+                'length'=>empty($artworkDetail['length'])?'':$artworkDetail['length'],
+                'width'=>empty($artworkDetail['width'])?'':$artworkDetail['width'],
+                'panoramaIdsConfig'=>$assetsLogic->getUrlList($panoramaIdList),
+                'topographyIdsConfig'=>$assetsLogic->getUrlList($topographyIdList),
+                'tagIdsConfig'=>$artworkTagLogic->getTagConfigList($tagIdList),
+                'categoryConfig'=>$categoryConfig
+            ];
+            $ret = array_merge($ret, $finishedInfo);
+        } else {
+            $ret['isFinished'] = -1;// not finished
+        }
+        Util::jsonReturn(['status'=>1000, 'info'=>$ret]);
+    }
+    public function like()
+    {
+        $this->checkLogin();
+        $type = I('post.type','1','number_int');
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $id = Checker::numberId();
+        $artworkLikeLogic = new ArtworkLikeLogic();
+        $likeData = [
+            'artwork_id'=>$id,//todo if not exists or deleted.
+            'like_user_id'=> $this->loginUserId,
+            'like_time'=> time(),
+            'is_like' => 'Y',
+            'type' => $type
+        ];
+        $likeId = $artworkLikeLogic->like($likeData,$type);
+        if ($likeId) {
+            Util::jsonReturn();
+        } else {
+            Util::jsonReturn(null, Code::VERIF, '已经喜欢过这幅作品', var_export($likeId, true));
+        }
+    }
+    public function unlike()
+    {
+        $this->checkLogin();
+        $type = I('post.type','1','number_int');
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $id = Checker::numberId();
+        $artworkLikeLogic = new ArtworkLikeLogic();
+        $likeData = [
+            'artwork_id'=>$id,//todo if not exists or deleted.
+            'like_user_id'=>$this->loginUserId,
+            'unlike_time'=> time(),
+            'is_like'=>'N',
+            'type' => $type
+        ];
+        $likeResult = $artworkLikeLogic->saveUnlike($likeData,$type);
+        if ($likeResult) {
+            Util::jsonReturn();
+        } else {
+            Util::jsonReturn(null, Code::VERIF, '已经取消过这幅作品的喜欢');
+        }
+    }
+    //get my update artwork list
+    public function getMyUpdateArtworkList()
+    {
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $artistId = $tokenInfo['userInfo']['id'];
+        $page = I('post.page', 1);
+        $perPageCount = I('post.perPageCount', 10);
+        $artworkLogic = new ArtworkLogic();
+        $assetsLogic  = new AssetsLogic();
+        $unFinishedArtworkList = $artworkLogic->getUnFinishedArtworkList($artistId, $page, $perPageCount);
+
+        foreach ($unFinishedArtworkList as &$item) {
+            $artworkUpdateLogic = new ArtworkUpdateLogic();
+            $updateDetail = $artworkUpdateLogic->getLastUpdateDetail($item['id']);
+            $artInfo = $artworkLogic->getArtworkDetail($item['id'],$this->loginUserId);
+            $coverUrl =$assetsLogic->getUrl($updateDetail['cover']);
+            $item['updateId'] = $updateDetail['id'];
+            $item['coverUrl'] = Util::getImageToSq($coverUrl);
+            $item['category'] = $artInfo['category'];
+            $item['category_name'] = $artInfo['category_name'];
+            $item['create_date'] = $updateDetail['create_date'];
+        }
+
+        Util::jsonReturn(['status'=>1000, 'info'=>$unFinishedArtworkList]);
+    }
+    //todo need to config the config json in az_config ,the key is COLOR_CONFIG
+    public function getArtworkColorConfig()
+    {
+        $artworkColorLogic = new ArtworkColorLogic();
+        $colorConfig = $artworkColorLogic->getColorList('array');
+        Util::jsonReturn(['status'=>1000, 'info'=>$colorConfig]);
+    }
+    // todo need to cache it
+    public function getArtworkTagConfig()
+    {
+        $artworkTagLogic = new ArtworkTagLogic();
+        $tagConfig = $artworkTagLogic->getTagList('array');
+        Util::jsonReturn(['status'=>1000, 'info'=>$tagConfig]);
+    }
+    public function getArtworkCategoryConfig()
+    {
+        $artworkCategoryLogic = new ArtworkCategoryLogic();
+        $categoryConfig = $artworkCategoryLogic->getCategoryList('array');
+        Util::jsonReturn(['status'=>1000, 'info'=>$categoryConfig]);
+    }
+    public function getArtDetail(){
+      $artId = I('post.id','','number_int');
+      $artId2 = I('post.artId','','number_int');
+      if(empty($artId) && $artId2){
+        $artId = $artId2;
+      }
+      if($artId > 0){
+        $artworkModel = new ArtworkLogic();
+        $artInfo = $artworkModel->getArtworkDetail($artId,$this->loginUserId);
+        if(!empty($artInfo)){
+          Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$artInfo]);
+        }else{
+            Util::jsonReturn(null, Code::NOT_FOUND, '未找到对应的艺术品', var_export($artId, true));
+        }
+      }else{
+        Util::jsonReturn(null, Code::VERIF, '[artId]错误', var_export($artId, true));
+      }
+    }
+    public function getCommentList(){
+      $id = I('post.id','','number_int');
+      $type = I('post.type','','number_int');
+      $page = I('post.page',1);
+      $pagesize = I('post.pagesize',10);
+      $commentLogic = new CommentLogic();
+      $commentList = $commentLogic->getList($id,$type,$page,$pagesize,$this->loginUserId);
+      $commentList['is_repay'] = $this->loginUserId == $commentLogic->getAuthorByIdAndType($id,$type) ? 'Y':'N';
+      Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$commentList]);
+    }
+    public function repayMessage(){
+      $this->checkLogin();
+      $commentId = I('post.commentId','','number_int');
+      $repayer = $this->loginUserId;
+      $content = I('post.content','');
+      $commentLogic = new CommentLogic();
+      $repayInfo = $commentLogic->repay($commentId,$repayer,$content);
+      if(!empty($repayInfo)){
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'repayInfo'=>$repayInfo]);
+      }else{
+        Util::jsonReturn(null, Code::SYS_ERR, '回复失败', var_export($repayInfo, true));
+      }
+    }
+    public function comment(){
+      $this->checkLogin();
+      $artId = I('post.artId','','number_int');
+      $type = I('post.type','','number_int');
+      $commenter = $this->loginUserId;
+      $content = I('post.content','');
+      $commentLogic = new CommentLogic();
+      $commentInfo = $commentLogic->comment($artId,$type,$commenter,$content);
+      if(!empty($commentInfo)){
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'commentInfo'=>$commentInfo]);
+      }else{
+        Util::jsonReturn(null, Code::SYS_ERR, '评论失败', var_export($repayInfo, true));
+      }
+    }
+    public function updateDetail(){
+      $all = I('post.');
+      Verify::all($all,['id' => '!@']);
+      $updateLogic = new ArtworkUpdateLogic();
+      $loginUserId = empty($this->loginUserId)?0:$this->loginUserId;
+      $detail = $updateLogic->getDetailWithComment($all['id'],$loginUserId);
+      Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$detail]);
+    }
+
+    public function getArtworkDesc(){
+      $artId = I('post.artId');
+      $artworkLogic = new ArtworkLogic();
+      $info = $artworkLogic->getDesc($artId);
+      Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$info]);
+    }
+}

@@ -1,0 +1,11 @@
+<?php
+
+namespace V30\Model;
+
+
+use V30\Base\BaseModel;
+
+class ArtistExtensionModel extends BaseModel
+{
+    protected $tableName = 'artist_extension';
+}

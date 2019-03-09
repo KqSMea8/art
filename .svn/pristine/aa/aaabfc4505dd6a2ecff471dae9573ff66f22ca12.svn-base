@@ -1,0 +1,10 @@
+<?php
+
+namespace Mp\Model;
+
+use Mp\Base\BaseModel;
+
+class MessageModel extends BaseModel
+{
+    protected $tableName = 'message';
+}

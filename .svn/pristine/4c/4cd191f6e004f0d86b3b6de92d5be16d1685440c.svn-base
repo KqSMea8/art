@@ -1,0 +1,10 @@
+<?php
+
+namespace V31\Model;
+
+use V31\Base\BaseModel;
+
+class ArtworkTagWeightModel extends BaseModel
+{
+    protected $tableName = 'artwork_tag_weight';
+}

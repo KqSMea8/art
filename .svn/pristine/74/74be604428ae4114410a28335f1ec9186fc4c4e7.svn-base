@@ -1,0 +1,15 @@
+<?php
+
+namespace V51\Model;
+
+use V51\Base\BaseModel;
+
+class ArtworkSubjectModel extends BaseModel
+{
+    protected $tableName = 'artwork_subject';
+
+    public function getList(){
+        $list = $this->field('id,sort,cn_name as name')->where(['id'=>['neq',7]])->order('sort asc')->select();
+        return empty($list) ? [] : $list;
+    }
+}

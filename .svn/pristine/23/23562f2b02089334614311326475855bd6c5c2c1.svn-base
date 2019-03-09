@@ -1,0 +1,135 @@
+<?php
+namespace H5\Controller;
+
+use Custom\Helper\Util;
+use Think\Controller;
+
+//评论模块
+class CommentController extends Controller {
+
+	//列表
+	public function getData(){
+
+		$data = [
+					'list'=>[
+								[
+									'id'=>1,
+									'commenter'=>[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'comment_to'=>	[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'content'=>'2017-04-01 12:12',
+									'type'=>'1',
+									'topic'=>123,
+									'like_total'=>256,
+								],
+								[
+									'id'=>1,
+									'commenter'=>[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'comment_to'=>	[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'content'=>'2017-04-01 12:12',
+									'type'=>'1',
+									'topic'=>123,
+									'like_total'=>256,
+								],
+							],
+					'total'=>138,
+					'curpage'=>2,
+					'size'=>20,
+					'last'=>7,
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//添加评论
+	public function add(){
+
+		$data = [
+					'id'=>1,
+					'commenter'=>[
+								[
+									'id'=>'1',
+									'nickname'=>'油画',
+									'motto'=>'motto',
+									'gender'=>'gender',
+									'face'=>'face',
+									'level'=>'level',
+									'mp'=>'mp',
+								]
+							],
+					'comment_to'=>	[
+								[
+									'id'=>'1',
+									'nickname'=>'油画',
+									'motto'=>'motto',
+									'gender'=>'gender',
+									'face'=>'face',
+									'level'=>'level',
+									'mp'=>'mp',
+								]
+							],
+					'content'=>'2017-04-01 12:12',
+					'type'=>'1',
+					'topic'=>123,
+					'like_total'=>256,
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//删除评论
+	public function del(){
+
+		$data = ['id'=>33];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//评论统计
+	public function statistics(){
+
+		$data = [
+					['type'=>'1','topic_id'=>'1','count'=>1234],
+					['type'=>'1','topic_id'=>'2','count'=>45],
+					['type'=>'1','topic_id'=>'3','count'=>789],
+					['type'=>'1','topic_id'=>'4','count'=>132],
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+}

@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <!-- <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" /> -->
+    <link href="/Public/Home/css/global.css" rel="stylesheet">
+    <link href="/Public/Home/css/gcommon.css" rel="stylesheet">
+    <link href="/Public/Home/css/auth.css?v=0.0.1" rel="stylesheet">
+    <title>艺术家免费认证</title>
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者">
+  </head>
+  <body>
+    <header class="ysz-header">
+      <div class="y-header">
+        <div class="w clearfix">
+          <h1 class="y-head">
+          <img class="logo" src="/Public/Home/image/logo.png" alt="logo">
+          <span class="y-title">创作平台</span>
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div id="main">
+      <div class="w clearfix">
+        <div class="main-wrap
+   return ev.target || ev.srcElement;" id="auth">
+          <h2 class="title">艺术家免费认证</h2>
+          <div class="rule-wrap" v-show="ruleShow">
+            <ul class="rules">
+              <li class="rule">
+                <h3>艺术者认证是什么？</h3>
+                <p>艺术者认证服务是针对艺术家的真实性证明，认证成功后，从而曝光艺术家的作品以及艺 术故事，艺术者平台将宣传推广艺术家艺术品牌，形</p>
+              </li>
+              <li class="rule">
+                <h3>艺术家特权</h3>
+                <p>
+                  1.上传艺术作品;<br>
+                  2.艺术家网络画廊：曝光艺术家的作品以及艺术故事，宣传推广艺术家艺术品牌，形成艺术家的粉丝群体；<br>
+                  3.增值服务：认证成为平台艺术家后，可直观统计画廊访问数据、互动数据，交易数据，更好的给艺术家呈现粉丝、收藏家的行为特征。<br>
+                  4.原图存储：认证艺术家上传作品时，服务器将免费为您保存原图；<br>
+                  5.更多特权：可在平台获得打赏、交易作品等其他个人服务。
+                </p>
+              </li>
+              <li class="rule">
+                <h3>如何申请认证？</h3>
+                <p>
+                  想要获得认证需满足以下基本条件：<br>
+                  a.个人资料完善，账号内头像必须为本人的真实头像；<br>
+                  b.需要邀请码；<br>
+                  c.艺术家提交资料后，认证是否通过将由艺术者团队手动审核。目前艺术者接受从事绘画创作的艺术家（油画、水粉、插画、素描、工笔、水彩等…）。
+                </p>
+              </li>
+              <li class="rule">
+                <h3>如何提高审核通过率？</h3>
+                <p>
+                  a.上传个人相关获奖，展览，以及相关荣誉情况以及图片；<br>
+                  b.上传个人与创作艺术作品合影；<br>
+                  c.填写个人信息，如：个人微信公众号，微博，博客信息。
+                </p>
+              </li>
+              <li class="rule">
+                <h3>如何获得邀请码？</h3>
+                <P>
+                  1.找认识的已入驻艺术家索要；<br>
+                  2.公众号 “艺术者空间”每天公布一个邀请码，一个邀请码可以有10个艺术家认证。
+                </P>
+              </li>
+            </ul>
+            <div class="agree-bar">
+              <p class="agree-check" @click="agreeToggle"><input type="checkbox"><label for="agree"><i :class="['icons', isAgree? 'icon-agreed': 'icon-agree']"></i>同意<a href="#">《艺术者认证服务协议》</a></label></p>
+              <p class="agree-btn"><input @click="goToFirst" class="btn btn-24" type="button" value="下一步"></p>
+            </div>
+          </div>
+          <div class="stage-wrap">
+            <p class="info"><i class="icons icon-info"></i>以下信息必须真实可信</p>
+            <div class="first-wrap">
+              <div class="tit"><label for=""></label>手机号码</div>
+              <div class="box" >
+                <input class="form-control" name="phone" type="text" placeholder="请输入您的手机号码，便于回访" maxlength="11" datatype="/^(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9])[0-9]{8}$/" nullmsg="请输入手机号" errormsg="请输入正确的手机号" sucmsg=" " ajaxurl="/index/existsaccount.html">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="y-footer">
+        <div class="w clearfix">
+          <p class="mail">联系邮箱：yishuzhe@gaosouyi.com</p>
+          <p class="qrcode">
+            <img src="/Public/Home/image/qrcode-wx.png">
+            <img src="/Public/Home/image/qrcode-app.png">
+          </p>
+          <p>
+            Copyright 2017 www.artzhe.com. All Rights Reserved<br>
+            粤ICP备17041531号-1
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+  <script src="/Public/Home/js/lib/vue.js"></script>
+  <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+  <script src="/Public/Home/js/auth/auth.js"></script>
+  <script src="/Public/Home/js/service/agent.js"></script>
+</html>

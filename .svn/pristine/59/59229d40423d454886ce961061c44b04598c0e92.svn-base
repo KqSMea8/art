@@ -1,0 +1,39 @@
+<?php
+
+namespace Api\Controller;
+
+use Common\Base\ApiBaseController;
+use Common\Logic\ArtworkCategoryLogic;
+use Common\Logic\ArtworkColorLogic;
+use Common\Logic\ArtworkLikeLogic;
+use Common\Logic\ArtworkLogic;
+use Common\Logic\ArtworkTagLogic;
+use Common\Logic\ArtworkUpdateLogic;
+use Common\Logic\CommentLogic;
+use Common\Logic\AssetsLogic;
+use Common\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+
+//artwork upload
+class CommentController extends ApiBaseController{
+  public function zan(){
+    $this->checkLogin();
+    $commentId = I('post.commentId','','number_int');
+    $uid = I('post.uid','','number_int');
+    $commentLogic = new CommentLogic();
+    $commentLogic->zan($commentId,$uid);
+    Util::jsonReturn(['status'=>Code::SUCCESS]);
+  }
+  public function unzan(){
+    $this->checkLogin();
+    $commentId = I('post.commentId','','number_int');
+    $uid = I('post.uid','','number_int');
+    $commentLogic = new CommentLogic();
+    $commentLogic->unzan($commentId,$uid);
+    Util::jsonReturn(['status'=>Code::SUCCESS]);
+  }
+}

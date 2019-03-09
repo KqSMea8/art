@@ -1,0 +1,9 @@
+<?php
+
+namespace Mp\Logic;
+
+use Mp\Base\BaseLogic;
+
+class InviteLogic extends BaseLogic{
+
+}

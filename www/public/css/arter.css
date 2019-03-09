@@ -1,0 +1,574 @@
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: #f4f4f4;
+}
+
+.el-button {
+    height: auto;
+}
+
+.upload-right {
+    position: relative;
+    margin-left: 210px;
+    min-height: 760px;
+    padding-left: 20px;
+    overflow: hidden;
+}
+
+.upload-rH {
+    position: relative;
+    height: 55px;
+    line-height: 55px;
+    font-size: 16px;
+    color: #1a1a1a;
+    border-bottom: 1px solid #eee;
+}
+
+.upload-rH:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    border-bottom: 2px solid #ebac1a;
+}
+
+.upload-button {
+    position: absolute;
+    right: 20px;
+    top: 7px;
+    padding: 0;
+    line-height: 40px;
+    height: 40px;
+    width: 160px;
+    color: #fff;
+}
+
+.artericon {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 5px 0;
+    border: none;
+}
+
+.upload-page {
+    text-align: right;
+    padding: 24px 50px 25px;
+}
+
+.el-pagination__editor2 {
+    border-color: #b7b7b7;
+}
+
+.upload-page .btn-prev,
+.upload-page .btn-next {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #a9a9a9;
+}
+
+span.upload-num {
+    font-size: 16px;
+    color: #7b7b7b;
+    text-align: center
+}
+
+.upload-jump.is-plain {
+    height: 28px;
+    line-height: 28px;
+    padding: 0 6px;
+    vertical-align: bottom;
+    border-color: #b7b7b7;
+}
+
+.addartboxbg {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    overflow: auto;
+    margin: 0;
+    z-index: 500;
+    background: rgba(0, 0, 0, .3)
+}
+
+.addartbox {
+    width: 1000px;
+    height: 300px;
+    background: rgb(255, 255, 255);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translateY(-50%) translateX(-50%);
+    transform: translateY(-50%) translateX(-50%);
+    border-radius: 2px;
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.closebox {
+    overflow: hidden;
+    margin-top: 10px;
+    margin-right: 15px;
+}
+
+.addArterClose {
+    padding: 6px;
+    cursor: pointer
+}
+
+.el-input__inner {
+    height: 36px;
+    /* border: none; */
+}
+
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    margin: 5px 0;
+}
+
+.avatar-uploader .el-upload:hover {
+    border-color: #20a0ff;
+}
+
+.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 68px;
+    height: 68px;
+    line-height: 68px;
+    text-align: center;
+}
+
+.avatarbox {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    cursor: pointer;
+}
+
+.hvp {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 4% 0;
+    width: 96%;
+    height: 96%;
+    text-align: center;
+    line-height: 78px;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.hvpshow {
+    display: block;
+}
+
+.avatarbtn {
+    /* margin: 8px auto; */
+    width: 52px;
+    display: block;
+    position: absolute;
+    left: 0%;
+    top: 50%;
+    background: rgba(0, 0, 0, .3);
+    color: #fff;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.avatar {
+    max-width: 68px;
+    margin: 5px auto;
+    /* margin: 5px 0px 5px 60px; */
+    display: block;
+}
+
+.sureaddart {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+
+.newartbox {
+    margin-top: 36px;
+}
+
+.checkstatus {
+    font-size: 14px;
+    line-height: initial;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    text-align: center;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/**/
+
+.addimglayerbox .img-preview {
+    float: left;
+    width: 350px;
+    padding: 20px 25px 0;
+    text-align: center;
+    height: 400px;
+}
+
+.addimglayerbox .img-preview h3 {
+    height: 36px;
+    line-height: 36px;
+    font-size: 20px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+#myCan {
+    margin-left: 25px;
+    transform: scale(0.5);
+    transform-origin: 0 0;
+}
+
+.uploadPics {
+    position: relative;
+    float: left;
+    width: 360px;
+    background-color: #fff;
+    /*border-top: 3px solid #ed2828;  */
+    height: 400px;
+    overflow: hidden;
+}
+
+.uploadPics>img {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    cursor: pointer;
+}
+
+.uploadPics .picTil {
+    padding: 20px;
+    font-size: 16px;
+    color: #323232;
+    border-bottom: 1px solid #f3f3f3;
+}
+
+.uploadPics .picCont {
+    margin: 20px;
+    padding: 15px;
+    width: 300px;
+    height: 337px;
+    background-color: #f2f2f5;
+}
+
+.uploadPics .picCont>p {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.uploadPics .picFooter {
+    text-align: center;
+}
+
+.uploadPics .picFooter .btn {
+    display: inline-block;
+    margin: 20px;
+    width: 130px;
+    height: 35px;
+    font-size: 18px;
+    line-height: 35px;
+    color: #333;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.uploadPics .picFooter .upload {
+    background-color: #aaa;
+}
+
+.uploadPics .picFooter .confirm {
+    background-color: #f4ad23;
+}
+
+.layershade {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .8);
+    pointer-events: auto;
+}
+
+.thirdLayerIn {
+    position: fixed;
+    /*display: none;*/
+    top: 50%;
+    left: 50%;
+    background-color: #fff;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-animation-duration: .2s;
+    animation-duration: .2s;
+}
+
+.upload-wrap {
+    width: 730px;
+    background-color: #ffffff;
+    height: 456px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -228px;
+    margin-left: -365px;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.addimglayer {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    overflow: hidden;
+    margin: 0;
+    z-index: 510;
+    background: rgba(0, 0, 0, .6)
+}
+
+.addimglayerbox {
+    width: 730px;
+    height: 500px;
+    background: rgb(255, 255, 255);
+    position: relative;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translateY(-50%) translateX(-50%);
+    transform: translateY(-50%) translateX(-50%);
+    border-radius: 2px;
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    z-index: 1010;
+}
+
+.layermain {
+    position: relative;
+}
+
+/*头像截取插件的css*/
+
+.jcrop-holder {
+    direction: ltr;
+    text-align: center;
+    margin: 0 auto;
+    /* IE10 touch compatibility */
+    -ms-touch-action: none;
+}
+
+/* Selection Border */
+
+.jcrop-vline,
+.jcrop-hline {
+    background: #ffffff;
+    font-size: 0;
+    position: absolute;
+}
+
+.jcrop-vline {
+    height: 100%;
+    width: 1px !important;
+}
+
+.jcrop-vline.right {
+    right: 0;
+}
+
+.jcrop-hline {
+    height: 1px !important;
+    width: 100%;
+}
+
+.jcrop-hline.bottom {
+    bottom: 0;
+}
+
+/* Invisible click targets */
+
+.jcrop-tracker {
+    height: 100%;
+    width: 100%;
+    /* "turn off" link highlight */
+    -webkit-tap-highlight-color: transparent;
+    /* disable callout, image save panel */
+    -webkit-touch-callout: none;
+    /* disable cut copy paste */
+    -webkit-user-select: none;
+}
+
+/* Selection Handles */
+
+.jcrop-handle {
+    background-color: #333333;
+    border: 1px #eeeeee solid;
+    width: 7px;
+    height: 7px;
+    font-size: 1px;
+}
+
+.jcrop-handle.ord-n {
+    left: 50%;
+    margin-left: -4px;
+    margin-top: -4px;
+    top: 0;
+}
+
+.jcrop-handle.ord-s {
+    bottom: 0;
+    left: 50%;
+    margin-bottom: -4px;
+    margin-left: -4px;
+}
+
+.jcrop-handle.ord-e {
+    margin-right: -4px;
+    margin-top: -4px;
+    right: 0;
+    top: 50%;
+}
+
+.jcrop-handle.ord-w {
+    left: 0;
+    margin-left: -4px;
+    margin-top: -4px;
+    top: 50%;
+}
+
+.jcrop-handle.ord-nw {
+    left: 0;
+    margin-left: -4px;
+    margin-top: -4px;
+    top: 0;
+}
+
+.jcrop-handle.ord-ne {
+    margin-right: -4px;
+    margin-top: -4px;
+    right: 0;
+    top: 0;
+}
+
+.jcrop-handle.ord-se {
+    bottom: 0;
+    margin-bottom: -4px;
+    margin-right: -4px;
+    right: 0;
+}
+
+.jcrop-handle.ord-sw {
+    bottom: 0;
+    left: 0;
+    margin-bottom: -4px;
+    margin-left: -4px;
+}
+
+/* Dragbars */
+
+.jcrop-dragbar.ord-n,
+.jcrop-dragbar.ord-s {
+    height: 7px;
+    width: 100%;
+}
+
+.jcrop-dragbar.ord-e,
+.jcrop-dragbar.ord-w {
+    height: 100%;
+    width: 7px;
+}
+
+.jcrop-dragbar.ord-n {
+    margin-top: -4px;
+}
+
+.jcrop-dragbar.ord-s {
+    bottom: 0;
+    margin-bottom: -4px;
+}
+
+.jcrop-dragbar.ord-e {
+    margin-right: -4px;
+    right: 0;
+}
+
+.jcrop-dragbar.ord-w {
+    margin-left: -4px;
+}
+
+/* The "jcrop-light" class/extension */
+
+.jcrop-light .jcrop-vline,
+.jcrop-light .jcrop-hline {
+    background: #ffffff;
+    filter: alpha(opacity=70) !important;
+    opacity: .70 !important;
+}
+
+.jcrop-light .jcrop-handle {
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    background-color: #000000;
+    border-color: #ffffff;
+    border-radius: 3px;
+}
+
+/* The "jcrop-dark" class/extension */
+
+.jcrop-dark .jcrop-vline,
+.jcrop-dark .jcrop-hline {
+    background: #000000;
+    filter: alpha(opacity=70) !important;
+    opacity: 0.7 !important;
+}
+
+.jcrop-dark .jcrop-handle {
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    background-color: #ffffff;
+    border-color: #000000;
+    border-radius: 3px;
+}
+
+/* Simple macro to turn off the antlines */
+
+.solid-line .jcrop-vline,
+.solid-line .jcrop-hline {
+    background: #ffffff;
+}
+
+/* Fix for twitter bootstrap et al. */
+
+.jcrop-holder img,
+img.jcrop-preview {
+    max-width: none;
+}
+
+/*头像截取插件的css end*/

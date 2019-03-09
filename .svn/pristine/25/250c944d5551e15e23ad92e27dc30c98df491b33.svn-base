@@ -1,0 +1,118 @@
+<?php
+
+namespace V50\Logic;
+
+use V50\Base\BaseLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+//话题讨论喜欢
+class TopicDiscussLikeLogic extends BaseLogic
+{
+    public function UserIsLikeList(array $topic_discuss_ids, $user_id)
+    {
+        if (count($topic_discuss_ids) == 0||intval($user_id)<=0) {
+            return [];
+        }
+        $arr_length = count($topic_discuss_ids);
+        for ($i = 0; $i < $arr_length; $i++) {
+            $topic_discuss_ids[$i] = intval($topic_discuss_ids[$i]);
+        }
+        $like_list = $this->where("topic_discuss_id in(" . implode(',', $topic_discuss_ids) . ") and like_user_id=".intval($user_id)." and is_like='Y' ")->select();
+
+        if (!$like_list) {
+            return [];
+        } else {
+            $user_like_list = [];
+            foreach ($like_list as $value) {
+                $user_like_list[$value['topic_discuss_id']]=1;
+            }
+            return $user_like_list;
+        }
+    }
+
+    public function UserIsLike($topic_discuss_id, $user_id)
+    {
+        if (intval($topic_discuss_id) <= 0||intval($user_id)<=0) {
+            return [];
+        }
+
+        $like = $this->where("topic_discuss_id =" . $topic_discuss_id . " and like_user_id=".intval($user_id)." and is_like='Y' ")->select();
+
+        if (!$like) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+
+    /**
+     * 喜欢讨论
+     * @param $data
+     * @return bool|mixed
+     */
+    public function like($data)
+    {
+        $likeData = $this->model->where(['topic_discuss_id' => $data['topic_discuss_id'], 'like_user_id' => $data['like_user_id'], 'is_like' => 'Y'])->find();
+        if (empty($likeData)) {
+            $topicDiscussLogic = new TopicDiscussLogic();
+            $topicDiscussinfo = $topicDiscussLogic->where(['id' => $data['topic_discuss_id'], 'status' => 1])->find();
+            if ($topicDiscussinfo) {//存在讨论
+                $likeBefore = $this->model->where(['topic_discuss_id' => $data['topic_discuss_id'], 'like_user_id' => $data['like_user_id'], 'is_like' => 'N'])->find();
+                if(!empty($likeBefore)){//已经喜欢过，不再发送消息
+                    $id = $this->where(['id' => $likeBefore['id']])->setField('is_like', 'Y');
+                }else{
+                    $id = $this->add($data);
+                    if($topicDiscussinfo['user_id'] != $data['like_user_id']){//如果不是自己喜欢自己发表的动态，则发送消息
+                        $messageLogic = new MessageLogic();
+                        $topicLogic = new TopicLogic();
+                        $topicInfo=$topicLogic->field('title')->find($topicDiscussinfo['topic_id']);
+                        $action = '';
+                        if($topicDiscussinfo['type']==4){//文章
+                            $action = 'discussArticle';
+                        }else{
+                            $action = 'discussArtcircle';
+                        }
+                        $messageLogic->sendMessage($data['like_user_id'], $topicDiscussinfo['user_id'], '喜欢了你对话题#'.$topicInfo['title'].'#的讨论', $messageLogic->type['topicLike'], MessageLogic::$linkmsg, $messageLogic->createTopicLink('',$data['topic_discuss_id'],$action), $id, false, '', $data['topic_discuss_id']);
+                    }
+                }
+                $topicDiscussLogic->where(['id' => $data['topic_discuss_id']])->setInc('like_num', 1);
+                return $id;
+            } else {//不存在讨论
+                return false;
+            }
+        } else {//已经喜欢
+            return false;
+        }
+    }
+
+    /**
+     * 取消喜欢艺术圈动态
+     * @param $unlikeData
+     * @return bool|mixed
+     */
+    public function unlike($unlikeData)
+    {
+        $condition = ['topic_discuss_id' => $unlikeData['topic_discuss_id'], 'like_user_id' => $unlikeData['like_user_id'], 'is_like' => 'Y'];
+        $likeinfo = $this->model->where($condition)->find();
+        if ($likeinfo) {
+            $topicDiscussLogic = new TopicDiscussLogic();
+            $topicDiscussinfo = $topicDiscussLogic->where(['id' => $unlikeData['topic_discuss_id'], 'status' => 1])->find();
+            if ($topicDiscussinfo) {//存在讨论
+                $like_total = $topicDiscussinfo['like_num'];
+                if ($like_total > 1) {
+                    $topicDiscussLogic->where(['id' => $unlikeData['topic_discuss_id']])->setDec('like_num', 1);
+                } else {
+                    $topicDiscussLogic->where(['id' => $unlikeData['topic_discuss_id']])->setField('like_num', 0);
+                }
+            }
+            return $this->where($condition)->setField('is_like', 'N');
+        } else {//已经取消喜欢
+            return false;
+        }
+    }
+
+}

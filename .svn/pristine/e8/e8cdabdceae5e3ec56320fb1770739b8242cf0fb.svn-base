@@ -1,0 +1,62 @@
+<?php
+
+namespace V43\Controller;
+
+use V43\Base\ApiBaseController;
+use V43\Logic\ArtworkCategoryLogic;
+use V43\Logic\ArtworkColorLogic;
+use V43\Logic\ArtworkLikeLogic;
+use V43\Logic\MessageLogic;
+use V43\Logic\ArtworkLogic;
+use V43\Logic\ArtworkTagLogic;
+use V43\Logic\InviteLogLogic;
+use V43\Logic\ArtworkUpdateLogic;
+use V43\Logic\CommentLogic;
+use V43\Logic\ArtistApplyLogic;
+use V43\Logic\AssetsLogic;
+use V43\Logic\UserLogic;
+use V43\Logic\AgencyLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use V43\Model\AreaModel;
+use Custom\Helper\Verify;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+/**
+ * 认证机构
+ * @author:xugx
+ */
+class AuthAgencyController extends ApiBaseController{
+  public function stepOne(){
+    $all = I('post.');
+    Verify::all($all,[
+      'type' => '!@',
+      'name' => '!',
+      'adminName' => '!',
+      'adminPhone' => '!',
+      'adminEmail' => '!'
+    ]);
+    $all['uid'] = $this->loginUserId;
+    $agencyLogic = new AgencyLogic();
+    $result = $agencyLogic->stepOne($all);
+    Util::jsonReturn([],$result['status'],$result['msg']);
+  }
+  public function stepTwo(){
+    $all = I('post.');
+    Verify::all($all,[
+      'adminImages' => '!',
+      'license' => '!'
+    ]);
+    $all['uid'] = $this->loginUserId;
+    $agencyLogic = new AgencyLogic();
+    $result = $agencyLogic->stepTwo($all);
+    Util::jsonReturn([],$result['status'],$result['msg']);
+  }
+  public function getAuthInfo(){
+    $uid = $this->loginUserId;
+    $agencyLogic = new AgencyLogic();
+    $info = $agencyLogic->where(['uid' => $uid])->find();
+    Util::jsonReturnSuccess($info);
+  }
+}

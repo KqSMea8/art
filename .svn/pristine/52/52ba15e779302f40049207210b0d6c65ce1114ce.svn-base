@@ -1,0 +1,235 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Util;
+use Custom\Helper\Oss;
+use Custom\Helper\Nav;
+
+
+//艺术家-推荐专题
+class RecommendSubjectController extends AdminBaseController
+{
+    //推荐专题列表
+    public function index()
+    {
+        $title = I('get.title');  //专题名称
+        $page = I('get.page', '1');
+        $perPageCount = I('get.perPageCount', '6');
+
+        if(!empty($title)){//搜索专题
+            $type = 0;//搜索
+            $where=[];
+            $start = ($page - 1) * $perPageCount;
+            $query = "SELECT 1 as type,id,title as subname,'' as sub_title,cover as imgurl,create_time as thetime,content,link FROM `az_art_activity` where status=1 and title like '%{$title}%'
+union    SELECT 2 as type,id,sub_name as subname,sub_title,cover as imgurl,start_time as thetime,description as content,'' as link from az_subject where status=0 and (sub_name like '%{$title}%' or sub_title like '%{$title}%') order by type asc,thetime desc limit " . $start . "," . $perPageCount;
+
+            $list = M('artwork')->query($query);
+            $totalCount = M('art_activity')->where("status=1 and title like '%{$title}%'")->count();
+            $totalCount = $totalCount + M('subject')->where("status=0 and (sub_name like '%{$title}%' or sub_title like '%{$title}%')")->count();
+        }else{//显示推荐专题
+            $type = 1;//推荐
+            $where=[];
+            $totalCount = M('recommend_subject')->count();
+            $recommendSubject = M('recommend_subject')->order('sort asc,id desc')->page($page, $perPageCount)->select();
+            $list=[];
+            if(!empty($recommendSubject)){
+                foreach($recommendSubject as $value){
+                    //1--活动   2--专题
+                    if($value['type'] == 1){
+                        $subject = M('art_activity')->field('1 as type,id,title as subname,\'\' as sub_title,cover as imgurl,create_time as thetime,content,link')->where(['id'=>$value['subject_id'],'status'=>1])->find();
+                    }else{
+                        $subject = M('subject')->field('2 as type,id,sub_name as subname,sub_title,cover as imgurl,start_time as thetime,description as content,\'\' as link')->where(['id'=>$value['subject_id'],'status'=>0])->find();
+                    }
+                    if(!empty($subject)){
+                        $subject['imgurl'] = $value['recommend_cover'];
+                        $subject['recommend_id'] = $value['id'];
+                        $list[] = $subject;
+                    }
+
+                }
+
+            }
+        }
+
+        foreach ($list as $key => $value) {
+            $list[$key]['imgurl'] = empty($value['imgurl']) ? '' : $value['imgurl']; //作品封面图
+            $recommend = M('recommend_subject')->where(['subject_id'=>$value['id'],'type'=>$value['type']])->find();
+            if(!empty($recommend)){//已推荐
+                $list[$key]['is_recommend'] = 1;
+                $list[$key]['sort'] = $recommend['sort'];
+            }else{//未推荐
+                $list[$key]['is_recommend'] = 0;
+            }
+        }
+
+        $queryParam=[
+            'title'=>$title,
+        ];
+        $nav = Nav::render(U('Admin/RecommendSubject/index'), $queryParam, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $list);
+        $this->assign('type', $type);
+        $this->assign('queryParam', $queryParam);
+        $this->display('index');
+    }
+
+    //修改序号
+    public function updateSort(){
+        $id = intval(trim(I('post.id')));  //id
+        $sort = intval(trim(I('post.sort')));  //序号
+        $where['id'] = $id;
+        $data['sort'] = $sort;
+        $insertId = M('recommend_subject')->where(['id'=>$id])->save($data);
+        if ($insertId) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+
+    }
+
+    //编辑推荐信息
+    public function edit(){
+        $id = intval(trim(I('get.id')));  //专题id
+        $type = intval(trim(I('get.type')));  //专题type  1--活动   2--专题
+        $recommend = M('recommend_subject')->where(['subject_id'=>$id,'type'=>$type,])->find();
+        if(empty($recommend)){
+            $data = [
+                'subject_id'=>$id,
+                'type'=>$type,
+            ];
+        }else{
+            $data = $recommend;
+        }
+
+        $this->assign('data', $data);
+        $this->display('edit');
+    }
+
+    //专题详情
+    public function getDetail()
+    {
+
+        $id = I('get.id');  //获取艺术专题id
+        $type = I('get.type');  //获取艺术专题id
+
+        if($type == 1){//活动
+            $subinfo = M('art_activity')->field('id,title,cover,create_time,content,link')->where(['id'=>$id,'status'=>1])->find();
+            $this->assign('subinfo', $subinfo);
+            $this->display('activityDetail');
+        }else{
+            $sub = M('Subject')->find($id);  //主题名称
+            //统计参与作品数
+            $count = M('SubjectApply')->where(['subid' => $id])->count();
+            $info = M('SubjectApply')->field('b.id,b.name as artname,c.nickname as username')
+                ->join('LEFT JOIN az_artwork b ON az_subject_apply.artid = b.id')
+                ->join('LEFT JOIN az_user c ON b.artist = c.id')
+                ->where(['az_subject_apply.subid' => $id])
+                ->select();
+
+            $this->assign('subinfo', $sub);
+            $this->assign('subid', $id);
+            $this->assign('info', $info);
+            $this->assign('count', $count);
+            $this->display('subjectDetail');
+        }
+    }
+
+
+    //推荐专题
+    public function recommend()
+    {
+        $id = intval(trim(I('post.id')));  //专题id
+        $type= intval(trim(I('post.type')));// //专题type  1--活动   2--专题
+        $where['subject_id'] = $id;
+        $where['type'] = $type;
+        //1--活动   2--专题
+        if($type == 1){
+            $subject = M('art_activity')->where(['id'=>$id,'status'=>1])->find();
+        }else{
+            $subject = M('subject')->where(['id'=>$id,'status'=>0])->find();
+        }
+        $recommendSubject = M('recommend_subject')->where(['subject_id' => $id])->find();
+        if(empty($subject)){
+            $response = ['error' => 0, 'message' => '参数错误'];
+            echo json_encode($response);
+        }else{
+            if(empty($recommendSubject)){//未推荐
+                if ($_FILES['picture']['error'] == 4) {
+                    $data = [
+                        'subject_id'=>$id,
+                        'type'=>$type
+                    ];
+                } else {
+                    $imgbuff = file_get_contents($_FILES['picture']['tmp_name']);
+                    $result = Oss::upload($imgbuff, 'png');
+                    $picture = $result['info']['url'];
+                    $data = [
+                        'subject_id'=>$id,
+                        'type'=>$type,
+                        'recommend_cover'=>$picture,
+                    ];
+                }
+                $insertId = M('recommend_subject')->add($data);
+            }else{//已推荐
+                if ($_FILES['picture']['error'] == 4) {
+                    $insertId=0;
+                } else {
+                    $imgbuff = file_get_contents($_FILES['picture']['tmp_name']);
+                    $result = Oss::upload($imgbuff, 'png');
+                    $picture = $result['info']['url'];
+                    $data = [
+                        'recommend_cover'=>$picture,
+                    ];
+                    $insertId = M('recommend_subject')->where(['subject_id'=>$id,'type'=>$type,])->save($data);
+                }
+            }
+
+            if ($insertId) {
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '推荐失败或已经推荐'];
+                echo json_encode($response);
+            }
+        }
+
+    }
+
+    //取消推荐专题
+    public function cancelRecommend()
+    {
+        $ids = I('post.id');
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+
+        if(empty($ids)){
+            $response = ['error' => 0, 'message' => '参数错误'];
+            echo json_encode($response);
+        }else{
+            $insertId = M('recommend_subject')->where(['id'=>['in',$ids]])->delete();
+            if ($insertId) {
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '操作失败或专题已经取消推荐'];
+                echo json_encode($response);
+            }
+        }
+
+    }
+
+
+
+}

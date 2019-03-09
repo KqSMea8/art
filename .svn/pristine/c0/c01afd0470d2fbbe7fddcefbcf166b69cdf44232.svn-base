@@ -1,0 +1,87 @@
+<extend name="Public:base" />
+<block name="content">
+   
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">修改app版本</div>
+                <div class="panel-body">
+<form class="form-horizontal" action="{:U('AppUpgrade/appEdit')}" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">appname</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="appname" class="form-control" placeholder="appname" value="{$softinfo['appname']}" maxlength="50" id="appname">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">version</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="version" class="form-control" placeholder="version" value="{$softinfo['version']}" maxlength="50" id="version">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">下载地址</label>
+                            <div class="col-sm-10">
+                              <input type="text" name="appurl" class="form-control" placeholder="地址" value="{$softinfo['appurl']}" maxlength="255" id="appurl" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">app大小</label>
+                            <div class="col-sm-10">
+                              <input type="text" name="filesize" class="form-control" placeholder="app大小" value="{$softinfo['filesize']}" maxlength="50" id="filesize" />
+                          </div>
+            </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">系统</label>
+                            <div class="col-sm-10">
+                              <select name="flag" id="flag" class="form-control" style="width:100px;">
+                                <option value="-1">请选择</option>
+                                <option value="1" <?php if($softinfo['flag']=='1')echo ' selected="selected"';?>>IOS</option>
+                                <option value="2" <?php if($softinfo['flag']=='2')echo ' selected="selected"';?>>Android</option>
+                              </select>
+                          </div>
+            </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">描述</label>
+                            <div class="col-sm-10">
+                              <textarea name="content" rows="8" class="form-control" id="content" placeholder="描述">{$softinfo['content']}</textarea>
+                          </div>
+            </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">是否强制升级</label>
+                            <div class="col-sm-10">
+                              <select name="forced_update" id="forced_update" class="form-control"  style="width:100px;">
+                                <option value="-1">请选择</option>
+                                <option value="0" <?php if($softinfo['forced_update']=='0')echo ' selected="selected"';?>>否</option>
+                                <option value="1" <?php if($softinfo['forced_update']=='1')echo ' selected="selected"';?>>是</option>
+                              </select>
+                          </div>
+            </div>
+
+<div class="form-group">
+                            <label class="col-sm-2 control-label">时间</label>
+                            <div class="col-sm-2">
+                                <input type="date" name="publish_date" class="form-control" value="{$softinfo['publish_date']}" id="publish_date" >
+</div>
+                        </div>
+                        
+<div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success">确定</button>&nbsp;&nbsp;
+                                <input name="id" type="hidden" id="id" value="{$softinfo['id']}" />
+                                
+                                &nbsp;&nbsp;&nbsp;
+                                <a href="<?php echo $_SERVER['HTTP_REFERER'];?>" class="btn btn-default">返回</a>
+                            </div>
+                        </div>
+                    </form>
+                  
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="customJs">
+</block>

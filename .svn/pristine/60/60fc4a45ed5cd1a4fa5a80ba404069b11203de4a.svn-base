@@ -1,0 +1,609 @@
+// var token = getCookie('token');
+
+// if (!token) {
+//   getToken();
+// }
+
+// //避免 CSRF 攻击
+// $.ajaxSetup({
+//   headers: {
+//     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+//   }
+// });
+
+// // getToken
+// function getToken() {
+//   $.ajax({
+//     headers: {
+//       'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+//     },
+//     type: "POST",
+//     url: "/public/getToken",
+//     async: false, //同步获取
+//     data: {},
+//     success: function(res) {
+//       if (res.code = "30000") {
+//         console.log('getToken.data', res.data);
+//         token = res.data.token;
+//       }
+//     }
+//   });
+// }
+console.log('注意！')
+console.log('本环境采用的element-ui版本为1.4.13 ')
+console.log('注意！')
+var ossInfo = {
+  action: 'https://artzhe.oss-cn-shenzhen.aliyuncs.com',
+  audioAction: 'https://artaudio.oss-cn-shenzhen.aliyuncs.com'
+};
+
+// 默认环境
+var mEnv = switchDomin('m').indexOf('local-') > -1 ? 'https://dev-m.artzhe.com' : switchDomin('m');
+
+//各环境domain转换
+function switchDomin(str) { //str:mp|m|www|api
+  var myDomin, aDomin, aFirst, sFirst, sFirstNew;
+
+  aDomin = window.location.host.split('.'); //域名数组
+  sFirst = aDomin[0]; //获取二级域名前缀
+  if (aDomin.length > 2) {
+    aDomin.shift();
+  }
+  sMain = aDomin.join('.');
+  aFirst = sFirst.split('-');
+  sFirstNew = '';
+
+  if (aFirst.length > 1) {
+    sFirstNew = aFirst[0] + '-';
+  }
+  myDomin = 'https:' + '//' + sFirstNew + str + '.' + sMain;
+
+  return myDomin;
+}
+
+// 获取当前日期
+function getCurentDate() {
+  var now = new Date();
+
+  var year = now.getFullYear();       //年
+  var month = now.getMonth() + 1;     //月
+  var day = now.getDate();            //日
+  var hh = now.getHours();            //时
+  var mm = now.getMinutes();          //分
+
+  var clock = year + "年";
+
+  if(month < 10) {
+    clock += "0";
+  }
+
+  clock += month + "月";
+  if(day < 10) {
+    clock += "0";
+  }
+
+  clock += day + "日";
+
+  // if(hh < 10) {
+  //   clock += "0";
+  // }
+  // clock += " " + hh + ":";
+
+  // if (mm < 10) {
+  //   clock += '0';
+  // }
+  // clock += mm;
+
+  return clock;
+}
+
+//判断字符串内是否含有《，没有加上《》
+function checkMark(str) {
+  if (str.indexOf('《') == -1) {
+    str = '《' + str + '》';
+  }
+  return str;
+}
+
+
+// vue全局组件
+// 注册一个空的 Vue 实例，作为 ‘中转站’
+var eventBus = new Vue({});
+
+//插入艺术者控件弹窗
+Vue.component('insert-artzhe-box', {
+  template: '<div class="maskWrap" v-show="searchSeen" style="display: none">'+
+              '<div class="mask" @click="closeSearchSeen"></div>'+
+              '<div class="search-wrap" v-show="searchSeen">'+
+                '<div class="title-tab">'+
+                  '<ul class="tab-navs clearfix">'+
+                    '<li class="tab-nav selected">'+
+                      '<a href="javascript:;">插入</a>'+
+                    '</li>'+
+                  '</ul>'+
+                '</div>'+
+                '<div class="search-con">'+
+                  '<div class="frm_control_group">'+
+                    '<label for="" class="frm_label">插入内容</label>'+
+                    '<div class="frm_controls frm_vertical_lh">'+
+                        '<label v-for="(item,index) in typeList" @click="chooseType(item.type)" :class="[item.selected? \'selected\' : \'\', \'frm_radio_label\']" :for="\'checkbox\' + index">'+
+                            '<i class="icon_radio"></i>'+
+                            '<span class="lbl_content">{{item.text}}</span>'+
+                            '<input type="radio" name="link_type" :value="index" class="frm_radio" :id="\'checkbox\' + index">'+
+                        '</label>'+
+                    '</div>'+
+                  '</div>'+
+                  '<div class="frm_control_group">'+
+                    '<label for="" class="frm_label">搜索</label>'+
+                    '<div v-if="isArtistCircle==false" class="frm_controls">'+
+                        '<span class="js_acc_search_main frm_input_box search_input_box search with_del append" style="display: block;">'+
+                            '<a style="display: block;" class="js_acc_search_del del_btn" href="javascript:">'+
+                              '<i class="icon_search_del"></i>'+
+                            '</a>'+
+                            '<a @click="gotoSearch(1)" href="javascript:void(0);" class="js_acc_search_btn frm_input_append">'+
+                              '<i class="icon16_common search_gray"></i>'+
+                            '</a>'+
+                            '<input v-model="searchInputText" @keyup.enter="gotoSearch(1)" type="text" placeholder="输入名称，回车进行搜索" class="frm_input js_acc_search_input valid">'+
+                        '</span>'+
+                    '</div>'+
+                    '<div v-else-if="isArtistCircle==true" class="frm_controls">'+
+                    '<el-date-picker v-model="timeSelect" type="date" :editable="false" :picker-options="timeLines" class="pickerOptions1 frm_input_box.search" placeholder="选择日期" format @focus="cleardatavalue" @change="gotoDateSearch(1)"></el-date-picker>'+
+                        '<span class="js_acc_search_main frm_input_box search_input_box search with_del2 append" style="display: inline-block;">'+
+                            '<a style="display: block;" class="js_acc_search_del del_btn" href="javascript:">'+
+                              '<i class="icon_search_del"></i>'+
+                            '</a>'+
+                            '<a @click="gotoSearch(1)" href="javascript:void(0);" class="js_acc_search_btn frm_input_append">'+
+                              '<i class="icon16_common search_gray"></i>'+
+                            '</a>'+
+                            '<input v-model="searchInputText" @keyup.enter="gotoSearch(1)" @focus="clearsearchedvalue" type="text" placeholder="输入用户名搜索" class="frm_input js_acc_search_input valid plcolor">'+
+                        '</span>'+
+                    '</div>'+
+                  '</div>'+
+                  '<ul v-if="isArtistCircle==false" class="search-list topline" v-loading="searchLoading" element-loading-text="拼命加载中">'+
+                    '<li v-for="item in searchInfo.list" class="search-item">'+
+                      '<div v-if="activeType == \'artwork\' || activeType == \'article\' || activeType == \'artwork_update\'">'+
+                        '<span class="search-col1">{{item.title}}</span>'+
+                        '<span class="search-col2">{{item.user.nickname}}</span>'+
+                        '<span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>'+
+                      '</div>'+
+                      '<div v-else>'+
+                        '<span class="search-col1">{{item.nickname}}</span>'+
+                        '<span class="search-col2">{{item.category_names}}艺术家</span>'+
+                        '<span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>'+
+                      '</div>'+
+                    '</li>'+
+                  '</ul>'+
+                  '<ul v-else-if="isArtistCircle==true" class="search-list" v-loading="searchLoading" element-loading-text="拼命加载中">'+
+                    '<li v-for="item in searchInfo.list" class="search-item linenone">'+
+                      '<div v-if="item.type==2" class="picAndText">'+
+                        '<img :src="item.images_url[0]">'+
+                        '<div class="contentDiv">'+
+                          '<div class="ttcontent ">'+
+                            '<p class="pt nowrap1">{{item.user.nickname}}</p>'+
+                            '<p class="ptm">{{item.datetime}}</p>'+
+                            '<p class="pc nowrap1">{{item.excerpt}}</p>'+
+                          '</div>'+
+                          '<span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div v-if="item.type==3" class="onlyVedio">'+
+                        '<div class="contentvideoimg">'+
+                          '<img :src="item.video_poster">'+
+                          '<div class="playbtnimg"></div>'+
+                        '</div>'+
+                        '<div class="contentDiv">'+
+                          '<div class="ttcontent ">'+
+                          '<p class="pt nowrap1">{{item.user.nickname}}</p>'+
+                          '<p class="ptm">{{item.datetime}}</p>'+
+                          '<p class="pc nowrap1">{{item.excerpt}}</p>'+
+                          '</div>'+
+                          '<span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div v-if="item.type==1" class="onlyAndText">'+
+                        '<div class="contentDiv">'+
+                          '<div class="ttcontent ">'+
+                          '<p class="pt nowrap1">{{item.user.nickname}}</p>'+
+                          '<p class="ptm">{{item.datetime}}</p>'+
+                          '<p class="pc nowrap1">{{item.excerpt}}</p>'+
+                          '</div>'+
+                          '<span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div v-if="item.type>10" class="onlyAndText">'+
+                        '<div class="contentDiv">'+
+                          '<div class="ttcontent ">'+
+                          '<p class="pt nowrap1">{{item.user.nickname}}</p>'+
+                          '<p class="ptm">{{item.datetime}}</p>'+
+                          '<p class="pc looklikelink nowrap1">链接：{{item.share_link.title}}</p>'+
+                          '</div>'+
+                          '<span class="search-col3 addbtnbox1" @click="addToRich(item)"><span class="add-btn1">添加</span></span>'+
+                        '</div>'+
+                      '</div>'+
+                    '</li>'+
+                  '</ul>'+
+                  '<div class="upload-page uppage1 el-pagination" v-if="searchInfo.maxpage > 1">'+
+                    '<button type="button" v-show="searchInfo.page > 1" :class="[ searchInfo.page == 1 ? \'disabled\' : \'\',\'btn-prev\']" @click="pagePrev()" ></button>'+
+                    '<span class="upload-num" >{{searchInfo.page}}/{{searchInfo.maxpage}}</span>'+
+                    '<button type="button" v-show="searchInfo.page != searchInfo.maxpage " :class="[ searchInfo.page == searchInfo.maxpage ? \'disabled\' : \'\',\'btn-next\']" @click="pageNext()" ></button>'+
+                    '<span class="el-pagination__jump "><input type="number" min="1" number="true" v-model="inputpage" class="el-pagination__editor el-pagination__editor2" style="width: 58px;"> <a href="javascript:;" @click="gotoPage()"  class="el-button el-button--info is-plain upload-jump"><span>跳转</span></a></span>'+
+                  '</div>'+
+                '</div>'+
+                '</ul>'+
+              '</div>'+
+           '</div>',
+  data: function () {
+    return {
+      isArtistCircle:false,
+      timeSelect:null, //选择时间
+      searchLoading: false,
+      searchSeen: false,
+      activeType: 'artwork',
+      searchInputText: '', //搜索框值
+      searchInfo: {
+        type: '',
+        list:[],
+        page: 1,
+        pagesize:4,
+        maxpage:1
+      },
+      searchErrorText: '',
+      typeList: [
+        {type: 'artwork', text: '作品', selected: true},
+        {type: 'article', text: '文章', selected: false},
+        {type: 'artwork_update', text: '创作花絮', selected: false},
+        {type: 'artist', text: '艺术家', selected: false},
+        {type: 'art_circle', text: '艺术圈', selected: false}
+        // {type: 'artwork', text: '作品'},
+        // {type: 'artwork', text: '作品'}
+      ],
+      totalpage: 6,
+      curpage: 1,
+      inputpage: '',
+      timeLines: {
+        disabledDate(time) {
+          return time.getTime() > Date.now();
+        }
+      },
+    };
+  },
+  created: function () {
+
+  },
+  mounted: function() {
+    $('.artquan a').on('click',function(){return false}) //禁止点击
+
+    eventBus.$on('showSearch', function() {
+      this.showSearch();
+    }.bind(this));
+  },
+  methods: {
+    showSearch: function () {
+      this.searchSeen = true;
+    },
+    chooseType: function (type) {
+      this.searchInputText='';
+      this.timeSelect =null;
+      var that = this;
+      this.typeList.forEach(function (item) {
+        if (item.selected == true && that.activeType == item.type) {
+          return false;
+        } else {
+          item.selected = false;
+          if (item.type == type) {
+            item.selected = true;
+            that.activeType = type;
+            if(type == 'art_circle'){
+              that.isArtistCircle = true;
+            }else {
+              that.isArtistCircle = false;
+            }
+          }
+          that.resetSearch();
+        }
+      });
+    },
+    resetSearch: function () {
+      this.searchInfo = {
+        type: '',
+        list:[],
+        page: 0,
+        pagesize:4,
+        maxpage:1
+      };
+    },
+    gotoSearch: function (page) {
+      var that = this;
+
+      if (that.searchInputText == '') {
+        that.$message({
+          message: '关键字不能为空'
+        });
+      }
+      var data = {
+        type: that.activeType,
+        page: page ? page : 1,
+        pagesize: 4,
+        keyword: that.searchInputText
+      };
+      that.searchLoading = true;
+      if (that.activeType == 'artwork' || that.activeType == 'article' || that.activeType == 'artwork_update' || that.activeType == 'art_circle') {
+        artzheAgent.callAdmin('Article/ImportContentList', data, function(response) {
+          that.searchLoading = false;
+          if (response.data.status == 1000 && response.code == 30000) {
+            if (response.data.info.page == 1 && response.data.info.list.length == 0) {
+              that.$message({
+                message: '没有相关内容'
+              });
+            }
+
+            that.searchInfo = response.data.info;
+        }
+        }, function(res) {
+          that.searchLoading = false;
+        });
+      } else {
+        artzheAgent.callAdmin('Article/ImportUserList', data, function(response) {
+          that.searchLoading = false;
+          if (response.data.status == 1000 && response.code == 30000) {
+            if (response.data.info.page == 1 && response.data.info.list.length == 0) {
+              that.$message({
+                message: '没有相关内容'
+              });
+            }
+            that.searchInfo = response.data.info;
+
+        }
+        }, function(res) {
+          that.searchLoading = false;
+        });
+      }
+
+    },
+    gotoDateSearch: function (page) {
+      var that = this;
+      if (this.timeSelect == null) {
+
+        return
+      }
+      var data = {
+        type: that.activeType,
+        page: page ? page : 1,
+        pagesize: 4,
+        keyword: '',
+        date: that.changedate(that.timeSelect)
+      };
+      that.searchLoading = true;
+      if (that.activeType == 'art_circle') {
+        artzheAgent.callAdmin('Article/ImportContentList', data, function(response) {
+          that.searchLoading = false;
+          if (response.data.status == 1000 && response.code == 30000) {
+            if (response.data.info.page == 1 && response.data.info.list.length == 0) {
+              that.$message({
+                message: '没有相关内容'
+              });
+            }
+            that.searchInfo = response.data.info;
+        }
+        }, function(res) {
+          that.searchLoading = false;
+        });
+      }
+
+    },
+    pagePrev: function () {
+      if (this.searchInfo.page <= 1) return;
+      if(this.timeSelect!=null){
+        this.gotoDateSearch(--this.searchInfo.page)
+      }else{
+        this.gotoSearch(--this.searchInfo.page);
+      }
+
+      // this.gotoSearch(--this.searchInfo.page);
+    },
+    pageNext: function () {
+      if (this.searchInfo.page >= this.searchInfo.maxpage) return;
+      if(this.timeSelect!=null){
+        this.gotoDateSearch(++this.searchInfo.page)
+      }else{
+        this.gotoSearch(++this.searchInfo.page);
+      }
+      // this.gotoSearch(++this.searchInfo.page);
+    },
+    gotoPage: function () {
+      if (this.inputpage > this.searchInfo.maxpage || this.inputpage < 1) {
+        this.$message({
+          message: '请输入正确的页码'
+        });
+        return false;
+      }
+      if(this.timeSelect!=null){
+        this.gotoDateSearch(this.inputpage)
+      }else{
+        this.gotoSearch(this.inputpage);
+      }
+
+    },
+    closeSearchSeen: function () {
+      this.searchSeen = false;
+    },
+    addToRich: function (item) {
+      var keyLink = '', keyType = '';
+      if (this.activeType == 'artwork_update') {
+        keyLink = '/artwork/update/' + item.id;
+        keyType = 'artworkUpdate';
+      } else if (this.activeType == 'artwork') {
+        keyLink = '/artwork/detail/' + item.id;
+        keyType = 'artworkDetail';
+      } else if (this.activeType == 'article') {
+        keyLink = '/article/detail/' + item.id;
+        keyType = 'articleDetail';
+      } else if (this.activeType == 'artist') {
+        keyLink = '/gallery/detail/' + item.id;
+        keyType = 'galleryDetail';
+      }else if (this.activeType == 'art_circle') {
+
+        keyLink = '/article/detail/' + item.id;
+        keyType = 'artCircleDetail';
+      }
+      var data = {
+        link: mEnv + keyLink,
+        type: keyType,
+        id: item.id
+      };
+      var strData = JSON.stringify(data);
+
+      var content = '';
+      if (this.activeType == 'artwork_update') {
+        content = '<h4 contenteditable="false" class="search-update"><a target="_blank" data-artzhe-type="link" data-artzhe-typeDetail="' + data.type +'" + data-artzhe-id="' + data.id + '" contenteditable="false" href="' + data.link + '">' +
+          '<p class="search-title">'+ item.user.nickname + item.title + '</p>' +
+          '<p class="search-detail">'+ item.excerpt +'</p>' +
+        '</a></h4><div><br></div>';
+      } else if (this.activeType == 'artist') {
+        content = '<h4 contenteditable="false" class="search-user"><a target="_blank" data-artzhe-type="link" data-artzhe-typeDetail="' + data.type +'" + data-artzhe-id="' + data.id + '" contenteditable="false" href="' + data.link + '">'+
+          '<p class="user-avatar" style="background-image: url('+ item.faceUrl +')"></p>'+
+          '<h4 class="search-user-info">'+
+            '<p class="user-name">'+ item.nickname +'</p>'+
+            '<p class="user-type">'+ item.category_names +'艺术家</p>'+
+          '</h4>'+
+        '</a></h4><div><br></div>';
+      } else if (this.activeType == 'article' || this.activeType == 'artwork') {
+        content = '<h4 contenteditable="false" class="search-link"><a target="_blank" data-artzhe-type="link" data-artzhe-typeDetail="' + data.type +'" + data-artzhe-id="' + data.id + '" contenteditable="false" href="' + data.link + '">'+
+        item.title +
+        '</a></h4><div><br></div>';
+      }else if (this.activeType == 'art_circle') {
+
+        if(item.type==1){
+          content ='<div style="text-align:center;display:block;"><section contenteditable="false" class="search-user artquan contentDivforUE" id="artquan">'+
+          '<a target="_blank" class="abc" data-artzhe-type="link" data-artzhe-typeDetail="' + data.type +'" + data-artzhe-id="' + data.id + '" contenteditable="false" href="javascript:;">'+
+            '<section class="ttcontentforUE noleftpadding" contenteditable="false">'+
+              '<p class="ptforUE nowrap1" contenteditable="false">'+item.user.nickname+'</p>'+
+              '<p class="ptmforUE" contenteditable="false">'+item.datetime+'</p>'+
+              '<p class="pcforUE nowrap1" contenteditable="false">'+item.excerpt+'</p>'+
+            '</section>'+
+            '<section class="contentDivforUEboxgo" contenteditable="false">'+
+              '<p class="goxiangqing" contenteditable="false">查看详情 &gt;</p>'+
+              '<section class="smalltrp" contenteditable="false">'+
+                '<p contenteditable="false">'+item.like_total+'</p>'+
+                '<p contenteditable="false">'+item.comment_total+'</p>'+
+              '</section>'+
+            '</section>'+
+            '</a>'+
+          '</section></div><p><br></p>';
+        }
+        if(item.type==2){
+
+          content ='<div style="text-align:center;display:block;"><section contenteditable="false" class="search-user artquan contentDivforUE" id="artquan">'+
+          '<a target="_blank" class="abc" data-artzhe-type="link" data-artzhe-typeDetail="' + data.type +'" + data-artzhe-id="' + data.id + '" contenteditable="false" href="javascript:;">'+
+            '<section class="playbtnbxo" contenteditable="false">'+
+              '<img class="contentimg" contenteditable="false" src="'+item.images_url[0]+'"/>'+
+            '</section>'+
+            '<section class="ttcontentforUE " contenteditable="false">'+
+              '<p class="ptforUE nowrap1" contenteditable="false">'+item.user.nickname+'</p>'+
+              '<p class="ptmforUE" contenteditable="false">'+item.datetime+'</p>'+
+              '<p class="pcforUE nowrap1" contenteditable="false">'+item.excerpt+'</p>'+
+            '</section>'+
+            '<section class="contentDivforUEboxgo" contenteditable="false">'+
+              '<p class="goxiangqing" contenteditable="false">查看详情 &gt;</p>'+
+              '<section class="smalltrp" contenteditable="false">'+
+                '<p contenteditable="false">'+item.like_total+'</p>'+
+                '<p contenteditable="false">'+item.comment_total+'</p>'+
+              '</section>'+
+            '</section>'+
+            '</a>'+
+          '</section></div><p><br></p>';
+        }
+        if(item.type==3){
+
+          content ='<div style="text-align:center;display:block;"><section contenteditable="false" class="search-user artquan contentDivforUE" id="artquan">'+
+          '<a target="_blank" class="abc" data-artzhe-type="link" data-artzhe-typeDetail="' + data.type +'" + data-artzhe-id="' + data.id + '" contenteditable="false" href="javascript:;">'+
+            '<section class="playbtnbxo" contenteditable="false">'+
+              '<img class="contentimg" contenteditable="false" src="'+item.video_poster+'"/>'+
+              '<p class="contentimgplay" contenteditable="false"></p>'+
+            '</section>'+
+            '<section class="ttcontentforUE " contenteditable="false">'+
+              '<p class="ptforUE nowrap1" contenteditable="false">'+item.user.nickname+'</p>'+
+              '<p class="ptmforUE" contenteditable="false">'+item.datetime+'</p>'+
+              '<p class="pcforUE nowrap1" contenteditable="false">'+item.excerpt+'</p>'+
+            '</section>'+
+            '<section class="contentDivforUEboxgo" contenteditable="false">'+
+              '<p class="goxiangqing" contenteditable="false">查看详情 &gt;</p>'+
+              '<section class="smalltrp" contenteditable="false">'+
+                '<p>'+item.like_total+'</p>'+
+                '<p>'+item.comment_total+'</p>'+
+              '</section>'+
+            '</section>'+
+            '</a>'+
+          '</section></div><p><br></p>';
+        }
+        if(item.type>10){
+          content ='<div style="text-align:center;display:block;"><section contenteditable="false" class="search-user artquan contentDivforUE" id="artquan">'+
+          '<a target="_blank" class="abc" data-artzhe-type="link" data-artzhe-typeDetail="' + data.type +'" + data-artzhe-id="' + data.id + '" contenteditable="false" href="javascript:;">'+
+            '<section class="ttcontentforUE noleftpadding" contenteditable="false">'+
+              '<p class="ptforUE nowrap1" contenteditable="false">'+item.user.nickname+'</p>'+
+              '<p class="ptmforUE" contenteditable="false">'+item.datetime+'</p>'+
+              '<p class="pcforUE nowrap1" contenteditable="false">链接：'+item.share_link.title+'</p>'+
+            '</section>'+
+            '<section class="contentDivforUEboxgo" contenteditable="false">'+
+              '<p class="goxiangqing" contenteditable="false">查看详情 &gt;</p>'+
+              '<section class="smalltrp" contenteditable="false">'+
+                '<p contenteditable="false">'+item.like_total+'</p>'+
+                '<p contenteditable="false">'+item.comment_total+'</p>'+
+              '</section>'+
+            '</section>'+
+            '</a>'+
+          '</section></div><p><br></p>';
+        }
+      }
+      // ed.insertContent(content)
+      ue.focus();
+      ue.execCommand('inserthtml', content);
+      ue.focus();
+      this.closeSearchSeen();
+
+    },
+    clearsearchedvalue: function(){
+      this.timeSelect =null;
+      this.inputpage= '';
+      this.resetSearch()
+    },
+    cleardatavalue: function(){
+      this.searchInputText = '';
+      this.inputpage= '';
+      this.resetSearch()
+    },
+    changedate: function (num) {
+      if(num== null){
+        return
+      }
+       //Fri May 18 2018 00:00:00
+       num = num + ""; //给字符串后加一个空格
+       var date = "";
+       var month = new Array();
+       month["Jan"] = 1; month["Feb"] = 2; month["Mar"] = 3; month["Apr"] = 4;
+
+       month["May"] = 5; month["Jan"] = 6; month["Jul"] = 7; month["Aug"] = 8;
+
+       month["Sep"] = 9; month["Oct"] = 10; month["Nov"] = 11; month["Dec"] = 12;
+
+       str = num.split(" "); //根据空格组成数组
+       //通过修改这里可以得到你想要的格式
+       date =str[3]+ "-" + (month[str[1]]>9 ? month[str[1]] : ('0'+month[str[1]])) + "-"+ str[2] ;
+       return date;
+    }
+  }
+});
+// 像素转rem
+function px2rem(con) {
+  con = con.replace(/(\s\d+)px/g, function(s, t) {
+    s = s.replace('px', '');
+    var value = parseInt(s) * 0.0266667;//   此处 1rem = 75px
+    return value + "rem";
+  });
+  con = con.replace(/(:\d+)px/g, function(s, t) {
+    s = s.replace('px', '');
+    var value = parseInt(s) * 0.0266667;//   此处 1rem = 75px
+    return value + "rem";
+  });
+  return con;
+}

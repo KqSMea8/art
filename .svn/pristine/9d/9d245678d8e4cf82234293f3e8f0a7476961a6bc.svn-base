@@ -1,0 +1,88 @@
+<div class="navbar-default sidebar" role="navigation" >
+    <div class="sidebar-nav navbar-collapse">
+
+      <ul class="nav" id="side-menu">
+        <foreach name="_nav" item="n1" key="k1" >
+          <li <?php if($n1['select'])echo 'class="active"'?>>
+              <a href="#"><i class="fa fa-user fa-fw"></i>{$k1}
+                  <if condition="$n1['msg']">
+                      <span style="color: red">({$n1['msg']})</span>
+                  </if>
+                  <span class="fa arrow"></span>
+              </a>
+              <if condition="$n1['data']">
+                  <ul class="nav nav-second-level">
+                      <foreach name="n1.data" item="n2" key="k2" >
+                          <li>
+                              <a <?php if($n2['select'])echo 'class="active"'?>  href="{$n2['url']}">{$n2['name']}
+                                  <if condition="$n2['msg']">
+                                      <span style="color: red">({$n2['msg']})</span>
+                                  </if>
+                              </a>
+                          </li>
+                      </foreach>
+                  </ul>
+              <else />
+                <foreach name="n1" item="n2" key="k2" >
+                    <ul class="nav nav-second-level">
+                        <if condition="$k2 != 'select' && $k2 != 'msg'">
+                            <li <?php if($n2['select'])echo 'class="active"'?>>
+                                <a href="#"><i class="fa fa-user fa-fw"></i>{$k2}
+                                    <if condition="$n2['msg']">
+                                        <span style="color: red">({$n2['msg']})</span>
+                                    </if>
+                                    <span class="fa arrow"></span>
+                                </a>
+                                <if condition="$n2['data']">
+                                    <ul class="nav nav-third-level">
+                                        <foreach name="n2.data" item="n3" key="k3" >
+                                            <li>
+                                                <a <?php if($n3['select'])echo 'class="active"'?>  href="{$n3['url']}">{$n3['name']}
+                                                    <if condition="$n3['msg']">
+                                                        <span style="color: red">({$n3['msg']})</span>
+                                                    </if>
+                                                </a>
+                                            </li>
+                                        </foreach>
+                                    </ul>
+                                <else />
+                                    <foreach name="n2" item="n3" key="k3" >
+                                        <ul class="nav nav-third-level">
+                                            <if condition="$k3 != 'select' && $k3 != 'msg'">
+                                                <li <?php if($n3['select'])echo 'class="active"'?>>
+                                                    <a href="#"><i class="fa fa-user fa-fw"></i>{$k3}
+                                                        <if condition="$n3['msg']">
+                                                            <span style="color: red">({$n3['msg']})</span>
+                                                        </if>
+                                                        <span class="fa arrow"></span>
+                                                    </a>
+                                                    <if condition="$n3['data']">
+                                                        <ul class="nav nav-third-level">
+                                                            <?php foreach($n3["data"] as $k4=>$n4){?><li>
+                                                            <!--<foreach name="n3.data" item="n4" key="k4" >-->
+                                                                <li>
+                                                                    <a style="padding-left: 67px;" <?php if($n4['select'])echo 'class="active"'?>  href="<?php echo $n4['url']?>"><?php echo $n4['name']?>
+                                                                        <if condition="$n4['msg']">
+                                                                            <span style="color: red">(<?php echo $n4['msg']?>)</span>
+                                                                        </if>
+                                                                    </a>
+                                                                </li>
+                                                            <?php }?>
+                                                        </ul>
+                                                    </if>
+                                                </li>
+                                            </if>
+                                        </ul>
+                                    </foreach>
+                                </if>
+                            </li>
+                        </if>
+                    </ul>
+                </foreach>
+              </if>
+          </li>
+        </foreach>
+    </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>

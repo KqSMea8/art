@@ -1,0 +1,109 @@
+._v-container {
+  top: 0 !important;
+}
+
+/* header */
+#header {
+  position: fixed;
+  top: 0;
+  width: 10.0rem;
+  height: 1.17333rem;
+  text-align: center;
+  background: rgba(0, 0, 0, .3);
+  z-index: 10;
+}
+#header .tit {
+  height: 1.17333rem;
+  line-height: 1.17333rem;
+  font-size: 0.6rem;
+  color: #fff;
+}
+#header .logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -0.54667rem;
+  margin-top: -0.37333rem;
+  width: 1.09333rem;
+  height: 0.74667rem;
+}
+.logo img {
+  width: 1.09333rem;
+  height: 0.74667rem;
+  vertical-align: top;
+}
+
+#header .add {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  margin-top: -0.33333rem;
+  width: 0.66667rem;
+  height: 0.66667rem;
+}
+/* header end */
+
+/* recommend list */
+#main {
+  margin-bottom: 1.30667rem;
+}
+.print-list {
+  position: relative;
+  z-index: 2;
+}
+.print-item {
+  position: relative;
+  width: 10.0rem;
+  height: 10.0rem;
+  opacity: 0;
+  -webkit-transform: translate3d(0,100%,0);
+  -ms-transform: translate3d(0,100%,0);
+  transform: translate3d(0,100%,0);
+}
+.print-item:first-of-type {
+  opacity: 1;
+  -webkit-transform: translate3d(0,0,0);
+  -ms-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
+}
+.print-item img {
+  width: 10.0rem;
+  height: 10.0rem;
+}
+.print-item .print-title {
+  position: absolute;
+  bottom: 0;
+  width: 10.0rem;
+  height: 1.04rem;
+  padding-left: 0.32rem;
+  padding-top: 0.32rem;
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,000000+100 */
+  background: rgb(255,255,255); /* Old browsers */
+  background: -moz-linear-gradient(top,  rgba(255,255,255, 0) 0%, rgba(0, 0, 0, .3) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top,  rgba(255,255,255, 0) 0%,rgba(0, 0, 0, .3) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom,  rgba(255,255,255, 0) 0%,rgba(0,0,0, .3) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
+}
+.print-item .print-title .print-name {
+  display: inline-block;
+  max-width: 5rem;
+  border-left: 0.08rem solid #f5c729;
+  padding-left: 0.13333rem;
+  padding-right: 0.48rem;
+  height: 0.42rem;
+  font-size: 0.4rem;
+  line-height: 0.42rem;
+  vertical-align: top;
+  color: #fff;
+}
+.print-item .print-title .icon-update {
+  position: absolute;
+  top: 50%;
+  margin-top: -0.33333rem;
+  display: inline-block;
+  width: 0.66667rem;
+  height: 0.66667rem;
+}
+
+
+/* recommend list end */

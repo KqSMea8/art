@@ -1,0 +1,9 @@
+var vmUserSignature = new Vue({
+  el: '#user-signature',
+  data: {
+    
+  },
+  methods: {
+    
+  }
+});

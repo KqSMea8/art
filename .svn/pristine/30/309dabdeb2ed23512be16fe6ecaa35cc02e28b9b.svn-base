@@ -1,0 +1,11 @@
+<?php
+
+namespace V50\Logic;
+
+use V50\Base\BaseLogic;
+use V50\Model\SubjectApplyModel;
+
+class SubjectApplyLogic extends BaseLogic
+{
+
+}

@@ -1,0 +1,79 @@
+<extend name="Public:base" />
+<style type="text/css" rel="stylesheet">
+    div.row {
+        margin-bottom: 20px;
+        margin-top: 20px;
+    }
+</style>
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    动态详情如下：
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">标题</div>
+                        <div class="col-md-10">{$data['title']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row">
+                        <div class="col-md-2">类型</div>
+                        <div class="col-md-10">
+                            <if condition="$data['type'] eq 1 ">内容
+                                <else /> 链接
+                            </if>
+                        </div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div id="content" class="row" hidden>
+                        <div class="col-md-2">专题内容</div>
+                        <div class="col-md-10">{$data['content']|htmlspecialchars_decode}</div>
+                    </div>
+                    <div id="url"class="row" hidden>
+                        <div class="col-sm-2">链接</div>
+                        <div class="col-md-10">{$data['url']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row">
+                        <div class="col-md-2">动态显示时间</div>
+                        <div class="col-md-10">{$data['news_date']|date="Y-m-d H:i",###}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">创建时间</div>
+                        <div class="col-md-10">{$data['createtime']|date="Y-m-d H:i:s",###}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">浏览次数</div>
+                        <div class="col-md-10">{$data['view_total']}</div>
+                    </div>
+                    <div class="row" hidden>
+                        <div class="col-md-2">数据来源</div>
+                        <div class="col-md-10">{$data['source']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <a href="{:U('WebsiteConfig/news')}" class="btn btn-default">返回</a>
+            <!-- /.panel -->
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+    <script>
+        $(document).ready(function(){
+            var type = <?php echo $data['type']?>;
+            if(type == 1){
+                $("#content").show();
+                $("#url").hide();
+            }else{
+                $("#url").show();
+                $("#content").hide();
+            }
+        });
+
+    </script>
+</block>

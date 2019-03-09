@@ -1,0 +1,155 @@
+body {
+  background-color: #f4f4f4;
+}
+#main {
+  min-height: 700px;
+}
+.artist-list {
+  margin-top: 20px;
+  margin-bottom: 22px;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(26, 26, 26, 0.18);
+}
+.artist-list a {
+  color: #989898;
+}
+.artist-list .item {
+  position: relative;
+  padding: 30px 25px 30px 96px;
+  color: #989898;
+  border-bottom: 1px solid #f4f4f4;
+}
+.artist-list .avatar {
+  position: absolute;
+  left: 30px;
+  top: 36px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+}
+.artist-list .name{
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
+  color: #1a1a1a;
+}
+.artist-list .name .icons.icon-artist {
+  margin-left: 5px;
+  width: 76px;
+  height: 30px;
+  vertical-align: top;
+  background-position: -300px 3px;
+}
+.artist-list .category {
+  margin-top: 2px;
+  height: 24px;
+  line-height: 24px;
+  font-size: 12px;
+}
+.artist-list .btn-group {
+  text-align: right;
+}
+.artist-list .btn-s {
+  display: inline-block;
+  width: 70px;
+  height: 24px;
+  line-height: 24px;
+  font-size: 12px;
+  text-align: center;
+  color: #fff;
+  background-color: #f4ad23;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.artist-list .btn-s.followed {
+  color: #1a1a1a;
+  background-color: #f4f4f4;
+}
+.artist-list .btn-s.followed:hover {
+  color: #f4ad23;
+}
+
+.artist-list .num {
+  margin-top: 6px;
+  height: 24px;
+  line-height: 24px;
+}
+.artist-list .num strong {
+  color: #1a1a1a;
+}
+.artist-list .num span {
+  margin: 0 16px;
+}
+.artist-list .num span:last-of-type {
+  margin-right: 0;
+}
+.artist-list .art-list {
+  margin-top: 20px;
+}
+.artist-list .art-list li {
+  position: relative;
+  margin-left: 30px;
+}
+.artist-list .art-list li:first-of-type {
+  margin-left: 0;
+}
+.artist-list .art-pic {
+  width: 170px;
+  height: 170px;
+}
+.artist-list .art-list h3 {
+  position: relative;
+  margin-top: 10px;
+  height: 24px;
+  font-size: 14px;
+  line-height: 24px;
+  color: #1a1a1a;
+}
+.artist-list a:hover,
+.artist-list a:hover h3,
+.artist-list .art-list a:hover h3 {
+  color: #f4ad23;
+}
+.artist-list .art-list h3 .icons {
+  position: absolute;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background-position: -275px -101px;
+  cursor: pointer;
+}
+.artist-list .art-list h3 span {
+  display: inline-block;
+  width: 135px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.artist-list .art-list h3 .icons.icon-like {
+  background-position: -275px -101px;
+}
+.artist-list .art-list h3 .icons.icon-liked {
+  background-position: -250px -101px;
+}
+.artist-list .enter {
+  position: relative;
+  float: right;
+  width: 50px;
+  height: 170px;
+  padding: 17px;
+  padding-top: 42px;
+  font-size: 16px;
+  line-height: 20px;
+  border: 1px solid #f4f4f4;
+}
+.artist-list .enter:hover {
+  border: 1px solid #f4ad23;
+}
+.artist-list .enter .icons.icon-pointer {
+  position: absolute;
+  bottom: 20px;
+  left: 9px;
+  width: 32px;
+  height: 25px;
+  background-position: -300px -100px;
+}

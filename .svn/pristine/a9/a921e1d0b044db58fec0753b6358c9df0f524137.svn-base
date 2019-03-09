@@ -1,0 +1,316 @@
+<?php
+namespace Mp\Controller;
+
+use Mp\Base\ApiBaseController;
+use Custom\Helper\Validate;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use Custom\Define\Cache;
+use Custom\Define\Time;
+use Mp\Logic\UserLogic;
+use Custom\Define\Image;
+use Think\Model;
+use Mp\Logic\ArtworkCategoryLogic;
+
+class AgencyController extends ApiBaseController
+{
+
+    // 机构添加艺术家（直接添加用户，然后切换身份，以用户身份登陆，跳转到艺术家认证页面提交认证信息，再切换回自己身份）
+    public function AddUser()
+    {
+        // 校验权限
+        $this->checkLogin(); // 登陆验证
+        CheckUserRole($this->loginUserId, 'agency'); // 验证是否机构
+        
+        $mobile_email = trim(I('post.mobile'));
+        $nickname = trim(I('post.nickname'));
+        $face = trim(I('post.face'));
+        $gender = intval(I('post.gender'));
+        
+        $password = I('post.password');
+//         $repassword = I('post.repassword');
+
+        //mobile email统一判断赋值，默认输入的是mobile
+        if(filter_var($mobile_email, FILTER_VALIDATE_EMAIL)){
+            $email=$mobile_email;
+            $mobile='';
+        }else{
+            $email='';
+            $mobile=$mobile_email;
+        }
+
+        if ($mobile==''&&$email=='') {
+            Util::jsonReturn(null, Code::MOBILE_ERR, '请输入手机号码或者Email地址');
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)&&! Validate::isMobile($mobile)) {
+            Util::jsonReturn(null, Code::MOBILE_ERR, '请输入正确的手机号码或者Email地址!');
+        }
+
+//         if ($password != $repassword) {
+//             Util::jsonReturn(null, Code::PARAM_ERR, '两次输入密码不统一');
+//         }
+        if ($face == '') {
+            Util::jsonReturn(null, Code::PARAM_ERR, '请上传头像');
+        }
+        if ($nickname == '') {
+            Util::jsonReturn(null, Code::PARAM_ERR, '请输入昵称');
+        }
+        if (strlen($password)<6) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '密码不能为空，必须六位以上');
+        }
+        if (! in_array($gender, [
+            1,
+            2,
+            3
+        ])) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '请选择性别');
+        }
+        
+        $userM = M("user");
+        if(filter_var($mobile_email, FILTER_VALIDATE_EMAIL)){
+            $where['email'] = $mobile_email;
+        }else{
+            $where['mobile'] = $mobile_email;
+        }
+
+        $user_info = $userM->field('id,nickname')
+            ->where($where)
+            ->find();
+        if ($user_info) {
+            if(filter_var($mobile_email, FILTER_VALIDATE_EMAIL)){
+                Util::jsonReturn(null, Code::SYS_ERR, 'Email已经注册');
+            }else{
+                Util::jsonReturn(null, Code::SYS_ERR, '手机号已经注册');
+            }
+
+        } else {
+            $passwordInfo = Util::encryptPassword($password);
+            // 添加用户
+            $userM->add([
+                'mobile' => $mobile,
+                'email' => $email,
+                'name' => $nickname,
+                'nickname' => $nickname,
+                'gender' => $gender,
+                'face' => $face,
+                'create_time'=>time(),
+                'ip' => get_client_ip(1),
+                'enc_password' => $passwordInfo['encryptedPassword'],
+                'enc_salt' => $passwordInfo['salt'],
+                'from' => '机构添加艺术家'
+            ]);
+            $insertid = $userM->getLastInsID();
+            
+            $agency_artist_relationM = M("agency_artist_relation");
+            // 添加机构与艺术家的关联
+            $agency_artist_relationM->add([
+                'agency_user_id' => $this->loginUserId,
+                'artist_user_id' => $insertid,
+                'create_time' => time(),
+                'status' => 1
+            ]);
+            
+            Util::jsonReturn([
+                'status' => 1000,
+                'artist_user_id' => $insertid
+            ]);
+        }
+    }
+
+    // 机构切换到自己机构下面艺术家的身份登陆
+    public function ChangeLoginToArtist()
+    {
+        
+        // 校验权限
+        $this->checkLogin(); // 登陆验证
+        CheckUserRole($this->loginUserId, 'agency'); // 验证是否时机构
+        
+        $artist_user_id = intval(I('post.artist_user_id'));
+        if ($artist_user_id <= 0) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误');
+        }
+        
+        $agency_artist_relationM = M("agency_artist_relation");
+        
+        $where['agency_user_id'] = $this->loginUserId;
+        $where['artist_user_id'] = $artist_user_id;
+        $where['status'] = 1;
+        $agency_artist_relation_info = $agency_artist_relationM->where($where)->find();
+        // 判断是否自己机构下面的艺术家
+        if ($agency_artist_relation_info) {
+            // 保存自己原来的真实身份
+            S(Cache::TOKEN_PREFIX . $this->token . '_real_identity', S(Cache::TOKEN_PREFIX . $this->token), Time::TOKEN_EXPIRE_30_DAY);
+            
+            // 以艺术家新身份登陆
+            $userLogic = new UserLogic();
+            $userInfo = $userLogic->getUserInfoById($artist_user_id);
+            if ($userInfo['is_deleted'] == 'N') {
+                if ($userInfo['type'] == 3 || $userInfo['type'] == 7) {
+                    $isArtist = 1;
+                } else {
+                    $isArtist = - 1;
+                }
+                S(Cache::TOKEN_PREFIX . $this->token, [
+                    'userInfo' => $userInfo,
+                    'temporary_login' => 1,
+                    'thirdInfo' => '',
+                    'thirdFullInfoJson' => '',
+                    'isLogin' => true,
+                    'isArtist' => $isArtist
+                ], Time::TOKEN_EXPIRE_30_DAY);
+                $userLogic->saveLoginInfo($artist_user_id);
+                
+                // 登陆日志
+                $login_logM = M("login_log");
+                $login_logM->add([
+                    'user_id' => $artist_user_id,
+                    'device' => '机构：' . $this->loginUserId . '以：' . $artist_user_id . '身份登陆',
+                    'interface' => __ACTION__,
+                    'login_time' => time(),
+                    'token' => $this->token
+                ]);
+                Util::jsonReturn([
+                    'status' => 1000
+                ]);
+            }
+        }
+    }
+
+    // 切换回旧身份
+    public function ChangeLoginToRealIdentity()
+    {
+        // 校验权限
+        $this->checkLogin(); // 登陆验证
+        
+        $_real_identity = S(Cache::TOKEN_PREFIX . $this->token . '_real_identity'); // 旧身份
+        $_current_identity = S(Cache::TOKEN_PREFIX . $this->token); // 当前身份
+        
+        if ($_real_identity && $_current_identity['temporary_login'] == 1) {
+            S(Cache::TOKEN_PREFIX . $this->token, $_real_identity, Time::TOKEN_EXPIRE_30_DAY);
+            S(Cache::TOKEN_PREFIX . $this->token . '_real_identity', null);
+            Util::jsonReturn([
+                'status' => 1000
+            ]);
+        }
+    }
+
+    public function MyArtist()
+    {
+            
+            // 校验权限
+        $this->checkLogin(); // 登陆验证
+        CheckUserRole($this->loginUserId, 'agency'); // 验证是否时机构
+        
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+        
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+        
+        $agency_artist_relationM = M("agency_artist_relation");
+        $where['az_agency_artist_relation.agency_user_id'] = $this->loginUserId;
+        $where['az_agency_artist_relation.status'] = 1;
+        $where['az_user.is_deleted'] = 'N';
+        
+        $total = $agency_artist_relationM->join('az_user on az_agency_artist_relation.artist_user_id=az_user.id', 'left')
+            ->where($where)
+            ->count();
+        
+        $list = $agency_artist_relationM->field('az_user.id,az_user.nickname,az_user.face,az_artist_apply.province,az_artist_apply.city,az_artist_apply.area')
+            ->join('az_user on az_agency_artist_relation.artist_user_id=az_user.id', 'left')
+            ->join('az_artist_apply on az_agency_artist_relation.artist_user_id=az_artist_apply.user_id', 'left')
+            ->where($where)
+            ->order('az_agency_artist_relation.id desc')
+            ->page($page, $pagesize)
+            ->select();
+        
+        $artist_ids=[];
+        foreach ($list as $key => $value) {
+            array_push($artist_ids, $value['id']);
+        }
+            
+        // 区域查询，全部查询
+        $user_area = [];
+        if(count($list)){
+            $area_sql = "";
+            foreach ($list as $key => $value) {
+                if ($area_sql == "") {
+                    $area_sql = "SELECT " . intval($value['id']) . " as user_id, id,aname FROM `az_area` where id=" . intval($value['province']) . " or id=" . intval($value['city']) . " or id=" . intval($value['area']) . " ";
+                } else {
+                    $area_sql = $area_sql . " union all SELECT " . intval($value['id']) . " as user_id, id,aname FROM `az_area` where id=" . intval($value['province']) . " or id=" . intval($value['city']) . " or id=" . intval($value['area']) . " ";
+                }
+            }
+            $Model = new Model();
+            $area_data = $Model->query($area_sql);
+        
+            // 用户区域分组
+            
+            foreach ($area_data as $key => $value) {
+                $user_area[$value['user_id']] = $user_area[$value['user_id']] == null ? $value['aname'] : $user_area[$value['user_id']] . $value['aname'];
+            }
+        }
+        // 区域查询，全部查询 end
+        
+        //作品数
+        $artist_artwork=[];
+         if(count($artist_ids)){
+            $artwork_M=M('artwork');
+            $where_artwork['artist']=array('in',$artist_ids);
+            $artwork_list=$artwork_M->field('artist,count(*) as counts')->where($where_artwork)->group('artist')->select();
+            foreach ($artwork_list as $key => $value) {
+                $artist_artwork[$value['artist']]=$value['counts'];
+            }
+        }
+        //上次登陆
+        $login_log_time=[];
+        if(count($artist_ids)){
+            $login_log_M=M('login_log');
+            $login_log_where['user_id']=array('in',$artist_ids);
+            $login_log_list=$login_log_M->field('user_id,max(login_time) as login_time')->where($login_log_where)->group('user_id')->select();
+            foreach ($login_log_list as $key => $value) {
+                $login_log_time[$value['user_id']]=$value['login_time'];
+            }
+        }
+        
+        //审核状态
+        $artist_check_status=[];
+        if(count($artist_ids)){
+            $artist_apply_M=M('artist_apply');
+            $artist_apply_where['user_id']=array('in',$artist_ids);
+            $artist_apply_list=$artist_apply_M->field('')->where($artist_apply_where)->select();
+            foreach ($artist_apply_list as $key => $value) {
+                $artist_check_status[$value['user_id']]=$value['verify_state'];
+            }
+        }
+        
+        
+        
+        $artist = [];
+        $artworkCateogoryLogic = new ArtworkCategoryLogic();
+        foreach ($list as $key => $value) {
+            $artist[$key]['id'] = $value['id'];
+            $artist[$key]['nickname'] = $value['nickname'];
+            $artist[$key]['face'] = Util::getImageResize($value['face'], Image::faceWidth, Image::faceHeight);
+            $artist[$key]['address'] = trim($user_area[$value['id']]);
+            $artist[$key]['category_names'] =$artworkCateogoryLogic->getCategoryByUser($value['id']);
+            $artist[$key]['artwork_count']=intval($artist_artwork[$value['id']]);
+            $artist[$key]['check_status']=intval($artist_check_status[$value['id']]);
+            $artist[$key]['login_time']=intval($login_log_time[$value['id']])>0?date('Y-m-d H:i:s',intval($login_log_time[$value['id']])):"";
+        }
+        
+        $maxpage = ceil($total / $pagesize);
+        $info = [
+            'artist' => $artist,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+        
+        Util::jsonReturn([
+            'status' => Code::SUCCESS,
+            'info' => $info
+        ]);
+    }
+}

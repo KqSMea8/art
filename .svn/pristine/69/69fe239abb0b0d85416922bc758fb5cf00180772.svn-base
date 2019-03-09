@@ -1,0 +1,80 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: chen
+ * Date: 2018/3/5
+ * Time: 23:30
+ */
+
+namespace Admin\Controller;
+use Common\Base\AdminBaseController;
+use Custom\Helper\Nav;
+use Custom\Helper\Util;
+
+class ShopActivityGoodsController extends AdminBaseController
+{
+    public $pagesize = 10;  //每页显示条数
+    public  function index(){
+        $activity_id = I('get.activity_id');
+
+
+        $nickname = I('get.nickname');
+        $content = I('get.content');
+        $title = I('get.title');
+        $sdate = I('get.sdate');  //注册开始时间
+        $edate = I('get.edate');  //注册结束时间
+        $collect_status=I('get.collect_status');
+        $page = I('get.page', '1');  //页码
+
+        $ShopActivityM = M('ShopActivity');
+        $ShopActivity_info=$ShopActivityM->where(['activity_id'=>$activity_id])->find();
+        if(!$ShopActivity_info){
+            $this->error('操作失败','/Admin/ShopActivity/index',1);
+        }
+
+        $ShopActivityM = M('ShopActivityGoods');
+
+        $where = "status!=0";
+        if (trim($nickname) != '') {
+            $where = $where . " and az_user.nickname like '%" . addslashes(trim($nickname)) . "%'";
+        }
+        if (trim($title) != '') {
+            $where = $where . " and az_article.title like '%" . addslashes(trim($title)) . "%'";
+        }
+        if (trim($content) != '') {
+            $where = $where . " and az_article.content like '%" . addslashes(trim($content)) . "%'";
+        }
+        if (checkDateFormat($sdate)) {
+            $where = $where . " and az_article.create_time>=" . strtotime($sdate);
+        }
+        if (checkDateFormat($edate)) {
+            $edate_time = strtotime($edate) + 86400;
+            $where = $where . " and az_article.create_time<=" . $edate_time;
+        }
+
+        if ($collect_status==1) {
+            $where = $where . " and az_article.is_collect=1 " ;
+        }
+
+        if ($collect_status==2) {
+            $where = $where . " and az_article.is_collect=1 and az_article.collect_wait_publish=1 and az_article.status=2 " ;
+        }
+
+        $Total = $ShopActivityM
+            ->where($where)->count();
+//echo $ArticleLogic->getLastSql();
+        $lists = $ShopActivityM
+            ->where($where)
+            ->order('activity_id DESC')
+            ->page($page, $this->pagesize)
+            ->select();
+
+        $nav = Nav::render(U('Admin/ShopActivityGoods/index'), ['nickname' => $nickname, 'title' => $title, 'content' => $content, 'sdate' => $sdate, 'activity_id' => $activity_id,'collect_status'=>$collect_status], $page, $this->pagesize, $Total);
+
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+        $this->assign('ShopActivity_info', $ShopActivity_info);
+
+        $this->display();
+    }
+}

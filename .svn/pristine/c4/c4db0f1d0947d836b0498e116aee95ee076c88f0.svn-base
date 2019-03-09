@@ -1,0 +1,61 @@
+<?php
+namespace H5\Controller;
+
+use Custom\Helper\Util;
+use Think\Controller;
+
+//用户模块
+class UserController extends Controller {
+
+
+
+
+	//个人简介
+	public function getInfo(){
+
+		$data = [
+					'id'=>'1',
+					'nickname'=>'油画',
+					'motto'=>'motto',
+					'gender'=>'gender',
+					'face'=>'face',
+					'level'=>'level',
+					'mp'=>'mp',
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//修改资料
+	public function modify(){
+
+		$data = [
+					'id'=>'1',
+					'nickname'=>'油画',
+					'motto'=>'motto',
+					'gender'=>'gender',
+					'face'=>'face',
+					'level'=>'level',
+					'mp'=>'mp',
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//检查密码
+	public function checkPasswd(){
+
+		$data = [
+					'id'=>'1',
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+
+	//修改密码
+	public function resetpasswd(){
+
+		$data = [
+					'id'=>'1',
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+}

@@ -1,0 +1,1298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="e159871a-d37a-48da-a4c5-ef2d55caf6ac" name="默认的" comment="" />
+    <ignored path="www.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <ignored path=".idea/dataSources.local.xml" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="www" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="bonus.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/bonus.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="13" column="30" selection-start-line="13" selection-start-column="16" selection-end-line="13" selection-end-column="30" />
+              <folding>
+                <marker date="1513349280959" expanded="true" signature="679:763" placeholder="SELECT * FRO... ${$ecs-&gt;table('bonus_type')}" />
+                <marker date="1513349280959" expanded="true" signature="1455:1618" placeholder="SELECT bonus... ${$GLOBALS['ecs']-&gt;table('user_bonus')}" />
+                <marker date="1513349280959" expanded="true" signature="1713:1856" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('user_bonus')}" />
+                <marker date="1513349280959" expanded="true" signature="2340:2503" placeholder="SELECT bonus... ${$GLOBALS['ecs']-&gt;table('user_bonus')}" />
+                <marker date="1513349280959" expanded="true" signature="2670:2802" placeholder="SELECT bonus... ${$GLOBALS['ecs']-&gt;table('user_bonus')}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="coupons.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/coupons.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="63" column="44" selection-start-line="63" selection-start-column="44" selection-end-line="63" selection-end-column="44" />
+              <folding>
+                <marker date="1513349281124" expanded="true" signature="306:432" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+                <marker date="1513349281124" expanded="true" signature="539:663" placeholder="SELECT group... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+                <marker date="1513349281124" expanded="true" signature="1383:1534" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('coupons_user')}" />
+                <marker date="1513349281124" expanded="true" signature="2682:3009" placeholder="SELECT c.cou... ${$ecs-&gt;table('coupons_user')}" />
+                <marker date="1513349281124" expanded="true" signature="3057:3336" placeholder="SELECT c.*,c... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="3915:4043" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="4199:4317" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+                <marker date="1513349281124" expanded="true" signature="4635:4763" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="6429:6733" placeholder="SELECT c.cou... ${$ecs-&gt;table('coupons_user')}" />
+                <marker date="1513349281124" expanded="true" signature="6781:6931" placeholder="SELECT COUNT... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="7180:7521" placeholder="SELECT c.*,c... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="8767:8880" placeholder="SELECT COUNT... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="9122:9251" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="9405:9523" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+                <marker date="1513349281124" expanded="true" signature="10777:11085" placeholder="SELECT c.*,c... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="11252:11379" placeholder="SELECT COUNT... ${$ecs-&gt;table('coupons_user')}" />
+                <marker date="1513349281124" expanded="true" signature="11800:11919" placeholder="SELECT GROUP... ${$ecs-&gt;table('user_rank')}" />
+                <marker date="1513349281124" expanded="true" signature="12081:12219" placeholder="INSERT INTO ${$ecs-&gt;table('coupons_user')}... " />
+                <marker date="1513349281124" expanded="true" signature="12260:12565" placeholder="SELECT c.cou... ${$ecs-&gt;table('coupons_user')}" />
+                <marker date="1513349281124" expanded="true" signature="12615:12870" placeholder="SELECT c.*,c... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="13470:13598" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="15491:15595" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="16272:16454" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('coupons_user')}" />
+                <marker date="1513349281124" expanded="true" signature="16535:16644" placeholder="SELECT cou_u... ${$GLOBALS['ecs']-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="16784:17023" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('coupons')}" />
+                <marker date="1513349281124" expanded="true" signature="16893:17001" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('coupons_user')}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="lib_main.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/includes/lib_main.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="2013" column="0" selection-start-line="2013" selection-start-column="0" selection-end-line="2013" selection-end-column="0" />
+              <folding>
+                <marker date="1514880654778" expanded="true" signature="979:1094" placeholder="SELECT speci... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+                <marker date="1514880654778" expanded="true" signature="1381:1604" placeholder="SELECT rank_... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+                <marker date="1514880654778" expanded="true" signature="1888:2016" placeholder="SELECT rank_... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+                <marker date="1514880654778" expanded="true" signature="2221:2444" placeholder="SELECT rank_... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+                <marker date="1514880654778" expanded="true" signature="2735:2883" placeholder="DELETE FROM " />
+                <marker date="1514880654778" expanded="true" signature="3745:3873" placeholder="SELECT rank_... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+                <marker date="1514880654778" expanded="true" signature="14222:14262" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('category')}" />
+                <marker date="1514880654778" expanded="true" signature="14641:14786" placeholder="SELECT c.cat... ${$GLOBALS['ecs']-&gt;table('category')}" />
+                <marker date="1514880654778" expanded="true" signature="15069:15109" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('presale_cat')}" />
+                <marker date="1514880654778" expanded="true" signature="15491:15615" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('presale_cat')}" />
+                <marker date="1514880654778" expanded="true" signature="16427:16628" placeholder="SELECT id, n... ${$GLOBALS['ecs']-&gt;table('template')}" />
+                <marker date="1514880654778" expanded="true" signature="17398:17519" placeholder="SELECT cat_n... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+                <marker date="1514880654778" expanded="true" signature="28779:28934" placeholder="SELECT SUM(o... ${$GLOBALS['ecs']-&gt;table('vote_option')}" />
+                <marker date="1514880654778" expanded="true" signature="36126:36564" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('stats')}... " />
+                <marker date="1514880654778" expanded="true" signature="47288:47631" placeholder="select rec_i... ${$GLOBALS['ecs']-&gt;table('cart')}" />
+                <marker date="1514880654778" expanded="true" signature="48507:48695" placeholder="DELETE FROM " />
+                <marker date="1514880654778" expanded="true" signature="49092:49184" placeholder="DELETE FROM " />
+                <marker date="1514880654778" expanded="true" signature="50068:50184" placeholder="DELETE FROM " />
+                <marker date="1514880654778" expanded="true" signature="50570:50737" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+                <marker date="1514880654778" expanded="true" signature="51046:51245" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+                <marker date="1514880654778" expanded="true" signature="51866:51974" placeholder="select user_... ${$GLOBALS['ecs']-&gt;table('users')}" />
+                <marker date="1514880654778" expanded="true" signature="53735:53842" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+                <marker date="1514880654778" expanded="true" signature="54598:54693" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('single')}" />
+                <marker date="1514880654778" expanded="true" signature="54865:55074" placeholder="SELECT singl... ${$GLOBALS['ecs']-&gt;table('single')}" />
+                <marker date="1514880654778" expanded="true" signature="55539:55647" placeholder="select user_... ${$GLOBALS['ecs']-&gt;table('users')}" />
+                <marker date="1514880654778" expanded="true" signature="56195:56305" placeholder="select usefu... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+                <marker date="1514880654778" expanded="true" signature="56376:56487" placeholder="select count... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+                <marker date="1514880654778" expanded="true" signature="57563:57685" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+                <marker date="1514880654778" expanded="true" signature="57886:58071" placeholder="SELECT comme... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+                <marker date="1514880654778" expanded="true" signature="64137:64247" placeholder="SELECT link_... ${$GLOBALS['ecs']-&gt;table($table)}" />
+                <marker date="1514880654778" expanded="true" signature="66421:66513" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('users')}" />
+                <marker date="1514880654778" expanded="true" signature="66761:66864" placeholder="SELECT paren... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+                <marker date="1514880654778" expanded="true" signature="66955:67098" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+                <marker date="1514880654778" expanded="true" signature="68783:68941" placeholder="select cat_i... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+                <marker date="1514880654778" expanded="true" signature="69388:69428" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+                <marker date="1514880654778" expanded="true" signature="70201:70386" placeholder="SELECT libra... ${$GLOBALS['ecs']-&gt;table('template')}" />
+                <marker date="1514880654778" expanded="true" signature="71141:71251" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('nav')}" />
+                <marker date="1514880654778" expanded="true" signature="74862:75027" placeholder="SELECT comme... ${$GLOBALS['ecs']-&gt;table('comment_img')}" />
+                <marker date="1514880654778" expanded="true" signature="75409:75558" placeholder="select artic... ${$GLOBALS['ecs']-&gt;table('article')}" />
+                <marker date="1514880654778" expanded="true" signature="75987:76027" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('wholesale_cat')}" />
+                <marker date="1514880654778" expanded="true" signature="76411:76537" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('wholesale_cat')}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mobile/index.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="37" column="32" selection-start-line="37" selection-start-column="32" selection-end-line="37" selection-end-column="32" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="app.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mobile/bootstrap/app.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-0.0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="goods.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/admin/goods.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-5.9666667">
+              <caret line="4442" column="45" selection-start-line="4442" selection-start-column="45" selection-end-line="4442" selection-end-column="45" />
+              <folding>
+                <marker date="1513349273260" expanded="true" signature="11980:12122" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="12190:12306" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="12376:12493" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="12529:12593" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="16010:16118" placeholder="SELECT ga.ca... ${$ecs-&gt;table('goods_cat')}" />
+                <marker date="1513349273260" expanded="true" signature="16653:16795" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="17546:17662" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="18051:18168" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="18548:18612" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="19428:19536" placeholder="SELECT * FRO... ${$ecs-&gt;table('goods_gallery')}" />
+                <marker date="1513349273260" expanded="true" signature="21023:21188" placeholder="SELECT img_i... ${$ecs-&gt;table('goods_gallery')}" />
+                <marker date="1513349273260" expanded="true" signature="25264:25378" placeholder="SELECT cat_n... ${$GLOBALS['ecs']-&gt;table('goods_type')}" />
+                <marker date="1513349273260" expanded="true" signature="34506:34638" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('goods_cat')}... " />
+                <marker date="1513349273260" expanded="true" signature="34852:34987" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="38634:38749" placeholder="SELECT regio... ${$GLOBALS['ecs']-&gt;table('region_warehouse')}" />
+                <marker date="1513349273260" expanded="true" signature="38942:39070" placeholder="SELECT marke... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+                <marker date="1513349273260" expanded="true" signature="39377:39494" placeholder="SELECT attr_... ${$GLOBALS['ecs']-&gt;table('attribute')}" />
+                <marker date="1513349273260" expanded="true" signature="39957:40057" placeholder="SELECT MAX(g... ${$GLOBALS['ecs']-&gt;table('goods_attr')}" />
+                <marker date="1513349273260" expanded="true" signature="40179:40426" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('goods_attr')}... " />
+                <marker date="1513349273260" expanded="true" signature="45130:45239" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="47882:47991" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="50250:50359" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="51080:51204" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('link_desc_temporary')}" />
+                <marker date="1513349273260" expanded="true" signature="51595:51688" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="52680:52758" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="52796:52889" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="53693:53856" placeholder="SELECT COUNT... ${$ecs-&gt;table('goods')}" />
+                <marker date="1513349273260" expanded="true" signature="58311:58341" placeholder="SELECT MAX(g... ${$ecs-&gt;table('goods')}" />
+                <marker date="1513349273260" expanded="true" signature="65892:68660" placeholder="INSERT INTO ${$ecs-&gt;table('goods')}... " />
+                <marker date="1513349273260" expanded="true" signature="68699:71492" placeholder="INSERT INTO ${$ecs-&gt;table('goods')}... " />
+                <marker date="1513349273260" expanded="true" signature="76158:76360" placeholder="SELECT g.sho... ${$ecs-&gt;table('goods')}" />
+                <marker date="1513349273260" expanded="true" signature="76437:76647" placeholder="SELECT m.* F... ${$ecs-&gt;table('member_price')}" />
+                <marker date="1513349273260" expanded="true" signature="76946:77046" placeholder="SELECT * FRO... ${$ecs-&gt;table('volume_price')}" />
+                <marker date="1513349273260" expanded="true" signature="80051:80152" placeholder="select count... ${$ecs-&gt;table('goods_extend')}" />
+                <marker date="1513349273260" expanded="true" signature="80439:80636" placeholder="INSERT INTO ${$ecs-&gt;table('goods_extend')}... " />
+                <marker date="1513349273260" expanded="true" signature="83851:83963" placeholder="SELECT * FRO... ${$ecs-&gt;table('sale_notice')}" />
+                <marker date="1513349273260" expanded="true" signature="84071:84174" placeholder="select user_... ${$GLOBALS['ecs']-&gt;table('users')}" />
+                <marker date="1513349273260" expanded="true" signature="87282:87386" placeholder="SELECT attr_... ${$ecs-&gt;table('attribute')}" />
+                <marker date="1513349273260" expanded="true" signature="87583:87852" placeholder="SELECT g.*, ${$ecs-&gt;table('goods_attr')}" />
+                <marker date="1513349273260" expanded="true" signature="90162:90410" placeholder="INSERT INTO ${$ecs-&gt;table('goods_attr')}... " />
+                <marker date="1513349273260" expanded="true" signature="91115:91225" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="93304:93506" placeholder="INSERT INTO ${$ecs-&gt;table('goods_gallery')}... " />
+                <marker date="1513349273260" expanded="true" signature="96408:96570" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+                <marker date="1513349273260" expanded="true" signature="99893:100548" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table($table)}... " />
+                <marker date="1513349273260" expanded="true" signature="102858:103454" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table($table)}... " />
+                <marker date="1513349273260" expanded="true" signature="108028:108122" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="108175:108274" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="108327:108431" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="108484:108580" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="114316:114417" placeholder="SELECT p.goo... ${$ecs-&gt;table('products')}" />
+                <marker date="1513349273260" expanded="true" signature="115236:115337" placeholder="SELECT p.goo... ${$ecs-&gt;table('products')}" />
+                <marker date="1513349273260" expanded="true" signature="115988:116079" placeholder="SELECT goods... ${$ecs-&gt;table('products')}" />
+                <marker date="1513349273260" expanded="true" signature="116968:117054" placeholder="SELECT goods... ${$ecs-&gt;table('products')}" />
+                <marker date="1513349273260" expanded="true" signature="120401:120480" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="120522:120620" placeholder="SELECT act_i... ${$ecs-&gt;table('presale_activity')}" />
+                <marker date="1513349273260" expanded="true" signature="120683:120785" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="120811:120901" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="122674:122770" placeholder="SELECT regio... ${$ecs-&gt;table('region')}" />
+                <marker date="1513349273260" expanded="true" signature="122811:122908" placeholder="SELECT regio... ${$ecs-&gt;table('region')}" />
+                <marker date="1513349273260" expanded="true" signature="122945:123038" placeholder="SELECT regio... ${$ecs-&gt;table('region')}" />
+                <marker date="1513349273260" expanded="true" signature="132284:132369" placeholder="delete from " />
+                <marker date="1513349273260" expanded="true" signature="132409:132492" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="133477:133565" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="133605:133693" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="133733:133821" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="133861:133946" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="133986:134070" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="134110:134197" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="134237:134324" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="134364:134450" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="134490:134575" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="134615:134705" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="134745:134823" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="134863:134966" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="135006:135094" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="135134:135222" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="135262:135351" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="135391:135470" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="135510:135600" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="135640:135729" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="135769:135864" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="135904:135998" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="136075:136162" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="137631:137734" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="138467:138569" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="138875:138976" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="139268:139393" placeholder="SELECT goods... ${$ecs-&gt;table('warehouse_goods')}" />
+                <marker date="1513349273260" expanded="true" signature="146474:146580" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="147319:147449" placeholder="SELECT goods... ${$ecs-&gt;table('warehouse_area_goods')}" />
+                <marker date="1513349273260" expanded="true" signature="154658:154795" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+                <marker date="1513349273260" expanded="true" signature="157375:157500" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+                <marker date="1513349273260" expanded="true" signature="160095:160182" placeholder="DELETE FROM " />
+                <marker date="1513349273260" expanded="true" signature="162076:162168" placeholder="SELECT goods... ${$ecs-&gt;table($table)}" />
+                <marker date="1513349273260" expanded="true" signature="163509:163601" placeholder="SELECT goods... ${$ecs-&gt;table($table)}" />
+                <marker date="1513349273260" expanded="true" signature="171827:172009" placeholder="select w_id ${$GLOBALS['ecs']-&gt;table('warehouse_goods')}" />
+                <marker date="1513349273260" expanded="true" signature="173172:173644" placeholder="insert into ${$GLOBALS['ecs']-&gt;table('warehouse_goods')}... " />
+                <marker date="1513349273260" expanded="true" signature="175594:175744" placeholder="SELECT w_id ${$GLOBALS['ecs']-&gt;table('warehouse_goods')}" />
+                <marker date="1513349273260" expanded="true" signature="176599:176973" placeholder="insert into ${$GLOBALS['ecs']-&gt;table('warehouse_goods')}... " />
+                <marker date="1513349273260" expanded="true" signature="180312:180463" placeholder="select a_id ${$GLOBALS['ecs']-&gt;table('warehouse_area_goods')}" />
+                <marker date="1513349273260" expanded="true" signature="181382:181909" placeholder="insert into ${$GLOBALS['ecs']-&gt;table('warehouse_area_goods')}... " />
+                <marker date="1513349273260" expanded="true" signature="184251:184406" placeholder="select a_id ${$GLOBALS['ecs']-&gt;table('warehouse_area_goods')}" />
+                <marker date="1513349273260" expanded="true" signature="185335:185704" placeholder="insert into ${$GLOBALS['ecs']-&gt;table('warehouse_area_goods')}... " />
+                <marker date="1513349273260" expanded="true" signature="187925:188037" placeholder="SELECT * FRO... ${$ecs-&gt;table('goods_gallery')}" />
+                <marker date="1513349273260" expanded="true" signature="188251:188359" placeholder="SELECT * FRO... ${$ecs-&gt;table('goods_gallery')}" />
+                <marker date="1513349273260" expanded="true" signature="189329:189494" placeholder="SELECT img_i... ${$ecs-&gt;table('goods_gallery')}" />
+                <marker date="1513349273260" expanded="true" signature="191236:191331" placeholder="SELECT * FRO... ${$ecs-&gt;table('goods_gallery')}" />
+                <marker date="1513349273260" expanded="true" signature="192875:193039" placeholder="SELECT img_i... ${$ecs-&gt;table('goods_gallery')}" />
+                <marker date="1513349273260" expanded="true" signature="193697:193847" placeholder="SELECT album... ${$ecs-&gt;table('gallery_album')}" />
+                <marker date="1513349273260" expanded="true" signature="194137:194210" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('pic_album')}" />
+                <marker date="1513349273260" expanded="true" signature="202745:202845" placeholder="SELECT membe... ${$ecs-&gt;table('goods_change_log')}" />
+                <marker date="1513349273260" expanded="true" signature="202993:203079" placeholder="SELECT rank_... ${$ecs-&gt;table('user_rank')}" />
+                <marker date="1513349273260" expanded="true" signature="203265:203365" placeholder="SELECT volum... ${$ecs-&gt;table('goods_change_log')}" />
+                <marker date="1513349273260" expanded="true" signature="204634:204717" placeholder="DELETE FROM " />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="lib_publicfunc.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/includes/lib_publicfunc.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-17.928572">
+              <caret line="1230" column="29" selection-start-line="1230" selection-start-column="29" selection-end-line="1230" selection-end-column="29" />
+              <folding>
+                <marker date="1513349394539" expanded="true" signature="972:1113" placeholder="SELECT id FR... ${$GLOBALS['ecs']-&gt;table($table)}" />
+                <marker date="1513349394539" expanded="true" signature="2323:2470" placeholder="SELECT id FR... ${$GLOBALS['ecs']-&gt;table($table)}" />
+                <marker date="1513349394539" expanded="true" signature="2938:3232" placeholder="SELECT sg.go... ${$GLOBALS['ecs']-&gt;table('merchants_grade')}" />
+                <marker date="1513349394539" expanded="true" signature="7160:7411" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('seller_account_log')}" />
+                <marker date="1513349394539" expanded="true" signature="7519:7871" placeholder="SELECT sal.*... ${$GLOBALS['ecs']-&gt;table('seller_account_log')}" />
+                <marker date="1513349394539" expanded="true" signature="8873:8983" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('seller_account_log')}" />
+                <marker date="1513349394539" expanded="true" signature="9394:9690" placeholder="SELECT c.*, ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="10903:11014" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="11678:11909" placeholder="SELECT c.cat... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="12280:12389" placeholder="select paren... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="12715:12824" placeholder="select cat_i... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="13333:13444" placeholder="SELECT paren... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="13529:13640" placeholder="SELECT paren... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="13806:13930" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="16192:16299" placeholder="select paren... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="16713:16808" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="16997:17130" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+                <marker date="1513349394539" expanded="true" signature="17710:17820" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+                <marker date="1513349394539" expanded="true" signature="19280:19374" placeholder="SELECT paren... ${$GLOBALS['ecs']-&gt;table($table)}" />
+                <marker date="1513349394539" expanded="true" signature="19837:19918" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table($table)}" />
+                <marker date="1513349394539" expanded="true" signature="22725:22910" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('goods_attr')}" />
+                <marker date="1513349394539" expanded="true" signature="23176:23303" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+                <marker date="1513349394539" expanded="true" signature="24104:24217" placeholder="DELETE FROM " />
+                <marker date="1513349394539" expanded="true" signature="26683:26765" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table($table)}" />
+                <marker date="1513349394539" expanded="true" signature="26865:26965" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('goods_extend')}" />
+                <marker date="1513349394539" expanded="true" signature="29626:29711" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('category')}" />
+                <marker date="1513349394539" expanded="true" signature="29820:29908" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+                <marker date="1513349394539" expanded="true" signature="30103:30411" placeholder="SELECT rw.re... ${$GLOBALS['ecs']-&gt;table('merchants_region_info')}" />
+                <marker date="1513349394539" expanded="true" signature="31369:31574" placeholder="SELECT SUM(o... ${$GLOBALS['ecs']-&gt;table('order_info')}" />
+                <marker date="1513349394539" expanded="true" signature="34589:34793" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('merchants_account_log')}" />
+                <marker date="1513349394539" expanded="true" signature="34913:35236" placeholder="SELECT sal.*... ${$GLOBALS['ecs']-&gt;table('merchants_account_log')}" />
+                <marker date="1513349394539" expanded="true" signature="36312:36419" placeholder="DELETE FROM " />
+                <marker date="1513349394539" expanded="true" signature="37676:37884" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+                <marker date="1513349394539" expanded="true" signature="40497:40630" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('shop_config')}" />
+                <marker date="1513349394539" expanded="true" signature="49716:49834" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('region_warehouse')}" />
+                <marker date="1513349394539" expanded="true" signature="50655:50794" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+                <marker date="1513349394539" expanded="true" signature="52368:52478" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table($table)}" />
+                <marker date="1513349394539" expanded="true" signature="52598:52753" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table($table)}" />
+                <marker date="1513349394539" expanded="true" signature="53191:53354" placeholder="SELECT attr_... ${$GLOBALS['ecs']-&gt;table('goods_attr')}" />
+                <marker date="1513349394539" expanded="true" signature="54074:54324" placeholder="select rw.re... ${$GLOBALS['ecs']-&gt;table('link_area_goods')}" />
+                <marker date="1513349394539" expanded="true" signature="56084:56252" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('goods_change_log')}" />
+                <marker date="1513349394539" expanded="true" signature="56387:56746" placeholder="SELECT gcl.*... ${$GLOBALS['ecs']-&gt;table('goods_change_log')}" />
+                <marker date="1513349394539" expanded="true" signature="57621:57741" placeholder="SELECT is_di... ${$GLOBALS['ecs']-&gt;table('merchants_steps_fields')}" />
+                <marker date="1513349394539" expanded="true" signature="57929:58028" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+                <marker date="1513349394539" expanded="true" signature="58186:58297" placeholder="select ra_id... ${$GLOBALS['ecs']-&gt;table('merchants_region_area')}" />
+                <marker date="1513349394539" expanded="true" signature="59398:59585" placeholder="SELECT id FR... ${$GLOBALS['ecs']-&gt;table('volume_price')}" />
+                <marker date="1513349394539" expanded="true" signature="59891:60078" placeholder="SELECT id FR... ${$GLOBALS['ecs']-&gt;table('volume_price')}" />
+                <marker date="1513349394539" expanded="true" signature="60139:60341" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('volume_price')}... " />
+                <marker date="1513349394539" expanded="true" signature="60423:60544" placeholder="DELETE FROM " />
+                <marker date="1513349394539" expanded="true" signature="60903:61517" placeholder="SELECT IF(g.... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+                <marker date="1513349394539" expanded="true" signature="61952:62098" placeholder="SELECT regio... ${$GLOBALS['ecs']-&gt;table($table)}" />
+                <marker date="1513349394539" expanded="true" signature="63374:63586" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('goods_lib')}" />
+                <marker date="1513349394539" expanded="true" signature="71268:71384" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('gallery_album')}" />
+                <marker date="1513349394539" expanded="true" signature="77253:77329" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('merchants_shop_brand')}" />
+                <marker date="1513349394539" expanded="true" signature="77496:77709" placeholder="SELECT b.bra... ${$GLOBALS['ecs']-&gt;table('brand')}" />
+                <marker date="1513349394539" expanded="true" signature="77886:78029" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+                <marker date="1513349394539" expanded="true" signature="83069:83363" placeholder="SELECT r2.re... ${$GLOBALS['ecs']-&gt;table('region')}" />
+                <marker date="1513349394539" expanded="true" signature="84976:85271" placeholder="SELECT g.tid... ${$GLOBALS['ecs']-&gt;table('shipping')}" />
+                <marker date="1513349394539" expanded="true" signature="85711:85881" placeholder="SELECT g.* F... ${$GLOBALS['ecs']-&gt;table('goods_transport_tpl')}" />
+                <marker date="1513349394539" expanded="true" signature="87217:87297" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('link_goods_desc')}" />
+                <marker date="1513349394539" expanded="true" signature="87525:87748" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('link_goods_desc')}" />
+                <marker date="1513349394539" expanded="true" signature="88280:88401" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+                <marker date="1513349394539" expanded="true" signature="88956:89077" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="goods.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/languages/zh_cn/goods.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-0.8783455">
+              <caret line="24" column="32" selection-start-line="24" selection-start-column="32" selection-end-line="24" selection-end-column="32" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="autoload.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mobile/vendor/autoload.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="6" column="32" selection-start-line="6" selection-start-column="32" selection-end-line="6" selection-end-column="32" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="autoload_real.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mobile/vendor/composer/autoload_real.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="4" column="6" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/mobile/storage/framework/5b1fb6/Cache/common~runtime.php" />
+        <option value="$PROJECT_DIR$/includes/lib_common.php" />
+        <option value="$PROJECT_DIR$/includes/init.php" />
+        <option value="$PROJECT_DIR$/includes/lib_main.php" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" />
+  <component name="JsBuildToolPackageJson" detection-done="true" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="57" />
+    <option name="y" value="24" />
+    <option name="width" value="1932" />
+    <option name="height" value="1018" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="添加" />
+    <OptionsSetting value="true" id="移除" />
+    <OptionsSetting value="true" id="签出" />
+    <OptionsSetting value="true" id="更新" />
+    <OptionsSetting value="true" id="状态" />
+    <OptionsSetting value="true" id="编辑" />
+    <ConfirmationsSetting value="0" id="添加" />
+    <ConfirmationsSetting value="0" id="移除" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mall" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mall" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="languages" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mall" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="languages" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="zh_cn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scratches" />
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
+      <method />
+    </configuration>
+    <configuration default="true" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner />
+      <method />
+    </configuration>
+    <configuration default="true" type="PhpBehatConfigurationType" factoryName="Behat">
+      <BehatRunner />
+      <method />
+    </configuration>
+    <configuration default="true" type="PhpLocalRunConfigurationType" factoryName="PHP Console">
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
+      <command value="run-script" />
+      <scripts />
+      <envs />
+      <method />
+    </configuration>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration" cleanupOnStartRun="true">
+    <configuration>C:\Users\Administrator\AppData\Roaming\Subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e159871a-d37a-48da-a4c5-ef2d55caf6ac" name="默认的" comment="" />
+      <created>1514341595897</created>
+      <option name="number" value="Default" />
+      <updated>1514341595897</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="57" y="24" width="1932" height="1018" extended-state="1" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17130621" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="版本控制" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="找到" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3291714" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/includes/init_api.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="111" column="15" selection-start-line="111" selection-start-column="15" selection-end-line="111" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/cls_mysql.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="321" column="26" selection-start-line="321" selection-start-column="20" selection-end-line="321" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/cls_ecshop.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="31" selection-start-line="7" selection-start-column="20" selection-end-line="7" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/app/Helpers/base_helper.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.0714285">
+          <caret line="401" column="60" selection-start-line="401" selection-start-column="45" selection-end-line="401" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/vendor/topthink/framework/Common/functions.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.107142">
+          <caret line="57" column="37" selection-start-line="57" selection-start-column="37" selection-end-line="57" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/vendor/topthink/framework/ThinkPHP.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.107142">
+          <caret line="49" column="35" selection-start-line="49" selection-start-column="35" selection-end-line="49" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/.htaccess">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/composer.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/com/jetbrains/php/lang/psi/stubs/data/standard_4.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="649" column="9" selection-start-line="649" selection-start-column="9" selection-end-line="649" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/oss.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.32142857">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/cls_ecshop.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="31" selection-start-line="7" selection-start-column="20" selection-end-line="7" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/cls_mysql.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="321" column="26" selection-start-line="321" selection-start-column="20" selection-end-line="321" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/user.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.00973236">
+          <caret line="767" column="9" selection-start-line="767" selection-start-column="9" selection-end-line="767" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stores/templates/index.dwt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stores/templates/login.dwt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stores/templates/goods_info.dwt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stores/templates/dialog.dwt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stores/templates/deal_store_order.dwt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stores/templates/get_pwd.dwt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-12.5">
+          <caret line="110" column="70" selection-start-line="110" selection-start-column="70" selection-end-line="110" selection-end-column="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/cache_config.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/client/includes/init.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/com/jetbrains/php/lang/psi/stubs/data/_superglobals.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/caches/Memcached.class.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.8953771">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/config.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.55474454">
+          <caret line="24" column="8" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/lib_common.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="423" column="9" selection-start-line="423" selection-start-column="9" selection-end-line="423" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/vendor/topthink/framework/Mode/Api/functions.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="59" column="9" selection-start-line="59" selection-start-column="9" selection-end-line="59" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/includes/init_table.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/init.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="130" column="41" selection-start-line="130" selection-start-column="41" selection-end-line="130" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/get_ajax_content.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="874" column="56" selection-start-line="874" selection-start-column="56" selection-end-line="874" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/lib_insert.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="1481" column="9" selection-start-line="1481" selection-start-column="9" selection-end-line="1481" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/cls_template.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.107142">
+          <caret line="211" column="20" selection-start-line="211" selection-start-column="20" selection-end-line="211" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/lib_visual.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-14.535714">
+          <caret line="114" column="31" selection-start-line="114" selection-start-column="31" selection-end-line="114" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/init_api.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="34.67857">
+          <caret line="154" column="4" selection-start-line="154" selection-start-column="4" selection-end-line="154" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/lib_base.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="913" column="10" selection-start-line="913" selection-start-column="10" selection-end-line="913" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/themes/ecmoban_dsc2017/homeindex.dwt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="22" column="49" selection-start-line="22" selection-start-column="49" selection-end-line="22" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/homeindex.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="3" column="17" selection-start-line="3" selection-start-column="17" selection-end-line="3" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/app/Helpers/main_helper.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="1336" column="9" selection-start-line="1336" selection-start-column="9" selection-end-line="1336" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1513349277010" expanded="true" signature="694:715" placeholder="select count... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349277010" expanded="true" signature="1179:1347" placeholder="select count... ${$GLOBALS['ecs']-&gt;table('ad_position')}" />
+            <marker date="1513349277010" expanded="true" signature="3599:3670" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="8811:9042" placeholder="SELECT u.use... ${$ecs-&gt;table('admin_user')}" />
+            <marker date="1513349277010" expanded="true" signature="9400:9491" placeholder="SELECT value... ${$GLOBALS['ecs']-&gt;table('shop_config')}" />
+            <marker date="1513349277010" expanded="true" signature="9809:9913" placeholder="SELECT nav_l... ${$ecs-&gt;table('admin_user')}" />
+            <marker date="1513349277010" expanded="true" signature="14876:15005" placeholder="DELETE FROM " />
+            <marker date="1513349277010" expanded="true" signature="23886:24065" placeholder="SELECT SUM(o... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="24187:24359" placeholder="SELECT SUM(s... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="24479:24647" placeholder="SELECT SUM(a... ${$ecs-&gt;table('order_return')}" />
+            <marker date="1513349277010" expanded="true" signature="24928:25084" placeholder="SELECT COUNT... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="25123:25223" placeholder="SELECT COUNT... ${$ecs-&gt;table('users')}" />
+            <marker date="1513349277010" expanded="true" signature="25761:25836" placeholder="SELECT count... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="25955:26030" placeholder="SELECT count... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="26154:26229" placeholder="SELECT count... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="26352:26427" placeholder="SELECT count... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="26557:26647" placeholder="SELECT count... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="27038:27344" placeholder="SELECT count... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="28292:28377" placeholder="SELECT value... ${$ecs-&gt;table('shop_config')}" />
+            <marker date="1513349277010" expanded="true" signature="28408:28494" placeholder="SELECT value... ${$ecs-&gt;table('shop_config')}" />
+            <marker date="1513349277010" expanded="true" signature="28607:28686" placeholder="SELECT value... ${$ecs-&gt;table('shop_config')}" />
+            <marker date="1513349277010" expanded="true" signature="28746:28819" placeholder="SELECT pay_n... ${$ecs-&gt;table('payment')}" />
+            <marker date="1513349277010" expanded="true" signature="28875:28951" placeholder="SELECT bucke... ${$ecs-&gt;table('oss_configure')}" />
+            <marker date="1513349277010" expanded="true" signature="31895:31916" placeholder="SELECT COUNT... ${$ecs-&gt;table('users')}" />
+            <marker date="1513349277010" expanded="true" signature="31988:32084" placeholder="SELECT COUNT... ${$ecs-&gt;table('merchants_shop_information')}" />
+            <marker date="1513349277010" expanded="true" signature="34741:34992" placeholder="SELECT oi.fr... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="36424:36780" placeholder="SELECT DATE_... " />
+            <marker date="1513349277010" expanded="true" signature="39708:39827" placeholder="select id,se... ${$ecs-&gt;table('seller_shopinfo')}" />
+            <marker date="1513349277010" expanded="true" signature="39924:40136" placeholder="select conte... ${$GLOBALS['ecs']-&gt;table('seller_shopheader')}" />
+            <marker date="1513349277010" expanded="true" signature="42113:42261" placeholder="SELECT headb... ${$ecs-&gt;table('seller_shopheader')}" />
+            <marker date="1513349277010" expanded="true" signature="43391:43502" placeholder="SELECT COUNT... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="43674:43781" placeholder="SELECT COUNT... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349277010" expanded="true" signature="43841:43862" placeholder="SELECT COUNT... ${$ecs-&gt;table('users')}" />
+            <marker date="1513349277010" expanded="true" signature="43920:43998" placeholder="SELECT value... ${$ecs-&gt;table('shop_config')}" />
+            <marker date="1513349277010" expanded="true" signature="44026:44105" placeholder="SELECT value... ${$ecs-&gt;table('shop_config')}" />
+            <marker date="1513349277010" expanded="true" signature="45160:45237" placeholder="SELECT value... ${$ecs-&gt;table('shop_config')}" />
+            <marker date="1513349277010" expanded="true" signature="45325:45403" placeholder="SELECT value... ${$ecs-&gt;table('shop_config')}" />
+            <marker date="1513349277010" expanded="true" signature="49055:49155" placeholder="SELECT shipp... ${$ecs-&gt;table('shipping')}" />
+            <marker date="1513349277010" expanded="true" signature="49305:49664" placeholder="INSERT INTO ${$ecs-&gt;table('shipping')}... " />
+            <marker date="1513349277010" expanded="true" signature="49839:49994" placeholder="SELECT shipp... ${$ecs-&gt;table('shipping_area')}" />
+            <marker date="1513349277010" expanded="true" signature="50551:50746" placeholder="INSERT INTO ${$ecs-&gt;table('shipping_area')}... " />
+            <marker date="1513349277010" expanded="true" signature="51888:51978" placeholder="SELECT COUNT... ${$ecs-&gt;table('payment')}" />
+            <marker date="1513349277010" expanded="true" signature="52458:52769" placeholder="INSERT INTO ${$ecs-&gt;table('payment')}... " />
+            <marker date="1513349277010" expanded="true" signature="54164:54270" placeholder="INSERT INTO ${$ecs-&gt;table('brand')}... " />
+            <marker date="1513349277010" expanded="true" signature="54370:54498" placeholder="INSERT INTO ${$ecs-&gt;table('category')}... " />
+            <marker date="1513349277010" expanded="true" signature="54643:54673" placeholder="SELECT MAX(g... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349277010" expanded="true" signature="58704:59343" placeholder="INSERT INTO ${$ecs-&gt;table('goods')}... " />
+            <marker date="1513349277010" expanded="true" signature="59435:59652" placeholder="INSERT INTO ${$ecs-&gt;table('goods_gallery')}... " />
+            <marker date="1513349277010" expanded="true" signature="59947:60156" placeholder="SELECT ss.*,... ${$ecs-&gt;table('seller_shopinfo')}" />
+            <marker date="1513349277010" expanded="true" signature="63917:64062" placeholder="SELECT count... ${$ecs-&gt;table('seller_domain')}" />
+            <marker date="1513349277010" expanded="true" signature="65830:66095" placeholder="SELECT ss.sh... ${$ecs-&gt;table('seller_shopinfo')}" />
+            <marker date="1513349277010" expanded="true" signature="68501:68595" placeholder="SELECT id FR... ${$ecs-&gt;table('seller_domain')}" />
+            <marker date="1513349277010" expanded="true" signature="69874:69985" placeholder="select * fro... ${$GLOBALS['ecs']-&gt;table('seller_qrcode')}" />
+            <marker date="1513349277010" expanded="true" signature="70076:70232" placeholder="insert into ${$GLOBALS['ecs']-&gt;table('seller_qrcode')}... " />
+            <marker date="1513349277010" expanded="true" signature="71324:71435" placeholder="select check... ${$ecs-&gt;table('seller_shopinfo')}" />
+            <marker date="1513349277010" expanded="true" signature="73803:73929" placeholder="SELECT COUNT... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="74009:74136" placeholder="SELECT COUNT... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="74373:74448" placeholder="SELECT count... ${$ecs-&gt;table('order_info')}" />
+            <marker date="1513349277010" expanded="true" signature="74598:74795" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('order_return')}" />
+            <marker date="1513349277010" expanded="true" signature="74902:75009" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+            <marker date="1513349277010" expanded="true" signature="75066:75373" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+            <marker date="1513349277010" expanded="true" signature="75489:75681" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('users_real')}" />
+            <marker date="1513349277010" expanded="true" signature="75738:75930" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('users_real')}" />
+            <marker date="1513349277010" expanded="true" signature="76041:76285" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('seller_account_log')}" />
+            <marker date="1513349277010" expanded="true" signature="76422:76551" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('ad')}" />
+            <marker date="1513349277010" expanded="true" signature="78873:79300" placeholder="SELECT u.use... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+            <marker date="1513349277010" expanded="true" signature="79376:79483" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+            <marker date="1513349277010" expanded="true" signature="80393:80574" placeholder="SELECT MAX(e... ${$GLOBALS['ecs']-&gt;table('seller_commission_bill')}" />
+            <marker date="1513349277010" expanded="true" signature="86163:86421" placeholder="SELECT id FR... ${$GLOBALS['ecs']-&gt;table('seller_commission_bill')}" />
+            <marker date="1513349277010" expanded="true" signature="87375:87457" placeholder="SELECT todol... ${$GLOBALS['ecs']-&gt;table('admin_user')}" />
+            <marker date="1513349277010" expanded="true" signature="87702:87794" placeholder="SELECT * FRO... ${$ecs-&gt;table('email_sendlist')}" />
+            <marker date="1513349277010" expanded="true" signature="87968:88052" placeholder="DELETE FROM " />
+            <marker date="1513349277010" expanded="true" signature="88100:88121" placeholder="SELECT COUNT... ${$ecs-&gt;table('email_sendlist')}" />
+            <marker date="1513349277010" expanded="true" signature="88258:88362" placeholder="SELECT * FRO... ${$ecs-&gt;table('mail_templates')}" />
+            <marker date="1513349277010" expanded="true" signature="88651:88735" placeholder="DELETE FROM " />
+            <marker date="1513349277010" expanded="true" signature="88785:88806" placeholder="SELECT COUNT... ${$ecs-&gt;table('email_sendlist')}" />
+            <marker date="1513349277010" expanded="true" signature="89317:89401" placeholder="DELETE FROM " />
+            <marker date="1513349277010" expanded="true" signature="89457:89478" placeholder="SELECT COUNT... ${$ecs-&gt;table('email_sendlist')}" />
+            <marker date="1513349277010" expanded="true" signature="89639:89723" placeholder="DELETE FROM " />
+            <marker date="1513349277010" expanded="true" signature="89771:89792" placeholder="SELECT COUNT... ${$ecs-&gt;table('email_sendlist')}" />
+            <marker date="1513349277010" expanded="true" signature="93101:93222" placeholder="SELECT admin... ${$GLOBALS['ecs']-&gt;table('admin_user')}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/seckill.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="62" column="64" selection-start-line="62" selection-start-column="64" selection-end-line="62" selection-end-column="64" />
+          <folding>
+            <marker date="1513349277858" expanded="true" signature="2559:2627" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('seckill')}" />
+            <marker date="1513349277858" expanded="true" signature="4002:4186" placeholder="SELECT sec_i... ${$GLOBALS['ecs']-&gt;table('seckill')}" />
+            <marker date="1513349277858" expanded="true" signature="4413:4427" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('seckill_time_bucket')}" />
+            <marker date="1513349277858" expanded="true" signature="4580:4675" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('seckill_time_bucket')}" />
+            <marker date="1513349277858" expanded="true" signature="5363:5480" placeholder="SELECT begin... ${$GLOBALS['ecs']-&gt;table('seckill_time_bucket')}" />
+            <marker date="1513349277858" expanded="true" signature="5981:6101" placeholder="SELECT end_t... ${$GLOBALS['ecs']-&gt;table('seckill_time_bucket')}" />
+            <marker date="1513349277858" expanded="true" signature="6894:6960" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349277858" expanded="true" signature="12748:13055" placeholder="INSERT INTO ${$ecs-&gt;table('seckill')}... " />
+            <marker date="1513349277858" expanded="true" signature="14836:14862" placeholder="SELECT MAX(e... ${$ecs-&gt;table('seckill_time_bucket')}" />
+            <marker date="1513349277858" expanded="true" signature="16944:17111" placeholder="INSERT INTO ${$ecs-&gt;table('seckill_time_bucket')}... " />
+            <marker date="1513349277858" expanded="true" signature="20202:20292" placeholder="SELECT sec_i... ${$ecs-&gt;table('seckill_goods')}" />
+            <marker date="1513349277858" expanded="true" signature="20765:20847" placeholder="DELETE FROM " />
+            <marker date="1513349277858" expanded="true" signature="21338:21394" placeholder="DELETE FROM " />
+            <marker date="1513349277858" expanded="true" signature="21463:21525" placeholder="DELETE FROM " />
+            <marker date="1513349277858" expanded="true" signature="22454:22536" placeholder="DELETE FROM " />
+            <marker date="1513349277858" expanded="true" signature="24216:24328" placeholder="SELECT g.goo... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349277858" expanded="true" signature="28466:28657" placeholder="SELECT g.pro... ${$ecs-&gt;table('goods')}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/navigator.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="15" column="10" selection-start-line="15" selection-start-column="10" selection-end-line="15" selection-end-column="10" />
+          <folding>
+            <marker date="1513349277609" expanded="true" signature="352:373" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('nav')}" />
+            <marker date="1513349277609" expanded="true" signature="3769:3842" placeholder="SELECT show_... ${$tablename}" />
+            <marker date="1513349277609" expanded="true" signature="6053:6142" placeholder="SELECT max(v... ${$ecs-&gt;table('nav')}" />
+            <marker date="1513349277609" expanded="true" signature="6420:6723" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('nav')}... " />
+            <marker date="1513349277609" expanded="true" signature="6768:7013" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('nav')}... " />
+            <marker date="1513349277609" expanded="true" signature="7445:7521" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('nav')}" />
+            <marker date="1513349277609" expanded="true" signature="8556:8654" placeholder="SELECT ctype... ${$GLOBALS['ecs']-&gt;table('nav')}" />
+            <marker date="1513349277609" expanded="true" signature="10265:10364" placeholder="SELECT ctype... ${$GLOBALS['ecs']-&gt;table('nav')}" />
+            <marker date="1513349277609" expanded="true" signature="10499:10581" placeholder="DELETE FROM " />
+            <marker date="1513349277609" expanded="true" signature="11244:11343" placeholder="SELECT type,... ${$GLOBALS['ecs']-&gt;table('nav')}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bonus.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="13" column="30" selection-start-line="13" selection-start-column="16" selection-end-line="13" selection-end-column="30" />
+          <folding>
+            <marker date="1513349280959" expanded="true" signature="679:763" placeholder="SELECT * FRO... ${$ecs-&gt;table('bonus_type')}" />
+            <marker date="1513349280959" expanded="true" signature="1455:1618" placeholder="SELECT bonus... ${$GLOBALS['ecs']-&gt;table('user_bonus')}" />
+            <marker date="1513349280959" expanded="true" signature="1713:1856" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('user_bonus')}" />
+            <marker date="1513349280959" expanded="true" signature="2340:2503" placeholder="SELECT bonus... ${$GLOBALS['ecs']-&gt;table('user_bonus')}" />
+            <marker date="1513349280959" expanded="true" signature="2670:2802" placeholder="SELECT bonus... ${$GLOBALS['ecs']-&gt;table('user_bonus')}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/coupons.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="63" column="44" selection-start-line="63" selection-start-column="44" selection-end-line="63" selection-end-column="44" />
+          <folding>
+            <marker date="1513349281124" expanded="true" signature="306:432" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349281124" expanded="true" signature="539:663" placeholder="SELECT group... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+            <marker date="1513349281124" expanded="true" signature="1383:1534" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('coupons_user')}" />
+            <marker date="1513349281124" expanded="true" signature="2682:3009" placeholder="SELECT c.cou... ${$ecs-&gt;table('coupons_user')}" />
+            <marker date="1513349281124" expanded="true" signature="3057:3336" placeholder="SELECT c.*,c... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="3915:4043" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="4199:4317" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349281124" expanded="true" signature="4635:4763" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="6429:6733" placeholder="SELECT c.cou... ${$ecs-&gt;table('coupons_user')}" />
+            <marker date="1513349281124" expanded="true" signature="6781:6931" placeholder="SELECT COUNT... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="7180:7521" placeholder="SELECT c.*,c... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="8767:8880" placeholder="SELECT COUNT... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="9122:9251" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="9405:9523" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349281124" expanded="true" signature="10777:11085" placeholder="SELECT c.*,c... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="11252:11379" placeholder="SELECT COUNT... ${$ecs-&gt;table('coupons_user')}" />
+            <marker date="1513349281124" expanded="true" signature="11800:11919" placeholder="SELECT GROUP... ${$ecs-&gt;table('user_rank')}" />
+            <marker date="1513349281124" expanded="true" signature="12081:12219" placeholder="INSERT INTO ${$ecs-&gt;table('coupons_user')}... " />
+            <marker date="1513349281124" expanded="true" signature="12260:12565" placeholder="SELECT c.cou... ${$ecs-&gt;table('coupons_user')}" />
+            <marker date="1513349281124" expanded="true" signature="12615:12870" placeholder="SELECT c.*,c... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="13470:13598" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="15491:15595" placeholder="SELECT * FRO... ${$ecs-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="16272:16454" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('coupons_user')}" />
+            <marker date="1513349281124" expanded="true" signature="16535:16644" placeholder="SELECT cou_u... ${$GLOBALS['ecs']-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="16784:17023" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('coupons')}" />
+            <marker date="1513349281124" expanded="true" signature="16893:17001" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('coupons_user')}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/lib_main.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2013" column="0" selection-start-line="2013" selection-start-column="0" selection-end-line="2013" selection-end-column="0" />
+          <folding>
+            <marker date="1514880654778" expanded="true" signature="979:1094" placeholder="SELECT speci... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+            <marker date="1514880654778" expanded="true" signature="1381:1604" placeholder="SELECT rank_... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+            <marker date="1514880654778" expanded="true" signature="1888:2016" placeholder="SELECT rank_... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+            <marker date="1514880654778" expanded="true" signature="2221:2444" placeholder="SELECT rank_... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+            <marker date="1514880654778" expanded="true" signature="2735:2883" placeholder="DELETE FROM " />
+            <marker date="1514880654778" expanded="true" signature="3745:3873" placeholder="SELECT rank_... ${$GLOBALS['ecs']-&gt;table('user_rank')}" />
+            <marker date="1514880654778" expanded="true" signature="14222:14262" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('category')}" />
+            <marker date="1514880654778" expanded="true" signature="14641:14786" placeholder="SELECT c.cat... ${$GLOBALS['ecs']-&gt;table('category')}" />
+            <marker date="1514880654778" expanded="true" signature="15069:15109" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('presale_cat')}" />
+            <marker date="1514880654778" expanded="true" signature="15491:15615" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('presale_cat')}" />
+            <marker date="1514880654778" expanded="true" signature="16427:16628" placeholder="SELECT id, n... ${$GLOBALS['ecs']-&gt;table('template')}" />
+            <marker date="1514880654778" expanded="true" signature="17398:17519" placeholder="SELECT cat_n... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+            <marker date="1514880654778" expanded="true" signature="28779:28934" placeholder="SELECT SUM(o... ${$GLOBALS['ecs']-&gt;table('vote_option')}" />
+            <marker date="1514880654778" expanded="true" signature="36126:36564" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('stats')}... " />
+            <marker date="1514880654778" expanded="true" signature="47288:47631" placeholder="select rec_i... ${$GLOBALS['ecs']-&gt;table('cart')}" />
+            <marker date="1514880654778" expanded="true" signature="48507:48695" placeholder="DELETE FROM " />
+            <marker date="1514880654778" expanded="true" signature="49092:49184" placeholder="DELETE FROM " />
+            <marker date="1514880654778" expanded="true" signature="50068:50184" placeholder="DELETE FROM " />
+            <marker date="1514880654778" expanded="true" signature="50570:50737" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+            <marker date="1514880654778" expanded="true" signature="51046:51245" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+            <marker date="1514880654778" expanded="true" signature="51866:51974" placeholder="select user_... ${$GLOBALS['ecs']-&gt;table('users')}" />
+            <marker date="1514880654778" expanded="true" signature="53735:53842" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+            <marker date="1514880654778" expanded="true" signature="54598:54693" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('single')}" />
+            <marker date="1514880654778" expanded="true" signature="54865:55074" placeholder="SELECT singl... ${$GLOBALS['ecs']-&gt;table('single')}" />
+            <marker date="1514880654778" expanded="true" signature="55539:55647" placeholder="select user_... ${$GLOBALS['ecs']-&gt;table('users')}" />
+            <marker date="1514880654778" expanded="true" signature="56195:56305" placeholder="select usefu... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+            <marker date="1514880654778" expanded="true" signature="56376:56487" placeholder="select count... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+            <marker date="1514880654778" expanded="true" signature="57563:57685" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+            <marker date="1514880654778" expanded="true" signature="57886:58071" placeholder="SELECT comme... ${$GLOBALS['ecs']-&gt;table('comment')}" />
+            <marker date="1514880654778" expanded="true" signature="64137:64247" placeholder="SELECT link_... ${$GLOBALS['ecs']-&gt;table($table)}" />
+            <marker date="1514880654778" expanded="true" signature="66421:66513" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('users')}" />
+            <marker date="1514880654778" expanded="true" signature="66761:66864" placeholder="SELECT paren... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+            <marker date="1514880654778" expanded="true" signature="66955:67098" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+            <marker date="1514880654778" expanded="true" signature="68783:68941" placeholder="select cat_i... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+            <marker date="1514880654778" expanded="true" signature="69388:69428" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('article_cat')}" />
+            <marker date="1514880654778" expanded="true" signature="70201:70386" placeholder="SELECT libra... ${$GLOBALS['ecs']-&gt;table('template')}" />
+            <marker date="1514880654778" expanded="true" signature="71141:71251" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('nav')}" />
+            <marker date="1514880654778" expanded="true" signature="74862:75027" placeholder="SELECT comme... ${$GLOBALS['ecs']-&gt;table('comment_img')}" />
+            <marker date="1514880654778" expanded="true" signature="75409:75558" placeholder="select artic... ${$GLOBALS['ecs']-&gt;table('article')}" />
+            <marker date="1514880654778" expanded="true" signature="75987:76027" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('wholesale_cat')}" />
+            <marker date="1514880654778" expanded="true" signature="76411:76537" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('wholesale_cat')}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/vendor/autoload.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="6" column="32" selection-start-line="6" selection-start-column="32" selection-end-line="6" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/vendor/composer/autoload_real.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="4" column="6" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="37" column="32" selection-start-line="37" selection-start-column="32" selection-end-line="37" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mobile/bootstrap/app.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/goods.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.9666667">
+          <caret line="4442" column="45" selection-start-line="4442" selection-start-column="45" selection-end-line="4442" selection-end-column="45" />
+          <folding>
+            <marker date="1513349273260" expanded="true" signature="11980:12122" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="12190:12306" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="12376:12493" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="12529:12593" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="16010:16118" placeholder="SELECT ga.ca... ${$ecs-&gt;table('goods_cat')}" />
+            <marker date="1513349273260" expanded="true" signature="16653:16795" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="17546:17662" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="18051:18168" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="18548:18612" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="19428:19536" placeholder="SELECT * FRO... ${$ecs-&gt;table('goods_gallery')}" />
+            <marker date="1513349273260" expanded="true" signature="21023:21188" placeholder="SELECT img_i... ${$ecs-&gt;table('goods_gallery')}" />
+            <marker date="1513349273260" expanded="true" signature="25264:25378" placeholder="SELECT cat_n... ${$GLOBALS['ecs']-&gt;table('goods_type')}" />
+            <marker date="1513349273260" expanded="true" signature="34506:34638" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('goods_cat')}... " />
+            <marker date="1513349273260" expanded="true" signature="34852:34987" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="38634:38749" placeholder="SELECT regio... ${$GLOBALS['ecs']-&gt;table('region_warehouse')}" />
+            <marker date="1513349273260" expanded="true" signature="38942:39070" placeholder="SELECT marke... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349273260" expanded="true" signature="39377:39494" placeholder="SELECT attr_... ${$GLOBALS['ecs']-&gt;table('attribute')}" />
+            <marker date="1513349273260" expanded="true" signature="39957:40057" placeholder="SELECT MAX(g... ${$GLOBALS['ecs']-&gt;table('goods_attr')}" />
+            <marker date="1513349273260" expanded="true" signature="40179:40426" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('goods_attr')}... " />
+            <marker date="1513349273260" expanded="true" signature="45130:45239" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="47882:47991" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="50250:50359" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="51080:51204" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('link_desc_temporary')}" />
+            <marker date="1513349273260" expanded="true" signature="51595:51688" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="52680:52758" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="52796:52889" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="53693:53856" placeholder="SELECT COUNT... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349273260" expanded="true" signature="58311:58341" placeholder="SELECT MAX(g... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349273260" expanded="true" signature="65892:68660" placeholder="INSERT INTO ${$ecs-&gt;table('goods')}... " />
+            <marker date="1513349273260" expanded="true" signature="68699:71492" placeholder="INSERT INTO ${$ecs-&gt;table('goods')}... " />
+            <marker date="1513349273260" expanded="true" signature="76158:76360" placeholder="SELECT g.sho... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349273260" expanded="true" signature="76437:76647" placeholder="SELECT m.* F... ${$ecs-&gt;table('member_price')}" />
+            <marker date="1513349273260" expanded="true" signature="76946:77046" placeholder="SELECT * FRO... ${$ecs-&gt;table('volume_price')}" />
+            <marker date="1513349273260" expanded="true" signature="80051:80152" placeholder="select count... ${$ecs-&gt;table('goods_extend')}" />
+            <marker date="1513349273260" expanded="true" signature="80439:80636" placeholder="INSERT INTO ${$ecs-&gt;table('goods_extend')}... " />
+            <marker date="1513349273260" expanded="true" signature="83851:83963" placeholder="SELECT * FRO... ${$ecs-&gt;table('sale_notice')}" />
+            <marker date="1513349273260" expanded="true" signature="84071:84174" placeholder="select user_... ${$GLOBALS['ecs']-&gt;table('users')}" />
+            <marker date="1513349273260" expanded="true" signature="87282:87386" placeholder="SELECT attr_... ${$ecs-&gt;table('attribute')}" />
+            <marker date="1513349273260" expanded="true" signature="87583:87852" placeholder="SELECT g.*, ${$ecs-&gt;table('goods_attr')}" />
+            <marker date="1513349273260" expanded="true" signature="90162:90410" placeholder="INSERT INTO ${$ecs-&gt;table('goods_attr')}... " />
+            <marker date="1513349273260" expanded="true" signature="91115:91225" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="93304:93506" placeholder="INSERT INTO ${$ecs-&gt;table('goods_gallery')}... " />
+            <marker date="1513349273260" expanded="true" signature="96408:96570" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349273260" expanded="true" signature="99893:100548" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table($table)}... " />
+            <marker date="1513349273260" expanded="true" signature="102858:103454" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table($table)}... " />
+            <marker date="1513349273260" expanded="true" signature="108028:108122" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="108175:108274" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="108327:108431" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="108484:108580" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="114316:114417" placeholder="SELECT p.goo... ${$ecs-&gt;table('products')}" />
+            <marker date="1513349273260" expanded="true" signature="115236:115337" placeholder="SELECT p.goo... ${$ecs-&gt;table('products')}" />
+            <marker date="1513349273260" expanded="true" signature="115988:116079" placeholder="SELECT goods... ${$ecs-&gt;table('products')}" />
+            <marker date="1513349273260" expanded="true" signature="116968:117054" placeholder="SELECT goods... ${$ecs-&gt;table('products')}" />
+            <marker date="1513349273260" expanded="true" signature="120401:120480" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="120522:120620" placeholder="SELECT act_i... ${$ecs-&gt;table('presale_activity')}" />
+            <marker date="1513349273260" expanded="true" signature="120683:120785" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="120811:120901" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="122674:122770" placeholder="SELECT regio... ${$ecs-&gt;table('region')}" />
+            <marker date="1513349273260" expanded="true" signature="122811:122908" placeholder="SELECT regio... ${$ecs-&gt;table('region')}" />
+            <marker date="1513349273260" expanded="true" signature="122945:123038" placeholder="SELECT regio... ${$ecs-&gt;table('region')}" />
+            <marker date="1513349273260" expanded="true" signature="132284:132369" placeholder="delete from " />
+            <marker date="1513349273260" expanded="true" signature="132409:132492" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="133477:133565" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="133605:133693" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="133733:133821" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="133861:133946" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="133986:134070" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="134110:134197" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="134237:134324" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="134364:134450" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="134490:134575" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="134615:134705" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="134745:134823" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="134863:134966" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="135006:135094" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="135134:135222" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="135262:135351" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="135391:135470" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="135510:135600" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="135640:135729" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="135769:135864" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="135904:135998" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="136075:136162" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="137631:137734" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="138467:138569" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="138875:138976" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="139268:139393" placeholder="SELECT goods... ${$ecs-&gt;table('warehouse_goods')}" />
+            <marker date="1513349273260" expanded="true" signature="146474:146580" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="147319:147449" placeholder="SELECT goods... ${$ecs-&gt;table('warehouse_area_goods')}" />
+            <marker date="1513349273260" expanded="true" signature="154658:154795" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349273260" expanded="true" signature="157375:157500" placeholder="SELECT goods... ${$ecs-&gt;table('goods')}" />
+            <marker date="1513349273260" expanded="true" signature="160095:160182" placeholder="DELETE FROM " />
+            <marker date="1513349273260" expanded="true" signature="162076:162168" placeholder="SELECT goods... ${$ecs-&gt;table($table)}" />
+            <marker date="1513349273260" expanded="true" signature="163509:163601" placeholder="SELECT goods... ${$ecs-&gt;table($table)}" />
+            <marker date="1513349273260" expanded="true" signature="171827:172009" placeholder="select w_id ${$GLOBALS['ecs']-&gt;table('warehouse_goods')}" />
+            <marker date="1513349273260" expanded="true" signature="173172:173644" placeholder="insert into ${$GLOBALS['ecs']-&gt;table('warehouse_goods')}... " />
+            <marker date="1513349273260" expanded="true" signature="175594:175744" placeholder="SELECT w_id ${$GLOBALS['ecs']-&gt;table('warehouse_goods')}" />
+            <marker date="1513349273260" expanded="true" signature="176599:176973" placeholder="insert into ${$GLOBALS['ecs']-&gt;table('warehouse_goods')}... " />
+            <marker date="1513349273260" expanded="true" signature="180312:180463" placeholder="select a_id ${$GLOBALS['ecs']-&gt;table('warehouse_area_goods')}" />
+            <marker date="1513349273260" expanded="true" signature="181382:181909" placeholder="insert into ${$GLOBALS['ecs']-&gt;table('warehouse_area_goods')}... " />
+            <marker date="1513349273260" expanded="true" signature="184251:184406" placeholder="select a_id ${$GLOBALS['ecs']-&gt;table('warehouse_area_goods')}" />
+            <marker date="1513349273260" expanded="true" signature="185335:185704" placeholder="insert into ${$GLOBALS['ecs']-&gt;table('warehouse_area_goods')}... " />
+            <marker date="1513349273260" expanded="true" signature="187925:188037" placeholder="SELECT * FRO... ${$ecs-&gt;table('goods_gallery')}" />
+            <marker date="1513349273260" expanded="true" signature="188251:188359" placeholder="SELECT * FRO... ${$ecs-&gt;table('goods_gallery')}" />
+            <marker date="1513349273260" expanded="true" signature="189329:189494" placeholder="SELECT img_i... ${$ecs-&gt;table('goods_gallery')}" />
+            <marker date="1513349273260" expanded="true" signature="191236:191331" placeholder="SELECT * FRO... ${$ecs-&gt;table('goods_gallery')}" />
+            <marker date="1513349273260" expanded="true" signature="192875:193039" placeholder="SELECT img_i... ${$ecs-&gt;table('goods_gallery')}" />
+            <marker date="1513349273260" expanded="true" signature="193697:193847" placeholder="SELECT album... ${$ecs-&gt;table('gallery_album')}" />
+            <marker date="1513349273260" expanded="true" signature="194137:194210" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('pic_album')}" />
+            <marker date="1513349273260" expanded="true" signature="202745:202845" placeholder="SELECT membe... ${$ecs-&gt;table('goods_change_log')}" />
+            <marker date="1513349273260" expanded="true" signature="202993:203079" placeholder="SELECT rank_... ${$ecs-&gt;table('user_rank')}" />
+            <marker date="1513349273260" expanded="true" signature="203265:203365" placeholder="SELECT volum... ${$ecs-&gt;table('goods_change_log')}" />
+            <marker date="1513349273260" expanded="true" signature="204634:204717" placeholder="DELETE FROM " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/lib_publicfunc.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-17.928572">
+          <caret line="1230" column="29" selection-start-line="1230" selection-start-column="29" selection-end-line="1230" selection-end-column="29" />
+          <folding>
+            <marker date="1513349394539" expanded="true" signature="972:1113" placeholder="SELECT id FR... ${$GLOBALS['ecs']-&gt;table($table)}" />
+            <marker date="1513349394539" expanded="true" signature="2323:2470" placeholder="SELECT id FR... ${$GLOBALS['ecs']-&gt;table($table)}" />
+            <marker date="1513349394539" expanded="true" signature="2938:3232" placeholder="SELECT sg.go... ${$GLOBALS['ecs']-&gt;table('merchants_grade')}" />
+            <marker date="1513349394539" expanded="true" signature="7160:7411" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('seller_account_log')}" />
+            <marker date="1513349394539" expanded="true" signature="7519:7871" placeholder="SELECT sal.*... ${$GLOBALS['ecs']-&gt;table('seller_account_log')}" />
+            <marker date="1513349394539" expanded="true" signature="8873:8983" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('seller_account_log')}" />
+            <marker date="1513349394539" expanded="true" signature="9394:9690" placeholder="SELECT c.*, ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="10903:11014" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="11678:11909" placeholder="SELECT c.cat... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="12280:12389" placeholder="select paren... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="12715:12824" placeholder="select cat_i... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="13333:13444" placeholder="SELECT paren... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="13529:13640" placeholder="SELECT paren... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="13806:13930" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="16192:16299" placeholder="select paren... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="16713:16808" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="16997:17130" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+            <marker date="1513349394539" expanded="true" signature="17710:17820" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('merchants_category')}" />
+            <marker date="1513349394539" expanded="true" signature="19280:19374" placeholder="SELECT paren... ${$GLOBALS['ecs']-&gt;table($table)}" />
+            <marker date="1513349394539" expanded="true" signature="19837:19918" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table($table)}" />
+            <marker date="1513349394539" expanded="true" signature="22725:22910" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('goods_attr')}" />
+            <marker date="1513349394539" expanded="true" signature="23176:23303" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+            <marker date="1513349394539" expanded="true" signature="24104:24217" placeholder="DELETE FROM " />
+            <marker date="1513349394539" expanded="true" signature="26683:26765" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table($table)}" />
+            <marker date="1513349394539" expanded="true" signature="26865:26965" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('goods_extend')}" />
+            <marker date="1513349394539" expanded="true" signature="29626:29711" placeholder="SELECT cat_i... ${$GLOBALS['ecs']-&gt;table('category')}" />
+            <marker date="1513349394539" expanded="true" signature="29820:29908" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349394539" expanded="true" signature="30103:30411" placeholder="SELECT rw.re... ${$GLOBALS['ecs']-&gt;table('merchants_region_info')}" />
+            <marker date="1513349394539" expanded="true" signature="31369:31574" placeholder="SELECT SUM(o... ${$GLOBALS['ecs']-&gt;table('order_info')}" />
+            <marker date="1513349394539" expanded="true" signature="34589:34793" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('merchants_account_log')}" />
+            <marker date="1513349394539" expanded="true" signature="34913:35236" placeholder="SELECT sal.*... ${$GLOBALS['ecs']-&gt;table('merchants_account_log')}" />
+            <marker date="1513349394539" expanded="true" signature="36312:36419" placeholder="DELETE FROM " />
+            <marker date="1513349394539" expanded="true" signature="37676:37884" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349394539" expanded="true" signature="40497:40630" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('shop_config')}" />
+            <marker date="1513349394539" expanded="true" signature="49716:49834" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table('region_warehouse')}" />
+            <marker date="1513349394539" expanded="true" signature="50655:50794" placeholder="SELECT goods... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349394539" expanded="true" signature="52368:52478" placeholder="SELECT count... ${$GLOBALS['ecs']-&gt;table($table)}" />
+            <marker date="1513349394539" expanded="true" signature="52598:52753" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table($table)}" />
+            <marker date="1513349394539" expanded="true" signature="53191:53354" placeholder="SELECT attr_... ${$GLOBALS['ecs']-&gt;table('goods_attr')}" />
+            <marker date="1513349394539" expanded="true" signature="54074:54324" placeholder="select rw.re... ${$GLOBALS['ecs']-&gt;table('link_area_goods')}" />
+            <marker date="1513349394539" expanded="true" signature="56084:56252" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('goods_change_log')}" />
+            <marker date="1513349394539" expanded="true" signature="56387:56746" placeholder="SELECT gcl.*... ${$GLOBALS['ecs']-&gt;table('goods_change_log')}" />
+            <marker date="1513349394539" expanded="true" signature="57621:57741" placeholder="SELECT is_di... ${$GLOBALS['ecs']-&gt;table('merchants_steps_fields')}" />
+            <marker date="1513349394539" expanded="true" signature="57929:58028" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349394539" expanded="true" signature="58186:58297" placeholder="select ra_id... ${$GLOBALS['ecs']-&gt;table('merchants_region_area')}" />
+            <marker date="1513349394539" expanded="true" signature="59398:59585" placeholder="SELECT id FR... ${$GLOBALS['ecs']-&gt;table('volume_price')}" />
+            <marker date="1513349394539" expanded="true" signature="59891:60078" placeholder="SELECT id FR... ${$GLOBALS['ecs']-&gt;table('volume_price')}" />
+            <marker date="1513349394539" expanded="true" signature="60139:60341" placeholder="INSERT INTO ${$GLOBALS['ecs']-&gt;table('volume_price')}... " />
+            <marker date="1513349394539" expanded="true" signature="60423:60544" placeholder="DELETE FROM " />
+            <marker date="1513349394539" expanded="true" signature="60903:61517" placeholder="SELECT IF(g.... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349394539" expanded="true" signature="61952:62098" placeholder="SELECT regio... ${$GLOBALS['ecs']-&gt;table($table)}" />
+            <marker date="1513349394539" expanded="true" signature="63374:63586" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('goods_lib')}" />
+            <marker date="1513349394539" expanded="true" signature="71268:71384" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('gallery_album')}" />
+            <marker date="1513349394539" expanded="true" signature="77253:77329" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('merchants_shop_brand')}" />
+            <marker date="1513349394539" expanded="true" signature="77496:77709" placeholder="SELECT b.bra... ${$GLOBALS['ecs']-&gt;table('brand')}" />
+            <marker date="1513349394539" expanded="true" signature="77886:78029" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('goods')}" />
+            <marker date="1513349394539" expanded="true" signature="83069:83363" placeholder="SELECT r2.re... ${$GLOBALS['ecs']-&gt;table('region')}" />
+            <marker date="1513349394539" expanded="true" signature="84976:85271" placeholder="SELECT g.tid... ${$GLOBALS['ecs']-&gt;table('shipping')}" />
+            <marker date="1513349394539" expanded="true" signature="85711:85881" placeholder="SELECT g.* F... ${$GLOBALS['ecs']-&gt;table('goods_transport_tpl')}" />
+            <marker date="1513349394539" expanded="true" signature="87217:87297" placeholder="SELECT COUNT... ${$GLOBALS['ecs']-&gt;table('link_goods_desc')}" />
+            <marker date="1513349394539" expanded="true" signature="87525:87748" placeholder="SELECT * FRO... ${$GLOBALS['ecs']-&gt;table('link_goods_desc')}" />
+            <marker date="1513349394539" expanded="true" signature="88280:88401" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+            <marker date="1513349394539" expanded="true" signature="88956:89077" placeholder="SELECT user_... ${$GLOBALS['ecs']-&gt;table('merchants_shop_information')}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/languages/zh_cn/goods.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.8783455">
+          <caret line="24" column="32" selection-start-line="24" selection-start-column="32" selection-end-line="24" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

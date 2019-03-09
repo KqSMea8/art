@@ -1,0 +1,285 @@
+<?php 
+namespace V60\Controller;
+
+use V60\Base\ApiBaseController;
+use V60\Logic\SubjectLogic;
+use V60\Logic\SubjectLikeLogic;
+use V60\Logic\SubjectCommentLogic;
+use V60\Logic\SubjectCommentLikeLogic;
+use Custom\Define\Code;
+use Custom\Helper\Util;
+use Custom\Manager\Token;
+use Custom\Define\Image;
+use V60\Logic\AssetsLogic;
+use V60\Logic\UserLogic;
+
+//艺术专题接口
+class SubjectController extends  ApiBaseController{
+
+    //艺术专题列表
+    public function subjectList(){
+
+        $page = I('page','1','number_int');  //第几页,没传则表示第一页
+        $pagesize = I('pagesize','10','number_int');  //每页显示多少条
+
+        $subjectLogic = new SubjectLogic();  //实例化主题模型
+        $data = $subjectLogic->getList($this->loginUserId,$page,$pagesize);
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$data]);
+    }
+
+    //个人申请列表(申请通过)
+    public function subjectAllow(){
+
+        $page = I('page','1','number_int');  //第几页,没传则表示第一页
+        $pagesize = I('pagesize','10','number_int');  //每页显示多少条
+
+        $subjectLogic = new SubjectLogic(); //实例化主题列表
+        $data = $subjectLogic->getMyApplyList($this->loginUserId,$page,$pagesize);
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$data]);
+    }
+
+    //申请艺术专题
+    public function addSubjectApply(){
+
+        $uid = $this->loginUserId; //获取艺术者id
+        $subid = I('post.subid');  //获取主题id
+        $artid = I('post.artid');  //获取艺术品id
+        $description = I('post.description');  //获取作品与主题的描述
+
+        $subjectApplyModel = M('SubjectApply');
+
+        $data = [
+            'uid'   =>  $uid,
+            'subid' =>  $subid,
+            'artid' =>  $artid,
+            'description' => $description,
+            'create_time' => time(),
+            'status' => 1
+            ];
+
+        //添加申请记录，获取新插入的id号
+        $inserid = $subjectApplyModel->add($data);
+
+        if($inserid>0){
+            Util::jsonReturn(['status'=>1000]);
+        }else{
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+    }
+    public function getContent___20170826(){
+        $subid = I('post.subid');
+        $subjectLogic = new SubjectLogic();
+        $subjectinfo=$subjectLogic->where('id='.intval($subid).' and status=0')->find();
+        if(!$subjectinfo){
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => []]);
+        }
+
+        $imgUrls = $subjectLogic->getHtmlImgSrc($subjectinfo['description']);
+        $subjectinfo['description']=$subjectLogic->replaceHtmlImgSrc($imgUrls,$subjectinfo['description']);
+
+        $subjectinfo = [
+            'id'=>$subjectinfo['id'],
+            'sub_name'=> $subjectinfo['sub_name'],
+            'sub_title' => $subjectinfo['sub_title'],
+            'description' => html_entity_decode($subjectinfo['description']),
+
+            'cover' => trim($subjectinfo['cover']),
+
+        ];
+
+
+        $info = $subjectinfo;
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //喜欢
+    public function like()
+    {
+        $this->checkLogin();
+        $id = I('post.id', '-1', 'number_int');//专题id
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userLogic = new UserLogic(); //实例化用户模块
+        $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+        $faceUrl = $userInfo['face'];
+
+        $likeData = [
+            'subject_id' => $id,
+            'like_user_id' => $this->loginUserId,
+            'like_time' => time(),
+            'is_like' => 'Y',
+        ];
+        $subjectLikeLogic = new SubjectLikeLogic();
+        $likeId = $subjectLikeLogic->like($likeData);
+        if ($likeId) {
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => $faceUrl]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经喜欢了');
+        }
+    }
+
+    //取消喜欢
+    public function unlike()
+    {
+        $this->checkLogin();
+        $id = I('post.id', '-1', 'number_int');//专题id
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userLogic = new UserLogic(); //实例化用户模块
+        $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+        $faceUrl = $userInfo['face'];
+
+        $subjectLikeLogic = new SubjectLikeLogic();
+        $likeData = [
+            'subject_id' => $id,
+            'like_user_id' => $this->loginUserId,
+            'unlike_time' => time(),
+            'is_like' => 'N',
+        ];
+
+        $likeResult = $subjectLikeLogic->unlike($likeData);
+
+        if ($likeResult) {
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => $faceUrl]);
+        } else{
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经取消喜欢了');
+            //Util::jsonReturn(['status' => 1000/*, 'faceUrl' => $faceUrl*/]);
+        }
+    }
+
+    //发表评论
+    public function comment()
+    {
+        $this->checkLogin();
+        $id = I('post.id', '', 'number_int');
+        $commenter = $this->loginUserId;
+        $content = I('post.content', '');
+
+
+        $subject = new SubjectLogic();
+        $subjectinfo = $subject->where(['id' => $id, 'status' => 0])->find();
+        if (!$subjectinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+        $comment_to = $subjectinfo['artist'];
+
+
+        $subjectCommentLogic = new SubjectCommentLogic();
+        $commentInfo = $subjectCommentLogic->addcomment($id, $commenter, $content, $comment_to);
+        if (!empty($commentInfo)) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'commentInfo' => $commentInfo]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '评论失败');
+        }
+    }
+
+    //评论点赞
+    public function commentLike(){
+        $this->checkLogin();
+        $id = I('post.commentId','','number_int');
+        $subjectCommentLogic = new SubjectCommentLogic();
+        $commentinfo = $subjectCommentLogic->where(['id' => intval($id), 'status' => 1])->find();
+        if (!$commentinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+
+
+        $subjectCommentLikeLogic = new SubjectCommentLikeLogic();
+        $likeData = [
+            'comment_id' => $id,
+            'liker' => $this->loginUserId,
+            'like_time' => time(),
+            'is_like' => 'Y',
+        ];
+
+        $likeId = $subjectCommentLikeLogic->like($likeData);
+        if ($likeId) {
+            Util::jsonReturn(['status'=>Code::SUCCESS]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经点赞了');
+        }
+    }
+
+    //取消评论点赞
+    public function commentUnlike(){
+        $this->checkLogin();
+        $id = I('post.commentId','','number_int');
+        $subjectCommentLogic = new SubjectCommentLogic();
+        $commentinfo = $subjectCommentLogic->where(['id' => intval($id), 'status' => 1])->find();
+        if (!$commentinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+
+
+        $subjectCommentLikeLogic = new SubjectCommentLikeLogic();
+        $likeData = [
+            'comment_id' => $id,
+            'liker' => $this->loginUserId,
+            'is_like' => 'Y',
+        ];
+
+        $likeId = $subjectCommentLikeLogic->unlike($likeData);
+        if ($likeId) {
+            Util::jsonReturn(['status'=>Code::SUCCESS]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经取消点赞了');
+        }
+    }
+
+    //获取专题评论列表
+    public function getCommentList()
+    {
+        $id = I('post.id', '', 'number_int');
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+       /* $subjectLogic = new SubjectLogic();
+        $subjectinfo = $subjectLogic->where("id=" . intval($id) . " and status=1")->find();*/
+
+        $subjectCommentLogic = new SubjectCommentLogic();
+        $where = 'az_subject_comment.subject_id=' . intval($id) . ' and az_subject_comment.status=1 and az_subject_comment.parent_id=0';
+        $total = $subjectCommentLogic->where($where)->count();
+
+        $list = $subjectCommentLogic
+            ->field('az_subject_comment.id,az_subject_comment.like_total,az_subject_comment.commenter,az_subject_comment.content,az_user.face,az_user.nickname,az_user.gender,az_subject_comment.create_time')
+            ->join('az_user on az_subject_comment.commenter=az_user.id', 'left')
+            ->where($where)
+            ->order('az_subject_comment.id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        $comments = [];
+        foreach ($list as $value) {
+            $subjectCommentLike = M('subject_comment_like')->where("comment_id=" . intval($value['id']) . " and liker=" . intval($this->loginUserId) . " ")->find();
+            $data = [
+                'commentId' => $value['id'],
+                'artist' => $value['commenter'],
+                'faceUrl' => $value['face'],
+                'nickname' => $value['nickname'],
+                'gender' => $value['gender'],
+                'time' => Util::simpleTimeShow($value['create_time']),
+                'content' => $value['content'],
+                "isLike" => $subjectCommentLike ? 'Y' : 'N',
+                "likes" => $value['like_total'],
+            ];
+            $comments[] = $data;
+        }
+
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+        $info = [
+            'list' => $comments,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+
+}
+?>

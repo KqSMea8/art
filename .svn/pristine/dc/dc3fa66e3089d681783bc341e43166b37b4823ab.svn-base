@@ -1,0 +1,78 @@
+<?php
+
+namespace V40\Controller;
+
+use V40\Base\ApiBaseController;
+use V40\Logic\ArtworkCategoryLogic;
+use V40\Logic\ArtworkColorLogic;
+use V40\Logic\ArtworkLikeLogic;
+use V40\Logic\MessageLogic;
+use V40\Logic\ArtworkLogic;
+use V40\Logic\ArtworkTagLogic;
+use V40\Logic\InviteLogLogic;
+use V40\Logic\ArtworkUpdateLogic;
+use V40\Logic\CommentLogic;
+use V40\Logic\ArtistApplyLogic;
+use V40\Logic\AssetsLogic;
+use V40\Logic\UserLogic;
+use V40\Model\AreaModel;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Helper\Verify;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+/**
+ * 工具接口集合
+ * @author:xugx
+ */
+class ToolController extends ApiBaseController{
+  /**
+   * 获取院校列表
+   * @return json
+   */
+  public function getSchool(){
+    Util::jsonReturnSuccess([
+      '中央美术学院',
+      '清华大学美术学院',
+      '西安美术学院',
+      '天津美术学院',
+      '广州美术学院',
+      '鲁迅美术学院',
+      '湖北美术学院',
+      '云南艺术学院',
+      '吉林艺术学院',
+      '上海大学美术学院',
+      '中国传媒大学',
+      '苏州大学',
+      '中央民族大学美术学院',
+      '景德镇陶瓷学院',
+      '山东工艺美术学院',
+      '新疆艺术学院',
+      '解放军艺术学院',
+      '四川美术学院',
+      '南京艺术学院',
+      '美术高校',
+      '山东艺术学院',
+      '中央民族大学美术学院',
+      '东华大学',
+      '中国人民大学艺术学院',
+      '江南大学',
+      '北京电影学院',
+      '北京服装学院',
+      '广西艺术学院'
+    ]);
+  }
+  public function getAgency(){
+    Util::jsonReturnSuccess([
+      ['id' =>1,'value'=>'画廊'],
+      ['id' =>2,'value'=>'艺术博物馆'],
+      ['id' =>3,'value'=>'艺术美术馆'],
+      ['id' =>4,'value'=>'私人美术馆'],
+      ['id' =>5,'value'=>'艺术博览会'],
+      ['id' =>6,'value'=>'艺术院校'],
+      ['id' =>7,'value'=>'艺术媒体'],
+      ['id' =>8,'value'=>'艺术空间']
+    ]);
+  }
+}

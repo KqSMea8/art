@@ -1,0 +1,288 @@
+<?php
+
+namespace V2\Logic;
+
+
+use V2\Base\BaseLogic;
+use V2\Model\ArtworkModel;
+use V2\Model\ArtworkWeightModel;
+use V2\Model\UserWeightModel;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+
+/**
+ * 推荐规则
+ * @author xugx
+ */
+class RecommendLogic{
+  private $config = [
+    'behavior' => [
+      //用户行为对应
+      'userWeightMap' => [
+        'like' => '+100',//喜欢作品,
+        'view' => '+30', //浏览作品
+        'follow' => '+70',//关注作者,
+        'unlike' => '-100',//取消喜欢,
+        'unfollow' => '-70',//取消关注
+        'hate' => '-1000',//厌恶作品
+        'nointerested' => '-100'//不感兴趣
+      ],
+      //作品对应
+      'artworkWeightMap' => [
+        'view' => '+1',//浏览作品
+        'like' => '+2',//喜欢作品
+        'unlike' => '-2'//取消喜欢
+      ]
+    ],
+    'order' => [
+      'other' => 'artwork_last_update_time DESC'
+    ]
+  ];
+  //获取推荐列表
+  public function getList($uid,$page,$pagesize){
+    $ArtworkWeightModel = new ArtworkWeightModel();
+    $ArtworkModel = new ArtworkModel();
+    if($uid){
+        //前五条按照更新时间排序
+        $sql1 = <<<SQL
+SELECT a.artwork_id as id
+FROM az_artwork_weight a LEFT JOIN (SELECT uid,artwork_id,weight FROM az_user_weight WHERE uid = {$uid}) b
+ON a.artwork_id = b.artwork_id
+ORDER BY {$this->config['order']['other']}
+LIMIT 5
+SQL;
+        $arr1 = $ArtworkWeightModel->query($sql1);
+        $num = count($arr1);
+
+        $notin = '';
+        foreach ($arr1 as $item){
+            $notin .= $item['id'].',';
+        }
+        $notin = trim($notin,',');
+
+      $sql = <<<SQL
+SELECT a.artwork_id as id
+FROM az_artwork_weight a LEFT JOIN (SELECT uid,artwork_id,weight FROM az_user_weight WHERE uid = {$uid}) b
+ON a.artwork_id = b.artwork_id WHERE a.artwork_id not in ({$notin})
+ORDER BY a.weight+b.weight DESC,{$this->config['order']['other']}
+LIMIT %s
+SQL;
+      $limit = sql_get_limit($page,$pagesize);
+      $sql = sprintf($sql,$uid,$limit);
+      $arr2 =  $ArtworkWeightModel->query($sql);
+
+      if(1==$page){
+          $ids = $num<5 ? $arr1 : array_merge($arr1,$arr2);  //组合数组
+      }else{
+          $ids = $arr2;
+      }
+    }else{
+        //前五条按照更新时间排序
+            $sql1 = <<<SQL
+SELECT artwork_id as id
+FROM az_artwork_weight
+ORDER BY {$this->config['order']['other']}
+LIMIT 5
+SQL;
+        $arr1 =  $ArtworkWeightModel->query($sql1);
+
+        $notin = '';
+        foreach ($arr1 as $item){
+            $notin .= $item['id'].',';
+        }
+        $notin = trim($notin,',');
+        //var_dump($notin);exit;
+        $num = count($arr1);
+            $sql = <<<SQL
+SELECT artwork_id as id
+FROM az_artwork_weight WHERE artwork_id NOT IN ({$notin})
+ORDER BY weight DESC,{$this->config['order']['other']}
+LIMIT %s
+SQL;
+
+      $limit = sql_get_limit($page,$pagesize);
+      $sql = sprintf($sql,$limit);
+      $arr2 =  $ArtworkWeightModel->query($sql);
+      if(1==$page){
+          $ids = $num<5 ? $arr1 : array_merge($arr1,$arr2);  //组合数组
+      }else{
+          $ids = $arr2;
+      }
+    }
+    $count = $ArtworkWeightModel->count();
+    $maxpage = intval($count/$pagesize)+1;
+    $ret = [];
+    foreach ($ids as $key => $value) {
+      $id = $value['id'];
+      $info = $ArtworkModel->field('id,artist,name,cover,update_times,is_finished')->find($id);
+      $info['coverUrl'] = Util::getImageResize($info['cover'],Image::recommendListWidth,Image::recommendListHeight);
+      $ret[] = $info;
+    }
+    return [
+      'list' => empty($ret) ? [] : $ret,
+      'page' => $page,
+      'total' => $count,
+      'pagesize' => $pagesize,
+      'maxpage' => $maxpage
+    ];
+  }
+
+  public function imgcompress($img,$new_width = '',$new_height = ''){
+      list($width, $height, $type, $attr) = getimagesize($img);
+      $imgdata = [
+          'width'=>$width,
+          'height'=>$height,
+          'type'=>image_type_to_extension($type,false),
+          'attr'=>$attr
+      ];
+      $image_thump = imagecreatetruecolor($new_width,$new_height);
+      //将原图复制带图片载体上面，并且按照一定比例压缩,极大的保持了清晰度
+      imagecopyresampled($image_thump,$img,0,0,0,0,$new_width,$new_height,$imgdata['width'],$imgdata['height']);
+      return $image_thump;
+  }
+  //关注时
+  public function follow($artist,$uid){
+    $artworkModel = new ArtworkModel();
+    $list = $artworkModel->field('id')->where(['artist' => $artist])->select();
+    foreach ($list as $key => $value) {
+      $this->toArtworkfollow($value['id'],$uid);
+    }
+  }
+  //取消关注时
+  public function unfollow($artist,$uid){
+    $artworkModel = new ArtworkModel();
+    $list = $artworkModel->field('id')->where(['artist' => $artist])->select();
+    foreach ($list as $key => $value) {
+      $this->toArtworkunfollow($value['id'],$uid);
+    }
+  }
+
+  //关注的作品权重+70
+  public function toArtworkfollow($artworkid,$userid){
+
+      $artModel = M('ArtworkWeight');
+      $artModel->where(['artwork_id'=>$artworkid,'artist'=>$userid])->setInc('weight',70);
+
+  }
+
+  //取消关注作品权重-70
+    public function toArtworkunfollow($artworkid,$userid){
+
+        $artModel = M('ArtworkWeight');
+        $weiInfo = $artModel->field('weight')->where(['artwork_id'=>$artworkid,'artist'=>$userid])->find();
+
+        if(!empty($weiInfo)){
+            if($weiInfo['weight'] > 70){
+                $artModel->where(['artwork_id'=>$artworkid,'artist'=>$userid])->setDec('weight',70);
+            }else{
+                $artModel->where(['artwork_id'=>$artworkid,'artist'=>$userid])->setField('weight',0);
+            }
+        }
+    }
+
+  //添加作品进推荐
+  public function addArtwork($artworkid){
+    $weightModel = new ArtworkWeightModel();
+    $artworkModel = new ArtworkModel();
+    $artwork = $artworkModel->field('id,artist,create_time,last_update_time')->where(['id' => $artworkid])->find();
+    //$artistArtworkCount = $artworkModel->where(['artist' => $artwork['artist']])->count();
+      if(!$artwork){
+          return;
+      }
+    return $weightModel->add([
+      'artwork_id' => $artworkid,
+      'artist' => $artwork['artist'],
+      'artwork_create_time' => $artwork['create_time'],
+      'artwork_last_update_time' => $artwork['last_update_time'],
+      'weight' => 0,
+      'time' => time()
+    ]);
+  }
+  //更新推荐的作品
+  public function updateArtwork($artworkid){
+    $weightModel = new ArtworkWeightModel();
+    $artworkModel = new ArtworkModel();
+    $artwork = $artworkModel->field('id,last_update_time')->where(['id' => $artworkid])->find();
+    $weightModel->where(['artwork_id' => $artworkid])->save(['artwork_last_update_time' => $artwork['last_update_time']]);
+  }
+  //加权
+  public function plusWeight($artworkid,$behavior,$uid = ''){
+    if($uid){
+      $this->plusWeightUser($artworkid,$behavior,$uid);
+    }
+    $this->plusWeightArtwork($artworkid,$behavior);
+  }
+  //用户加权
+  private function plusWeightUser($artworkid,$behavior,$uid){
+    $weight = $this->config['behavior']['userWeightMap'][$behavior];
+    if(isset($weight)){
+      list($symbols,$number) = $this->deco($weight);
+      $weightModel = new UserWeightModel();
+      $id = $weightModel->where(['artwork_id' => $artworkid,'uid' => $uid])->getField('id');
+      if(empty($id)){
+        $id = $this->addArtworkWithUser($artworkid,$uid);
+      }
+      if($symbols == '+'){
+        $weightModel->where(['id' => $id])->setInc('weight',$number);
+      }elseif($symbols == '-'){
+        $weightModel->where(['id' => $id])->setDec('weight',$number);
+      }
+    }
+  }
+  //作品加权
+  private function plusWeightArtwork($artworkid,$behavior){
+    $weight = $this->config['behavior']['artworkWeightMap'][$behavior];
+    if(isset($weight)){
+      list($symbols,$number) = $this->deco($weight);
+      $weightModel = new ArtworkWeightModel();
+      $id = $weightModel->where(['artwork_id' => $artworkid])->getField('id');
+      if($symbols == '+'){
+        $weightModel->where(['id' => $id])->setInc('weight',$number);
+      }elseif($symbols == '-'){
+        $weightModel->where(['id' => $id])->setDec('weight',$number);
+      }
+    }
+  }
+  //分解
+  private function deco($weight){
+    return [substr($weight,0,1),substr($weight,1)];
+  }
+  private function addArtworkWithUser($artworkid,$uid){
+    $weightModel = new UserWeightModel();
+    $artworkModel = new ArtworkModel();
+    return $weightModel->add([
+      'uid' => $uid,
+      'artwork_id' => $artworkid,
+      'artist' => $artworkModel->where(['id' => $artworkid])->getField('artist'),
+      'weight' => 0,
+      'time' => time()
+    ]);
+  }
+  public function __call($method,$args){
+    if(strpos($method,'toArtwork') !== false){
+      $behavior = str_replace('toArtwork','',$method);
+      $artworkid = $args[0];
+      $uid = $args[1];
+      $this->plusWeight($artworkid,$behavior,$uid);
+      return ;
+    }
+    throw new \Exception("unknown method " . $method);
+  }
+  //喜欢时候权重+100
+    public function toArtworklike($artwork_id,$like_user_id){
+        $artWeightModel = M('ArtworkWeight');
+        $artWeightModel->where(['artwork_id'=>$artwork_id,'artist'=>$like_user_id])->setInc('weight',100);
+    }
+
+    //不喜欢权重-100
+    public function toArtworkunlike($artwork_id,$like_user_id){
+        $artWeightModel = M('ArtworkWeight');
+        $weight = $artWeightModel->where(['artwork_id'=>$artwork_id,'artist'=>$like_user_id])->getField('weight');
+
+        if($weight>100){
+            $artWeightModel->where(['artwork_id'=>$artwork_id,'artist'=>$like_user_id])->setDec('weight',100);
+        }else{
+            $artWeightModel->where(['artwork_id'=>$artwork_id,'artist'=>$like_user_id])->setField('weight',0);
+        }
+    }
+}

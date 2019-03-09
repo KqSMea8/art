@@ -1,0 +1,153 @@
+<?php
+
+namespace V51\Logic;
+
+use Custom\Define\Image;
+
+use V51\Base\BaseLogic;
+
+// artist apply
+class ArtistApplyLogic extends BaseLogic
+{
+    public function getApplyStatus($userId)
+    {
+        $info = $this->model->where(['user_id' => $userId])->getField('is_passed');
+        if (empty($info)) {
+            return -1;
+        } else {
+            return $info;//Y or N
+        }
+    }
+
+    public function getApplyByMobile($mobile)
+    {
+        return $this->model->where(['mobile' => $mobile])->find();
+    }
+
+    public function getApplyList($state = null, $date = null, $page = 1, $perPageCount = 10)
+    {
+        $condition = ['is_deleted' => 'N'];
+        if (!is_null($state) && in_array($state, [-1, 1, 2])) {
+            $condition['verify_state'] = $state;
+        }
+        if (!empty($date)) {
+            $applyTime = strtotime($date) - 1;
+            $endTime = $applyTime + 86400 + 1;
+            $condition['create_time'] = [['gt', $applyTime], ['lt', $endTime], 'and'];
+        }
+        $list = $this->model
+            ->where($condition)
+            ->order('create_time DESC')
+            ->page($page, $perPageCount)
+            ->select();
+        $total = $this->model->where($condition)->count();
+        if (empty($list)) {
+            return ['list' => [], 'total' => 0];
+        } else {
+            return ['list' => $list, 'total' => $total];
+        }
+    }
+
+    //////////////////////////////////////////////////
+    public function getMyApply($uid)
+    {
+        return $this->field('id,user_id,invite_code,name,mobile,province,city,area,resume,images,school,verify_state,verify_memo')->where(['user_id' => $uid])->order('create_time DESC')->find();
+    }
+
+    public function applyStepOne_bak2017($data, $uid)
+    {
+        $exist = $this->field('id')->where(['user_id' => $uid])->find();
+        if (!empty($exist)) {
+            $this->where(['user_id' => $uid])->delete();
+        }
+        return $this->add([
+            'user_id' => $uid,
+            'invite_code' => $data['inviteCode'],
+            'verify_state' => '0'
+        ]);
+    }
+
+    public function applyStepOne($data, $uid)
+    {
+        $exist = $this->field('id')->where(['user_id' => $uid])->find();
+       // if (!empty($exist)) {
+       //    $this->where(['user_id' => $uid])->delete();
+       // }
+
+        if (empty($exist)) {
+            $result = $this->add([
+                'user_id' => $uid,
+                'invite_code' => trim($data['inviteCode']),
+                'verify_state' => '0',
+                'motto' => '',
+                'id_card_image_id' => '',
+                'cert_image_ids' => '',
+                'group_photo_ids' => '',
+                'memo' => '',
+                'images' => '',
+                'name' => $data['trueName'],
+                'mobile' => $data['mobile'],
+                'province' => $data['province'],
+                'city' => $data['city'],
+                'area' => $data['area'],
+                'resume' => $data['resume'],
+                'school' => $data['school']
+            ]);
+            //echo $this->getLastSql();
+            return $result;
+        } else {
+            $where = ['user_id' => $uid];
+            $exist = $this->where($where)->find();
+            if (!empty($exist)) {
+                $this->where($where)->save([
+                    'name' => $data['trueName'],
+                    'mobile' => $data['mobile'],
+                    'province' => $data['province'],
+                    'city' => $data['city'],
+                    'area' => $data['area'],
+                    'resume' => $data['resume'],
+                    'school' => $data['school']
+                ]);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function applyStepTwo_bak2017($data, $uid)
+    {
+        $where = ['user_id' => $uid];
+        $exist = $this->where($where)->find();
+        if (!empty($exist)) {
+            $this->where($where)->save([
+                'name' => $data['trueName'],
+                'mobile' => $data['mobile'],
+                'province' => $data['province'],
+                'city' => $data['city'],
+                'area' => $data['area'],
+                'resume' => $data['resume'],
+                'school' => $data['school']
+            ]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function applyStepTwo($data, $uid)
+    {
+        $where = ['user_id' => $uid];
+        $exist = $this->where($where)->find();
+        if (!empty($exist)) {
+            $this->where($where)->save([
+                'images' => $data['images'],
+                'verify_state' => '1',
+                'create_time' => time()
+            ]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+}

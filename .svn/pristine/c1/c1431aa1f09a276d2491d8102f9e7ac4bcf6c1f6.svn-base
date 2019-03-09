@@ -1,0 +1,11 @@
+<?php
+
+namespace Common\Model;
+
+
+use Common\Base\BaseModel;
+
+class ArtworkWeightModel extends BaseModel
+{
+    protected $tableName = 'artwork_weight';
+}

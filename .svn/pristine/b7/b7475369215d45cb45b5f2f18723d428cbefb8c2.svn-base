@@ -1,0 +1,746 @@
+<?php
+
+namespace Admin\Controller;
+
+use Common\Logic\SubjectApplyLogic;
+use Common\Logic\SubjectLogic;
+use Common\Base\AdminBaseController;
+use Custom\Helper\Oss;
+use Custom\Helper\Nav;
+use Common\Logic\ImageLogic;
+use Common\Logic\Sub_artLogic;
+use Common\Logic\ArtworkLogic;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use Custom\Define\Image;
+use Admin\Logic\UserLogic;
+use Admin\Model\ArtworkModel;
+use Admin\Model\ArtworkCategoryModel;
+use Admin\Logic\ArticleLogic;
+use Admin\Logic\ArtworkUpdateLogic;
+use Admin\Logic\ArtCircleLogic;
+use Admin\Logic\ArtCircleShareLogic;
+
+class SubjectController extends AdminBaseController
+{
+    //艺术专题页面
+    public function index()
+    {
+        //接收用户输入条件
+        $start_time = strtotime(I('get.start_time'));  //开始时间
+        $end_time = strtotime(I('get.end_time'));  //结束时间
+        $sub_name = trim(I('get.sub_name'));  //专题名称
+        $sub_title = trim(I('get.sub_title'));  //专题简述
+        $page = I('get.page', '1');  //页码
+        $perPageCount = I('get.perPageCount', '10');
+
+        //实例化主题模型
+        $subjectLogic = new SubjectLogic();
+        if(!empty($sub_name)){
+            $where=empty($where)?"sub_name like '%".$sub_name."%'":$where." and sub_name like '%".$sub_name."%' ";
+        }
+        if(!empty($sub_title)){
+            $where=empty($where)?"sub_title like '%".$sub_title."%'":$where." and sub_title like '%".$sub_title."%' ";
+        }
+        if(!empty($start_time)){
+            $where=empty($where)?"start_time >= ".$start_time:$where." and start_time >= ".$start_time;
+        }
+        if(!empty($end_time)){
+            $where=empty($where)?"end_time <= ".$end_time:$where." and end_time <= ".$end_time;
+        }
+
+        $condition =[
+            'start_time' => I('get.start_time'),
+            'end_time' => I('get.end_time'),
+            'sub_name' => $sub_name,
+            'sub_title' => $sub_title,
+        ];
+
+        $lists = $subjectLogic->where($where)->page($page, $perPageCount)->order('id DESC')->select();
+        $totalCount = $subjectLogic->where($where)->count();
+        $nav = Nav::render(U('Admin/Subject/index'), $condition, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    //获取某个艺术专题申请详情
+    public function getApplyDetail()
+    {
+
+        $subid = I('get.subid');  //获取艺术专题id
+        $sub = M('Subject')->find($subid);  //主题名称
+
+        //统计参与作品数
+        $count = M('SubjectApply')->where(['subid' => $subid])->count();
+        $info = M('SubjectApply')->field('b.id,b.name as artname,c.nickname as username')
+            ->join('LEFT JOIN az_artwork b ON az_subject_apply.artid = b.id')
+            ->join('LEFT JOIN az_user c ON b.artist = c.id')
+            ->where(['az_subject_apply.subid' => $subid])
+            ->select();
+
+        $this->assign('subinfo', $sub);
+        $this->assign('subid', $subid);
+        $this->assign('info', $info);
+        $this->assign('count', $count);
+        $this->display();
+    }
+
+    //编辑艺术专题页面
+    public function editSubject()
+    {
+        $subid = I('get.subid');  //获取艺术专题id
+
+        $data = M('Subject')->find($subid);
+
+        $artist = M('user')->field('id,nickname')->where(['type'=>3,'is_deleted'=>'N','banned_to'=>-1])->select();
+        $this->assign('artists', $artist);
+        $this->assign('list', $data);
+        $this->display();
+    }
+
+    //艺术专题保存操作
+    public function saveSubject()
+    {
+
+        $id = I('post.id');  //主题ID
+        $sub_name = I('post.sub_name');  //主题名称
+        $sub_title = I('post.sub_title');  //副标题
+        $description = I('post.description','');  //描述
+        $cover= I('post.cover',''); 
+        $start_time = I('post.start_time'); 
+        $end_time = I('post.end_time'); 
+        
+        $start_time=strtotime($start_time);
+        $end_time=strtotime($end_time);
+
+        $type = I('post.type');  //1-微画展   2-微专访  3-PA画展
+        $artist = I('post.artist');  //艺术家
+
+        if (empty($artist) || empty($type)) {
+            $this->error('参数错误');
+        }
+      
+        if ($cover=='') {
+            $this->error('没有上传主题封面');
+        } else {
+            $data = [
+                'sub_name' => $sub_name,
+                'sub_title' => $sub_title,
+                'start_time' => $start_time,
+                'end_time' => $end_time,
+                'cover' => $cover,
+                'description' => $description,
+                'type' => $type,
+                'artist' => $artist,
+            ];
+
+            $where['id'] = $id;
+            $olderData = M('Subject')->field('type,artist')->find($id);
+            $nums = M('Subject')->where($where)->save($data);  //更新记录
+
+            $olderArtist = M('Subject')->where(['artist'=>$olderData['artist'],'type'=>$olderData['type']])->select();
+            if(empty($olderArtist)){
+                switch($olderData['type']){
+                    case 1:
+                        M('artist_apply')->where(['user_id'=>$olderData['artist']])->save(['is_art_show'=>'N']);
+                        break;
+                    case 2:
+                        M('artist_apply')->where(['user_id'=>$olderData['artist']])->save(['is_interview'=>'N']);
+                        break;
+                    case 3:
+                        M('artist_apply')->where(['user_id'=>$olderData['artist']])->save(['is_pa_show'=>'N']);
+                        break;
+                }
+            }
+
+            switch($type){
+                case 1:
+                    M('artist_apply')->where(['user_id'=>$artist])->save(['is_art_show'=>'Y']);
+                    break;
+                case 2:
+                    M('artist_apply')->where(['user_id'=>$artist])->save(['is_interview'=>'Y']);
+                    break;
+                case 3:
+                    M('artist_apply')->where(['user_id'=>$artist])->save(['is_pa_show'=>'Y']);
+                    break;
+            }
+    
+            if ($nums) {
+                $this->success('更新成功', U('Subject/index'));
+            } else {
+                $this->error('更新失败');
+            }
+        }
+    }
+
+    //添加艺术专题页面
+    public function addSubject()
+    {
+        $artist = M('user')->field('id,nickname')->where(['type'=>3,'is_deleted'=>'N','banned_to'=>-1])->select();
+        $this->assign('artists', $artist);
+        $this->display();
+    }
+
+    //添加艺术专题操作
+    public function addSub()
+    {
+
+        $sub_name = I('post.sub_name');  //主题名称
+        $sub_title = I('post.sub_title');  //副标题
+        //$description = I('post.description');  //描述
+        $description = I('post.description','');  //描述
+        $startime = I('post.start_time');
+        $cover= trim(I('post.cover')); 
+        $start_time = empty($startime) ? time() : strtotime($startime);  //活动开始时间
+        $endtime = I('post.end_time');
+        $end_time = empty($endtime) ? time() : strtotime($endtime);  //活动结束时间
+
+        $type = I('post.type');  //1-微画展   2-微专访  3-PA画展  4展讯
+        $recommend_time_end = I('post.recommend_time_end');
+        $artist = I('post.artist');  //艺术家
+
+        if($type==4){
+            $recommend_time_end=trim($recommend_time_end)==''?strtotime(date('Y-m-d')):strtotime($recommend_time_end);
+        }else{
+            $recommend_time_end=0;
+        }
+
+
+        if (empty($artist) || empty($type)) {
+            $this->error('参数错误');
+        }
+
+        if ($cover=='') {
+            $this->error('没有上传主题封面');
+        } else {
+        
+            $data = [
+                'sub_name' => $sub_name,
+                'sub_title' => $sub_title,
+                'cover' => $cover,
+                'description' => $description,
+                'start_time' => $start_time,
+                'end_time' => $end_time,
+                'type' => $type,
+                'artist' => $artist,
+                'recommend_time_end' => $recommend_time_end,
+                'create_time' => time(),
+            ];
+
+            //插入数据，返回插入后的id
+            $insert_id = M('Subject')->add($data);
+            switch($type){
+                case 1:
+                    M('artist_apply')->where(['user_id'=>$artist])->save(['is_art_show'=>'Y']);
+                    break;
+                case 2:
+                    M('artist_apply')->where(['user_id'=>$artist])->save(['is_interview'=>'Y']);
+                    break;
+                case 3:
+                    M('artist_apply')->where(['user_id'=>$artist])->save(['is_pa_show'=>'Y']);
+                    break;
+            }
+
+            if ($insert_id) {
+                $this->success('主题添加成功', U('Subject/index'));
+            } else {
+                $this->error('主题添加失败');
+            }
+        }
+
+    }
+
+    //专题申请列表
+    public function applylist()
+    {
+        $page = I('get.page', '1');  //页码
+        $perPageCount = I('get.perPageCount', '10');
+        //获取专题申请所有列表
+        $list = M('SubjectApply')
+            ->join('LEFT JOIN az_user u ON az_subject_apply.uid = u.id')
+            ->join('LEFT JOIN az_artwork aw ON az_subject_apply.artid = aw.id')
+            ->join('LEFT JOIN az_subject su ON az_subject_apply.subid = su.id')
+            ->field('az_subject_apply.id,u.name as username,su.sub_name,aw.name as artname,az_subject_apply.create_time,az_subject_apply.status')
+            ->order('az_subject_apply.id DESC')
+            ->page($page, $perPageCount)
+            ->select();
+
+        $totalCount = M('SubjectApply')->count();
+        $nav = Nav::render(U('Admin/Subject/applylist'), [], $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('list', $list);  //数据赋值
+        $this->display();
+    }
+
+    //获取申请详情
+    public function getdetail()
+    {
+
+        $where['az_subject_apply.id'] = I('get.id');
+
+        $list = M('SubjectApply')
+            ->join('LEFT JOIN az_user u ON az_subject_apply.uid = u.id')
+            ->join('LEFT JOIN az_artwork aw ON az_subject_apply.artid = aw.id')
+            ->join('LEFT JOIN az_subject su ON az_subject_apply.subid = su.id')
+            ->field('az_subject_apply.id,az_subject_apply.description,u.name as username,su.sub_name,aw.name as artname,az_subject_apply.create_time,az_subject_apply.check_time,az_subject_apply.memo,az_subject_apply.status')
+            ->where($where)
+            ->find();
+
+        $this->assign('list', $list);
+        $this->display();
+    }
+
+    //审核功能
+    public function verify()
+    {
+        if (!IS_POST) {
+            $this->error('错误的访问方式！');
+        }
+        $id = I('post.id');
+        if (!preg_match('/^\d+$/', $id)) {
+            $this->error("id参数不正确！");
+        }
+
+        //2 pass -1 not pass
+        $verifyState = I('post.verifyState');
+        $verifyMemo = I('post.verifyMemo');
+
+
+        if ($verifyState != -1 && $verifyState != 2) {
+            $this->error('审核状态没有变更！');
+        }
+
+        //获取申请专题详情
+        $applyLogic = new SubjectApplyLogic();
+        $applyinfo = $applyLogic->getDetail($id);
+
+        if (empty($applyinfo)) {
+            $this->error("审核信息不存在！");
+        }
+
+        //判断提交的审核状态
+        if ($verifyState == -1) {
+            //改变审核信息
+            $applyUpdateInfo = ['status' => -1, 'memo' => $verifyMemo, 'check_time' => $_SERVER['REQUEST_TIME']];
+            $updateResult = $applyLogic->update($applyinfo['id'], $applyUpdateInfo);
+
+            $this->redirect('Admin/Subject/getdetail', ['id' => $id], 3, '跳转中，请稍后');
+        } else if ($verifyState == 2) {
+            //改变审核信息
+            $applyUpdateInfo = ['status' => 2, 'memo' => $verifyMemo, 'check_time' => $_SERVER['REQUEST_TIME']];
+            $updateResult = $applyLogic->update($applyinfo['id'], $applyUpdateInfo);
+
+            $this->redirect('Admin/Subject/getdetail', ['id' => $id], 3, '跳转中，请稍后');
+        } else {
+            $this->error('!');
+        }
+    }
+
+    //添加作品到艺术专题页面
+    public function addArtwork()
+    {
+        $subid = I('get.subid');  //获取艺术专题id
+        $sub = M('Subject')->find($subid);  //主题名称
+        if ($_POST) {
+
+            $artname = I('post.artname');
+            $artworkModel = M('Artwork'); //实例化作品表
+            $where['is_deleted'] = 'N';
+            $where['state'] = 1;
+            $where['update_times'] = ['gt', 0];
+            $where['name'] = ['like', "%$artname%"];
+            $data = $artworkModel->field('id,artist,name')->where($where)->order('last_update_time')->select();
+
+            foreach ($data as $k => $v) {
+                $res = M('User')->field('nickname')->find($v['artist']);
+                $data[$k]['uname'] = $res['nickname'];
+            }
+
+            //var_dump($data);
+            $this->assign('list', $data);
+        }
+
+        $this->assign('sub', $sub);
+        $this->assign('subid', $subid);
+        $this->display();
+    }
+
+    //添加作品到艺术专题操作
+    public function addApply()
+    {
+        $aid = I('post.sid');
+        $aid = trim($aid, ',');
+        $subid = I('post.subid');
+
+        $saModel = M('SubjectApply');
+
+        $arr = explode(',', $aid);
+
+        foreach ($arr as $v) {
+            $res = $saModel->where(['subid' => $subid, 'artid' => $v])->find();
+            $artInfo = M('Artwork')->field('artist')->find($v);
+            if (empty($res)) {
+                $data = [
+                    'uid' => $artInfo['artist'],
+                    'subid' => $subid,
+                    'artid' => $v,
+                    'create_time' => time(),
+                    'status' => 2
+                ];
+                $saModel->add($data);
+            }
+        }
+
+        $this->ajaxReturn(['status' => 1]);
+    }
+
+    public function uploadpic()
+    {
+        //sleep(2);
+
+
+        if ($_FILES['image']['error'] != 4) {
+
+            $imgbuff = file_get_contents($_FILES['image']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'png');
+            $cover = $result['info']['url'];
+
+        }
+        echo "<script>top.$('.mce-btn.mce-open').parent().find('.mce-textbox').val('".$cover."').closest('.mce-window').find('.mce-primary').click();</script>";
+        //return;
+
+
+
+
+    }
+
+    public function uploadvideo()
+    {
+
+        if ($_FILES['image']['error'] != 4) {
+
+            $imgbuff = file_get_contents($_FILES['image']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'MP4');
+            $cover = $result['info']['url'];
+
+        }
+        echo "<script>top.$('.mce-btn.mce-open').parent().find('.mce-textbox').val('".$cover."').closest('.mce-window').find('.mce-primary').click();</script>";
+
+
+
+
+    }
+
+
+    //编辑器插入艺术家
+    public function ImportUserList()
+    {
+
+        $type = trim(I('post.type'));
+        $keyword = trim(I('post.keyword'));
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+        if ($keyword == '') {
+            Util::jsonReturn(null, Code::PARAM_ERR, '关键字不能为空');
+        }
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $userLogic = new UserLogic();
+
+        $artModel = new ArtworkModel();
+
+        $cateModel = new ArtworkCategoryModel();
+
+        if ($type == 'artist') {
+            $where['_string'] = "FIND_IN_SET('artist', role)";
+        } elseif ($type == 'agency') {
+            $where['_string'] = "FIND_IN_SET('agency', role)";
+        } elseif ($type == 'planner') {
+            $where['_string'] = "FIND_IN_SET('planner', role)";
+        }
+
+        $where['is_deleted'] = 'N';
+        $where['nickname'] = array(
+            'like',
+            '%' . $keyword . '%'
+        );
+
+        $total = $userLogic->where($where)->count();
+        $lists = $userLogic->field('id,name as title,nickname,face,role')
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        $artist_list = []; // 作者ids
+        foreach ($lists as $value) {
+            array_push($artist_list, $value['id']);
+        }
+
+        $AgencyTypeList = $userLogic->getAgencyTypeList_byUids($artist_list); // 机构列表
+
+        $lists_return = [];
+        foreach ($lists as $value) {
+            $list['id'] = $value['id'];
+            $list["nickname"] = $value['nickname'];
+            if ($type == 'artist') {
+                $category_content = $cateModel->getContent(implode(',', $artModel->getFields([
+                    'artist' => $value['id']
+                ], 'category')));
+                $list['category_names'] = implode('/', array_values($category_content));
+            }
+            $list["faceUrl"] = Util::getImageResize($value['face'], Image::faceWidth, Image::faceHeight);
+            $list["is_artist"] = strpos(',' . $value['role'] . ',', ',artist,') !== false ? 1 : 0;
+            $list['is_agency'] = $AgencyTypeList[$value['artist']] > 0 ? 1 : 0;
+            $list['AgencyType'] = (int)$AgencyTypeList[$value['artist']];
+            $list["is_planner"] = strpos(',' . $value['role'] . ',', ',planner,') !== false ? 1 : 0;
+
+            $lists_return[] = $list; // 添加进articles
+        }
+
+        $maxpage = intval($total / $pagesize) + 1;
+        $info = [
+            'type' => $type,
+            'list' => $lists_return,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn([
+            'status' => Code::SUCCESS,
+            'info' => $info
+        ]);
+    }
+
+    //编辑器插入相关内容
+    public function ImportContentList()
+    {
+        $type = trim(I('post.type'));
+        $keyword = trim(I('post.keyword'));
+        $date = trim(I('post.date'));
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+        $is_date=preg_match ("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $date);
+        if($is_date){
+            $time_from=strtotime($date);
+            $time_to=$time_from+3600*24;
+        }
+
+        if ($keyword == ''&&!$is_date) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '关键字与日期不能为空');
+        }
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $userLogic = new UserLogic();
+
+        if ($type == 'artwork') {
+            $Logic = new ArtworkLogic();
+            $where['az_artwork.state'] = 1;
+            $where['az_artwork.is_deleted'] = 'N';
+
+            if($keyword!='') {
+                $where['az_artwork.name'] = array(
+                    'like',
+                    '%' . $keyword . '%'
+                );
+            }
+
+            $total = $Logic->where($where)->count();
+            $lists = $Logic->field('az_artwork.id,az_artwork.artist,az_artwork.name as title,az_artwork.story as content,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_artwork.artist=az_user.id', 'left')
+                ->where($where)
+                ->order('id desc')
+                ->page($page, $pagesize)
+                ->select();
+        } elseif ($type == 'article') {
+            $Logic = new ArticleLogic();
+            $where['az_article.status'] = 1;
+            if($keyword!='') {
+                $where['az_article.title'] = array(
+                    'like',
+                    '%' . $keyword . '%'
+                );
+            }
+
+            $total = $Logic->where($where)->count();
+            $lists = $Logic->field('az_article.id,az_article.artist,az_article.title,az_article.content,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_article.artist=az_user.id', 'left')
+                ->where($where)
+                ->order('id desc')
+                ->page($page, $pagesize)
+                ->select();
+        } elseif ($type == 'artwork_update') {
+            $Logic = new ArtworkUpdateLogic();
+            $where['az_artwork_update.is_deleted'] = 'N';
+
+            if($keyword!='') {
+                $condition['az_artwork_update.title'] = array(
+                    'like',
+                    '%' . $keyword . '%'
+                );
+                $condition['_logic'] = "or";
+                $condition['az_artwork.name'] = array(
+                    'like',
+                    '%' . $keyword . '%'
+                );
+                $where['_complex'] = $condition;
+            }
+
+            $total = $Logic->join('az_artwork on az_artwork_update.artwork_id=az_artwork.id', 'left')
+                ->where($where)
+                ->count();
+
+            $lists = $Logic->field('az_artwork_update.id,az_artwork_update.artist,az_artwork.name as title,az_artwork_update.wit as content,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_artwork on az_artwork_update.artwork_id=az_artwork.id', 'left')
+                ->join('az_user on az_artwork_update.artist=az_user.id', 'left')
+                ->where($where)
+                ->order('id desc')
+                ->page($page, $pagesize)
+                ->select();
+        } elseif ($type == 'art_circle') {#艺术圈
+            $Logic = new ArtCircleLogic();
+            $where['status'] = 1;
+
+            if($keyword!='') {
+                $where['az_user.nickname'] = array(
+                    'like',
+                    '%' . $keyword . '%'
+                );
+            }
+
+            if($is_date){
+                $where['az_art_circle.create_time'] = array(array('gt',$time_from),array('lt',$time_to)) ;
+            }
+
+            $total = $Logic
+                ->join('az_user on az_art_circle.user_id=az_user.id', 'left')
+                ->where($where)->count();
+//echo $Logic->getLastSql();exit;
+            $lists = $Logic->field('az_art_circle.type,az_art_circle.images_url,az_art_circle.video_poster,az_art_circle.video_url,az_art_circle.create_time,az_art_circle.id,az_art_circle.user_id as artist,az_art_circle.content as title,az_art_circle.content ,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_art_circle.user_id=az_user.id', 'left')
+                ->where($where)
+                ->order('id desc')
+                ->page($page, $pagesize)
+                ->select();
+
+            // 分享列表
+            $art_circle_share_list = [];
+            $art_circle_ids = [];
+            foreach ($lists as $value) {
+                // if ($value['type'] == 2)
+                array_push($art_circle_ids, $value['id']);
+            }
+            if (count($art_circle_ids)) {
+                $ArtCircleShareLogic = new ArtCircleShareLogic();
+                $art_circle_share_list = $ArtCircleShareLogic->share_link_list_indexArtCircleId($art_circle_ids);
+            }
+            // 分享列表 end
+
+            //喜欢列表统计
+            $art_circle_like_list=[];
+            if(count($lists)>0){
+                $art_circle_like=M('art_circle_like');
+                $circle_like_where['art_circle_id']=['in',$art_circle_ids];
+                $circle_like_where['status']=1;
+                $like_list=$art_circle_like->field("art_circle_id,count(id) as counts")->where($circle_like_where)->group('art_circle_id')->select();
+                foreach ($like_list as $value){
+                    $art_circle_like_list[$value['art_circle_id']]=$value['counts'];
+                }
+            }
+            //喜欢列表统计 end
+
+            //评论列表统计
+            $art_circle_comment_list=[];
+            if(count($lists)>0){
+                $art_circle_comment=M('art_circle_comment');
+                $art_circle_comment_where['art_circle_id']=['in',$art_circle_ids];
+                $art_circle_comment_where['status']=1;
+                $like_list=$art_circle_comment->field("art_circle_id,count(id) as counts")->where($art_circle_comment_where)->group('art_circle_id')->select();
+                foreach ($like_list as $value){
+                    $art_circle_comment_list[$value['art_circle_id']]=$value['counts'];
+                }
+            }
+            //评论列表统计 end
+
+        }
+
+        $artist_list = []; // 作者ids
+        foreach ($lists as $value) {
+            array_push($artist_list, $value['artist']);
+        }
+        $AgencyTypeList = $userLogic->getAgencyTypeList_byUids($artist_list); // 机构列表
+
+        $lists_return = [];
+        foreach ($lists as $value) {
+            $list['id'] = $value['id'];
+            if ($type == 'artwork') {
+                $list['title'] = '《' . $value['title'] . '》';
+            } elseif ($type == 'article') {
+                $list['title'] = $value['title'];
+            } elseif ($type == 'artwork_update') {
+                $list['title'] = '《' . $value['title'] . '》花絮';
+            } elseif ($type == 'art_circle') { #艺术圈
+
+
+                $list['type'] = (int)$value['type'];
+                $list['content'] = html_entity_decode($value['content']);
+
+                $images_url_arr = explode(',', trim($value['images_url']));
+                if (count($images_url_arr) == 1) {
+                    $list['thumbnails'] = trim($value['images_url']) == '' ? [] : Util::getImageResizes_oldProportion($images_url_arr, 300);
+                } else {
+                    $list['thumbnails'] = trim($value['images_url']) == '' ? [] : Util::getImageResizes($images_url_arr, 300, 300);
+                }
+                $list['images_url'] = trim($value['images_url']) == '' ? [] : Util::imageWaters($images_url_arr);
+                $list['video_poster'] = $value['video_poster'];
+                $list['video_url'] = $value['video_url'];
+                $list['datetime'] = Util::simpleTimeShow($value['create_time']);
+                $list['like_total']=(int)$art_circle_like_list[$value['id']];
+                $list['comment_total']=(int)$art_circle_comment_list[$value['id']];
+                $list['share_link'] = is_array($art_circle_share_list[$value['id']]) ? $art_circle_share_list[$value['id']] : (object)null;
+            }
+
+            $list['excerpt'] = html_deconvert_content_cut($value['content'], 70);
+
+            $list['user'] = [
+                "id" => $value['artist'],
+                "nickname" => $value['nickname'],
+                "faceUrl" => Util::getImageResize($value['face'], Image::faceWidth, Image::faceHeight),
+                "is_artist" => strpos(',' . $value['role'] . ',', ',artist,') !== false ? 1 : 0,
+                'is_agency' => $AgencyTypeList[$value['artist']] > 0 ? 1 : 0,
+                'AgencyType' => (int)$AgencyTypeList[$value['artist']],
+                "is_planner" => strpos(',' . $value['role'] . ',', ',planner,') !== false ? 1 : 0
+            ];
+
+            $lists_return[] = $list; // 添加进articles
+        }
+
+        $maxpage = intval($total / $pagesize) + 1;
+        $info = [
+            'type' => $type,
+            'list' => $lists_return,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn([
+            'status' => Code::SUCCESS,
+            'info' => $info
+        ]);
+    }
+}
+
+ 

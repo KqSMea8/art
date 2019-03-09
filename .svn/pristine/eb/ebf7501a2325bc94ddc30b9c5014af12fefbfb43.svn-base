@@ -1,0 +1,13 @@
+
+var vmAuth = new Vue({
+  el: '#manage',
+  data: {
+    items:[]
+  },
+  created:function(){    
+     artzheAgent.call('user/accountLogin',{"mobile":"18575569513", "password":"123456"},function(response){console.log(response)})
+  },
+  methods: {
+    
+  }
+});

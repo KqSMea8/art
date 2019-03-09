@@ -1,0 +1,32 @@
+<?php
+
+namespace V44\Controller;
+
+use V44\Base\ApiBaseController;
+use V44\Logic\ArtworkCategoryLogic;
+use V44\Logic\ArtworkColorLogic;
+use V44\Logic\ArtworkLikeLogic;
+use V44\Logic\ArtworkLogic;
+use V44\Logic\ArtworkTagLogic;
+use V44\Logic\ArtworkUpdateLogic;
+use V44\Logic\ArtistExtensionLogic;
+use V44\Logic\AdLogic;
+use V44\Logic\AssetsLogic;
+use V44\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+
+//artwork upload
+class AdController extends ApiBaseController{
+  private $map = [
+    'getH5Top' => 'H5Top'
+  ];
+  public function getH5Top(){
+    $adLogic = new AdLogic();
+    $adList = $adLogic->getAd($this->map['getH5Top']);
+    Util::jsonReturnSuccess($adList);
+  }
+}

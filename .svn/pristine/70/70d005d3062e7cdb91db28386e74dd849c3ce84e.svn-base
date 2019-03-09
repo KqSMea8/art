@@ -1,0 +1,10 @@
+<?php
+
+namespace Mp\Model;
+
+use Mp\Base\BaseModel;
+
+class ArtworkCategoryStatModel extends BaseModel
+{
+    protected $tableName = 'artwork_category_stat';
+}

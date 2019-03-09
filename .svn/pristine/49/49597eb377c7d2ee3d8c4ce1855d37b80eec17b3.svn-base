@@ -1,0 +1,75 @@
+html, body {
+  height: 100%;
+}
+body {
+  background: #f4f4f4;
+}
+
+/*右侧主内容区*/
+.con-wrap {
+  margin-left: 210px;
+  height: 1180px;
+  background-color: #f4f4f4;
+}
+.con-wrap .tit {
+  height: 87px;
+  padding-left: 20px;
+  line-height: 87px;
+  font-size: 22px;
+  color: #444;
+  border-bottom: 1px solid #e1e1e1;
+  border-top: 1px solid #f0f0f0;
+  background-color: #fff;
+}
+.con-wrap .sum {
+  background-color: #fff;
+}
+.con-wrap .sum .info {
+  /*height: 266px;*/
+  padding: 12px 48px 25px;
+/*  padding-left: 48px;
+  padding-right: 48px;*/
+  font-size: 16px;
+  line-height: 1;
+  color: #444;
+}
+.sum .info h3 {
+  padding: 18px 0;
+  font-weight: 700;
+}
+.sum .info p {
+  line-height: 1.5;
+}
+
+.detail {
+  font-size: 14px;
+  line-height: 1;
+  color: #444;
+}
+.detail .invite-code {
+  text-align: center;
+}
+.detail .invite-code p {
+  margin-top: 60px;
+  font-size: 20px;
+}
+.detail .invite-code p span {
+  color: #999;
+}
+.detail .invite-code .code {
+  margin: 42px auto 0;
+  width: 250px;
+  height: 48px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 48px;
+  color: #1f1f1f;
+  border: 1px solid #666;
+}
+.detail .info {
+  margin: 140px 46px 0;
+  font-size: 14px;
+  line-height: 26px;
+}
+
+/*右侧主内容区 end*/

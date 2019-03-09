@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>留言板</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <script src="/Public/H5/js/lib/vue.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <script src="/Public/H5/js/lib/zepto.js"></script>
+    <script src="/Public/H5/js/util.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/js/plugins/swiper-3.4.1.min.css">
+    <script src="/Public/H5/js/plugins/swiper-3.4.1.jquery.min.js"></script>
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/messageboard.css">
+    <!--     <script src="/mobile/Js/zepto.js"></script>
+    <script src="/mobile/Js/zepto.touch.min.js"></script> -->
+    <!--     <script type="text/javascript" src="/mobile/Js/countdown.js"></script>
+    <script type="text/javascript" src="/mobile/Js/tipshow.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script> -->
+  </head>
+  <body>
+    <div class="comments">
+      <h3 class="title">留言板</h3>
+      <ul class="comment-list">
+        <li class="comment">
+          <div class="user-com">
+            <div class="icons">
+              <i class="icon icon-praise"></i>
+              <span class="label">24</span>
+            </div>
+            <img class="avatar" src="/Public/H5/image/paintingdetail/avatar.png">
+            <a class="name" href="#">Poon</a>
+            <div class="time">5分钟前</div>
+            <p class="com">好喜欢这种风格的油画好喜欢这种风格的油画好喜欢这种风格的油画好喜欢这种风格的油画好喜欢这种风格的油画好喜欢这种风格的油画好喜欢这种风格的油画好喜欢这种风格的油画</p>
+          </div>
+          <div class="painter-com fix">
+            <a class="name" href="#">白素</a>
+            <span>回复：</span>
+            <span class="com">谢谢你对作品的肯定！</span>
+            <div class="time">5分钟前</div>
+          </div>
+        </li>
+        <li class="comment">
+          <div class="user-com">
+            <div class="icons">
+              <i class="icon icon-praise"></i>
+              <span class="label">24</span>
+            </div>
+            <img class="avatar" src="/Public/H5/image/paintingdetail/avatar.png">
+            <a class="name" href="#">Poon</a>
+            <div class="time">5分钟前</div>
+            <p class="com">好喜欢这种风格的油画</p>
+          </div>
+          <div class="painter-com fix">
+            <a class="name" href="#">白素</a>
+            <span>回复：</span>
+            <span class="com">谢谢你对作品的肯定！</span>
+            <div class="time">5分钟前</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <!-- <script type="text/javascript" src="/Public/H5/js/messageboard.js"></script> -->
+    <script type="text/javascript">
+    var swiper = new Swiper('.swiper-container', {
+    pagination: '.swiper-pagination',
+    paginationClickable: true
+    });
+    // StickUp.init('.records-tab-list');
+    </script>
+  </body>
+</html>

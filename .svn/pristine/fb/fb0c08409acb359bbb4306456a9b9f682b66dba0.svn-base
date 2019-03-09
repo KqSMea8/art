@@ -1,0 +1,17 @@
+<?php
+return [
+    'TMPL_TEMPLATE_SUFFIX'=>'.phtml',
+    'TMPL_PARSE_STRING'  =>[
+        '__PUBLIC__' => '/Public',
+    ],
+    'URL_HTML_SUFFIX'=>'',
+    //session setting
+    'SESSION_AUTO_START'=>true,
+    'SESSION_TYPE'=>'Mysqli',
+    'SESSION_EXPIRE'=>7200,
+    'SESSION_TABLE'=>'az_session',
+    'ShopActivity'=>[
+        'queen'=>'女王',
+    ]
+
+];

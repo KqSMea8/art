@@ -1,0 +1,21 @@
+<?php
+
+namespace V43\Model;
+
+
+use V43\Base\BaseModel;
+
+class ArtCircleModel extends BaseModel
+{
+    protected $tableName = 'art_circle';
+
+    const TYPE = [
+        'text'=>1,//纯文本
+        'picture'=>2,//有图片
+        'video'=>3,//有视频
+        'artwork'=>11,//分享画作
+        'update'=>12,//分享花絮
+        'article'=>13,//分享艺术号
+        'gallery'=>14,//分享画廊
+    ];
+}

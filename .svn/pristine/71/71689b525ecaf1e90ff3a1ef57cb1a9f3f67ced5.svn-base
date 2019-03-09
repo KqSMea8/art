@@ -1,0 +1,22 @@
+var vmAuth = new Vue({
+  el: '#app',
+  data: {
+    authInfo: {
+      coverImageId: [],
+      idCardImageIds: [],
+      certImageIds: [],
+      groupPhotoIds: []
+    }
+  },
+  methods: {
+    applyArtist: function () {
+      console.log('applyArtist');
+    },
+    handleRemove: function(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview: function(file) {
+      console.log(file);
+    }
+  }
+});

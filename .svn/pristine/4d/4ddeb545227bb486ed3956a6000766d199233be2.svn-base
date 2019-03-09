@@ -1,0 +1,10 @@
+<?php
+
+namespace V43\Model;
+
+use V43\Base\BaseModel;
+
+class ArtworkLikeModel extends BaseModel
+{
+    protected $tableName = 'artwork_like';
+}

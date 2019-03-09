@@ -1,0 +1,1310 @@
+<?php
+
+namespace V60\Controller;
+
+use V60\Logic\ArtCircleLogic;
+use V60\Base\ApiBaseController;
+use V60\Logic\MessageLogic;
+use V60\Logic\TopicLogic;
+use V60\Logic\TopicFollowLogic;
+use V60\Logic\TopicUserinfoLogic;
+use V60\Logic\TopicDiscussLogic;
+use V60\Logic\TopicDiscussLikeLogic;
+use V60\Logic\TopicDiscussCommentLogic;
+use V60\Logic\TopicShareLogic;
+use V60\Logic\UserLogic;
+use V60\Logic\UserFollowerLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+
+
+class TopicController extends ApiBaseController
+{
+
+
+    //我参与的话题未读个数
+    public function MyTopicParticipateTotal()
+    {
+        $this->checkLogin();  //判断用户是否登录
+
+        $user_id = $this->loginUserId;
+        $topicLogic = new TopicLogic();
+
+        $where_unread['az_topic.status'] = 1;
+        $where_unread['az_topic_user_relationships.user_id'] = $user_id;
+        $where_unread['az_topic_user_relationships.is_read'] = 0;
+        $unread_sum = $topicLogic
+            ->join('az_topic_user_relationships on az_topic.id=az_topic_user_relationships.topic_id', 'left')
+            ->where($where_unread)->count();
+
+        $info = [
+            'unread_sum'=>(int)$unread_sum
+        ];
+
+        Util::jsonReturn([
+            'status' => Code::SUCCESS,
+            'info' => $info
+        ]);
+    }
+    //我参与的话题
+    public function MyTopicParticipate(){
+        $this->checkLogin();  //判断用户是否登录
+
+        $user_id = $this->loginUserId;
+        $topicLogic = new TopicLogic();
+
+        $page = (int)I('post.page');
+        $pagesize = (int)I('post.pagesize');
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $where_unread['az_topic.status']=['neq',0];
+        $where_unread['az_topic_user_relationships.user_id']=$user_id;
+        $where_unread['az_topic_user_relationships.is_read']=0;
+        $unread_sum = $topicLogic
+            ->join('az_topic_user_relationships on az_topic.id=az_topic_user_relationships.topic_id', 'left')
+            ->where($where_unread)->count();
+
+        $where['az_topic.status']=['neq',0];
+        $where['az_topic_user_relationships.user_id']=$user_id;
+
+        $total = $topicLogic
+            ->join('az_topic_user_relationships on az_topic.id=az_topic_user_relationships.topic_id', 'left')
+            ->where($where)->count();
+
+        $list = $topicLogic->field('az_topic.id,az_topic.title,az_topic_user_relationships.is_read,az_topic_user_relationships.update_time')
+            ->join('az_topic_user_relationships on az_topic.id=az_topic_user_relationships.topic_id', 'left')
+            ->where($where)
+            ->order('az_topic_user_relationships.update_time desc,az_topic_user_relationships.id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        $maxpage = ceil($total / $pagesize);
+        $info = [
+            'topics' => $list,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage,
+            'unread_sum'=>(int)$unread_sum
+        ];
+
+        Util::jsonReturn([
+            'status' => Code::SUCCESS,
+            'info' => $info
+        ]);
+    }
+
+    //更新话题用户关联为已读
+    public function  RelationshipsSetRead(){
+        $this->checkLogin();  //判断用户是否登录
+
+        $topic_id = intval(I('post.topic_id'));
+        $user_id = $this->loginUserId;
+
+        $topic_user_relationships_M = M('topic_user_relationships');
+        $where['topic_id'] = $topic_id;
+        $where['user_id'] = $user_id;
+
+        $data['is_read'] = 1;
+        $topic_user_relationships_M->where($where)->save($data);
+        Util::jsonReturn(['status' => 1000]);
+    }
+    private function lock($redis, $key, $expire = 5)
+    {
+        $thistime = time();
+        $lock = $redis->setnx($key, $thistime + $expire);
+        // 不能获取锁
+        if (!$lock) {
+            // 判断锁是否过期
+            $lock_time = $redis->get($key);
+            // 锁已过期，删除锁，重新获取
+            if ($thistime > $lock_time) {
+                $redis->del($key);
+                $lock = $redis->setnx($key, $thistime + $expire);
+            }
+        }
+        return $lock ? true : false;
+    }
+
+    //添加新话题同步艺术圈
+    public function addTopic()
+    {
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        $topicLogic = new TopicLogic();
+        $title = trim(I('post.title','')); //标题
+        $content = trim(I('post.content','')); //背景信息
+
+        if (trim($title) == '') {
+            Util::jsonReturn(null, Code::PARAM_ERR, '话题标题不能为空！');
+        }
+        $topicData=$topicLogic->where(['title'=>$title,'status'=>1])->find();
+        if($topicData){
+            Util::jsonReturn(null, Code::PARAM_ERR, '该话题已存在！');
+        }
+
+        //敏感词判断
+        $sensitiveWord1=Util::sensitive_words_match($title);
+        $sensitiveWord2=Util::sensitive_words_match($content);
+        if (!empty($sensitiveWord1) || !empty($sensitiveWord2)) {
+            Util::jsonReturn(null, Code::SYS_ERR, '您所发表的内容存在违规禁词，请重新编辑！');
+        }
+
+        $data = [
+            'user_id' => $userId,
+            'title' => $title,
+            'content' => empty($content)?'':$content,
+            'state' => 1,
+            'create_time' => time(),
+        ];
+
+        $insert_id = $topicLogic->add($data);
+        $topicLogic->ActivateUserRelationships($insert_id,$userId);
+        //同步艺术圈
+        $artCircleLogic = new ArtCircleLogic();
+        $artcircleId=$artCircleLogic->synTopicDiscuss2ArtCircle(['user_id'=>$userId,'type' => 'topic','share_id'=>$insert_id]);
+        $topicLogic->where(['id'=>$insert_id])->setField('artcircle_id',$artcircleId);
+
+        //判断是否插入成功
+        if ($insert_id > 0) {
+            Util::jsonReturn(['status' => 1000, 'info'=>['id' => $insert_id,'title' => $title]]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+    }
+
+    //获取我关注的话题
+    public function getMyFollowTopic(){
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 20, 'number_int'); //每页显示条数
+
+        $topicLogic = new TopicLogic();
+        $info=$topicLogic
+            ->field('az_topic.id,az_topic.title')
+            ->join('JOIN az_topic_follow ON az_topic_follow.topic_id = az_topic.id')
+            ->where(['az_topic_follow.follower_id'=>$userId,'az_topic_follow.is_follow'=>'Y','az_topic.status'=>['neq',0]])
+            ->order('az_topic_follow.follow_time desc')
+            ->page($page,$pagesize)
+            ->select();
+
+        Util::jsonReturn(['status' => 1000, 'info'=>empty($info)?[]:$info]);
+
+    }
+
+    //获取热门的话题
+    public function getHotTopic(){
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 20, 'number_int'); //每页显示条数
+        $topicLogic = new TopicLogic();
+        $hottest = $topicLogic->getHottest(1);
+        unset($hottest[0]['count']);
+        $info[]=$hottest[0];
+        if($page==1){
+            $topicList=$topicLogic
+                ->field('id,title')
+                ->where(['status'=>['neq',0],'id'=>['neq',$hottest[0]['id']]])
+                ->order('view_num desc')
+                ->limit(19)
+                ->select();
+            $info = array_merge($info,$topicList);
+        }else{
+            $topicList=$topicLogic
+                ->field('id,title')
+                ->where(['status'=>['neq',0],'id'=>['neq',$hottest[0]['id']]])
+                ->order('view_num desc')
+                ->limit(($page-1)*$pagesize-1,$pagesize)
+                ->select();
+            $info = $topicList;
+        }
+
+
+        Util::jsonReturn(['status' => 1000, 'info'=>empty($info)?[]:$info]);
+
+    }
+
+    //获取输入关键字已存在的话题,包含关键字的浏览量最多的20条话题
+    public function getKeyTopic(){
+        $title = trim(I('post.title','')); //标题
+        $topicLogic = new TopicLogic();
+        $info = $topicLogic->field('id,title')
+            ->where(['status'=>1,'title'=>['like','%'.$title.'%']])
+            ->order('create_time desc')
+            ->limit(20)
+            ->select();
+        Util::jsonReturn(['status' => 1000, 'info'=>empty($info)?[]:$info]);
+
+    }
+
+    //关注话题
+    public function followTopic(){
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        $id = I('post.id', '1', 'number_int'); //话题id
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        $topicFollowLogic = new TopicFollowLogic();
+        $info = $topicFollowLogic->followTopic($userId,$id);
+        $topicLogic = new TopicLogic();
+        $topicLogic->ActivateUserRelationships($id,$userId);
+        if($info){
+            Util::jsonReturn(['status' => 1000]);
+        }else{
+            Util::jsonReturn(null, Code::PARAM_ERR, '话题关注失败或已关注');
+        }
+
+    }
+
+    //取消关注话题
+    public function unfollowTopic(){
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        $id = I('post.id', '1', 'number_int'); //话题id
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        $topicFollowLogic = new TopicFollowLogic();
+        $info = $topicFollowLogic->unfollowTopic($userId,$id);
+        if($info){
+            Util::jsonReturn(['status' => 1000]);
+        }else{
+            Util::jsonReturn(null, Code::PARAM_ERR, '话题取消关注失败或已取消关注');
+        }
+
+    }
+
+    //分享话题和话题讨论
+    public function addShare(){
+        //$this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        if(!empty($tokenInfo) && !empty($tokenInfo['userInfo'])){
+            $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        }else{
+            $userId=0;
+        }
+
+        $id = I('post.id', '1', 'number_int'); //id
+        $type = I('post.type', 'topic'); //topic--话题  discuss--讨论
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        if($type=='topic'){
+            $topicLogic = new TopicLogic();
+            $topicLogic->where(['id'=>$id])->setInc('share_num',1);
+            //记录用户分享话题
+            $topicShareLogic= new TopicShareLogic();
+            $topicShareLogic->add(['type'=>1,'share_user_id'=>$userId,'topic_id'=>$id,'share_time'=>time()]);
+
+            //保存用户分享话题的数量
+            $topicUserinfoLogic= new TopicUserinfoLogic();
+            $topicUserinfo=$topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$id])->find();
+            if($topicUserinfo){
+                $topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$id])->setInc('share_topic_num',1);
+            }else{
+                $topicUserinfoLogic->add(['user_id'=>$userId,'topic_id'=>$id,'share_topic_num'=>1]);
+            }
+
+            $topicLogic->ActivateUserRelationships($id,$userId);
+        }elseif($type=='discuss'){
+            $topicDiscussLogic = new TopicDiscussLogic();
+            $topicDiscussLogic->where(['id'=>$id])->setInc('share_num',1);
+            $discuss = $topicDiscussLogic->field('topic_id')->find($id);
+            //记录用户分享话题讨论
+            $topicShareLogic= new TopicShareLogic();
+            $topicShareLogic->add(['type'=>2,'share_user_id'=>$userId,'topic_id'=>$id,'share_time'=>time()]);
+            $topicLogic = new TopicLogic();
+            $topicLogic->ActivateUserRelationships($discuss['topic_id'],$userId);
+        }
+        Util::jsonReturn(['status' => 1000]);
+    }
+
+    //话题详情基本信息
+    public function getTopicDetail(){
+        $id = I('post.id', '0', 'number_int'); //话题id
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        $topicLogic = new TopicLogic();
+        $info = $topicLogic
+            ->field('az_topic.id,az_topic.title,az_topic.content,az_topic.view_num,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender')
+            ->join('JOIN az_user ON az_user.id = az_topic.user_id','left')
+            ->where(['az_topic.status'=>['neq',0],'az_topic.id'=>$id])
+            ->find();
+        if($info){
+            $info['content']=empty($info['content'])?'':$info['content'];
+            $info['face']= Util::getImageResize($info['face'],Image::faceWidth, Image::faceHeight);
+            $tokenInfo = Token::getTokenInfo($this->token);
+            $userId = intval($tokenInfo['userInfo']['id']);
+            if($userId){
+                $topicFollowLogic = new TopicFollowLogic();
+                $isFollow = $topicFollowLogic->isFollowTopic($userId,$id);
+                $info['is_follow']=$isFollow?'Y':'N';
+            }else{
+                $info['is_follow']='N';
+            }
+            $info['shareLink'] = C('m_site') . '/discussion/discussionList/' . $id;
+            $topicLogic->where(['id'=>$id])->setInc('view_num',1);
+            $topicUserinfoLogic= new TopicUserinfoLogic();
+            $topicUserinfo=$topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$id])->find();
+            if($topicUserinfo){//保存用户浏览话题的数量
+                $topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$id])->setInc('view_topic_num',1);
+            }else{
+                $topicUserinfoLogic->add(['user_id'=>$userId,'topic_id'=>$id,'view_topic_num'=>1]);
+            }
+        }else{
+            $info=[];
+        }
+
+        Util::jsonReturn(['status' => 1000, 'info'=>$info]);
+    }
+
+    //话题详情讨论列表
+    public function getTopicDiscuss()
+    {
+        $id = I('post.id', '0', 'number_int'); //话题id
+        $type = I('post.type', 'date'); //话题列表类型
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $userLogic = new UserLogic();
+        $page = intval(I('post.page', '1'));
+        $pagesize = intval(I('post.pagesize', '20'));
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 || $pagesize > 200 ? 20 : $pagesize;
+
+
+        $userId=0;
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+            $userId = $tokenInfo['userInfo']['id'];
+        }
+
+        if($type=='date'){
+            $order='create_time desc';
+        }else{
+            $order='is_top desc,like_num desc';
+        }
+
+        $where=['status'=>1,'topic_id'=>$id];
+        $total = $topicDiscussLogic->where($where)->count();
+
+        $topicDiscusslist = $topicDiscussLogic
+            ->where($where)
+            ->order($order)
+            ->page($page, $pagesize)
+            ->select();
+
+        //作者ids
+        $artist_list = [];
+        foreach ($topicDiscusslist as $value) {
+            array_push($artist_list, $value['user_id']);
+        }
+
+        //机构列表
+        $AgencyTypeList = $userLogic->getAgencyTypeList_byUids($artist_list);
+
+        //用户列表
+        $userlist = [];
+        if (count($artist_list)) {
+            $user_list = $userLogic->field('id,nickname,face,role,gender')->where("id in(" . implode(',', $artist_list) . ") ")->select();
+            foreach ($user_list as $user) {
+                $user['gender'] = (int)$user['gender'];
+                $user['faceUrl'] = Util::getImageResize($user['face'], Image::faceWidth, Image::faceHeight);
+                $user['is_artist'] = strpos(',' . $user['role'] . ',', ',artist,') !== false ? 1 : 0;
+                $user['is_agency'] = $AgencyTypeList[$user['id']] > 0 ? 1 : 0;
+                $user['AgencyType'] = (int)$AgencyTypeList[$user['id']];
+                $user['is_planner'] = strpos(',' . $user['role'] . ',', ',planner,') !== false ? 1 : 0;
+                $userFollowerLogic = new UserFollowerLogic();
+                $userFollower = $userFollowerLogic->field('id')->where("follower=" . $userId . " and user_id=" . $user['id'] . " and is_follow='Y'")->find();
+                $user['is_follow']=$userFollower?'Y':'N';
+                unset($user['role']);
+                unset($user['face']);
+                $userlist[$user['id']] = $user;
+            }
+        }
+
+        $topic_discuss_ids = [];
+        foreach ($topicDiscusslist as $value) {
+            array_push($topic_discuss_ids, $value['id']);
+        }
+
+
+        //点赞列表
+        $like_list=[];
+        if (count($topic_discuss_ids)) {
+            $topicDiscussLikeLogic = new TopicDiscussLikeLogic();
+            $like_list = $topicDiscussLikeLogic->UserIsLikeList($topic_discuss_ids,$userId);
+
+        }
+
+        //关联列表
+        $relations_list=[];
+        if (count($topic_discuss_ids)) {
+            $relations = M('topic_discuss_relation')
+                ->field('topic_discuss_id,relation_id,type')
+                ->where(['topic_discuss_id' => ['in',implode(',',$topic_discuss_ids)],'status'=>1])
+                ->select();
+            foreach($relations as $value){
+                $rela = [
+                    'type'=>$value['type'],
+                    'relation_id'=>$value['relation_id'],
+                ];
+                switch($value['type']){
+                    case 'artwork'://画作
+                        $artworkinfo = M('artwork')->field('name')->where(['id' => intval($value['relation_id']),'is_deleted'=>'N'])->find();
+                        $artwork_name=trim($artworkinfo['name']);
+                        if(preg_match("/《(.*)》/",$artwork_name)){
+                            $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+                        }else{
+                            $artwork_name = '《' .$artwork_name. '》';
+                        }
+                        $rela['title']=$artwork_name;
+                        break;
+                    case 'artwork_update'://花絮
+                        $artwork_updateinfo = M('artwork_update')->field('title')->where(['id' => intval($value['relation_id']),'is_deleted'=>'N'])->find();
+                        $artworkinfo = M('artwork')->field('name')->where(['id' => $artwork_updateinfo['artwork_id'],'is_deleted'=>'N'])->find();
+                        $artwork_name=trim($artworkinfo['name']);
+                        if(preg_match("/《(.*)》/",$artwork_name)){
+                            $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+                        }else{
+                            $artwork_name = '《' .$artwork_name. '》';
+                        }
+                        $title = empty($artwork_updateinfo['title'])?$artwork_name.' 花絮':$artwork_updateinfo['title']; //作品id
+                        $rela['title']=$title;
+                        break;
+                    case 'art_article'://艺术号
+                        $articleinfo = M('article')->where(['id' => intval($value['relation_id']),'status'=>['neq',2]])->find();
+                        $rela['title']=$articleinfo['title'];
+                        break;
+                    case 'subject'://专题
+                        $subjectinfo = M('subject')->where(['id' => intval($value['relation_id']),'status'=>0])->find();
+                        $rela['title']=$subjectinfo['sub_title'];
+                        break;
+                }
+                $relations_list[$value['topic_discuss_id']] = $rela;
+            }
+
+        }
+
+        $data = [];
+        foreach ($topicDiscusslist as $value) {
+            $topicDiscuss = [];
+            $topicDiscuss['id'] = (int)$value['id'];
+            $topicDiscuss['title'] = $value['title'];
+            $topicDiscuss['type'] = (int)$value['type'];
+            $topicDiscuss['datetime'] = Util::simpleTimeShow($value['create_time']);
+            $topicDiscuss['like_count'] = (int)$value['like_num'];
+            $topicDiscuss['isLike'] = (int)($like_list[$value['id']]);
+            $topicDiscuss['comment_count'] = (int)$value['comment_num'];
+            $topicDiscuss['share_count'] = (int)$value['share_num'];
+            $topicDiscuss['userinfo'] = is_array($userlist[$value['user_id']]) ? $userlist[$value['user_id']] : [];
+            //讨论的关联信息，画作，艺术号，花絮，专题
+            $topicDiscuss['relation_info'] = empty($relations_list[$value['id']])?['type'=>'', 'relation_id'=>'','title'=>'']:$relations_list[$value['id']];
+            if($value['type'] != 4){//短文
+                $topicDiscuss['content'] = $value['desc'];
+                $images_url_arr = explode(',', trim($value['images_url']));
+                $images_url_arr = array_slice($images_url_arr,0,9);
+                if(count($images_url_arr)==1){
+                    $topicDiscuss['thumbnails'] = trim($value['images_url']) == '' ? [] : Util::getImageResizes_oldProportion($images_url_arr, 300);
+                }else {
+                    $topicDiscuss['thumbnails'] = trim($value['images_url']) == '' ? [] : Util::getImageResizes($images_url_arr, 300, 300);
+                }
+                $topicDiscuss['images_url'] = trim($value['images_url']) == '' ? [] : Util::imageWaters($images_url_arr);
+                $topicDiscuss['video_poster'] = empty($value['video_poster'])?'':$value['video_poster'];
+                $topicDiscuss['video_url'] = empty($value['video_url'])?'':$value['video_url'];
+
+                $topicDiscuss['shareLink'] = C('m_site') . '/discussion/detailGraphic/' . $value['id'];
+            }else{//文章
+                $topicDiscuss['content'] = html_deconvert_content_cut_forApp($value['content'], 300);
+                //获取文章里面的视频
+                $video_poster='';
+                preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $value['content'], $match);
+                if(!empty($match[1])){//有视频
+                    $video_poster = Util::getImageResize($match[1][0], 300, 300);
+                }
+
+                $images_url_arr=[];
+                $thumbnails=[];
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $value['content'], $array);
+                if(!empty($array)&&!empty($array[1])) {//有图片
+                    $imgs = array_slice($array[1],0,9);
+                    if(count($imgs)==1){
+                        $thumbnails = trim($imgs[0]) == '' ? [] : Util::getImageResizes_oldProportion($imgs, 300,300);
+                    }else {
+                        $thumbnails = Util::getImageResizes($imgs, 300, 300);
+                    }
+                    foreach ($imgs as $v) {
+                        if (!stripos($v, '?x-oss-process')) {
+                            $images_url_arr[] = $v;
+                        }
+                    }
+                }
+
+                $topicDiscuss['thumbnails']=$thumbnails;
+                $topicDiscuss['images_url'] = empty($images_url_arr) ? [] : Util::imageWaters($images_url_arr);
+                $topicDiscuss['video_poster'] = $video_poster;
+                $topicDiscuss['video_url'] = '';
+                $topicDiscuss['shareLink'] = C('m_site') . '/discussion/details/' . $value['id'];
+            }
+
+            $data[] = $topicDiscuss;
+        }
+
+
+        $maxpage = ceil($total / $pagesize);
+        $info = [
+            'data' => $data,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+    }
+
+    //发表话题讨论同步艺术圈
+    public function addTopicDiscuss()
+    {
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = intval($tokenInfo['userInfo']['id']); //获取登录用户的uid
+
+        $topicId = intval(I('post.topic_id')); //话题ID
+        $type = intval(I('post.type')); //讨论类型  1--短文（类似艺术圈）  2--文章（类似艺术号）
+        $title = trim(I('post.title',''));//文章标题
+        $content = trim(I('post.content',''));//文章内容
+        $desc = trim(I('post.desc',''));//短文内容
+        $images_url = trim(I('post.images_url',''));//短文图片
+        $video_poster = trim(I('post.video_poster',''));//短文视频封面
+        $video_url = trim(I('post.video_url',''));//短文视频URL
+
+        if (empty($topicId) || empty($type) ) {
+            Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '参数错误']);
+        }
+        $topicLogic = new TopicLogic();
+        $topicInfo=$topicLogic->where(['id'=>$topicId])->find();
+        if (empty($topicInfo)) {
+            Util::jsonReturn(['status' => Code::SYS_ERR, 'info' => '该话题不存在']);
+        }
+
+        if ($type == 1) {//短文（类似艺术圈）
+            if ($desc != '' && $images_url == '' && $video_poster == '') {
+                $type = 1;
+            } elseif ($images_url != '' && $video_poster == '') {
+                $type = 2;
+            } else {
+                $type = 3;
+            }
+            if ($desc == '' && $images_url == '') {
+                if ($video_poster == '' || $video_url == '') {
+                    Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '参数错误']);
+                }
+            } else {
+                if ($images_url != '' && ($video_poster != '' || $video_url != '')) {
+                    Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '视频不能和图片一起，参数错误']);
+                }
+                if (($desc != '' && $video_poster == '' && $video_url != '') || $desc != '' && $video_poster != '' && $video_url == '') {
+                    Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '内容与视频，视频参数错误']);
+                }
+            }
+        }else{
+            $type = 4;
+            if (empty($title) || empty($content) ) {
+                Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '参数错误']);
+            }
+        }
+
+        $topicDiscussLogic = new TopicDiscussLogic();
+
+        $expire = 10; //有效期10秒
+        $key = 'artzhe_add_topic_lock' . intval($userId); //key
+        $redis = new \Redis();
+        $redis->connect(C('REDIS_HOST'), C('REDIS_PORT'), 1);
+        $redis->auth(C('REDIS_PASSWD'));
+        if ($this->lock($redis, $key, $expire)) {
+            //加锁成功就入库
+
+           /* //判断该作品单次更新的最新的一个wit内容是否相同，不同就添加，避免多次提交
+            $lastTopicDiscuss = $topicDiscussLogic->where(['user_id'=>intval($userId),'topic_id'=>$topicId,'type'=>$type])->order('id desc')->find();
+            switch($lastTopicDiscuss['type']){
+                case 1://文本
+                    if (trim($lastTopicDiscuss['desc']) == trim($desc)) {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                    }
+                    break;
+                case 2://图片
+                    if (trim($lastTopicDiscuss['images_url']) == trim($images_url)) {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                    }
+                    break;
+                case 3://视频
+                    if (trim($lastTopicDiscuss['video_poster']) == trim($video_poster)) {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                    }
+                    break;
+                case 4://文章
+                    if (trim($lastTopicDiscuss['title']) == trim($title) && trim($lastTopicDiscuss['content']) == trim($content)) {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                    }
+                    break;
+            }*/
+
+            //敏感词判断
+            $sensitiveWord1=Util::sensitive_words_match($title);
+            $sensitiveWord2=Util::sensitive_words_match($content);
+            $sensitiveWord3=Util::sensitive_words_match($desc);
+            if (!empty($sensitiveWord1) || !empty($sensitiveWord2) || !empty($sensitiveWord3)) {
+                Util::jsonReturn(null, Code::SYS_ERR, '您所发表的内容存在违规禁词，请重新编辑！');
+            }
+
+
+            $data = [
+                'user_id' => $userId,
+                'topic_id' => $topicId,
+                'type' => $type,
+                'title' => $title,
+                'content' => $content,
+                'desc' => $desc,
+                'images_url' => $images_url,
+                'video_poster' => $video_poster,
+                'video_url' => $video_url,
+                'create_time' => time(),
+                'status'=>1,
+            ];
+
+            $insertId = $topicDiscussLogic->add($data);
+            //同步艺术圈
+            $artCircleLogic = new ArtCircleLogic();
+            $artcircleId=$artCircleLogic->synTopicDiscuss2ArtCircle(['user_id'=>$userId,'type' => 'topic_discuss','share_id'=>$insertId]);
+            $topicDiscussLogic->where(['id'=>$insertId])->setField('artcircle_id',$artcircleId);
+
+            $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+            if ($insertId) {
+                $topicLogic->where(['id'=>$topicId])->setInc('discuss_num',1);
+                $topicUserinfoLogic= new TopicUserinfoLogic();
+                $topicUserinfo=$topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$topicId])->find();
+                if($topicUserinfo){//保存用户发表话题讨论的数量
+                    $topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$topicId])->setInc('publish_discuss_num',1);
+                }else{
+                    $topicUserinfoLogic->add(['user_id'=>$userId,'topic_id'=>$topicId,'publish_discuss_num'=>1]);
+                }
+                $topicLogic->ActivateUserRelationships($topicId,$userId);
+                Util::jsonReturn(['status' => Code::SUCCESS]);
+            } else {
+                Util::jsonReturn(null, Code::SYS_ERR);
+            }
+
+        }else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'redis error');
+        }
+    }
+
+    //讨论详情基本信息
+    public function getTopicDiscussDetail(){
+        $id = I('post.id', '0', 'number_int'); //讨论id
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+
+        //关联列表
+        $relation_info=['type'=>'', 'relation_id'=>'','title'=>''];
+        $relations = M('topic_discuss_relation')
+            ->field('topic_discuss_id,relation_id,type')
+            ->where(['topic_discuss_id' => $id,'status'=>1])
+            ->find();
+       if($relations){
+           $relation_info['type'] = $relations['type'];
+           $relation_info['relation_id'] =$relations['relation_id'];
+            switch($relations['type']){
+                case 'artwork'://画作
+                    $artworkinfo = M('artwork')->field('name')->where(['id' => intval($relations['relation_id']),'is_deleted'=>'N'])->find();
+                    $artwork_name=trim($artworkinfo['name']);
+                    if(preg_match("/《(.*)》/",$artwork_name)){
+                        $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+                    }else{
+                        $artwork_name = '《' .$artwork_name. '》';
+                    }
+                    $relation_info['title']=$artwork_name;
+                    break;
+                case 'artwork_update'://花絮
+                    $artwork_updateinfo = M('artwork_update')->field('title')->where(['id' => intval($relations['relation_id']),'is_deleted'=>'N'])->find();
+                    $artworkinfo = M('artwork')->field('name')->where(['id' => $artwork_updateinfo['artwork_id'],'is_deleted'=>'N'])->find();
+                    $artwork_name=trim($artworkinfo['name']);
+                    if(preg_match("/《(.*)》/",$artwork_name)){
+                        $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+                    }else{
+                        $artwork_name = '《' .$artwork_name. '》';
+                    }
+                    $title = empty($artwork_updateinfo['title'])?$artwork_name.' 花絮':$artwork_updateinfo['title']; //作品id
+                    $relation_info['title']=$title;
+                    break;
+                case 'art_article'://艺术号
+                    $articleinfo = M('article')->where(['id' => intval($relations['relation_id']),'status'=>['neq',2]])->find();
+                    $relation_info['title']=$articleinfo['title'];
+                    break;
+                case 'subject'://专题
+                    $subjectinfo = M('subject')->where(['id' => intval($relations['relation_id']),'status'=>0])->find();
+                    $relation_info['title']=$subjectinfo['sub_title'];
+                    break;
+            }
+
+        }
+
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $topicDiscussInfo = $topicDiscussLogic
+            ->field('az_topic.id as topicid,az_topic.title as topic_title,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender,az_user.role,az_topic_discuss.*')
+            ->join('JOIN az_user ON az_user.id = az_topic_discuss.user_id','left')
+            ->join('JOIN az_topic ON az_topic.id = az_topic_discuss.topic_id','left')
+            ->where(['az_topic_discuss.status'=>1,'az_topic_discuss.id'=>$id])
+            ->find();
+        $info =[];
+        if($topicDiscussInfo){
+            $topicDiscussLogic->where(['id'=>$id])->setInc('view_num',1);
+            $info['id']=$topicDiscussInfo['id'];
+            $info['type']=$topicDiscussInfo['type'];
+            $info['title']=$topicDiscussInfo['title'];
+            $info['content']=$topicDiscussInfo['type']==4?html_deconvert_content_cut_forApp($topicDiscussInfo['content'], 300):$topicDiscussInfo['desc'];
+            $info['relation_info'] = $relation_info;
+            if($topicDiscussInfo['type']==4){//文章
+                //获取文章里面的视频
+                $video_poster='';
+                preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $topicDiscussInfo['content'], $match);
+                if(!empty($match[1])){//有视频
+                    $video_poster = Util::getImageResize($match[1][0], 300, 300);
+                }
+
+                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $topicDiscussInfo['content'], $array);
+                $info['thumbnails'] = empty($array[1]) ? [] : Util::getImageResizes(array_slice($array[1],0,9), 300, 300);
+                $info['images_url'] = empty($array[1]) ? [] : Util::imageWaters(array_slice($array[1],0,9));
+                $info['video_poster']=$video_poster;
+                $info['video_url']='';
+            }else{
+                $images_url_arr = explode(',', trim($topicDiscussInfo['images_url']));
+                $images_url_arr = array_slice($images_url_arr,0,9);
+                if(count($images_url_arr)==1){
+                    $info['thumbnails'] = trim($topicDiscussInfo['images_url']) == '' ? [] : Util::getImageResizes_oldProportion($images_url_arr, 300);
+                }else {
+                    $info['thumbnails'] = trim($topicDiscussInfo['images_url']) == '' ? [] : Util::getImageResizes($images_url_arr, 300, 300);
+                }
+                $info['images_url'] = trim($topicDiscussInfo['images_url']) == '' ? [] : Util::imageWaters($images_url_arr);
+                $info['video_poster']=$topicDiscussInfo['video_poster'];
+                $info['video_url']=$topicDiscussInfo['video_url'];
+            }
+            $info['view_num']=$topicDiscussInfo['view_num'];
+            $info['like_count']=$topicDiscussInfo['like_num'];
+            $info['comment_count']=$topicDiscussInfo['comment_num'];
+            $info['share_count']=$topicDiscussInfo['share_num'];
+            $info['is_top']=$topicDiscussInfo['is_top'];
+            $info['datetime'] = Util::simpleTimeShow($topicDiscussInfo['create_time']);
+            $info['topic'] = [
+                "id" => $topicDiscussInfo['topicid'],
+                "title" => $topicDiscussInfo['topic_title'],
+            ];
+            $userLogic = new UserLogic();
+            $agencyType = $userLogic->getAgencyType($topicDiscussInfo['userid']);
+            $info['userinfo'] = [
+                "id" => $topicDiscussInfo['userid'],
+                "nickname" => $topicDiscussInfo['nickname'],
+                "faceUrl" => Util::getImageResize($topicDiscussInfo['face'],Image::faceWidth, Image::faceHeight),
+                'gender' => $topicDiscussInfo['gender'],
+                'is_artist' => strpos(',' . $topicDiscussInfo['role'] . ',', ',artist,') !== false ? 1 : 0,
+                'is_agency' => strpos(',' . $topicDiscussInfo['role'] . ',', ',agency,') !== false ? 1 : 0,
+                'AgencyType' => (int)$agencyType,
+                'is_planner' => strpos(',' . $topicDiscussInfo['role'] . ',', ',planner,') !== false ? 1 : 0,
+            ];
+            $tokenInfo = Token::getTokenInfo($this->token);
+            $userId = $tokenInfo['userInfo']['id'];
+            if($userId){
+                $topicDiscussLikeLogic = new TopicDiscussLikeLogic();
+                $isLike = $topicDiscussLikeLogic->UserIsLike($id,$userId);
+                $info['is_like']=$isLike?'Y':'N';
+                $userFollowerLogic = new UserFollowerLogic();
+                $userFollower = $userFollowerLogic->field('id')->where("follower=" . $userId . " and user_id=" . $topicDiscussInfo['userid'] . " and is_follow='Y'")->find();
+                $info['userinfo']['is_follow']=$userFollower?'Y':'N';
+            }else{
+                $info['is_like']='N';
+            }
+            if($topicDiscussInfo['type']==4){
+                $info['shareLink'] = C('m_site') . '/discussion/details/' . $id;
+            }else{
+                $info['shareLink'] = C('m_site') . '/discussion/detailGraphic/' . $id;
+            }
+
+
+        }
+
+        Util::jsonReturn(['status' => 1000, 'info'=>$info]);
+    }
+
+    //讨论的点赞列表
+    public function getTopicDiscussLike(){
+        $id = I('post.id', '0', 'number_int'); //讨论id
+        $page = intval(I('post.page', '1'));
+        $pagesize = intval(I('post.pagesize', '20'));
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 || $pagesize > 200 ? 20 : $pagesize;
+
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $topicDiscussInfo = $topicDiscussLogic
+            ->where(['az_topic_discuss.status'=>1,'az_topic_discuss.id'=>$id])
+            ->find();
+        if (empty($topicDiscussInfo)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '该文章不存在！');
+        }
+        $topicDiscussLikeLogic = new TopicDiscussLikeLogic();
+        $total = $topicDiscussLikeLogic->where(['topic_discuss_id'=>$id,'is_like'=>'Y'])->count();
+        $maxpage = ceil($total / $pagesize);
+        $likeList = $topicDiscussLikeLogic
+            ->field('az_topic_discuss_like.create_time,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender')
+            ->join('JOIN az_user ON az_user.id = az_topic_discuss_like.like_user_id','left')
+            ->where(['az_topic_discuss_like.topic_discuss_id'=>$id,'az_topic_discuss_like.is_like'=>'Y'])
+            ->page($page,$pagesize)
+            ->order('az_topic_discuss_like.create_time desc')
+            ->select();
+        foreach($likeList as &$value){
+            $value['create_time'] = Util::simpleTimeShow($value['create_time']);
+            $value['face'] = Util::getImageResize($value['face'],Image::faceWidth, Image::faceHeight);
+        }
+
+        $info = [
+            'data' => $likeList,
+            'page' => $page,
+            'total' => $topicDiscussInfo['like_num'],
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //讨论的转发列表
+    public function getTopicDiscussShare(){
+        $id = I('post.id', '0', 'number_int'); //讨论id
+        $page = intval(I('post.page', '1'));
+        $pagesize = intval(I('post.pagesize', '20'));
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 || $pagesize > 200 ? 20 : $pagesize;
+
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $topicDiscussInfo = $topicDiscussLogic
+            ->where(['az_topic_discuss.status'=>1,'az_topic_discuss.id'=>$id])
+            ->find();
+        if (empty($topicDiscussInfo)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '该文章不存在！');
+        }
+
+        $topicShareLogic= new TopicShareLogic();
+        $total = $topicShareLogic->where(['type'=>2,'topic_id'=>$id,'status'=>1])->count();
+
+        $maxpage = ceil($total / $pagesize);
+        $shareList = $topicShareLogic
+            ->field('az_topic_share.share_time as create_time,az_topic_share.share_user_id')
+            ->where(['az_topic_share.type'=>2,'az_topic_share.topic_id'=>$id,'az_topic_share.status'=>1])
+            ->page($page,$pagesize)
+            ->order('az_topic_share.share_time desc')
+            ->select();
+        $userLogic = new UserLogic();
+        foreach($shareList as &$value){
+            $value['create_time'] = Util::simpleTimeShow($value['create_time']);
+            if($value['share_user_id']!=0){
+                $user = $userLogic->field('id,face,nickname,gender')->find($value['share_user_id']);
+                $value['userid'] = $user['id'];
+                $value['face'] = Util::getImageResize($user['face'],Image::faceWidth, Image::faceHeight);
+                $value['nickname'] =  $user['nickname'];
+                $value['gender'] =  $user['gender'];
+
+            }else{
+                $value['userid'] = 0;
+                $value['face'] = Util::getImageResize(C('defaut_face'),Image::faceWidth, Image::faceHeight);
+                $value['nickname'] =  '匿名用户';
+                $value['gender'] =  3;
+            }
+            unset($value['share_user_id']);
+        }
+
+        $info = [
+            'data' => $shareList,
+            'page' => $page,
+            'total' => $topicDiscussInfo['share_num'],
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //讨论的评论列表
+    public function getTopicDiscussComment(){
+        $id = I('post.id', '0', 'number_int'); //讨论id
+        $page = intval(I('post.page', '1'));
+        $pagesize = intval(I('post.pagesize', '20'));
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 || $pagesize > 200 ? 20 : $pagesize;
+
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $topicDiscussInfo = $topicDiscussLogic
+            ->where(['az_topic_discuss.status'=>1,'az_topic_discuss.id'=>$id])
+            ->find();
+        if (empty($topicDiscussInfo)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '该文章不存在！');
+        }
+
+        $userId='';
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+            $userId = $tokenInfo['userInfo']['id'];
+        }
+
+        $deleCommentUser=[];//已删除的且没有子评论的评论的用户id
+
+        $userLogic= new UserLogic();
+        $topicDiscussCommentLogic= new TopicDiscussCommentLogic();
+        $total = $topicDiscussCommentLogic->where(['topic_discuss_id'=>$id,'comment_parent_id'=>0])->count();
+
+        $maxpage = ceil($total / $pagesize);
+        $commentList = $topicDiscussCommentLogic
+            ->field('az_topic_discuss_comment.id,az_topic_discuss_comment.content,az_topic_discuss_comment.create_time,az_topic_discuss_comment.status,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender')
+            ->join('JOIN az_user ON az_user.id = az_topic_discuss_comment.commenter','left')
+            ->where(['az_topic_discuss_comment.topic_discuss_id'=>$id,'az_topic_discuss_comment.comment_parent_id'=>0])
+            ->page($page,$pagesize)
+            ->order('az_topic_discuss_comment.create_time desc')
+            ->select();
+        $list=[];
+        foreach($commentList as $key=>$value){
+            $comment['id']=$value['id'];
+            $comment['content']=$value['status'] == 1?$value['content']:'该评论已删除';
+            $comment['status']=$value['status'];
+            $comment['create_time']=Util::simpleTimeShow($value['create_time']);
+            if($userId == $value['userid'] && $value['status'] == 1){//登录用户发表的评论，且未删除
+                $isAllowDelete = 1;//可删除
+            }else{
+                $isAllowDelete = 0;//不可删除
+            }
+            $comment['isAllowDelete'] = $isAllowDelete;
+            //下级评论最近3条
+            $commentChildList=$topicDiscussCommentLogic->getTopicDiscussCommentChildren($value['id'],3);
+            $childerIds=$topicDiscussCommentLogic->getTopicDiscussCommentChildrenids($value['id']);
+            $commentCount = empty($childerIds)?0:count(explode(',',$childerIds));
+            $comment['comment_num'] = $commentCount;
+            if($value['status'] == 0 && $commentCount==0){//没有子评论且已删除
+                if(in_array($value['userid'],$deleCommentUser)){//该用户已经存在删除过的评论，隐藏
+                   continue;
+                }else{
+                    $deleCommentUser[]=$value['userid'];
+                }
+            }
+
+            if($commentChildList){
+                foreach($commentChildList as $k=>&$v){
+                    $v['content']=$v['status'] == 1?$v['content']:'该评论已删除';
+                    $v['create_time']=Util::simpleTimeShow($v['create_time']);
+                    $v['face']=Util::getImageResize($v['face'],Image::faceWidth, Image::faceHeight);
+                    $comment_to = $userLogic->field('nickname')->find($v['comment_to']);
+                    $v['comment_to'] =$comment_to?$comment_to['nickname']:'';
+                    if($userId == $v['userid'] && $v['status'] == 1){//登录用户发表的评论，且未删除
+                        $isAllowDelete = 1;//可删除
+                    }else{
+                        $isAllowDelete = 0;//不可删除
+                    }
+                    $v['isAllowDelete'] = $isAllowDelete;
+
+                    if($v['status'] == 0){//评论已删除
+                        if(in_array($v['userid'],$deleCommentUser)){//该用户已经存在删除过的评论，隐藏
+                            unset($commentChildList[$k]);
+                        }else{
+                            $deleCommentUser[]=$value['userid'];
+                        }
+                    }
+                }
+            }else{
+                $commentChildList=[];
+            }
+            $comment['list']=array_values($commentChildList);
+            $comment['userinfo']['id']=$value['userid'];
+            $comment['userinfo']['face']=Util::getImageResize($value['face'],Image::faceWidth, Image::faceHeight);
+            $comment['userinfo']['nickname']=$value['nickname'];
+            $comment['userinfo']['gender']=$value['gender'];
+
+            $list[]=$comment;
+
+        }
+
+        $info = [
+            'data' => $list,
+            'page' => $page,
+            'total' => $topicDiscussInfo['comment_num'],
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //讨论的评论详情
+    public function getTopicDiscussCommentDetail(){
+        $id = I('post.id', '0', 'number_int'); //评论id
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        $userId='';
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+            $userId = $tokenInfo['userInfo']['id'];
+        }
+
+        $userLogic= new UserLogic();
+        $topicDiscussCommentLogic= new TopicDiscussCommentLogic();
+        $commentInfo=$topicDiscussCommentLogic
+            ->field('az_topic_discuss_comment.id,az_topic_discuss_comment.content,az_topic_discuss_comment.create_time,az_topic_discuss_comment.status,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender')
+            ->join('JOIN az_user ON az_user.id = az_topic_discuss_comment.commenter','left')
+            ->where(['az_topic_discuss_comment.id'=>$id])
+            ->find();
+        $commentInfo['content']=$commentInfo['status'] == 1?$commentInfo['content']:'该评论已删除';
+        $commentInfo['face']=Util::getImageResize($commentInfo['face'],Image::faceWidth, Image::faceHeight);
+        $commentInfo['create_time']=Util::simpleTimeShow($commentInfo['create_time']);
+        if($userId == $commentInfo['userid'] && $commentInfo['status'] == 1){//登录用户发表的动态
+            $isAllowDelete = 1;//可删除
+        }else{
+            $isAllowDelete = 0;//不可删除
+        }
+        $commentInfo['isAllowDelete'] = $isAllowDelete;
+        $commentList=$topicDiscussCommentLogic->getTopicDiscussCommentChildren($id);
+        foreach($commentList as &$value){
+            $value['content']=$value['status'] == 1?$value['content']:'该评论已删除';
+            $value['create_time']=Util::simpleTimeShow($value['create_time']);
+            $comment_to = $userLogic->field('nickname')->find($value['comment_to']);
+            $value['comment_to'] =$comment_to?$comment_to['nickname']:'';
+            if($userId == $value['userid'] && $value['status'] == 1){//登录用户发表的动态
+                $isAllowDelete = 1;//可删除
+            }else{
+                $isAllowDelete = 0;//不可删除
+            }
+            $value['isAllowDelete'] = $isAllowDelete;
+        }
+        $commentInfo['list']=empty($commentList)?[]:$commentList;
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $commentInfo]);
+    }
+
+    //喜欢话题讨论
+    public function likeTopicDiscuss(){
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        $id = I('post.id', '1', 'number_int'); //话题讨论id
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        $topicDiscussLikeLogic = new TopicDiscussLikeLogic();
+        $likeData = [
+            'topic_discuss_id' => $id,
+            'like_user_id' => $userId,
+            'create_time' => time(),
+            'is_like' => 'Y',
+        ];
+        $info = $topicDiscussLikeLogic->like($likeData);
+        if($info){
+            $topicLogic = new TopicLogic();
+            $topicDiscussLogic = new TopicDiscussLogic();
+            $discuss=$topicDiscussLogic->field('topic_id')->find($id);
+            $topicLogic->ActivateUserRelationships($discuss['topic_id'],$userId);
+            $userLogic = new UserLogic(); //实例化用户模块
+            $userInfo = $userLogic->getUserInfoById($userId); //根据用户id获取用户信息
+            $faceUrl = Util::getImageResize($userInfo['face'],Image::faceWidth, Image::faceHeight);;
+            Util::jsonReturn(['status' => 1000,'faceurl'=>$faceUrl]);
+        }else{
+            Util::jsonReturn(null, Code::PARAM_ERR, '话题讨论喜欢失败或已喜欢');
+        }
+
+    }
+
+    //取消喜欢话题讨论
+    public function unlikeTopicDiscuss(){
+        $this->checkLogin();  //判断用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        $id = I('post.id', '1', 'number_int'); //话题id
+        if (empty($id)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误！');
+        }
+        $topicDiscussLikeLogic = new TopicDiscussLikeLogic();
+        $unlikeData = [
+            'topic_discuss_id' => $id,
+            'like_user_id' => $userId,
+            'create_time' => time(),
+            'is_like' => 'N',
+        ];
+        $info = $topicDiscussLikeLogic->unlike($unlikeData);
+        if($info){
+            Util::jsonReturn(['status' => 1000]);
+        }else{
+            Util::jsonReturn(null, Code::PARAM_ERR, '话题讨论取消喜欢失败或已取消喜欢');
+        }
+
+    }
+
+    //评论讨论
+    public function commentDiscuss()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, '您没有权限！');
+        }
+        $userId = $tokenInfo['userInfo']['id'];
+        $id = I('post.id', '', 'number_int');//讨论id
+        $content = I('post.content', '');//评论内容
+
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $topicDiscussinfo = $topicDiscussLogic->where(['id' => $id, 'status' => 1])->find();
+        if (empty($topicDiscussinfo)) {//讨论不存在
+            Util::jsonReturn(null, Code::SYS_ERR, '文章不存在!');
+        }
+
+        //敏感词判断
+        $sensitiveWord=Util::sensitive_words_match($content);
+        if (!empty($sensitiveWord)) {
+            Util::jsonReturn(null, Code::SYS_ERR, '您所发表的内容存在违规禁词，请重新编辑！');
+        }
+        $commentTo = $topicDiscussinfo['user_id'];
+        $commentInfo = [
+            'topic_discuss_id' => $id,
+            'commenter' => $userId,
+            'comment_to' => $commentTo,
+            'content' => $content,
+            'create_time' => $_SERVER['REQUEST_TIME'],
+            'status' => 1,
+        ];
+        $topicDiscussCommentLogic = new TopicDiscussCommentLogic();
+        $commentData = $topicDiscussCommentLogic->comment($commentInfo);
+        if (!empty($commentData)) {
+            $userLogic = new UserLogic(); //实例化用户模块
+            $commenterName = $userLogic->field('nickname')->where(['id' => $commentData['commenter']])->find(); //根据用户id获取用户信息
+            $info = [
+                'id' => $commentData['id'],
+                'commenter' => $commenterName['nickname'],
+                'commenter_user_id' => $commentData['commenter'],
+                'comment_to' =>$commentData['comment_to'],
+                'content' => $commentData['content'],
+                'datetime' => date('Y-m-d H:i:s', $commentData['create_time']),
+            ];
+
+            $topicLogic = new TopicLogic();
+            $topicLogic->ActivateUserRelationships($topicDiscussinfo['topic_id'],$commentTo);
+
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '评论失败');
+        }
+    }
+
+    //回复讨论
+    public function replyComment()
+    {
+        $this->checkLogin();
+        $commentId = I('post.commentId', '', 'number_int');//评论id
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $content = I('post.content', '');//回复内容
+
+        $topicDiscussCommentLogic = new TopicDiscussCommentLogic();
+        $Commentinfo = $topicDiscussCommentLogic->getCommentInfo($commentId);
+        if (empty($Commentinfo)) {//评论不存在
+            Util::jsonReturn(null, Code::SYS_ERR, '评论不存在！');
+        }
+        if ($Commentinfo['commenter'] == $userId) {//自己回复自己
+            $count = $topicDiscussCommentLogic->where(['comment_parent_id'=>$commentId,'commenter'=>$userId,'status' => 1])->count();
+            if($count>=8){
+                Util::jsonReturn(null, Code::SYS_ERR, '您的操作太频繁了，请稍后再试！');
+            }
+        }
+
+        //敏感词判断
+        $sensitiveWord=Util::sensitive_words_match($content);
+        if (!empty($sensitiveWord)) {
+            Util::jsonReturn(null, Code::SYS_ERR, '您所发表的内容存在违规禁词，请重新编辑！');
+        }
+        $commentInfo = [
+            'topic_discuss_id' => $Commentinfo['topic_discuss_id'],
+            'comment_parent_id' => $commentId,
+            'commenter' => $userId,
+            'comment_to' => $Commentinfo['commenter'],
+            'content' => $content,
+            'create_time' => $_SERVER['REQUEST_TIME'],
+            'status' => 1,
+        ];
+        $replyInfo = $topicDiscussCommentLogic->replyComment($commentInfo);
+        if ($replyInfo) {
+            $userLogic = new UserLogic(); //实例化用户模块
+            $commenterName = $userLogic->field('nickname')->where(['id' => $replyInfo['commenter']])->find(); //根据用户id获取用户信息
+            $commenterToName = $userLogic->field('nickname')->where(['id' => $replyInfo['comment_to']])->find(); //根据用户id获取用户信息
+            $info = [
+                'id' => $replyInfo['id'],
+                'commenter' => $commenterName['nickname'],
+                'commenter_user_id' => $replyInfo['commenter'],
+                'comment_to' => $commenterToName['nickname'],
+                'content' => $replyInfo['content'],
+                'datetime' => date('Y-m-d H:i:s', $replyInfo['create_time']),
+            ];
+            $topicLogic = new TopicLogic();
+            $topicDiscussLogic = new TopicDiscussLogic();
+            $discuss=$topicDiscussLogic->field('topic_id')->find($Commentinfo['topic_discuss_id']);
+            $topicLogic->ActivateUserRelationships($discuss['topic_id'],$Commentinfo['commenter']);
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '回复失败');
+        }
+    }
+
+    //删除评论
+    public function deleteComment()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $id = I('post.id', '', 'number_int');//评论id
+
+        $topicDiscussCommentLogic = new TopicDiscussCommentLogic();
+        $Commentinfo = $topicDiscussCommentLogic->getCommentInfo($id);
+        if (empty($Commentinfo)) {//评论不存在
+            Util::jsonReturn(null, Code::SYS_ERR, '评论不存在！');
+        }
+
+        if ($userId != $Commentinfo['commenter']) {//用户不是要删除的评论的评论者
+            Util::jsonReturn(null, Code::SYS_ERR, '您没有权限！');
+        }
+
+        $commentId = $topicDiscussCommentLogic->deleteComment($Commentinfo);
+        if (!empty($commentId)) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'commentId' => $id]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经删除了！');
+        }
+    }
+
+
+}

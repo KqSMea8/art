@@ -1,0 +1,213 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Util;
+use Custom\Helper\Oss;
+use Custom\Helper\Nav;
+use Common\Logic\SubjectLogic;
+
+
+//艺术号 栏目
+class ArticleColumnController extends AdminBaseController
+{
+    public $pagesize = 15;  //每页显示条数
+    //推荐栏目列表
+    public function index()
+    {
+        $page = I('get.page', '1');  //页码
+        $columns = M('article_column')->order("sort asc")->page($page,$this->pagesize)->select();
+        foreach ($columns as &$data) {
+            $data['is_show'] = $data['is_show'] == 'Y'?'开':'关';
+            if($data['tags_id'] == -1){
+                $data['tags_id'] = '关注';
+            }elseif($data['tags_id'] == -2){
+                $data['tags_id'] = '专题';
+            }elseif($data['tags_id'] == -3){
+                $data['tags_id'] = '热点';
+            }elseif($data['tags_id'] == -4){
+                $data['tags_id'] = '推荐';
+            }else{
+                $where['id'] = array('in',$data['tags_id']);
+                $tags = M('article_tag')->field('cn_name')->where($where)->select();
+                $tags = implode(',',array_column($tags,'cn_name'));
+                $data['tags_id'] = $tags;
+            }
+        }
+
+        $total = M('article_column')->count();
+        $nav = Nav::render(U('Admin/Article/tag'), [], $page, $this->pagesize, $total);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $columns);
+        $this->assign('page', $page);
+        $this->display('index');
+    }
+
+
+    //网添栏目
+    public function showAdd()
+    {
+        $page = I('get.page', '1');  //页码
+        $tag1=[
+            'id'=>-1,
+            'cn_name'=>'关注'
+        ];
+        $tag2=[
+            'id'=>-2,
+            'cn_name'=>'专题'
+        ];
+        $tag3=[
+            'id'=>-3,
+            'cn_name'=>'热点'
+        ];
+        $tag4=[
+            'id'=>-4,
+            'cn_name'=>'推荐'
+        ];
+        $tags = M('article_tag')->field('id,cn_name')->order("sort asc")->select();
+        array_unshift($tags,$tag4);
+        array_unshift($tags,$tag3);
+        array_unshift($tags,$tag2);
+        array_unshift($tags,$tag1);
+        $this->assign('tags', $tags);
+        $this->assign('page', $page);
+        $this->display('add');
+    }
+
+    //添加栏目操作
+    public function add()
+    {
+        $sort = intval(trim(I('post.sort')));  //序号
+        $tag = I('post.tag');
+        $tag = empty($tag)?'':implode(',',array_values($tag));  //标签
+        $name = addslashes(trim(I('post.name')));  //名称
+        $is_show = addslashes(trim(I('post.is_show')));  //是否开启
+
+        $data = [
+            'sort' => $sort,
+            'tags_id' =>$tag,
+            'name' => $name,
+            'is_show' => $is_show,
+        ];
+        //插入数据，返回插入后的id
+        $insert_id = M('article_column')->add($data);
+        if ($insert_id) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '添加失败，请重试'];
+            echo json_encode($response);
+        }
+
+    }
+
+    //删除图片操作
+    public function delete()
+    {
+        $ids = I('post.id');
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+
+        $where['id'] = array('in',$ids);
+        $num = M('article_column')->where($where)->delete();
+        $return=['error'=>0,'delete_num'=>$num];
+        echo json_encode($return);
+    }
+
+    //修改序号
+    public function updateSort(){
+        $id = intval(trim(I('post.id')));  //id
+        $sort = intval(trim(I('post.sort')));  //序号
+        $where['id'] = $id;
+        $data['sort'] = $sort;
+        $insertId = M('article_column')->where(['id'=>$id])->save($data);
+        if ($insertId) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+
+    }
+
+    //编辑页面显示
+    public function showEdit()
+    {
+        $id = intval(I('get.id'));
+        $page = I('get.page', '1');  //页码
+
+
+        $data = M('article_column')->find($id);
+        $checked = explode(',',$data['tags_id']);
+        $tag1=[
+            'id'=>-1,
+            'cn_name'=>'关注',
+            'check'=>0
+        ];
+        $tag2=[
+            'id'=>-2,
+            'cn_name'=>'专题',
+            'check'=>0
+        ];
+        $tag3=[
+            'id'=>-3,
+            'cn_name'=>'热点',
+            'check'=>0
+        ];
+        $tag4=[
+            'id'=>-4,
+            'cn_name'=>'推荐',
+            'check'=>0
+        ];
+        $tags = M('article_tag')->field('id,cn_name')->order("sort asc")->select();
+        array_unshift($tags,$tag4);
+        array_unshift($tags,$tag3);
+        array_unshift($tags,$tag2);
+        array_unshift($tags,$tag1);
+        foreach($tags as $k=>$v){
+            $tags[$k]['check']= in_array($v['id'],$checked)?1:0;
+        }
+        $this->assign('tags', $tags);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $this->display('edit');
+    }
+
+    //编辑图片操作
+    public function edit()
+    {
+        $id = intval(I('post.id'));  //ID
+        $sort = intval(trim(I('post.sort')));  //序号
+        $tag = I('post.tag');
+        $tag = empty($tag)?'':implode(',',array_values($tag));  //标签
+        $name = addslashes(trim(I('post.name')));  //名称
+        $is_show = addslashes(trim(I('post.is_show')));  //是否开启
+
+
+        $data = [
+            'sort' => $sort,
+            'tags_id' =>$tag,
+            'name' => $name,
+            'is_show' => $is_show,
+        ];
+        $where['id'] = $id;
+        $result = M('article_column')->where($where)->save($data);  //更新记录
+        if (false !== $result) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '添加失败，请重试'];
+            echo json_encode($response);
+        }
+    }
+
+}

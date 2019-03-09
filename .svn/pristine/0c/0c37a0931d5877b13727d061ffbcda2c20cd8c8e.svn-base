@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>我的邀请</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/user.css">
+  </head>
+  <body>
+    <div class="user-invite" id="user-invite">
+      <div class="holder">
+        <img  src="/Public/H5/image/user/holder.png" alt="">
+        <p>你还没邀请过艺术家入驻哦~</p>
+      </div>
+      <ul class="invite-list" style="display: none;">
+        <li class="artist-info">
+          <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png">
+          <div class="detail">
+            <span class="nickname">白素</span>
+            <i class="icons icon-artist"></i>
+            <span class="desc">最享受拿着画笔的感觉</span>
+            <i class="icons icon-follow"></i>
+          </div>
+        </li>
+        <li class="artist-info">
+          <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png">
+          <div class="detail">
+            <span class="nickname">白素</span>
+            <i class="icons icon-artist"></i>
+            <span class="desc">最享受拿着画笔的感觉</span>
+            <i class="icons icon-follow icon-followed"></i>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </body>
+  <script src="/Public/H5/js/lib/vue.js"></script>
+  <script src="/Public/H5/js/lib/zepto.js"></script>
+  <script src="/Public/H5/js/util.js"></script>
+  <script type="text/javascript" src="/Public/H5/js/user/userinvite.js"></script>
+</html>

@@ -1,0 +1,47 @@
+<?php
+
+namespace M\Logic;
+
+use M\Base\BaseLogic;
+
+/**艺术品和商品关联
+ * Class ArtworkGoodsLogic
+ * @package Mp\Logic
+ */
+class ArtworkGoodsLogic extends BaseLogic
+{
+
+    /**添加关联商品
+     * @param array $data
+     * @return array
+     */
+    public function add($data=[])
+    {
+        $id = $this->model->add($data);
+        if ($id) {
+            $info = $this->model->find($id);
+            return $info;
+        } else {
+            return [];
+        }
+
+    }
+
+    /**修改关联商品信息
+     * @param array $data
+     * @return array
+     */
+    public function save($where = '',$data=[])
+    {
+        $id = $this->model->where($where)->save($data);
+        if ($id) {
+            $info = $this->model->where($where)->find();
+            return $info;
+        } else {
+            return [];
+        }
+
+    }
+
+
+}

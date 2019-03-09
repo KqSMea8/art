@@ -1,0 +1,17 @@
+// var paintingTab = new Vue({
+//   el: '#records',
+//   data: {
+//     current_0: true,
+//     current_1: false,
+//   },
+//   methods: {
+//     updateTap: function () {
+//       this.current_0 = true;
+//       this.current_1 = false;
+//     },
+//     commentTap: function () {
+//       this.current_0 = false;
+//       this.current_1 = true;
+//     }
+//   }
+// });

@@ -1,0 +1,83 @@
+<?php
+
+namespace V31\Logic;
+
+use V31\Base\BaseLogic;
+use V31\Model\UserFollowerModel;
+use V31\Model\UserModel;
+use Custom\Define\Image;
+use V31\Logic\RecommendLogic;
+
+class UserFollowerLogic extends BaseLogic
+{
+    public function getIsFollowedList($artistIdList, $followerId)
+    {
+        if (!$followerId) {
+            return [];//如果没有登录，则返回空数组
+        }
+        $userFollowerModel = new UserFollowerModel();
+        $userIdList = $userFollowerModel
+            ->where(['follower'=>$followerId, 'user_id'=>['in', $artistIdList]])
+            ->getField('user_id', true);
+        $followStatusList = [];
+        foreach ($artistIdList as $artistId) {
+            if (in_array($artistId, $userIdList)) {
+                $followStatusList[$artistId] = 1;
+            } else {
+                $followStatusList[$artistId] = -1;
+            }
+        }
+        return $followStatusList;
+    }
+    public function addFollower($loginUserId, $artistId)
+    {
+        if(empty($this->where(['follower'=>$loginUserId,'user_id'=>$artistId,'is_follow'=>'Y'])->find())){
+          $userModel = new UserModel();
+          $recommendLogic = new RecommendLogic();
+          $userModel->where(['id'=>$loginUserId])->setInc('follow_total');
+          $userModel->where(['id'=>$artistId])->setInc('follower_total');
+          $recommendLogic->follow($artistId,$loginUserId);
+          if(empty($this->where(['follower'=>$loginUserId,'user_id'=>$artistId,'is_follow'=>'N'])->find())){
+              return $this->model->add(['follower'=>$loginUserId, 'user_id'=>$artistId, 'follow_time'=>$_SERVER['REQUEST_TIME']]);
+          }else{
+              $data = ['follow_time'=>time(),'unfollow_time'=>0,'is_follow'=>'Y'];
+              return $this->model->where(['follower'=>$loginUserId,'user_id'=>$artistId,'is_follow'=>'N'])->save($data);
+          }
+        }else{
+          return false;
+        }
+    }
+    public function unFollow($loginUserId, $artistId)
+    {
+      $userModel = new UserModel();
+      $recommendLogic = new RecommendLogic();
+      $userModel->where(['id'=>$loginUserId])->setDec('follow_total');
+      $userModel->where(['id'=>$artistId])->setDec('follower_total');
+      $recommendLogic->unfollow($artistId,$loginUserId);
+      $data = [
+          'is_follow'=>'N',
+          'unfollow_time' => time()
+      ];
+      return $this->model
+          ->where(['follower'=>$loginUserId, 'user_id'=>$artistId, 'is_follow'=>'Y'])
+          ->save($data);
+    }
+    //my follower list, fans
+    public function getFollowerList($userId, $page, $perPageCount)
+    {
+        $data = $this->model->where(['user_id'=>$userId, 'is_follow'=>'Y'])->order('follow_time DESC')->page($page, $perPageCount)->select();
+        if (empty($data)) {
+            return [];
+        }
+        return $data;
+    }
+    //my follow list, artist
+    public function getFollowList($follower, $page, $perPageCount)
+    {
+        $data = $this->model->where(['follower'=>$follower, 'is_follow'=>'Y'])->order('follow_time DESC')->page($page, $perPageCount)->select();
+        if (empty($data)) {
+            return [];
+        }
+        return $data;
+    }
+}

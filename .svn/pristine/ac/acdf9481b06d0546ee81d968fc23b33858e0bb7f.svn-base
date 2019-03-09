@@ -1,0 +1,10 @@
+<?php
+
+namespace V20\Model;
+
+use V20\Base\BaseModel;
+
+class Sub_artModel extends BaseModel
+{
+    protected $tableName = 'Sub_art';
+}

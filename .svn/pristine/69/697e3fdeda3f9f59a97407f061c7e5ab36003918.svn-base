@@ -1,0 +1,489 @@
+<?php
+
+namespace V42\Controller;
+
+use Think\Controller;
+use V42\Logic\UserLogic;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use Custom\Manager\Token;
+use Custom\Helper\Checker;
+use V42\Logic\ArtworkUpdateLogic;
+use V42\Logic\ArtworkLogic;
+use V42\Logic\ArticleLogic;
+use V42\Logic\SubjectLogic;
+use Custom\Helper\Verify;
+use V42\Logic\UserFollowerLogic;
+use V42\Logic\ArtworkCategoryLogic;
+use Custom\Define\Image;
+use V42\Logic\ArtworkConsultationLogic;
+
+//app端H5页面接口
+class MobileGetH5Controller extends Controller
+{
+    private $loginUserId;
+
+    public function __construct()
+    {
+        //用户登录状态
+        $h5_token = I('post.h5_token', '');
+        $h5_token = Checker::token($h5_token);
+        $tokenInfo = Token::getTokenInfo($h5_token);
+        $userLogic = new UserLogic(); //实例化用户模块
+        $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+        $loginUserId = intval($userInfo['id']);
+        $this->loginUserId = $loginUserId;
+        //用户登录状态 end
+    }
+    protected function checkLogin(){//验证登陆
+        if(intval($this->loginUserId)<=0){
+            Util::jsonReturn(null,Code::HAVE_NO_RIGHT);exit;
+        }
+    }
+
+    //花絮详情
+    public function ArtworkUpdateDetail(){
+        $all = I('post.');
+        Verify::all($all,['id' => '!@']);
+        $updateLogic = new ArtworkUpdateLogic();
+        $loginUserId = empty($this->loginUserId)?0:$this->loginUserId;
+        $detail = $updateLogic->getDetailWithCommentH5($all['id'],$loginUserId);
+        if($detail==false){
+            Util::jsonReturn(null, Code::SYS_ERR, '该艺术品仅作者可见');
+        }else{
+            Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$detail]);
+        }
+    }
+
+    public function getupdateWit()
+    {
+
+
+        $id = I('post.id', '', 'number_int');
+
+        $updateLogic = new ArtworkUpdateLogic();
+
+        $updateInfo = $updateLogic->where(['id' => $id, 'is_deleted' => 'N'])->find();
+        if (!$updateInfo) {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+        $artLogic = new ArtworkLogic();
+        $artInfo = $artLogic->where(['id' => $updateInfo['artwork_id'], 'is_deleted' => 'N'])->find();
+        if ($artInfo['state'] == 2 && $artInfo['artist'] != $this->loginUserId) {//画作仅自己看的时候，不是作者就隐藏
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+
+        if (!$artInfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '该艺术品仅作者可见');
+        } else {
+            $imgUrls = Util::getHtmlImgSrc($updateInfo['wit']);
+            $updateInfo['wit'] = $updateLogic->replaceHtmlImgSrc($imgUrls, $updateInfo['wit']);
+            $updateInfo = [
+                'id' => $updateInfo['id'],
+                'wit' => html_entity_decode(trim($updateInfo['wit'])),
+            ];
+
+            $info = $updateInfo;
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        }
+    }
+
+    //艺术号内容
+    public function getArticleContent()
+    {
+
+
+
+        $id = I('post.id', '', 'number_int');
+        $ArticleLogic = new ArticleLogic();
+        $articleinfo = $ArticleLogic->where("id=" . intval($id) . " and status=1")->find();
+        if (!$articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+        $imgUrls = $ArticleLogic->getHtmlImgSrc($articleinfo['content']);
+        $articleinfo['content'] = $ArticleLogic->replaceHtmlImgSrc($imgUrls, $articleinfo['content']);
+
+
+        $info['article']['content'] = $articleinfo['content'];
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //专题内容
+    public function getSubjectContent()
+    {
+        $subid = I('post.subid');
+        $subjectLogic = new SubjectLogic();
+        $subjectinfo = $subjectLogic->where('id=' . intval($subid) . ' and status=0')->find();
+        if (!$subjectinfo) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => []]);
+        }
+        
+        $description=html_entity_decode($subjectinfo['description']);
+        $imgUrls = $subjectLogic->getHtmlImgSrc($description);
+        $description = $subjectLogic->replaceHtmlImgSrc($imgUrls, $description);
+        
+        $subjectinfo = [
+            'id' => $subjectinfo['id'],
+            'sub_name' => $subjectinfo['sub_name'],
+            'sub_title' => $subjectinfo['sub_title'],
+            'description' =>$description ,
+            'cover' => Util::getImageResize(trim($subjectinfo['cover']),750,380),
+            
+        ];
+        
+        
+        $info = $subjectinfo;
+        
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //艺术号详情
+    public function getArticleDetail()
+    {
+
+        $id = I('post.id', '', 'number_int');
+        $ArticleLogic = new ArticleLogic();
+        $articleinfo = $ArticleLogic->where("id=" . intval($id) . " and status=1")->find();
+        if (!$articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+        $ArticleLogic->where('id=' . intval($id))->setInc('views', 1);//app展示浏览量
+        $ArticleLogic->where('id=' . intval($id))->setInc('real_views', 1);//真实浏览量
+
+        $userLogic = new UserLogic();
+        $userinfo = $userLogic->where("id=" . $articleinfo['artist'])->find();
+
+        $ArticleLike = M('ArticleLike')->where("article_id=" . intval($id) . " and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->find();
+        $UserFollowerLogic = new UserFollowerLogic();
+        $UserFollower = $UserFollowerLogic->field('id')->where("follower=" . intval($this->loginUserId) . " and user_id=" . $articleinfo['artist'] . " and is_follow='Y'")->find();
+//echo $UserFollowerLogic->getLastSql();exit;
+        //$article['id'] = $articleinfo['id'];
+
+        $article['is_repay'] = $articleinfo['artist'] == $this->loginUserId ? 1 : 0;
+        $article['title'] = html_entity_decode(html_entity_decode($articleinfo['title'], ENT_QUOTES), ENT_QUOTES);//app原生不支持html需要转化;
+        $article['like_count'] = $articleinfo['like_count'];
+        $article['create_time'] = date('Y-m-d', $articleinfo['publish_time']);
+        $article['views'] = $articleinfo['views'];
+        $article['is_like'] = $ArticleLike ? 1 : 0;
+        $article['follow_user'] = $UserFollower ? 1 : 0;
+        //$article['html5_url'] = C('m_site') . '/article/content/' . $id;
+        $article['content'] = html_entity_decode(html_entity_decode($articleinfo['content'],ENT_QUOTES),ENT_QUOTES);
+        if(empty($articleinfo['tag'])){
+            $article['tag'] =[];
+        }else{
+            $article_tags = M('article_tag')->field('cn_name')->where(['id'=>['in',$articleinfo['tag']]])->select();
+            $article['tag'] =empty($article_tags)?[]:array_column($article_tags,'cn_name');
+        }
+
+
+        $AgencyType=$userLogic->getAgencyType($articleinfo['artist']);
+        $article['userinfo'] = [
+            "id" => $userinfo['id'],
+            "nickname" => $userinfo['nickname'],
+            "faceUrl" => Util::getImageResize($userinfo['face'], Image::faceWidth, Image::faceHeight),
+            'gender' => $userinfo['gender'],
+            'motto' => $userinfo['motto'],
+            'category' => $this->get_user_category($userinfo['id']),
+            "is_artist" => strpos(',' . $userinfo['role'] . ',', ',artist,') !== false ? 1 : 0,
+            "is_agency" => strpos(',' . $userinfo['role'] . ',', ',agency,') !== false ? 1 : 0,
+            'AgencyType' => $AgencyType,
+            "is_planner" => strpos(',' . $userinfo['role'] . ',', ',planner,') !== false ? 1 : 0,
+        ];
+
+        $ArticleLike_list = M('ArticleLike')->field('az_user.face')->join('az_user on az_article_like.like_user_id=az_user.id')->where("az_article_like.article_id=" . intval($id))->order('az_article_like.id desc')->limit(10)->select();
+
+
+        $article['like_users'] = [];
+        foreach ($ArticleLike_list as $value) {
+            $article['like_users'][] = $value['face'].'?x-oss-process=image/resize,m_fixed,h_180,w_180';
+        }
+
+        //获取里面的图片
+        preg_match_all('/<img.*?src="(.*?)".*?>/is', $article['content'], $array);
+        $article['images'] = empty($array[1]) ? [] : self::thumbnails($array[1]);
+
+        //获取里面的视频
+        preg_match_all('/<video.*?poster="(.*?)".*?>/is', $article['content'], $match);
+        $article['video'] = empty($match[1]) ? '' : $match[1][0];
+
+        if(empty($articleinfo['cover'])){
+            if(empty($article['video'])){
+                $articleCover= empty($array[1])?'':$array[1][0];
+            }else{
+                $articleCover = $article['video'];
+            }
+        }else{
+            $articleCover = $articleinfo['cover'];
+        }
+
+
+        $ArticleComment_count = M('ArticleComment')->where("topic_id=" . intval($id) . " and parent_id=0 and status=1")->count();
+        $ArticleComment_list = M('ArticleComment')
+            ->field('az_article_comment.id,az_article_comment.commenter as artist,az_user.face,az_user.nickname,az_user.gender
+            ,az_article_comment.create_time,az_article_comment.content,az_article_comment.like_total')
+            ->join('az_user on az_article_comment.commenter=az_user.id')
+            ->where("az_article_comment.topic_id=" . intval($id) . " and az_article_comment.parent_id=0 and az_article_comment.status=1")
+            ->order('az_article_comment.id desc')
+            ->limit(5)
+            ->select();
+
+        $comments = [];
+        foreach ($ArticleComment_list as $value) {
+            $repayinfo = M('ArticleComment')
+                ->field('az_article_comment.id,az_article_comment.commenter as artist,az_user.face,az_user.nickname,az_user.gender
+            ,az_article_comment.create_time,az_article_comment.content,az_article_comment.like_total')
+                ->join('az_user on az_article_comment.commenter=az_user.id')
+                ->where("az_article_comment.topic_id=" . intval($id) . " and az_article_comment.parent_id=" . $value['id'] . " and az_article_comment.status=1")
+                ->find();
+            $ArticleCommentLike = M('ArticleCommentLike')->where("comment_id=" . intval($value['id']) . " and liker=" . intval($this->loginUserId) . " ")->find();
+
+            if ($repayinfo) {
+                $value['repayer'] = $repayinfo['nickname'];
+                $value['repayContent'] = $repayinfo['content'];
+                $value['repayTime'] = $repayinfo['create_time'];
+            }
+            $comments[] = [
+                'commentId' => $value['id'],
+                'artist' => $value['artist'],
+                'faceUrl' => $value['face'].'?x-oss-process=image/resize,m_fixed,h_180,w_180',
+                'nickname' => $value['nickname'],
+                'gender' => $value['gender'],
+                'time' => date('Y-m-d', $value['create_time']),
+                'content' => $value['content'],
+                "isLike" => $ArticleCommentLike ? 'Y' : 'N',
+                'repayer' => trim($value['repayer']) == '' ? '' : $value['repayer'],
+                'repayContent' => trim($value['repayContent']) == '' ? '' : $value['repayContent'],
+                'repayTime' => $value['repayTime'] ? date('Y-m-d', $value['repayTime']) : '',
+                'likes' => $value['like_total'],
+                'isRepay' => $repayinfo ? 1 : 0,
+
+
+            ];
+        }
+
+        $article['comments'] = [
+            'total' => $ArticleComment_count,
+            'commentlist' => $comments
+        ];
+
+
+        //相关推荐
+        $where = 'az_article.artist=' . $articleinfo['artist'] . ' and az_article.id!=' . intval($id) . ' and az_article.status=1';
+        $total = $ArticleLogic->where($where)->count();
+
+        if ($total) {
+
+            $list = $ArticleLogic
+                ->field('az_article.publish_time,az_article.cover,az_user.gender,az_article.id,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_article.artist=az_user.id', 'left')
+                ->where($where)
+                ->order('publish_time desc')
+                ->limit(5)
+                ->select();
+        } else {
+            $where = 'az_article.id!=' . intval($id) . ' and az_article.status=1';
+            $list = $ArticleLogic
+                ->field('az_article.publish_time,az_article.cover,az_user.gender,az_article.id,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_article.artist=az_user.id', 'left')
+                ->where($where)
+                ->order('publish_time desc')
+                ->limit(5)
+                ->select();
+        }
+
+        $article_ids = [];//文章id列表
+        foreach ($list as $value) {
+            array_push($article_ids, $value['id']);
+        }
+
+        $like_list = [];//用户点赞列表
+        if (count($article_ids) && $this->loginUserId > 0) {//查询登录用户的点赞列表
+            $ArticleLike_list = M('ArticleLike')->where("article_id in (" . implode(',', $article_ids) . ") and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->select();
+        }
+        foreach ($ArticleLike_list as $like) {
+            $like_list[$like['article_id']] = 1;
+        }
+
+        $related_articles = [];
+        foreach ($list as $value) {
+            $video=0;//是否有视频
+            $related_article['id'] = $value['id'];
+            if(empty($value['cover'])){//没有封面图
+                //获取更新记录里面的视频
+                preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $value['content'], $match);
+                if(!empty($match[1])){//有视频
+                    $related_article['cover'] = $match[1][0];
+                    $video=1;
+                }else{
+                    preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $value['content'], $array);
+                    if(!empty($array[1])){//有图片
+                        $related_article['cover'] =  $array[1][0];
+                    }else{
+                        $related_article['cover']='';
+                    }
+                }
+            }else{
+                $related_article['cover'] = $value['cover'];
+            }
+            $related_article['video'] = $video;
+            $related_article['title'] = html_entity_decode(html_entity_decode($value['title'], ENT_QUOTES), ENT_QUOTES);//app原生不支持html需要转化;;
+
+           /* $excerpt=trim($value['excerpt'])==''?html_deconvert_content_cut($value['content']):$value['excerpt'];
+            $related_article['content'] = $this->article_content_cut(trim(strip_tags($excerpt),'&nbsp;'), 70);*/
+
+            $excerpt=trim($value['excerpt'])==''?html_deconvert_content_cut($value['content']):$value['excerpt'];
+            $related_article['content'] = $this->article_content_cut(trim(strip_tags($excerpt),'&nbsp;'), 70);
+
+            $related_articles[] = $related_article;
+        }
+        $article['related'] = $related_articles;
+        $article['shareInfo'] = [
+            'shareTitle' => $articleinfo['title'],
+            'shareDesc' => $articleinfo['excerpt'],
+            'shareImg' => Util::getFillImage(Util::getImgUrlById($articleCover), Image::faceWidth, Image::faceHeight),
+            'shareLink' => C('m_site') . '/article/detail/' . $id,
+        ];
+
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $article]);
+
+
+    }
+
+    private function get_user_category($artist)
+    {//获取用户作品分类
+        $ArtworkLogic = new ArtworkLogic();
+        $ArtworkCategoryLogic = new ArtworkCategoryLogic();
+        $categorys = $ArtworkLogic->field('category')->where("artist=" . intval($artist) . " and is_deleted='N'")->select();
+        $categorys_str = '';
+        foreach ($categorys as $value) {
+            $categorys_str = $categorys_str . ',' . $value['category'];
+        }
+        $categorys_arr = explode(',', $categorys_str);
+        $categorys_arr = array_filter($categorys_arr);
+        $categorys_arr = array_unique($categorys_arr);
+        if (count($categorys_arr)) {
+            $categorys = $ArtworkCategoryLogic->field('cn_name')->where('id in (' . implode(',', $categorys_arr) . ')')->select();
+            $cat_name = '';
+            foreach ($categorys as $value) {
+                $cat_name = $cat_name == '' ? $value['cn_name'] : $cat_name . '/' . $value['cn_name'];
+            }
+            return $cat_name;
+        } else {
+            return '';
+        }
+
+    }
+    private static function thumbnails($images)
+    {//加水印，质量压缩
+
+        foreach ($images as $key => $image) {
+            $obj = Util::waterObject($image);
+            $images[$key] = $image . '?x-oss-process=image/watermark,image_' . $obj . ',t_50,g_se,x_10,y_10/quality,q_50';
+        }
+        return $images;
+    }
+    private function article_content_cut($content, $len = 20)
+    {
+        $content = trim($content);
+        if (mb_strlen($content) <= $len) {
+            return $content;
+        } else {
+            return mb_substr($content, 0, $len) . '...';
+        }
+    }
+
+    /**
+     * 获取画作详情--咨询页面 信息列表
+     * 1.如果提交参数userTo  则是艺术家回复用户的界面显示信息
+     * 2.没有提交参数userTo  则是用户咨询艺术家的界面显示信息
+     */
+    public function getUserConsultation()
+    {
+        //$this->checkLogin();
+        $userid = $this->loginUserId; //用户登录ID
+        $userid = empty($userid)?0:$userid;
+        $artworkId =  intval(I('post.artworkId', 0, 'number_int'));
+        $userToId =  intval(I('post.userTo', 0, 'number_int'));//艺术家准备回复的咨询用户id
+        $page = intval(I('post.page', 1, 'number_int'));
+        $pagesize = intval(I('post.pagesize', 10, 'number_int'));
+        if($page ==0){
+            $page = 1;
+        }
+        if($pagesize ==0){
+            $pagesize = 10;
+        }
+
+        if(empty($artworkId)){
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误');
+        }
+        $artwork = new ArtworkLogic();
+        $userLogic = new UserLogic();
+        $artworkData = $artwork->field('id,artist,name,cover,panorama_ids,topography_ids,story')->where(['id' => $artworkId, 'is_deleted' => 'N', 'state' => 1])->find();
+        $cover = '';
+        //封面图》全景图》局部图
+        if(trim($artworkData['cover']) != ''){
+            $cover = $artworkData['cover'];
+        }elseif (trim($artworkData['panorama_ids']) != '') {//全景图
+            $images = explode(',', $artworkData['panorama_ids']);
+            $cover = $images[0];
+        } elseif (trim($artworkData['topography_ids']) != '') {//局部图
+            $images = explode(',', $artworkData['topography_ids']);
+            $cover = $images[0];
+        }
+
+        $artwork_name=trim($artworkData['name']);
+        if(preg_match("/《(.*)》/",$artwork_name)){
+            $artwork_name = ' ' .$artwork_name. ' ';
+        }else{
+            $artwork_name = '《' .$artwork_name. '》';
+        }
+
+        $artworkConsultationLogic = new ArtworkConsultationLogic();
+        $list = $artworkConsultationLogic->getHistory($artworkId,$userid,$userToId,$page,$pagesize);
+        $total = $artworkConsultationLogic->getHistoryTotal($artworkId,$userid,$userToId);
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+        $consultationInfo = [
+            'data' => empty($list) ? [] : $list,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        $artworkInfo =[
+            'id'=>empty($artworkData['id'])?'':$artworkData['id'],
+            'artist'=>empty($artworkData['artist'])?-1:$artworkData['artist'],
+            'artistName'=>(empty($artworkData['artist']) || $artworkData['artist'] == -1)?C('ADMIN_NAME') : $userLogic->getUserField('nickname', $artworkData['artist']),
+            'artworkName'=>$artwork_name,
+            'cover'=>trim($cover) == '' ? '' : Util::getImageResize($cover, Image::linkCoverWidth, Image::linkCoverHeight),
+            'story'=>empty($artworkData['story'])?'':$artworkData['story'],
+        ];
+        Util::jsonReturn(['status' => 1000, 'artworkInfo' => $artworkInfo, 'consultationInfo' => $consultationInfo]);
+    }
+
+    /**
+     * 咨询或回复
+     * 1.如果提交参数userTo  则是艺术家回复用户
+     * 2.没有提交参数userTo  则是用户咨询艺术家
+     */
+    public function consultationAndReply()
+    {
+        //$this->checkLogin();
+        $userid = $this->loginUserId; //用户登录ID
+        $userid = empty($userid)?0:$userid;
+        $artworkId =  I('post.artworkId', 0, 'number_int');//用户咨询的画作id
+        $userToId =  I('post.userTo', 0, 'number_int');//艺术家回复的咨询用户id
+        $content =  I('post.content', '');//内容
+
+        $artworkConsultationLogic = new ArtworkConsultationLogic();
+        $info = $artworkConsultationLogic->consultationAndReply($artworkId,$userid,$userToId,$content);
+        if (!empty($info)) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '咨询或回复失败');
+        }
+    }
+
+
+}

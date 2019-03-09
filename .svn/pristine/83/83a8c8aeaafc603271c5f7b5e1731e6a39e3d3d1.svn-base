@@ -1,0 +1,10 @@
+<?php
+
+namespace Mp\Model;
+
+use Mp\Base\BaseModel;
+
+class ArticleLikeModel extends BaseModel
+{
+    protected $tableName = 'article_like';
+}

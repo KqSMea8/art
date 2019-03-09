@@ -1,0 +1,226 @@
+<?php
+
+namespace Admin\Controller;
+
+use Custom\Helper\Util;
+use Custom\Helper\Nav;
+use Common\Logic\UserStatisticsLogic;
+use Common\Base\AdminBaseController;
+
+class StatisticsController extends AdminBaseController{
+    public function index(){
+      $sTime = trim(I('get.sTime'));
+      $eTime = trim(I('get.eTime'));
+      $page = I('get.page','1');
+      $where = '';
+      if(!empty($sTime)){
+          $sTime = strtotime($sTime);
+          $where .= 'time >='.$sTime;
+      }
+      if(!empty($eTime)){
+          $eTime = strtotime($eTime);
+          if($eTime!=$sTime){
+            $where .= empty($where)? ' time <'.$eTime : ' and  time <'.$eTime;
+          }
+      }
+
+      $logic = new UserStatisticsLogic();
+      $totalCount = $logic->where($where)->order('time DESC')->count();
+      $lists = $logic->where($where)->order('time DESC')->page($page,20)->select();
+      $nav = Nav::render(U('Admin/Statistics/index'), [ 'sTime'=>date('Y-m-d',$sTime),'eTime'=>date('Y-m-d',$eTime)], $page, 20, $totalCount);
+      $queryParam=[
+          'sTime'=>$sTime,
+          'eTime'=>$eTime,
+      ];
+      $this->assign('nav', $nav);
+      $this->assign('lists',$lists);
+      $this->assign('queryParam',$queryParam);
+      $this->display();
+    }
+    public function add(){
+      $sTime = I('sTime');
+      $eTime = I('eTime');
+      if($sTime==$eTime){
+        $eTime='';
+      }
+      $where = '';
+      if(!empty($sTime)){
+        $sTime = strtotime($sTime);
+        $where .= 'time >='.$sTime;
+      }
+      if(!empty($eTime)){
+        $eTime = strtotime($eTime);
+        $where .= empty($where)? ' time <'.$eTime : ' and  time <'.$eTime;
+      }
+
+      $logic = new UserStatisticsLogic();
+      $flag = $logic->where($where)->select();
+      if(empty($flag)){
+         $result = $logic->addRow(['stime'=>$sTime,'etime'=>$eTime]);
+          $this->ajaxreturn(['state'=>2000,'data'=>$result,'stime'=>$sTime,'etime'=>$eTime]);
+      }else{
+          $this->ajaxreturn(['state'=>2000,'msg'=>'exists','stime'=>$sTime,'etime'=>$eTime]);
+      }
+    }
+
+    //用户浏览统计
+    public function visit(){
+        $sTime = empty(trim(I('get.sTime')))?date('Y-m-d',time()-7*24*60*60):trim(I('get.sTime'));
+        $eTime = empty(trim(I('get.eTime')))?date('Y-m-d',time()):trim(I('get.eTime'));
+        $page = I('get.page',1);
+        $pagesize = I('get.pagesize',15);
+        $where="az_user.is_deleted = 'N' and az_user.banned_to = -1";
+        $where2 = "";
+        if(!empty($sTime)){
+          $sTime = strtotime($sTime);
+          $where .= " and az_login_log.login_time >=".$sTime;
+          $where2 .= "time >=".$sTime;
+        }
+        if(!empty($eTime)){
+          $eTime = strtotime($eTime);
+          if($eTime!=$sTime){
+            $where .= empty($where)?" az_login_log.login_time <".($eTime+24*60*60):" and az_login_log.login_time <".($eTime+24*60*60);
+            $where2 .= empty($where2)? "time <".($eTime+24*60*60) : " and time <".($eTime+24*60*60);
+          }
+        }
+
+        //艺术号栏目
+        $articleColumn = M('article_column')->field('id,name')->where(['is_show'=>'Y'])->order('sort')->select();
+        $articleColumnData=[];
+        foreach($articleColumn as $key=>$value){
+          $articleColumnData['article-'.$value['id']]=$value['name'];
+        }
+
+        $totalCount =  M('login_log')
+            ->field('az_login_log.user_id')
+            ->join('az_user on az_login_log.user_id=az_user.id','left')
+            ->where($where)
+            ->group('az_login_log.user_id')
+            ->select();
+
+        $info = M('login_log')
+            ->field('az_login_log.user_id,az_user.id,az_user.nickname,count(az_login_log.id) as visits,max(az_login_log.login_time) as recent_time')
+            ->join('az_user on az_login_log.user_id=az_user.id','left')
+            ->where($where)
+            ->group('az_login_log.user_id')
+            ->order('recent_time DESC')
+            ->page($page,$pagesize)
+            ->select();
+
+        foreach($info as $key=>$value){
+            //平均访问页面
+            $app_avg_pages = M('visit_info')
+                ->field('distinct content')
+                ->where($where2." and content!='app' and user_id=".$value['user_id'])
+                ->group('content')
+                ->select();
+            $info[$key]['app_avg_pages']=number_format(count($app_avg_pages)/$value['visits'],1);
+            //app平均停留时间(s)
+            $app_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='app' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['app_avg_time']=number_format($app_avg_time['duration']/1000/60/$value['visits'],1);
+            //艺术号详情平均停留时间(s)
+            $article_detail_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='article_detail' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['article_detail_avg_time']=number_format($article_detail_avg_time['duration']/1000/$value['visits'],1);
+            //花絮详情平均停留时间(s)
+            $update_detail_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='update_detail' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['update_detail_avg_time']=number_format($update_detail_avg_time['duration']/1000/$value['visits'],1);
+            //专题详情平均停留时间(s)
+            $subject_detail_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='subject_detail' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['subject_detail_avg_time']=number_format($subject_detail_avg_time['duration']/1000/$value['visits'],1);
+            //推荐列表平均停留时间(s)
+            $recommend_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='recommend' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['recommend_avg_time']=number_format($recommend_avg_time['duration']/1000/$value['visits'],1);
+            //花絮列表平均停留时间(s)
+            $update_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='update' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['update_avg_time']=number_format($update_avg_time['duration']/1000/$value['visits'],1);
+            //艺术家列表平均停留时间(s)
+            $artist_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='artist' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['artist_avg_time']=number_format($artist_avg_time['duration']/1000/$value['visits'],1);
+            //作品列表平均停留时间(s)
+            $artwork_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='artwork' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['artwork_avg_time']=number_format($artwork_avg_time['duration']/1000/$value['visits'],1);
+            //专题列表平均停留时间(s)
+            $subject_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='subject' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['subject_avg_time']=number_format($subject_avg_time['duration']/1000/$value['visits'],1);
+            //艺术圈列表平均停留时间(s)
+            $artcircle_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='artcircle' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['artcircle_avg_time']=number_format($artcircle_avg_time['duration']/1000/$value['visits'],1);
+            //商城首页平均停留时间(s)
+            $mall_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='mall' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['mall_avg_time']=number_format($mall_avg_time['duration']/1000/$value['visits'],1);
+            //艺术号列表平均停留时间(s)
+            $article_avg_time = M('visit_info')
+                ->field('sum(duration) as duration')
+                ->where($where2." and content='article' and user_id=".$value['user_id'])
+                ->group('user_id')
+                ->find();
+            $info[$key]['article_avg_time']=number_format($article_avg_time['duration']/1000/$value['visits'],1);
+
+            //艺术号列表栏目平均停留时间(s)
+            foreach($articleColumnData as $k=>$v){
+              $article_column_avg_time = M('visit_info')
+                  ->field('sum(duration) as duration')
+                  ->where($where2." and content='".$k."' and user_id=".$value['user_id'])
+                  ->group('user_id')
+                  ->find();
+              $info[$key][$k]=number_format($article_column_avg_time['duration']/1000/$value['visits'],1);
+            }
+
+        }
+
+        $nav = Nav::render(U('Admin/Statistics/visit'), [ 'sTime'=>date('Y-m-d',$sTime),'eTime'=>date('Y-m-d',$eTime)], $page, $pagesize, count($totalCount));
+        $queryParam=[
+            'sTime'=>$sTime,
+            'eTime'=>$eTime,
+        ];
+        $this->assign('nav', $nav);
+        $this->assign('lists',$info);
+        $this->assign('articleColumm',$articleColumnData);
+        $this->assign('queryParam',$queryParam);
+        $this->display();
+    }
+}

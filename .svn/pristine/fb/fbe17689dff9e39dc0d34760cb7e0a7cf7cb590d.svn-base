@@ -1,0 +1,9 @@
+<?php
+namespace V20\Base;
+
+use Think\Model;
+
+class BaseModel extends Model
+{
+
+}

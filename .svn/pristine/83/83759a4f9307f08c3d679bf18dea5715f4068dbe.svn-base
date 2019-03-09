@@ -1,0 +1,30 @@
+<?php
+
+namespace V31\Controller;
+
+use V31\Base\ApiBaseController;
+use V31\Logic\ArtworkLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Manager\Token;
+use Custom\Define\Image;
+use V31\Logic\ArtistExtensionLogic;
+
+class StatisticsController extends ApiBaseController{
+  //统计开机次数
+  public function sopen(){
+
+  }
+  //统计推广封面浏览量
+  public function sextension(){
+    $id = I('id','','number_int');
+    if($id){
+      $extLogic = new ArtistExtensionLogic();
+      $extLogic->where(['id' => $id])->setInc('view_total');
+      Util::jsonReturn(['status'=>Code::SUCCESS]);
+    }else{
+      Util::jsonReturn(['status'=>1001,'msg' => "id:".$id]);
+    }
+  }
+}

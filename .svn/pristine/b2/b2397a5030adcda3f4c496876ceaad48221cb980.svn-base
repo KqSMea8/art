@@ -1,0 +1,17 @@
+<?php
+
+namespace V60\Logic;
+
+use V60\Base\BaseLogic;
+use V60\Logic\ArtCircleLogic;
+use V60\Logic\MessageLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+//用户参与话题信息统计表
+class TopicUserinfoLogic extends BaseLogic
+{
+
+
+}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta content="yes" name="apple-mobile-web-app-capable">
+  <meta content="yes" name="apple-touch-fullscreen">
+  <script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.4/??flexible_css.js,flexible.js" charset="utf-8"></script>
+  <link rel="stylesheet" href="/Public/Admin/css/selfcss_previewmobile.css">
+  <title>手机查看</title>
+  <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+  <style>
+  html,body{
+    width:100%;
+    padding:0;
+    margin:0;
+  }
+  body{
+    width: 100%;
+    overflow-x: hidden;
+    word-break: break-all;
+    box-sizing: border-box;
+    height:100%;
+    font-family:sans-serif;
+  }
+
+  *{
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  #previewmobile{
+    box-sizing: content-box;
+    position: relative;
+    width: 97%;
+    word-break: break-all;
+    background-color: #fff;
+    padding: 0.16rem 0.52rem;
+
+  }
+
+  #prem{
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    width: 100%;
+    padding-bottom: 1.5rem;
+    background-color: #f2f2f2;
+    overflow-y: scroll;
+    box-sizing: content-box;
+    overflow-x: hidden;
+    padding-right: 18px;
+  }
+</style>
+</head>
+<body>
+    <div id="prem">
+        <div id="previewmobile" class="view"></div>
+    </div>
+
+    <script>
+    window.onload = function(){
+
+      // console.log(parent.window.ue.getContent())
+      if(parent.window.ue){
+
+        document.getElementById('previewmobile').innerHTML = px2rem(parent.window.ue.getContent());
+      }else {
+        document.getElementById('previewmobile').innerHTML = px2rem(parent.window.tinymce.activeEditor.getContent());
+      }
+      function px2rem(con) { // /(\d)+\.?[0-9]+(px)|(\d)+(px)/gi
+        con = con.replace(/(\d)+\.?[0-9]+(px)|(\d)+(px)/gi, function(s, t) {
+          s = s.replace('px', '');
+          // s = s.replace(':', '');
+          var value = parseInt(s) * 0.0266667; //   此处 1rem = 75px
+          return value + "rem";
+        });
+        con = con.replace(/:(\s)?(\d+(\.\d)?)pt/g, function(s, t) {
+          s = s.replace('pt', '');
+          // s = s.replace(':', '');
+          var value = parseInt(s) * 0.0355556; //   此处 1rem = 56.25pt
+          return ':' + value + "rem";
+        });
+        return con;
+      }
+    }
+    </script>
+</body>
+</html>

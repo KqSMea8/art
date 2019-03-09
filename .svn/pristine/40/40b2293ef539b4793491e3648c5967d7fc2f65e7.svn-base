@@ -1,0 +1,15 @@
+<?php
+
+namespace V40\Model;
+
+use V40\Base\BaseModel;
+
+class ArtworkStyleModel extends BaseModel
+{
+    protected $tableName = 'artwork_style';
+
+    public function getList(){
+        $list = $this->field('id,sort,cn_name as name')->where(['id'=>['neq',6]])->order('sort asc')->select();
+        return empty($list) ? [] : $list;
+    }
+}

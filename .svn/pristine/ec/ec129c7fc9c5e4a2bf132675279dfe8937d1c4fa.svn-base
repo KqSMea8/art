@@ -1,0 +1,100 @@
+<?php
+
+namespace V40\Controller;
+
+use Custom\Helper\Util;
+use V40\Base\ApiBaseController;
+
+class ServerController extends ApiBaseController{
+
+    //升级信息
+    public function updateinfo(){
+
+        $version = I('post.version',0); //版本号
+        $device = I('post.device',1,'intval'); //设备 1.IOS 2.Android
+       // $ios = M('Softinfo')->where(['id'=>1,'flag'=>'1'])->find();
+        $softinfo = M('Softinfo')->where(['flag'=>$device])->order('id desc')->find();
+
+        switch ($device){
+            case 1:
+            case 2:
+                if($version<$softinfo['version']){
+                    $data = [
+                        'flag' => true,
+                        'url' => $softinfo['appurl'],
+                        'version'=>$softinfo['version'],
+                        'filesize' => $softinfo['filesize'],
+                        'content' => $softinfo['content'],
+                        'forced_update' => $softinfo['forced_update']
+                    ];
+                }else{
+                    $data = [
+                        'flag' => false,
+                        'url' => '',
+                        'filesize' => 0
+                    ];
+                }
+                break;
+
+            default:
+                $data = [
+                    'flag' => false,
+                    'url' => '',
+                    'filesize' => 0
+                ];
+                break;
+        }
+
+        Util::jsonReturn($data);
+    }
+    public function updateinfo_bak(){
+
+        $version = I('post.version',0); //版本号
+        $device = I('post.device',1,'intval'); //设备 1.IOS 2.Android
+        $ios = M('Softinfo')->where(['id'=>1,'flag'=>'1'])->find();
+        $android = M('Softinfo')->where(['id'=>2,'flag'=>'2'])->find();
+
+        switch ($device){
+            case 1:
+                if($version<$ios['version']){
+                    $data = [
+                        'flag' => true,
+                        'url' => $ios['iosurl'],
+                        'filesize' => $ios['filesize']
+                    ];
+                }else{
+                    $data = [
+                        'flag' => false,
+                        'url' => '',
+                        'filesize' => 0
+                    ];
+                }
+                break;
+            case 2:
+                if($version<$android['version']){
+                    $data = [
+                        'flag' => true,
+                        'url' => $android['iosurl'],
+                        'filesize' => $android['filesize']
+                    ];
+                }else{
+                    $data = [
+                        'flag' => false,
+                        'url' => '',
+                        'filesize' => 0
+                    ];
+                }
+                break;
+            default:
+                $data = [
+                    'flag' => false,
+                    'url' => '',
+                    'filesize' => 0
+                ];
+                break;
+        }
+
+        Util::jsonReturn($data);
+    }
+
+}

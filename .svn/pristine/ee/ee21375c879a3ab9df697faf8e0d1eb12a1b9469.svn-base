@@ -1,0 +1,10 @@
+<?php
+
+namespace V22\Model;
+
+use V22\Base\BaseModel;
+
+class ArtworkSubjectModel extends BaseModel
+{
+    protected $tableName = 'artwork_subject';
+}

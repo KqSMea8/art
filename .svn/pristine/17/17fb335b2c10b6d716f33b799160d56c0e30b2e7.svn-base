@@ -1,0 +1,60 @@
+<?php
+
+namespace V20\Controller;
+
+use V20\Base\ApiBaseController;
+use V20\Logic\ArtworkCategoryLogic;
+use V20\Logic\ArtworkColorLogic;
+use V20\Logic\ArtworkLikeLogic;
+use V20\Logic\MessageLogic;
+use V20\Logic\ArtworkLogic;
+use V20\Logic\ArtworkTagLogic;
+use V20\Logic\InviteLogLogic;
+use V20\Logic\ArtworkUpdateLogic;
+use V20\Logic\CommentLogic;
+use V20\Logic\ArtistApplyLogic;
+use V20\Logic\AssetsLogic;
+use V20\Logic\PlannerLogic;
+use V20\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use V20\Model\AreaModel;
+use Custom\Helper\Verify;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+/**
+ * 认证策展人
+ * @author:xugx
+ */
+class AuthPlannerController extends ApiBaseController{
+  public function stepOne(){
+    $all = I('post.');
+    Verify::all($all,[
+      'trueName' => '!',
+      'phone' => '!',
+      'email' => '!',
+      'resume' => '!'
+    ]);
+    $all['uid'] = $this->loginUserId;
+    $plannerLogic = new PlannerLogic();
+    $result = $plannerLogic->stepOne($all);
+    Util::jsonReturn([],$result['status'],$result['msg']);
+  }
+  public function stepTwo(){
+    $all = I('post.');
+    Verify::all($all,[
+      'plannerImages' => '!'
+    ]);
+    $all['uid'] = $this->loginUserId;
+    $plannerLogic = new PlannerLogic();
+    $result = $plannerLogic->stepTwo($all);
+    Util::jsonReturn([],$result['status'],$result['msg']);
+  }
+  public function getAuthInfo(){
+    $uid = $this->loginUserId;
+    $plannerLogic = new PlannerLogic();
+    $info = $plannerLogic->where(['uid' => $uid])->find();
+    Util::jsonReturnSuccess($info);
+  }
+}

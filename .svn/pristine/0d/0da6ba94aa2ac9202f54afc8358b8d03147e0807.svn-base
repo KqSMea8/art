@@ -1,0 +1,27 @@
+var usermsg = new Vue({
+  el: '#usermsg',
+  data: {
+    isActive: false,
+    msgList: [
+      {avatarUrl: '/Public/H5/image/gallerydetail/avatar.png', name: 'Poon', time: '1天前',desc: '回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”'},
+      {avatarUrl: '/Public/H5/image/gallerydetail/avatar.png', name: 'Poon', time: '2天前',desc: '回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”'},
+      {avatarUrl: '/Public/H5/image/gallerydetail/avatar.png', name: 'Poon', time: '3天前',desc: '回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”'},
+      {avatarUrl: '/Public/H5/image/gallerydetail/avatar.png', name: 'Poon', time: '1天前',desc: '回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”'},
+      {avatarUrl: '/Public/H5/image/gallerydetail/avatar.png', name: 'Poon', time: '2天前',desc: '回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”'},
+      {avatarUrl: '/Public/H5/image/gallerydetail/avatar.png', name: 'Poon', time: '3天前',desc: '回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”'},
+      {avatarUrl: '/Public/H5/image/gallerydetail/avatar.png', name: 'Poon', time: '1天前',desc: '回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”'},
+      {avatarUrl: '/Public/H5/image/gallerydetail/avatar.png', name: 'Poon', time: '2天前',desc: '回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”'},
+      {avatarUrl: '/Public/H5/image/gallerydetail/avatar.png', name: 'Poon', time: '3天前',desc: '回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”'}
+    ]
+  },
+  methods: {
+    addActive: function (msg) {
+      this.$nextTick(function () {
+        this.msgList.forEach(function (msg) {
+          Vue.set(msg, 'active', false);
+        });
+        Vue.set(msg, 'active', true);
+      });
+    }
+  }
+});

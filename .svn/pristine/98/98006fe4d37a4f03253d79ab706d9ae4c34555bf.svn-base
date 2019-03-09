@@ -1,0 +1,11 @@
+<?php
+
+namespace M\Model;
+
+
+use M\Base\BaseModel;
+
+class ArtworkUpdateModel extends BaseModel
+{
+    protected $tableName = 'artwork_update';
+}

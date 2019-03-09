@@ -1,0 +1,17 @@
+<?php
+
+namespace M\Model;
+
+use M\Base\BaseModel;
+
+//画作单次更新标签
+class ArtworkUpdateTagModel extends BaseModel
+{
+    protected $tableName = 'artwork_update_tag';
+
+    public function getList(){
+        $list = $this->field('id,sort,cn_name as name')->order('sort asc')->select();
+        return empty($list) ? [] : $list;
+    }
+
+}

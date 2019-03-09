@@ -1,0 +1,425 @@
+<?php
+namespace V30\Controller;
+
+use V30\Base\ApiBaseController;
+use V30\Logic\AssetsLogic;
+use V30\Logic\ThirdLogic;
+use V30\Logic\UserLogic;
+use V30\Logic\MessageLogic;
+use V30\Logic\InviteLogLogic;
+use V30\Logic\FeedbackLogic;
+use V30\Model\ThirdModel;
+use Custom\Define\Code;
+use Custom\Define\Status;
+use Custom\Define\Image;
+use Custom\Helper\Checker;
+use Custom\Helper\Sms;
+use Custom\Helper\Util;
+use Custom\Define\Cache;
+use Custom\Define\Time;
+use Custom\Manager\Token;
+use Think\Exception;
+
+
+class UserController extends ApiBaseController
+{
+    public function login()
+    {
+        $userLogic = new UserLogic();
+        $thirdLogic = new ThirdLogic();
+
+        $thirdInfoJson = I('post.thirdInfo', '{}');//这里的第三方信息，自定义
+        $thirdInfo =  html_entity_decode($thirdInfoJson);
+        $thirdInfo = json_decode($thirdInfo, true);
+        $thirdFullInfoJson = I('post.thirdFullInfo', '{}');//完整的json平台信息
+
+        if (empty($thirdInfo['partnerCode'])) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'PartnerCode is empty!', var_export($thirdInfo, true));
+        }
+        //1.check if current third user's account has bound mobile
+        $unionId = $thirdInfo['unionId'];
+        $openId = $thirdInfo['openId'];
+        $thirdType = ThirdModel::TYPE_LIST_REVERSE[$thirdInfo['partnerCode']];
+        if ($bindUserId = $thirdLogic->isUserBindMobile($thirdType,$unionId, $openId))
+        {
+            //2.if user has bound mobile then login success and return the inviteCode
+            $userInfo = $userLogic->getUserInfoById($bindUserId);
+            if ($userInfo['type'] == 3 || $userInfo['type'] == 7) {
+                $isArtist = 1;
+            } else {
+                $isArtist = -1;
+            }
+            S(Cache::TOKEN_PREFIX . $this->token,
+                ['userInfo' => $userInfo, 'thirdInfo'=>$thirdInfo, 'thirdFullInfoJson'=>$thirdFullInfoJson, 'isLogin'=>true, 'isArtist'=>$isArtist],
+                Time::TOKEN_EXPIRE_30_DAY
+            );
+            $userLogic->saveLoginInfo($bindUserId);
+            $inviteCode = Util::genInviteCode($bindUserId);
+            Util::jsonReturn(['status'=>1000, 'inviteCode'=>$inviteCode, 'isArtist'=>$isArtist,'userid'=>$userInfo['id']]);
+        } else {
+            //3.if current weChat user has not bound the mobile
+            S(Cache::TOKEN_PREFIX . $this->token,
+                ['thirdInfo'=>$thirdInfo, 'thirdFullInfoJson'=>$thirdFullInfoJson],
+                Time::TOKEN_EXPIRE_30_DAY
+            );
+            Util::jsonReturn(['status'=>1001]);
+        }
+    }
+    public function logout()
+    {
+        if (!empty($this->token)) {
+            S(Cache::TOKEN_PREFIX.$this->token, null);
+        }
+        Util::jsonReturn();
+    }
+    //check if other weChat has bound this mobile,then return faceUrl and nickname
+    public function checkMobile()
+    {
+         $mobile = Checker::mobile();
+         $userLogic = new UserLogic();
+
+         $userId = $userLogic->isMobileUsed($mobile);
+         if ($userId) {
+             //the other weChat have bound this mobile
+             $nicknameAndFaceUrl = self::getNicknameAndFaceUrl($userId);
+             $data = array_merge(['status'=>1000], $nicknameAndFaceUrl);
+             Util::jsonReturn($data);
+         } else {
+             $tokenInfo = Token::getTokenInfo($this->token);
+             //No other weChat have not bound this mobile
+             Util::jsonReturn(['status'=>1001, 'nickname'=>$tokenInfo['thirdInfo']['nickname'], 'faceUrl'=>$tokenInfo['thirdInfo']['faceUrl']]);
+         }
+    }
+    public function isAccount(){
+      $mobile = I('post.mobile','');
+      $userLogic = new UserLogic();
+      $userInfo = $userLogic->where(['mobile' => $mobile])->find();
+      if(!empty($userInfo)){
+        Util::jsonReturn(null,['status'=>1000,'isAccount' => 'Y']);
+      }else {
+        Util::jsonReturn(null,['status'=>1000,'isAccount' => 'N']);
+      }
+    }
+    public function accountLogin(){
+      $mobile = I('post.mobile','');
+
+      $verifyCode = I('post.verifyCode','');
+
+      $password = I('post.password','');
+
+      $from = I('post.from','');
+
+      $userLogic = new UserLogic();
+      if(!empty($verifyCode)){
+        //register
+        $checkResult = Util::checkVerifyCodeResult($mobile,$verifyCode);
+        if ($checkResult['code'] === Code::SYS_OK) {
+          $uid = $userLogic->addUser([
+            'mobile' => $mobile,
+            'password' => $password,
+            'nickname' => '',
+            'gender' => '1',
+            'from' => $from,
+              'faceUrl' => 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/common/avatar512.png',
+          ]);
+
+          $userLogic->where(['id' => $uid])->setField('nickname','艺'.$uid);
+
+          $messageLogic = new MessageLogic();
+          $messageLogic->welcomeMsg($uid);
+        }else{
+          Util::jsonReturn(null, $checkResult['code'], $checkResult['message']);
+        }
+      }
+
+      if(!$userLogic->checkMobileRegister($mobile,$password)){
+        Util::jsonReturn(null, Code::PASSWORD_NOT_MATCHED, 'password is error!(1003)');
+      }
+
+      $userinfo = $userLogic->where(['mobile' => $mobile])->find();
+
+      $isArtist = $userinfo['type'] == 3 ? 1 : -1;
+
+      $inviteLogic = new InviteLogLogic();
+
+      $inviteCode = $inviteLogic->getInvite($userinfo['id']);
+      //login
+      S(Cache::TOKEN_PREFIX . $this->token,
+          ['userInfo' => $userinfo,
+          'thirdInfo'=>[],
+          'thirdFullInfoJson'=>[],
+          'isLogin'=>true,
+          'isArtist'=> $isArtist
+          ],
+          Time::TOKEN_EXPIRE_30_DAY
+      );
+      Util::jsonReturn(['status'=>1000, 'inviteCode'=>$inviteCode, 'isArtist'=>$isArtist,'userid'=>$userinfo['id']]);
+    }
+    private static function getNicknameAndFaceUrl($userId)
+    {
+        $userLogic = new UserLogic();
+        $assetsLogic = new AssetsLogic();
+        $userInfo = $userLogic->getUserInfoById($userId);
+        $ret['nickname'] = empty($userInfo['nickname']) ? '艺术者小白'.$userId :$userInfo['nickname'];
+        $ret['faceUrl'] = Util::getFillImage($assetsLogic->getUrl($userInfo['face']),Image::faceWidth,Image::faceHeight);
+        return $ret;
+    }
+    //bind new weChat account to the specified mobile, include forget the password and fill in the verify code.
+    public function bindNewWeChat()
+    {
+        $mobile = I('post.mobile', '');
+        if (empty($mobile)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'mobile format is error!(1001)');
+        }
+        $verifyCode = I('post.verifyCode', '');
+        $newPassword = I('post.newPassword', '');
+
+        $password = I('post.password', '');
+        if (empty($verifyCode) && empty($password)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'verifyCode or password format is empty at the same time!(1002)');
+        }
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userLogic = new UserLogic();
+
+        if (!empty($password)) {
+            if ($userLogic->checkMobileRegister($mobile, $password))
+            {
+                $thirdLogic = new ThirdLogic();
+                $userInfo = $userLogic->getUserInfoByMobile($mobile);
+
+                $bindThirdId = $thirdLogic->bindToUser($userInfo['id'], $tokenInfo['thirdInfo'], $tokenInfo['thirdFullInfoJson']);
+                if ($bindThirdId) {
+                    $inviteCode = Util::genInviteCode($userInfo['id']);
+                    //login success then add userInfo to token info cache.
+                    Token::mergeTokenInfo($this->token, ['userInfo'=>$userInfo]);
+                    if ($userInfo['type'] == 3 || $userInfo['type'] == 7) {
+                        $isArtist = 1;
+                    } else {
+                        $isArtist = -1;
+                    }
+                    Util::jsonReturn(['status'=>1000, 'inviteCode'=>$inviteCode, 'isArtist'=>$isArtist,'userid'=>$userInfo['id']]);
+                } else {
+                    Util::jsonReturn(null, Code::SYS_ERR);
+                }
+            } else {
+                //password cannot match the mobile.
+                Util::jsonReturn(null, Code::PASSWORD_NOT_MATCHED, 'password is error!(1003)');
+            }
+        }
+        //forget password,input the mobile verify code.
+        if (!empty($verifyCode)) {
+            if (empty($newPassword)) {
+                Util::jsonReturn(null, Code::PARAM_ERR, 'newPassword is error!(1004)');
+            }
+            $checkResult = Util::checkVerifyCodeResult($mobile,$verifyCode);
+            if ($checkResult['code'] === Code::SYS_OK) {
+                //the verify code matched, then remove the verify code cache.
+                S(Cache::VERIFY_CODE_PREFIX.$mobile, null);
+                $from = I('post.from','');
+                $thirdLogic = new ThirdLogic();
+                $userInfo = $userLogic->getUserInfoByMobile($mobile);
+                //if the user is the newcomer.
+                if (empty($userInfo)) {
+                    $params = [
+                        'mobile'=>$mobile,
+                        'nickname'=>htmlentities($tokenInfo['thirdInfo']['nickname'],ENT_QUOTES),
+                        'password'=>$newPassword,
+                        'from' => $from,
+                        'gender'=>(int)$tokenInfo['thirdInfo']['gender'],
+                        'faceUrl'=>htmlentities($tokenInfo['thirdInfo']['faceUrl'],ENT_QUOTES)
+                    ];
+                    $userId = $userLogic->addUser($params);
+                    $messageLogic = new MessageLogic();
+                    $messageLogic->welcomeMsg($userId);
+                } else {
+                    //input the password to login.
+                    $userId = $userInfo['id'];
+                }
+                //forget the password
+                if (empty($userInfo)) {
+                    $userInfo = $userLogic->getUserInfoById($userId);
+                }
+                $bindThirdId = $thirdLogic->bindToUser($userId, $tokenInfo['thirdInfo'], $tokenInfo['thirdFullInfoJson']);
+                if ($bindThirdId) {
+                    $inviteCode = Util::genInviteCode($userId);
+                    //login success then add userInfo to token info cache.
+                    Token::mergeTokenInfo($this->token, ['userInfo'=>$userInfo]);
+                    if ($userInfo['type'] == 3 || $userInfo['type'] == 7) {
+                        $isArtist = 1;
+                    } else {
+                        $isArtist = -1;
+                    }
+                    Util::jsonReturn(['status'=>1000, 'inviteCode'=>$inviteCode, 'isArtist'=>$isArtist,'userid'=>$userId]);
+                } else {
+                    Util::jsonReturn(null, Code::SYS_ERR);
+                }
+            } else {
+                Util::jsonReturn(null, $checkResult['code'], $checkResult['message']);
+            }
+        }
+        //todo the rest case.
+    }
+
+    public function resetPasswd(){
+        $mobile = I('post.mobile', '');
+        if (empty($mobile)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'mobile format is error!(1001)');
+        }
+        $verifyCode = I('post.verifyCode', '');
+        $newPassword = I('post.newPassword', '');
+        if (empty($verifyCode) && empty($newPassword)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'verifyCode or newPassword format is empty at the same time!(1002)');
+        }
+        $checkResult = Util::checkVerifyCodeResult($mobile,$verifyCode);
+        if ($checkResult['code'] === Code::SYS_OK){
+            S(Cache::VERIFY_CODE_PREFIX.$mobile, null);
+        }
+        $userLogic = new UserLogic();
+        $flag = $userLogic->resetPasswd($mobile,$newPassword);
+
+
+        $userinfo = $userLogic->where(['mobile' => $mobile])->find();
+
+          $isArtist = $userinfo['type'] == 3 ? 1 : -1;
+            //login
+          S(Cache::TOKEN_PREFIX . $this->token,
+              ['userInfo' => $userinfo,
+              'thirdInfo'=>[],
+              'thirdFullInfoJson'=>[],
+              'isLogin'=>true,
+              'isArtist'=> $isArtist
+              ],
+              Time::TOKEN_EXPIRE_30_DAY
+          );
+        Util::jsonReturn(['status'=>1000, 'mobile'=>$mobile, 'flag'=>$flag]);
+    }
+
+
+    public function sendVerifyCode333()
+    {
+        try {
+            $mobile = Checker::mobile();
+            $randomCode = Sms::generateRandomCode();
+            $debug = I('get.debug', 'off');//on or off
+            if ($debug === 'on')
+            {
+                S(Cache::VERIFY_CODE_PREFIX . $mobile, $randomCode, ['expire' => Time::VERIFY_CODE_EXPIRE_30_MIN]);
+                Util::jsonReturn(null, Code::SYS_OK, 'success', "$randomCode");
+            }
+            $sendState = Sms::sendByRpc($mobile, 6001, "$randomCode");
+            if ($sendState['state'] === 200)
+            {
+                S(Cache::VERIFY_CODE_PREFIX . $mobile, $randomCode, ['expire' => Time::VERIFY_CODE_EXPIRE_30_MIN]);
+                Util::jsonReturnSuccess();
+            } else {
+                throw  new Exception(var_export($sendState, true), -1);
+            }
+        } catch (Exception $e) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'Verify code send failed!', $e->getMessage());
+        }
+    }
+
+    //发送注册短信
+    public function sendVerifyCode(){
+        try {
+            $mobile = Checker::mobile();
+            $randomCode = Sms::generateRandomCode();
+            $debug = I('get.debug', 'off');//on or off
+            if ($debug === 'on')
+            {
+                S(Cache::VERIFY_CODE_PREFIX . $mobile, $randomCode, ['expire' => Time::VERIFY_CODE_EXPIRE_30_MIN]);
+                Util::jsonReturn(null, Code::SYS_OK, 'success', "$randomCode");
+            }
+            $sendState = Sms::sendByRpc($mobile,$randomCode);
+            if ($sendState['state'] === 200)
+            {
+                S(Cache::VERIFY_CODE_PREFIX . $mobile, $randomCode, ['expire' => Time::VERIFY_CODE_EXPIRE_30_MIN]);
+                Util::jsonReturnSuccess();
+            } else {
+                throw  new Exception(var_export($sendState, true), -1);
+            }
+        } catch (Exception $e) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'Verify code send failed!', $e->getMessage());
+        }
+    }
+    public function getToken()
+    {
+        $headers = getallheaders();
+        if (empty($headers['X-Artzhe-Time']) || empty($headers['X-Artzhe-Nonce']) || empty($headers['X-Artzhe-Sign']) )
+        {
+            Util::jsonReturn(null, Code::PARAM_ERR,'Header parameter is Code!', var_export($headers, true));
+        }
+        $time = $headers['X-Artzhe-Time'];//精确到秒(s)
+        $requestTime = (int)$_SERVER['REQUEST_TIME'];
+        if (abs($time - $requestTime) >5 && !APP_DEBUG) {
+            Util::jsonReturn(null, Code::REQUEST_TIMEOUT, 'Request timeout!', "$time,$requestTime");
+        }
+        $nonce = $headers['X-Artzhe-Nonce'];
+        if (strlen($nonce) < 10) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'Request parameter is Code!', "$nonce");
+        }
+        $signature = $headers['X-Artzhe-Sign'];
+        //检查签名
+        if (!Util::checkSignature($time, $nonce, null, $signature)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'Signature parameter is Code!', "$time, $nonce, $signature");
+        }
+        $token = Util::generateUid();
+        S(Cache::TOKEN_PREFIX.$token, [],Time::TOKEN_EXPIRE_30_DAY);
+        Util::log('test','getToken',['cache' => Cache::TOKEN_PREFIX.$token]);
+        Util::jsonReturn(['token'=>$token, 'status'=>Status::OK]);
+    }
+
+    public function isLoging(){
+      if($this->isLogin()){
+        Util::jsonReturn(['status'=>Status::OK]);
+      }else{
+        Util::jsonReturn(['status'=>Status::NO]);
+      }
+    }
+
+    public function getUserInfo(){
+      $uid = I('get.uid','','number_int');
+      if(!$uid){
+        $uid = $this->loginUserId;
+      }
+      $userLogic = new UserLogic();
+      $userinfo = $userLogic->getUserInfoByIdShow($uid);
+      if(!empty($userinfo)){
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$userinfo]);
+      }else{
+        Util::jsonReturn(null, Code::NOT_FOUND, '未找到用户', var_export($uid, true));
+      }
+    }
+
+    public function getInviteCode(){
+      $uid = I('post.uid','','number_int');
+      $inviteLogic = new InviteLogLogic();
+      $code = $inviteLogic->getInvite($uid);
+      Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>['code' => $code]]);
+    }
+
+    public function getVerifyCode()
+    {
+        $mobile = I('get.mobile');
+        var_export(S(Cache::VERIFY_CODE_PREFIX.$mobile));
+    }
+
+    public function feedback(){
+      $content = I('content');
+      if($content){
+        $feedbackLogic = new FeedbackLogic();
+        $feedbackLogic->add([
+          'uid' => $this->loginUserId,
+          'content' => $content,
+          'time' => time()
+        ]);
+        Util::jsonReturn(['status'=>Code::SUCCESS]);
+      }else{
+        Util::jsonReturn(['status'=>3001]);
+      }
+    }
+
+    public function getImageVerifyCode(){
+
+    }
+}

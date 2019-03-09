@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <!-- <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" /> -->
+    <link href="/Public/Home/js/plugin/validform/validate.css" rel="stylesheet">
+    <link href="/Public/Home/css/global.css" rel="stylesheet">
+    <link href="/Public/Home/css/gcommon.css" rel="stylesheet">
+    <link href="/Public/Home/css/auth.css?v=0.0.1" rel="stylesheet">
+    <title>艺术家免费认证</title>
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者">
+  </head>
+  <body>
+    <header class="ysz-header">
+      <div class="y-header">
+        <div class="w clearfix">
+          <h1 class="y-head">
+          <img class="logo" src="/Public/Home/image/logo.png" alt="logo">
+          <span class="y-title">创作平台</span>
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div id="main">
+      <div class="w clearfix">
+        <div class="main-wrap
+   return ev.target || ev.srcElement; mb-72" id="auth">
+          <h2 class="title">艺术家免费认证</h2>
+          <div class="stage-wrap">
+            <p class="info"><i class="icons icon-info"></i>以下信息必须真实可信</p>
+            <form class="yszform">
+              <div class="first-wrap form">
+                <div class="item clearfix">
+                  <div class="tit"><label for="mobile">手机号码</label></div>
+                  <div class="con">
+                    <div class="box" >
+                      <input v-model="mobile" class="input" id="mobile" name="mobile" type="text" datatype="/^(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9])[0-9]{8}$/" nullmsg="请输入手机号" errormsg="请输入正确的手机号" placeholder="请输入您的手机号码，便于回访" maxlength="11">
+                    </div>
+                    <div class="tip"><div class="Validform_checktip"></div></div>
+                  </div>
+                </div>
+                <div class="item clearfix">
+                  <div class="tit"><label for="verifyCode">验证码</label></div>
+                  <div class="con">
+                    <div class="box" >
+                      <input v-model="verifyCode" class="input input-m" id="verifyCode" name="verifyCode" type="text" datatype="/\d{6}/" nullmsg="请输入验证码" errormsg="请填写正确的验证码" sucmsg=" " placeholder="请输入验证码" maxlength="6">
+                      <input type="button" value="发送验证码" class="btn btn-14 fr" id="send">
+                    </div>
+                    <div class="tip"><div class="Validform_checktip"></div></div>
+                  </div>
+                </div>
+                <div class="item clearfix">
+                  <div class="tit"><label for="inviteCode">邀请码</label></div>
+                  <div class="con">
+                    <div class="box" >
+                      <input class="input" id="inviteCode" name="inviteCode" type="text" datatype="*" nullmsg="请输入邀请码" errormsg="请填写正确的邀请码" sucmsg=" " placeholder="已入驻艺术家的邀请码" maxlength="8">
+                    </div>
+                    <div class="tip"><div class="Validform_checktip"></div></div>
+                  </div>
+                </div>
+                <div class="btn-group next">
+                  <input @click="goToSecond" class="btn btn-24" type="button" value="下一步">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="y-footer">
+        <div class="w clearfix">
+          <p class="mail">联系邮箱：yishuzhe@gaosouyi.com</p>
+          <p class="qrcode">
+            <img src="/Public/Home/image/qrcode-wx.png">
+            <img src="/Public/Home/image/qrcode-app.png">
+          </p>
+          <p>
+            Copyright 2017 www.artzhe.com. All Rights Reserved<br>
+            粤ICP备17041531号-1
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+  <script src="/Public/Home/js/lib/vue.js"></script>
+  <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+  <script src="/Public/Home/js/plugin/validform/validform.js"></script>
+  <!-- <script src="/Public/Home/js/auth/first.js"></script> -->
+  <script>
+    // $(".yszform").Validform();
+    $(".yszform").Validform({
+    tiptype:function(msg,o,cssctl){
+      if(!o.obj.is("form")){
+        var tip = o.obj.parent().next().find(".Validform_checktip");
+        tip.removeClass('Validform_right Validform_wrong Validform_loading');
+        if(o.type == 1){
+          tip.addClass('Validform_loading');
+          tip.text(' ');
+        }
+        else if(o.type == 2){
+          tip.addClass('Validform_right');
+          tip.text(' ');
+        }
+        else if(o.type == 3) {
+          tip.addClass('Validform_wrong');
+          tip.text(msg);
+        } 
+      }
+    },
+    showAllError:true,
+    ajaxPost:true,
+    callback:function(result){
+      if(result.status==1){
+        window.location.href=result.url;
+      }else{
+        $(".imgcode").click();
+        $("#imgcode").addClass('Validform_error');
+        $("#finalTips").find('div').addClass('Validform_wrong');
+        // $("#finalTips").text(result.info);
+      }
+        },
+    btnSubmit:"#btn1",
+    datatype:{
+      "checkAccount":function(){ 
+      }
+    },
+  });
+
+  </script>
+</html>

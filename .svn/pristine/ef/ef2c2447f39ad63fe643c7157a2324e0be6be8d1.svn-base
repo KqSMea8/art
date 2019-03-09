@@ -1,0 +1,375 @@
+<?php
+
+namespace Common\Base;
+
+
+class AdminBaseController extends BaseController
+{
+    const NO_LOGIN_LIST = ['Auth/login', 'Auth/getVerifyCode'];
+
+    protected function _initialize()
+    {
+        if (!$this->isLogin()) {
+            $controllerActionPair = CONTROLLER_NAME . "/" . ACTION_NAME;
+            if (!in_array($controllerActionPair, self::NO_LOGIN_LIST)) {
+                $this->redirect(U('Admin/Auth/login'));
+            }
+        }
+        $this->_nav();
+    }
+
+    public function isLogin()
+    {
+        $isLogin = cookie('isLogin');
+        return !empty($isLogin);
+    }
+
+    public function _nav()
+    {
+        //获取未处理消息（认证管理、创作平台-推广申请）
+        $artists=M('artist_apply')->where(['verify_state'=>1])->count();
+        $agencys=M('agency')->where(['status'=>1])->count();
+        $planners=M('planner')->where(['status'=>1])->count();
+        $authentication = $artists+$agencys+$planners;
+        $artists= empty($artists)?'':$artists;
+        $agencys= empty($agencys)?'':$agencys;
+        $planners= empty($planners)?'':$planners;
+        $authentication= empty($authentication)?'':$authentication;
+        $extensions=M('artist_extension')->where(['status'=>1])->count();
+        $extensions= empty($extensions)?'':$extensions;
+
+        $menu = [
+            '用户认证' => [
+                'data' => [
+                    'Artist/index' => ['name' => '艺术家', 'url' => '/Admin/Artist/index','msg'=>$artists],
+                    'Agency/index' => ['name' => '机构', 'url' => '/Admin/Agency/index','msg'=>$agencys],
+                    'Planner/index' => ['name' => '策展人', 'url' => '/Admin/Planner/index','msg'=>$planners]
+                ],
+                'msg'=>$authentication,
+            ],
+            '用户管理' => [
+                'data' => [
+                    'User/index' => ['name' => '非艺术家', 'url' => '/Admin/User/index'],
+                    'User/artist' => ['name' => '艺术家', 'url' => '/Admin/User/artist'],
+                    'User/agency' => ['name' => '机构', 'url' => '/Admin/User/agency'],
+                    'User/blacklist' => ['name' => '黑名单', 'url' => '/Admin/User/blacklist'],
+                ]
+            ],
+            '画作管理' => [
+                'data' => [
+                    'Art/index' => ['name' => '画作', 'url' => '/Admin/Art/index'],
+                    'Art/artUpdate' => ['name' => '花絮', 'url' => '/Admin/Art/artUpdate'],
+                    'Art/tag' => ['name' => '标签', 'url' => '/Admin/Art/tag'],
+                    'Comment/index' => ['name' => '评论', 'url' => '/Admin/Comment/index'],
+                ]
+            ],
+            '内容管理' => [
+                '话题' => [
+                    'data' => [
+                        'Topic/topic' => ['name' => '话题管理', 'url' => '/Admin/Topic/topic'],
+                        'Topic/topicDiscuss' => ['name' => '话题讨论管理', 'url' => '/Admin/Topic/topicDiscuss'],
+                        'Topic/comment' => ['name' => '讨论评论管理', 'url' => '/Admin/Topic/comment'],
+                    ]
+                ],
+                '艺术号' => [
+                    'data' => [
+                        'Article/verifyList' => ['name' => '艺术号文章审核', 'url' => '/Admin/Article/verifyList'],
+                        'Article/index' => ['name' => '艺术号文章', 'url' => '/Admin/Article/index'],
+                        'Article/dustbin' => ['name' => '艺术号垃圾箱', 'url' => '/Admin/Article/dustbin'],
+                        'Article/tag' => ['name' => '艺术号标签', 'url' => '/Admin/Article/tag'],
+                    ],
+
+                ],
+            ],
+            '数据统计' => [
+                'data' => [
+                    'Statistics/index' => ['name' => '用户统计', 'url' => '/Admin/Statistics/index'],
+                    'Statistics/visit' => ['name' => '用户浏览统计', 'url' => '/Admin/Statistics/visit'],
+                ]
+            ],
+            '商城' => [
+                'data' => [
+                    'ShopActivity/index' => ['name' => '商城活动列表', 'url' => '/Admin/ShopActivity/index'],
+                ],
+
+            ],
+            '推广' => [
+                '专题管理' => [
+                    'data' => [
+                        'Subject/index' => ['name' => '艺术专题', 'url' => '/Admin/Subject/index'],
+                        'Subject/add_sub' => ['name' => '添加专题', 'url' => '/Admin/Subject/addSubject'],
+                        'Subject/applylist' => ['name' => '专题申请列表', 'url' => '/Admin/Subject/applylist'],
+                    ],
+                ],
+                '上封面' => [
+                    'data' => [
+                        'Extension/index' => ['name' => '推广申请', 'url' => '/Admin/Extension/index','msg'=>$extensions]
+                    ],
+                    'msg'=>$extensions,
+                ],
+                'msg'=>$extensions,
+            ],
+            '其他' => [
+                '配置' => [
+                    '官网' => [
+                        'data' => [
+                            'WebsiteConfig/imageLunbo' => ['name' => '首页图片轮播', 'url' => '/Admin/WebsiteConfig/imageLunbo'],
+                            'WebsiteConfig/authorLunbo' => ['name' => '首页艺术家轮播', 'url' => '/Admin/WebsiteConfig/authorLunbo'],
+                            'WebsiteConfig/news' => ['name' => '最新动态', 'url' => '/Admin/WebsiteConfig/news'],
+                        ],
+                    ],
+                    'app' => [
+                        'data' => [
+                            'ArtcircleBanner/index' => ['name' => '艺术圈banner', 'url' => '/Admin/ArtcircleBanner/index'],
+                            'RecommendTags/index' => ['name' => '引导页-推荐标签', 'url' => '/Admin/RecommendTags/index'],
+                            'ArticleColumn/index' => ['name' => '艺术号栏目', 'url' => '/Admin/ArticleColumn/index'],
+                            'AppUpgrade/AppList' => ['name' => '版本列表', 'url' => '/Admin/AppUpgrade/AppList'],
+                            'AppUpgrade/AndroidChannelList' => ['name' => '安卓补丁列表', 'url' => '/Admin/AppUpgrade/AndroidChannelList'],
+                        ],
+
+                    ],
+                    '艺签' => [
+                        'data' => [
+                            'SignatureImage/add' => ['name' => '艺签添加', 'url' => '/Admin/SignatureImage/add'],
+                            'SignatureImage/index' => ['name' => '艺签列表', 'url' => '/Admin/SignatureImage/index'],
+                        ],
+
+                    ],
+                ],
+                '辅助功能' => [
+                    'data' => [
+                        'User/adduser' => ['name' => '新增用户', 'url' => '/Admin/User/adduser'],
+                        'RecommendationAdFirst/ad_first' => ['name' => '首页推荐位1', 'url' => '/Admin/RecommendationAdFirst/index'],
+                    ],
+                ],
+                '版画' => [
+                    'data' => [
+                        'ArtworkPrints/index' => ['name' => '版画列表', 'url' => '/Admin/ArtworkPrints/index'],
+                        'ArtworkPrints/addStepFirst' => ['name' => '版画添加', 'url' => '/Admin/ArtworkPrints/addStepFirst'],
+                        'ArtworkPrints/gallery' => ['name' => '画廊购买链接', 'url' => '/Admin/ArtworkPrints/gallery'],
+                        'ArtworkPrints/artworkSaleUrl' => ['name' => '画作购买链接', 'url' => '/Admin/ArtworkPrints/artworkSaleUrl'],
+                    ],
+                ],
+            ],
+
+
+        ];
+        $action = CONTROLLER_NAME . '/' . ACTION_NAME;
+        $this->updateNav($menu,$action);
+        /*foreach ($menu as $key => &$value) {
+            while(!$value['data']){
+                foreach ($value as $k => $v) {
+                    if ($k == $action) {
+                        $menu[$key]['data'][$k]['select'] = '1';
+                        $menu[$key]['select'] = '1';
+                    }
+                }
+            }
+
+        }*/
+        $this->assign('_nav', $menu);
+    }
+
+    public function updateNav(&$menu,$action){
+        foreach ($menu as $key => &$value) {
+            if ($value['data']) {
+                foreach ($value['data'] as $k => &$v) {
+                    if ($k == $action) {
+                        $v['select'] = '1';
+                        return 1;
+                    }
+                }
+            }else{
+                $select=$this->updateNav($value,$action);
+                $value['select']=$select;
+                if($select){
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
+
+    public function _nav_20100101()
+    {
+        //获取未处理消息（认证管理、创作平台-推广申请）
+        $artists=M('artist_apply')->where(['verify_state'=>1])->count();
+        $agencys=M('agency')->where(['status'=>1])->count();
+        $planners=M('planner')->where(['status'=>1])->count();
+        $authentication = $artists+$agencys+$planners;
+        $artists= empty($artists)?'':$artists;
+        $agencys= empty($agencys)?'':$agencys;
+        $planners= empty($planners)?'':$planners;
+        $authentication= empty($authentication)?'':$authentication;
+        $extensions=M('artist_extension')->where(['status'=>1])->count();
+        $extensions= empty($extensions)?'':$extensions;
+
+        $menu = [
+            '认证管理' => [
+                'data' => [
+                    'Artist/index' => ['name' => '艺术家认证', 'url' => '/Admin/Artist/index','msg'=>$artists],
+                    'Agency/index' => ['name' => '机构管理', 'url' => '/Admin/Agency/index','msg'=>$agencys],
+                    'Planner/index' => ['name' => '策展人管理', 'url' => '/Admin/Planner/index','msg'=>$planners]
+                ],
+                'msg'=>$authentication,
+            ],
+            '用户管理' => [
+                'data' => [
+                    'User/index' => ['name' => '普通用户管理', 'url' => '/Admin/User/index'],
+                    'User/artist' => ['name' => '艺术家管理', 'url' => '/Admin/User/artist'],
+                    'User/agency' => ['name' => '机构管理', 'url' => '/Admin/User/agency'],
+                    'User/adduser' => ['name' => '新增用户', 'url' => '/Admin/User/adduser'],
+                    'User/blacklist' => ['name' => '黑名单用户', 'url' => '/Admin/User/blacklist'],
+                    /*'User/adduser?agency=1' => ['name' => '新增机构', 'url' => '/Admin/User/adduser?agency=1']*/
+                ]
+            ],
+            '艺术品管理' => [
+                'data' => [
+                    'Art/index' => ['name' => '艺术品管理', 'url' => '/Admin/Art/index'],
+                   /* 'Art/category' => ['name' => '艺术品类别管理', 'url' => '/Admin/Art/category'],*/
+                    'Art/artUpdate' => ['name' => '更新管理', 'url' => '/Admin/Art/artUpdate'],
+                    'Art/tag' => ['name' => '标签管理', 'url' => '/Admin/Art/tag']
+                ]
+            ],
+            '话题管理' => [
+                'data' => [
+                    'Topic/topic' => ['name' => '话题管理', 'url' => '/Admin/Topic/topic'],
+                    'Topic/topicDiscuss' => ['name' => '话题讨论管理', 'url' => '/Admin/Topic/topicDiscuss'],
+                    'Topic/comment' => ['name' => '讨论评论管理', 'url' => '/Admin/Topic/comment'],
+                   /* 'Topic/publishDiscussShow' => ['name' => '发表讨论', 'url' => '/Admin/Topic/publishDiscussShow'],*/
+                ]
+            ],
+            '统计信息' => [
+                'data' => [
+                    'Statistics/index' => ['name' => '用户统计', 'url' => '/Admin/Statistics/index'],
+                    'Statistics/visit' => ['name' => '用户浏览统计', 'url' => '/Admin/Statistics/visit'],
+                ]
+            ],
+            '创作平台' => [
+                'data' => [
+                    'Extension/index' => ['name' => '推广申请', 'url' => '/Admin/Extension/index','msg'=>$extensions]
+                ],
+                'msg'=>$extensions,
+            ],
+            'SEO管理' => [
+                'data' => [
+                    'Seo/index' => ['name' => '首页', 'url' => '/Admin/Seo/index'],
+                    'Seo/seoArticle' => ['name' => 'seo文章列表', 'url' => '/Admin/Seo/seoArticle']
+                ]
+            ],
+            '专题管理' => [
+                'data' => [
+                    'Subject/index' => ['name' => '艺术专题', 'url' => '/Admin/Subject/index'],
+                    'Subject/add_sub' => ['name' => '添加专题', 'url' => '/Admin/Subject/addSubject'],
+                    'Subject/applylist' => ['name' => '专题申请列表', 'url' => '/Admin/Subject/applylist'],
+                    // 'Subject/view' => ['name' => '查看详情','url'=>'/Admin/Subject/view'] ,
+                    // 'Subject/add_pro' => ['name' => '添加作品','url'=>'/Admin/Subject/add_pro']
+                ],
+            ],
+            '评论管理' => [
+                'data' => [
+                    'Comment/index' => ['name' => '评论列表', 'url' => '/Admin/Comment/index'],
+
+                ],
+
+            ],
+            '艺术号' => [
+                'data' => [
+                    'Article/verifyList' => ['name' => '艺术号文章审核', 'url' => '/Admin/Article/verifyList'],
+                    'Article/index' => ['name' => '艺术号文章', 'url' => '/Admin/Article/index'],
+                    'Article/dustbin' => ['name' => '艺术号垃圾箱', 'url' => '/Admin/Article/dustbin'],
+                    'Article/tag' => ['name' => '艺术号标签', 'url' => '/Admin/Article/tag'],
+                ],
+
+            ],
+            '版画' => [
+                'data' => [
+                    'ArtworkPrints/index' => ['name' => '版画列表', 'url' => '/Admin/ArtworkPrints/index'],
+                    'ArtworkPrints/addStepFirst' => ['name' => '版画添加', 'url' => '/Admin/ArtworkPrints/addStepFirst'],
+                    'ArtworkPrints/gallery' => ['name' => '画廊购买链接', 'url' => '/Admin/ArtworkPrints/gallery'],
+                    'ArtworkPrints/artworkSaleUrl' => ['name' => '画作购买链接', 'url' => '/Admin/ArtworkPrints/artworkSaleUrl'],
+
+                ],
+            ],
+            '官网配置' => [
+                'data' => [
+                    'WebsiteConfig/imageLunbo' => ['name' => '首页图片轮播', 'url' => '/Admin/WebsiteConfig/imageLunbo'],
+                    'WebsiteConfig/authorLunbo' => ['name' => '首页艺术家轮播', 'url' => '/Admin/WebsiteConfig/authorLunbo'],
+                    'WebsiteConfig/news' => ['name' => '最新动态', 'url' => '/Admin/WebsiteConfig/news'],
+                ],
+
+            ],
+            'app配置' => [
+                'data' => [
+                    'ArtcircleBanner/index' => ['name' => '艺术圈banner', 'url' => '/Admin/ArtcircleBanner/index'],
+                    'RecommendTags/index' => ['name' => '引导页-推荐标签', 'url' => '/Admin/RecommendTags/index'],
+                    'HomeBanner/index' => ['name' => '首页-推荐banner', 'url' => '/Admin/HomeBanner/index'],
+                    'HomeColumn/index' => ['name' => '首页栏目', 'url' => '/Admin/HomeColumn/index'],
+                    'RecommendArtist/index' => ['name' => '首页-推荐艺术家', 'url' => '/Admin/RecommendArtist/index'],
+                    'RecommendRecord/index' => ['name' => '首页-精彩花絮', 'url' => '/Admin/RecommendRecord/index'],
+                    'RecommendArtwork/index' => ['name' => '首页-推荐作品', 'url' => '/Admin/RecommendArtwork/index'],
+                    'RecommendArticle/index' => ['name' => '首页-推荐艺术号', 'url' => '/Admin/RecommendArticle/index'],
+                    'RecommendSubject/index' => ['name' => '首页-推荐专题', 'url' => '/Admin/RecommendSubject/index'],
+                    'ArticleColumn/index' => ['name' => '艺术号栏目', 'url' => '/Admin/ArticleColumn/index'],
+                ],
+
+            ],
+
+
+            '商城活动' => [
+                'data' => [
+                    'ShopActivity/index' => ['name' => '商城活动列表', 'url' => '/Admin/ShopActivity/index'],
+//                    'ShopActivityGoods/index' => ['name' => '商品列表', 'url' => '/Admin/ShopActivityGoods/index'],
+//                    'ShopActivityBargain/index' => ['name' => '砍价列表', 'url' => '/Admin/ShopActivityBargain/index'],
+//                    'ShopActivitySale/index' => ['name' => '活动销售列表', 'url' => '/Admin/ShopActivitySale/index'],
+                ],
+
+            ],
+
+            '艺签' => [
+                'data' => [
+                    'SignatureImage/add' => ['name' => '艺签添加', 'url' => '/Admin/SignatureImage/add'],
+                    'SignatureImage/index' => ['name' => '艺签列表', 'url' => '/Admin/SignatureImage/index'],
+
+                ],
+
+            ],
+
+            '升级补丁包管理' => [
+                'data' => [
+                    'AppUpgrade/AppList' => ['name' => '版本列表', 'url' => '/Admin/AppUpgrade/AppList'],
+                    'AppUpgrade/AndroidChannelList' => ['name' => '安卓补丁列表', 'url' => '/Admin/AppUpgrade/AndroidChannelList'],
+                   
+                ],
+                
+            ],
+            /*'通知' => [
+                'data' => [
+                    'Message/showSend' => ['name' => '发送系统通知', 'url' => '/Admin/Message/showSend'],
+
+                ],
+
+            ],*/
+
+            '首页推荐设置' => [
+                'data' => [
+                    'RecommendationAdFirst/ad_first' => ['name' => '推荐位1', 'url' => '/Admin/RecommendationAdFirst/index'],
+
+                ],
+
+            ],
+
+
+        ];
+        $action = CONTROLLER_NAME . '/' . ACTION_NAME;
+        foreach ($menu as $key => $value) {
+            foreach ($value['data'] as $k => $v) {
+                if ($k == $action) {
+                    $menu[$key]['data'][$k]['select'] = '1';
+                    $menu[$key]['select'] = '1';
+                }
+            }
+        }
+        $this->assign('_nav', $menu);
+    }
+}

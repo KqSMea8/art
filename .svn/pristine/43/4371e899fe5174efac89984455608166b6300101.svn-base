@@ -1,0 +1,97 @@
+<?php
+
+namespace M\Controller;
+
+use M\Base\ApiBaseController;
+use M\Logic\ArtworkCategoryLogic;
+use M\Logic\ArtworkColorLogic;
+use M\Logic\ArtworkLikeLogic;
+use M\Logic\MessageLogic;
+use M\Logic\ArtworkLogic;
+use M\Logic\ArtworkTagLogic;
+use M\Logic\ArtworkUpdateLogic;
+use M\Logic\CommentLogic;
+use M\Logic\AssetsLogic;
+use M\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+use Custom\Helper\Verify;
+use M\Logic\RecommendLogic;
+use M\Logic\ArtCircleLogic;
+use M\Logic\ArtCircleShareLogic;
+use M\Model\ArtworkUpdateTagModel;
+use M\Model\ArtworkStyleModel;
+use M\Model\ArtworkSubjectModel;
+use M\Model\ArtworkCategoryModel;
+use M\Model\ArticleDraftModel;
+use M\Logic\ArticleLogic;
+use M\Model\ArtCircleModel;
+use M\Logic\ArtworkConsultationLogic;
+use Mp\Logic\ArtworkGoodsLogic;
+
+//artwork upload
+class ArtworkController extends ApiBaseController
+{
+
+    //获取作品详情信息
+    public function getArtDetail()
+    {
+        $artId = I('post.id','','number_int');
+        $artId2 = I('post.artId','','number_int');
+        if(empty($artId) && $artId2){
+            $artId = $artId2;
+        }
+        if($artId > 0){
+            $artworkModel = new ArtworkLogic();
+            $artInfo = $artworkModel->getArtworkDetail($artId,$this->loginUserId);
+            if($artInfo===false){
+                Util::jsonReturn(null, Code::NOT_FOUND, '该艺术品仅作者可见', var_export($artId, true));
+            }elseif(!empty($artInfo)){
+                $goodsInfo = $this->getArtworkGoods($artId);
+                $artInfo['goodsInfo'] = $goodsInfo;
+                Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$artInfo]);
+            }else{
+                Util::jsonReturn(null, Code::NOT_FOUND, '未找到对应的艺术品', var_export($artId, true));
+            }
+        }else{
+            Util::jsonReturn(null, Code::VERIF, '[artId]错误', var_export($artId, true));
+        }
+    }
+
+    /**获取该作品的商品（原画和版画）信息
+     * @param $artworkId 作品id
+     */
+    private function getArtworkGoods($artworkId)
+    {
+        $artworkGoodsLogic = new ArtworkGoodsLogic();
+        $artworkGoods = $artworkGoodsLogic->field('goods_id')->where(['artwork_id' => $artworkId])->select();
+        if (empty($artworkGoods)) {
+            return (object)[];
+        } else {
+            $ids = implode(',', array_column($artworkGoods, 'goods_id'));
+            $url = C('MALL') . 'Index/goodsInfo';
+            $postStr = Util::des_encode(json_encode(['goodsIdStr' => $ids, 'from' => 1]));
+            $post_data = ['param' => $postStr];
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+            $output = curl_exec($ch);
+            curl_close($ch);
+            $goods = json_decode($output, true);
+            if (empty($goods) || empty($goods['data'])) {
+                return (object)[];
+            } else {
+                if (!empty($goods['data']['raw']) && !empty($goods['data']['raw']['user']) && !empty($goods['data']['raw']['user']['user_face'])) {
+                    $goods['data']['raw']['user']['user_face'] = Util::getImageResize($goods['data']['raw']['user']['user_face'], Image::faceWidth, Image::faceHeight);
+                }
+                return $goods['data'];
+            }
+        }
+    }
+
+}

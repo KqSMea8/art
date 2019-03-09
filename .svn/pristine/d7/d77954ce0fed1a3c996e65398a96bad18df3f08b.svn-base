@@ -1,0 +1,144 @@
+<?php
+
+namespace V50\Controller;
+
+use V50\Base\ApiBaseController;
+use V50\Logic\ArtistExtensionLogic;
+use V50\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+use V50\Model\LoginLogModel;
+
+
+class ExtensionController extends ApiBaseController
+{
+    public function apply()
+    {
+        $this->checkLogin();
+        $userLogic = new UserLogic(); //实例化用户模块
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+            $userId = $tokenInfo['userInfo']['id'];
+        }
+
+        if (empty($userId)) {
+            Util::jsonReturn(null,Code::HAVE_NO_RIGHT,'have no right!');
+        }
+        $desc = addslashes(I('desc', ''));
+        $img = addslashes(I('img', ''));
+        $extLogic = new ArtistExtensionLogic();
+        $userInfo = $userLogic->find($userId);
+        $url = "gallery-{$userInfo['id']}-{$userInfo['nickname']}";
+        $extLogic->apply($userId, $img, $desc, $url);
+        Util::jsonReturn(['status' => Code::SUCCESS]);
+    }
+
+    public function edit()
+    {
+        $id = I('id', '');
+        $artist = I('artist', '');
+        $desc = I('desc', '');
+        $img = I('img', '');
+        $extLogic = new ArtistExtensionLogic();
+        $extLogic->edit($id, $artist, $img, $desc);
+        Util::jsonReturn(['status' => Code::SUCCESS]);
+    }
+
+    public function stop()
+    {
+        $id = I('id', '');
+        $extLogic = new ArtistExtensionLogic();
+        $extLogic->stop($id);
+        Util::jsonReturn(['status' => Code::SUCCESS]);
+    }
+
+    //app启动页
+    public function getNext()
+    {
+        $id = I('id', '');
+
+        $device = I('device', '');
+        $system = I('system', '');
+        $version = I('version', '');
+        //统计登录信息
+        $loginLogMode = new LoginLogModel();
+        $loginLogMode->addData($device,$system,$version,$this->token,'Extension/getNext');
+
+        //app启动时判断用户登录情况并记录登录次数
+        $isLogin = $this->isLogin();
+        if ($isLogin) {//登录
+            $userLogic = new UserLogic(); //实例化用户模块
+            $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+            if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+               $userLogic->where(['id' => $tokenInfo['userInfo']['id']])->setInc('login_times', 1);
+            }
+        }
+
+        $extLogic = new ArtistExtensionLogic();
+        $info = $extLogic->getNextCover();
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    public function getInfoByArtist()
+    {
+        $artistid = I('artistid', '');
+        $userLogic = new UserLogic();
+        if (empty($artistid)) {
+            Util::jsonReturn(['status' => Code::NOT_FOUND, 'info' => $artistid]);
+        }
+        $extLogic = new ArtistExtensionLogic();
+        $info = $extLogic->getInfoByArtist($artistid);
+        if (!empty($info)) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        } else {
+            Util::jsonReturn(['status' => 1001, 'info' => $info, 'artTotal' => $userLogic->where(['id' => $this->loginUserId])->getField('art_total')]);
+        }
+    }
+
+    /*
+     * 获取申请封面状态
+     * 0、未申请 1、审核中，2、审核失败，3、审核成功，4、用户终止推广  5、下线（过期或其他原因）
+     */
+    public function getApplyStatus()
+    {
+        $this->checkLogin();
+        $userLogic = new UserLogic(); //实例化用户模块
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+            $userId = $tokenInfo['userInfo']['id'];
+        }
+
+        if (empty($userId)) {
+            Util::jsonReturn(null,Code::HAVE_NO_RIGHT,'have no right!');
+        }
+        $extLogic = new ArtistExtensionLogic();
+        $apply = $extLogic->field('status,time,reason')->where(['artist' => $userId])->order('id DESC')->find();
+        $info=[
+            'status'=>0,
+            'remaining_day'=>0,
+            'reason'=>''
+        ];
+        if(!empty($apply)){
+            $info['reason']=empty($apply['reason'])?'':$apply['reason'];
+            if($apply['status'] == 3){
+                if(time() >$apply['time']+30*86400){//超过30天
+                    $info['status'] = 5;
+                }else{
+                    $time = time()-$apply['time'];
+                    $info['remaining_day'] =30-intval($time/86400);
+                    $info['status'] = $apply['status'];
+                }
+
+            }else{
+                $info['status'] = $apply['status'];
+            }
+
+        }
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+    }
+}

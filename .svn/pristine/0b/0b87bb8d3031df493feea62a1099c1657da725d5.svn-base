@@ -1,0 +1,35 @@
+<?php
+namespace V32\Model;
+
+use V32\Base\BaseModel;
+
+class UserModel extends BaseModel
+{
+    protected $tableName = 'user';
+    const GENDER_CN_LIST = [
+        1 => '男',
+        2 => '女',
+        3 => '未知'
+    ];
+    const GENDER_CN_LIST_REVERSE = [
+        '男' => 1,
+        '女' => 2,
+        '未知' => 3
+    ];
+    const GENDER_EN_LIST = [
+        1 => 'male',
+        2 => 'female',
+        3 => 'unknown'
+    ];
+    const GENDER_EN_LIST_REVERSE = [
+        'male' => 1,
+        'female' => 2,
+        'unknown' => 3
+    ];
+    //用户类型属性,用户可能有appreciator+x 多种组合，x可不选
+    const TYPE_LIST = [
+        'appreciator' => 0x1,//欣赏者
+        'artist' => 0x10,//艺术家
+        'collector' =>0x100//收藏家
+    ];
+}

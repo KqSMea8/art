@@ -1,0 +1,335 @@
+body {
+  background-color: #f4f4f4;
+}
+#main {
+  padding-top: 20px;
+  padding-bottom: 22px;
+  min-height: 720px;
+}
+.con-wrap {
+  float: left;
+  padding: 30px 28px;
+  width: 700px;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(26, 26, 26, 0.18);
+}
+.artist-info {
+  padding-left: 66px;
+  color: #989898;
+}
+.artist-info a {
+  color: #989898;
+}
+.artist-info .item {
+  position: relative;
+  padding: 30px 25px 30px 96px;
+  color: #989898;
+  border-bottom: 1px solid #f4f4f4;
+}
+.artist-info .avatar {
+  position: absolute;
+  left: 30px;
+  top: 36px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+}
+.artist-info .name{
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
+  color: #1a1a1a;
+}
+.artist-info .name .icons.icon-artist {
+  margin-left: 5px;
+  width: 76px;
+  height: 30px;
+  vertical-align: top;
+  background-position: -300px 3px;
+}
+.artist-info .category {
+  margin-top: 2px;
+  height: 24px;
+  line-height: 24px;
+  font-size: 12px;
+}
+.artist-info .btn-group {
+  text-align: right;
+}
+.artist-info .btn-s {
+  display: inline-block;
+  width: 70px;
+  height: 24px;
+  line-height: 24px;
+  font-size: 12px;
+  text-align: center;
+  color: #fff;
+  background-color: #f4ad23;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.artist-info .btn-s.followed {
+  color: #1a1a1a;
+  background-color: #f4f4f4;
+}
+.artist-info .btn-s.followed:hover {
+  color: #f4ad23;
+}
+.artist-info .num {
+  margin-top: 6px;
+  height: 24px;
+  line-height: 24px;
+}
+.artist-info .num strong {
+  color: #1a1a1a;
+}
+.artist-info .num span {
+  margin: 0 16px;
+}
+.artist-info .num span:last-of-type {
+  margin-right: 0;
+}
+
+.tab-nav {
+  position: relative;
+  border-bottom: 1px solid #f4f4f4;
+}
+.tab-nav li {
+  position: relative;
+  float: left;
+  margin-right: 30px;
+  height: 50px;
+  width: 75px;
+  font-size: 16px;
+  line-height: 50px;
+  text-align: center;
+  cursor: pointer;
+}
+.tab-nav li:hover {
+  color: #f4ad23;
+}
+.tab-nav li.active {
+  font-weight: 700;
+}
+.tab-nav li.active:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 72px;
+  border-bottom: 2px solid #f4ad23;
+}
+.update-list .update-item {
+  padding: 20px 0 24px;
+  border-bottom: 1px solid #f4f4f4;
+}
+.update-list .detail-wrap {
+  position: relative;
+  float: left;
+  width: 450px;
+  height: 170px;
+}
+.update-list .detail-wrap h3 {
+  height: 24px;
+  /*color: #1a1a1a;*/
+}
+.update-list .detail-wrap .title {
+  position: relative;
+}
+.update-list .detail-wrap .name {
+  font-size: 18px;
+  line-height: 24px;
+}
+.update-list .detail-wrap .time {
+  float: right;
+  line-height: 24px;
+  font-size: 12px;
+  color: #989898;
+}
+.update-list .detail-wrap .story {
+  margin-top: 12px;
+  height: 96px;
+  font-size: 14px;
+  line-height: 24px;
+  color: #989898;
+  overflow:hidden; 
+  text-overflow:ellipsis;
+  display:-webkit-box; 
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:4; 
+}
+.update-list .img-wrap {
+  float: right;
+  width: 170px;
+  height: 170px;
+}
+.update-list .tags {
+  position: absolute;
+  left: -3px;
+  bottom: 0;
+}
+.update-list .tags li {
+  float: left;
+  margin-right: 12px;
+  height: 24px;
+  line-height: 24px;
+  color: #989898;
+}
+.update-list .tags .icons {
+  height: 24px;
+  width: 24px;
+  vertical-align: top;
+}
+.update-list .tags .icons.icon-eye {
+  background-position: -375px -100px;
+}
+.update-list .tags .icons.icon-comment {
+  background-position: -400px -100px;
+}
+.update-list .tags .icons.icon-like {
+  background-position: -425px -100px;
+}
+.update-list .img-wrap img {
+  width: 170px;
+  height: 170px;
+}
+
+/* 作品集 */
+.art-list {
+  margin-top: 20px;
+}
+.art-list li {
+  position: relative;
+  margin-left: 37px;
+  margin-bottom: 20px;
+}
+.art-list li:nth-of-type(3n+1) {
+  margin-left: 0;
+}
+.art-list .art-pic {
+  width: 190px;
+  height: 190px;
+}
+.art-list h3 {
+  position: relative;
+  margin-top: 10px;
+  height: 24px;
+  font-size: 14px;
+  line-height: 24px;
+  color: #1a1a1a;
+}
+.art-list a:hover h3 {
+  color: #f4ad23;
+}
+.art-list h3 .icons {
+  position: absolute;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background-position: -275px -101px;
+  cursor: pointer;
+}
+.art-list h3 span {
+  display: inline-block;
+  width: 155px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.art-list h3 .icons.icon-like {
+  background-position: -275px -101px;
+}
+.art-list h3 .icons.icon-liked {
+  background-position: -250px -101px;
+}
+/* 作品集 end */
+
+
+
+/*侧边栏*/
+.side-wrap {
+  margin-left: 710px;
+  width: 250px;
+}
+
+.resume-wrap {
+  margin-bottom: 10px;
+  padding: 10px 15px 0;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(26,26,26,0.18);
+}
+.resume-wrap h3 {
+  position: relative;
+  height: 40px;
+  line-height: 40px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.resume-wrap .edit {
+  float: right;
+  font-size: 12px;
+  font-weight: 300;
+  color: #f4ad23;
+  cursor: pointer;
+}
+.resume-wrap .resume {
+  margin: 24px 0;
+  font-size: 14px;
+  line-height: 24px;
+  color: #989898;
+
+}
+.resume-wrap .resume.part {
+  max-height: 72px;
+  overflow-y: hidden;
+}
+.resume-wrap .more {
+  height: 50px;
+  line-height: 50px;
+  font-size: 14px;
+  text-align: center;
+  color: #f4ad23;
+  border-top: 1px solid #f4f4f4;
+  cursor: pointer;
+}
+.more:hover {
+  text-shadow: 0px 1px 1px rgba(245,183,62,0.4);
+}
+
+/*认证浮窗*/
+.auth-wrap {
+  position: relative;
+  width: 250px;
+  height: 380px;
+  background: #fff url(../image/gallery/auth-bg2.png) 0 0 no-repeat;
+  box-shadow: 0 0 5px rgba(26,26,26,0.18);
+}
+.auth-wrap p {
+  text-indent: -8000px;
+}
+.auth-wrap .btn-m {
+  position: absolute;
+  bottom: 45px;
+  left: 50%;
+  margin-left: -110px;
+  width: 220px;
+  height: 46px;
+  font-size: 18px;
+  line-height: 46px;
+  text-align: center;
+  color: #fff;
+  background-color: #f4ad23;
+  border: 1px solid #f4ad23;
+  border-radius: 23px;
+}
+.auth-wrap .icons.icon-closed {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background-position: -336px -103px;
+  cursor: pointer;
+}
+/*认证浮窗 end */
+/*侧边栏 end */

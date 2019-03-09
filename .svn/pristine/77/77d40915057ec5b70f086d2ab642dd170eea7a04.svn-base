@@ -1,0 +1,114 @@
+<extend name="Public:base" />
+<block name="content">
+    <link href="/Public/Admin/js/thickbox/thickbox.css" rel="stylesheet">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    编辑
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" action="{:U('RecommendSubject/recommend')}" method="post" enctype="multipart/form-data" onsubmit="return recommend();">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">推荐封面图片</label>
+                            <div class="col-sm-10">
+                                <img src="{$data['recommend_cover']}" width="193" height="168" border="0" />
+                                <input type="file" id="picture" name="picture" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" name="id" value="{$data['subject_id']}">
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" name="type" value="{$data['type']}">
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success">确定</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="{:U('RecommendSubject/index')}" class="btn btn-default">返回</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="customJs">
+    <script language="javascript" type="text/javascript" src="/Public/Admin/js/thickbox/thickbox.js"></script>
+    <script>
+        $(document).ready(function() {
+
+        });
+
+        function recommend(id,type, obj) {
+            $.prompt("确定推荐该专题？", {
+                title: "提示",
+                buttons: {"确定": true, "取消": false},
+                submit: function (e, v, m, f) {
+                    if (v == true) {
+                        var formData = new FormData($(".form-horizontal")[0]);
+                        $.ajax({
+                            type: 'post',
+                            url: '<?php echo U('Admin/RecommendSubject/recommend');?>',
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            cache: false,
+                            dataType: 'json',
+                            error: function (data) {
+                                $("#loading" + id).remove();
+                                $.prompt("<span style=\" color:#F00\">error</span>", {
+                                    title: "提示",
+                                    buttons: {"确定": false}
+                                });
+                            },
+                            success: function (data) {
+                                // alert(data);
+                                if (data.error == 0) {
+                                    /*$(obj).parent().parent().remove();*/
+                                    window.location.href="{:U('RecommendSubject/index')}";
+                                }else{
+                                    $.prompt("<span style=\" color:#F00\">"+data.message+"</span>", {
+                                        title: "提示",
+                                        buttons: {"确定": false}
+                                    });
+                                }
+
+                            }
+                        });
+                    }else{
+
+                    }
+                }
+            });
+            return false;
+        }
+
+        function initLoading(){
+            $("body").append("<!-- loading -->" +
+                "<div class='modal fade' id='loading' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' data-backdrop='static'>" +
+                "<div class='modal-dialog' role='document' style='width:220px'>" +
+                "<div class='modal-content'>" +
+                    /*  "<div class='modal-header'>" +
+                     "<h4 class='modal-title' id='myModalLabel'>提示</h4>" +
+                     "</div>" +*/
+                "<div class='modal-body'>" +
+                "<img id='loading' src='/Public/Admin/image/loading.gif' />&nbsp;" +
+                "<span id='loadingText'>处理中，请稍候。。。</span>" +
+                "</div>" +
+                "</div>" +
+                "</div>" +
+                "</div>"
+            );
+        }
+        function showLoading(text){
+            $("#loadingText").html(text);
+            $("#loading").modal("show");
+        }
+        function hideLoading(){
+            $("#loading").modal("hide");
+        }
+
+    </script>
+</block>

@@ -1,0 +1,225 @@
+<extend name="Public:base"/>
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    标签管理
+                </div>
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <form method="post" action="addTag" id="addform" class="form-inline" onsubmit="return add();">
+                                <div class="form-group">
+                                    <label for="">标签类型</label>
+                                    <select id="type" name="type" class="form-control">
+                                        <option value="1" selected>画作类别</option>
+                                        <option value="2">画作题材</option>
+                                        <option value="3">画作风格</option>
+                                        <option value="4">更新标签</option>
+                                    </select>
+                                    &nbsp;
+                                    <label for="">标签名</label>
+                                    <input type="text" id="name" name="name" class="form-control" style="width:100px;">
+                                    &nbsp;
+                                    <label for="">排序</label>
+                                    <input type="number" id="sort" name="sort" value="0" class="form-control number"
+                                           style="width:80px;" min="0">
+                                </div>
+                                <button class="btn btn-default form-control" type="submit">新增</button>
+                            </form>
+                        </div><!-- /.col-lg-6 -->
+                        <div class="col-lg-6">
+                            <form method="get" action="{:U('Admin/Art/tag')}" class="form-inline pull-right">
+                                <select id="rightType" name="type" class="form-control">
+                                    <option value="1" <?php if ($queryParams['type'] == 1) {
+                                        echo 'selected';
+                                    } ?>>画作类别
+                                    </option>
+                                    <option value="2" <?php if ($queryParams['type'] == 2) {
+                                        echo 'selected';
+                                    } ?>>画作题材
+                                    </option>
+                                    <option value="3" <?php if ($queryParams['type'] == 3) {
+                                        echo 'selected';
+                                    } ?>>画作风格
+                                    </option>
+                                    <option value="4" <?php if ($queryParams['type'] == 4) {
+                                        echo 'selected';
+                                    } ?>>更新标签
+                                    </option>
+                                </select>
+                               <!-- <input type="hidden" name="page" class="inline form-control" value="1">
+                                <input type="hidden" name="perPageCount" class="inline form-control"
+                                       value="<?php /*if (!empty($queryParams['perPageCount'])) {
+                                           echo $queryParams['perPageCount'];
+                                       } else {
+                                           echo 10;
+                                       } */?>">-->
+                                <button class="btn btn-default form-control" type="submit">查看</button>
+                            </form>
+                        </div>
+                    </div><!-- /.row -->
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <table width="100%" class="table table-striped table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>标签ID</th>
+                            <th>名称</th>
+                            <th>排序</th>
+                            <!--<th>创建时间</th>-->
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <form id="tagform" action="{:U('Admin/WebsiteConfig/deleteAuthor')}"
+                              class="form-inline">
+                            <foreach name="lists" item="tag" key="k">
+                                <tr>
+                                    <td>{$tag['id']}</td>
+                                    <td>{$tag['name']}</td>
+                                    <td>{$tag['sort']}</td>
+                                    <!--<td>{$tag['create_time']}</td>-->
+                                    <td>
+                                        <a href="{:U('Admin/Art/showEditTag',['id'=>$tag['id'],'type'=>$queryParams['type']])}">编辑</a>
+                                        <!-- <a href="{:U('Admin/WebsiteConfig/deleteImage',['id'=>$image['id']])}">删除</a>-->
+                                        <if condition="in_array ($queryParams['type'],[2,3,4]) ">
+                                            |&nbsp;<a href="#" onclick="return delete_comment(<?php echo $tag['id']; ?>,this)">删除</a>
+                                        </if>
+
+                                    </td>
+                                </tr>
+                            </foreach>
+                        </form>
+                        </tbody>
+                    </table>
+                    <!-- /.table-responsive -->
+                    <!-- TODO:page -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+    <script>
+        $(document).ready(function(){
+            /* $('#az-id-date-selector').datetimepicker({
+             format:'yyyy-mm-dd',
+             language:  'zh-CN',
+             weekStart: 1,
+             todayBtn:  1,
+             autoclose: 1,
+             todayHighlight: 1,
+             startView: 2,
+             minView: 2,
+             forceParse: 0
+             })*/
+
+            $('.number').bind('input propertychange', function() {
+                var re = /^0+$/;
+                var re1 = /^[0-9]/;
+                if (re.test($(this).val()) || $(this).val()<0 || !re1.test($(this).val())) {
+                    $(this).val('0');
+                }
+            });
+
+
+        });
+        function add() {
+            var type = $("#type").val();
+            var name = $("#name").val();
+
+            var check = true;
+            var message = "";
+            if ($.trim(type) == '') {
+                check = false;
+                message = message + "<li>类型不能为空</li>";
+            }
+            if ($.trim(name) == '') {
+                check = false;
+                message = message + "<li>标签名不能为空</li>";
+            }
+
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">" + message + "</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo U('Art/addTag');?>',
+                    data: $("#addform").serialize(),
+                    cache: false,
+                    dataType: 'json',
+                    error: function (data) {
+                        alert("error");
+                    },
+                    success: function (data) {
+                        //alert(data);
+                        if (data.error == 0) {
+                            $.prompt("添加成功！", {
+                                title: "提示",
+                                buttons: {"确定": true},
+                                submit: function (e, v, m, f) {
+                                    if (v == true) {
+                                        window.location.href = "tag?type="+type;
+                                    }
+                                }
+                            });
+
+                        } else {
+                            $.prompt("<span style=\" color:#F00\">" + data.message + "</span>", {
+                                title: "提示",
+                                buttons: {"确定": false}
+                            });
+                        }
+
+                    }
+                });
+                return false;
+            }
+        }
+
+        function delete_comment(id, obj) {
+            var type = $("#rightType").val();
+            $.prompt("确定删除？", {
+                title: "提示",
+                buttons: {"确定": true, "取消": false},
+                submit: function (e, v, m, f) {
+                    if (v == true) {
+                        $(obj).after("<img id='loading" + id + "' src='/Public/Admin/image/loading.gif' /> ");
+                        $.ajax({
+                            type: 'post',
+                            url: '<?php echo U('Admin/Art/deleteTag');?>',
+                            data: {"id": id, "type": type},
+                            cache: false,
+                            dataType: 'json',
+                            error: function (data) {
+                                alert("error");
+                            },
+                            success: function (data) {
+                                // alert(data);
+                                if (data.error == 0) {
+                                    $("#loading" + id).remove();
+                                    $(obj).parent().parent().remove();
+                                }
+
+                            }
+                        });
+                    } else {
+
+                    }
+                }
+            });
+
+            return false;
+        }
+    </script>
+</block>

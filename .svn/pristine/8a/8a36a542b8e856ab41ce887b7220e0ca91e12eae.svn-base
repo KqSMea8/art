@@ -1,0 +1,286 @@
+<?php
+
+namespace Mp\Controller;
+
+use Mp\Base\ApiBaseController;
+use Mp\Logic\ArtworkGoodsLogic;
+use Mp\Logic\ArtworkLogic;
+use Mp\Model\ArtworkModel;
+use Custom\Define\Code;
+use Custom\Helper\Util;
+use Custom\Manager\Token;
+use Custom\Helper\Checker;
+use Custom\Helper\Sms;
+use Mp\Logic\MessageLogic;
+
+
+/**艺术品商品
+ * Class ArtworkGoodsController
+ * @package Mp\Controller
+ */
+class ArtworkGoodsController
+{
+
+    /**
+     * 艺术品关联商品
+     */
+    public function relateGoods()
+    {
+        // 获取解密 首先检测ip地址是否合法
+      /*  if($_SERVER['REMOTE_ADDR']!=C('MALL_IP')){
+            Util::jsonReturn(null, Code::SYS_ERR,'System error!');
+        }*/
+
+        $postStr = trim(I('post.param',''));//请求参数json字符串
+        $dataStr = Util::des_decode($postStr);
+        $data = json_decode($dataStr,true);
+        $artworkId = empty($data['artworkId'])?'':$data['artworkId'];
+        $goodsId = empty($data['goodsId'])?'':$data['goodsId'];
+        $goodsType = empty($data['goodsType'])?0:intval($data['goodsType']);
+        $mallName = empty($data['mallName'])?'':trim($data['mallName']);
+        $status = empty($data['status'])?1:intval($data['status']);
+
+        if(empty($artworkId) || empty($goodsId)){
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误');
+        }
+
+        $artworkGoodsLogic = new ArtworkGoodsLogic();
+        $artworkGoods = $artworkGoodsLogic->where(['goods_id'=>$goodsId])->find();
+        if(empty($artworkGoods)){//添加
+            $data= [
+                'artwork_id'=>intval($artworkId),
+                'goods_id'=>intval($goodsId),
+                'goods_type'=>empty($goodsType)?0:intval($goodsType),
+                'mall_name'=>empty($mallName)?'':addslashes($mallName),
+                'status'=>empty($status)?1:intval($status),
+                'create_time'=>time(),
+            ];
+            $info = $artworkGoodsLogic->add($data);
+        }else{//修改
+            $data=[];
+            if(!empty($goodsType)){
+                $data['goods_type'] = intval($goodsType);
+            }
+            if(!empty($mallName)){
+                $data['mall_name'] = addslashes($mallName);
+            }
+            if(!empty($status)){
+                $data['status'] = intval($status);
+            }
+            $data['modify_time']=time();
+            $where=['goods_id' => intval($goodsId)];
+            $info = $artworkGoodsLogic->save($where,$data);
+        }
+
+
+        if ($info) {
+            Util::jsonReturn(['status' => 1000, 'info' => $info]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+    }
+
+    /**
+     * 获取艺术家可生成商品的艺术品列表
+     */
+    public function getArtworkList()
+    {
+        // 获取解密 首先检测ip地址是否合法
+      /*  if($_SERVER['REMOTE_ADDR']!=C('MALL_IP')){
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }*/
+
+        $artworkGoodsLogic = new ArtworkGoodsLogic();
+        $postStr = trim(I('post.param',''));//请求参数json字符串
+        $dataStr = Util::des_decode($postStr);
+        $data = json_decode($dataStr,true);
+        $artist = empty($data['artist'])?0:intval($data['artist']);
+        $artworkName = empty($data['artworkName'])?'':$data['artworkName'];
+        $goodsId = empty($data['goods_id'])?0:intval($data['goods_id']);//商品id
+        $page = empty($data['page'])?1:$data['page'];
+        $pagesize = empty($data['pagesize'])?5:$data['pagesize'];
+
+        $artModel = new ArtworkModel();
+
+        $where['is_deleted'] = 'N';
+        //$where['update_times'] = ['gt',0];
+        $where['state'] = 1;
+        $where['finish_percent'] = 100;
+        if(!empty($artist)){
+            $where['artist'] = $artist;
+            $goodsArr = M('artwork_goods')->field('artwork_id')->where(['goods_type'=>1488])->select();
+            $goodsArr = array_column($goodsArr,'artwork_id');
+            if(!empty($goodsArr)){
+                $where['id'] = ['not in',$goodsArr];
+            }
+        }
+        if(!empty($artworkName)){
+            $where['name'] = ['like',"%{$artworkName}%"];
+        }
+        if(!empty($goodsId)){//返回对应是商品关联的画作
+            $artid = M('artwork_goods')->field('artwork_id')->where(['goods_id'=>$goodsId])->find();
+            $where['id'] = $artid['artwork_id'];
+        }
+
+        $list = $artModel->field("id,name,update_times,finish_percent,cover,panorama_ids,topography_ids")
+            ->where($where)
+            ->page($page,$pagesize)
+            ->order("id desc")
+            ->select();
+
+        $total = $artModel->where($where)->count();
+
+        foreach ($list as $key => $value) {
+            //封面图》全景图》局部图
+            if (trim($value['cover']) != '') {
+                $cover = $value['cover'];
+            }elseif (trim($value['panorama_ids']) != '') {
+                $images = explode(',', $value['panorama_ids']);
+                $cover = $images[0];
+            }elseif (trim($value['topography_ids']) != '') {
+                $images = explode(',', $value['topography_ids']);
+                $cover = $images[0];
+            }
+            $list[$key]['cover'] = $cover;
+
+            //画作百分比
+            //计算画作属性百分比
+            $artworklogic = new ArtworkLogic();
+            $list[$key]['finish_percent'] = $artworklogic->getAttributePercent($value['id']);
+
+                //原作
+            $originalPaint = $artworkGoodsLogic->field('id')->where(['artwork_id'=>$value['id'],'goods_type'=>1488])->find();
+            //版画
+            $copyPainting = $artworkGoodsLogic->field('id')->where(['artwork_id'=>$value['id'],'goods_type'=>1483])->find();
+            $goodsStatus =4;
+            if(!empty($originalPaint) && !empty($copyPainting)){//3--关联了原作和版画
+                $goodsStatus =3;
+            }elseif(!empty($originalPaint)){//1--关联了原作
+                $goodsStatus =1;
+            }elseif(!empty($copyPainting)){//2--关联了版画
+                $goodsStatus =2;
+            }elseif(empty($originalPaint) && empty($copyPainting)){//4--没有关联原作和版画
+                $goodsStatus =4;
+            }
+
+            $goodsIds = $artworkGoodsLogic->field('goods_id')->where(['artwork_id'=>$value['id']])->select();
+            $list[$key]['goods_ids'] = implode(',',array_column($goodsIds, 'goods_id'));
+            $list[$key]['goods_status'] = $goodsStatus;//1--关联了原作  2--关联了版画  3--关联了原作和版画  4--没有关联原作和版画
+
+
+            unset($list[$key]['panorama_ids']);
+            unset($list[$key]['topography_ids']);
+        }
+
+        $maxpage = intval($total/$pagesize)+1;
+        $info =  [
+            'list' => empty($list) ? [] : array_values($list),
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$info]);
+    }
+
+
+
+
+    /**
+     * 商城端发送消息到app
+     */
+    public function sendMessage()
+    {
+        // 获取解密 首先检测ip地址是否合法
+        /*if($_SERVER['REMOTE_ADDR']!=C('MALL_IP')){
+            Util::jsonReturn(null, Code::SYS_ERR,'System error!');
+        }*/
+
+        // $this->checkLogin();
+        //$tokenInfo = Token::getTokenInfo($this->token);
+        //$userId = $tokenInfo['userInfo']['id'];
+        //----模拟提交参数
+       $postStr = Util::des_encode(json_encode(
+            [
+                'userId'=>112543,
+                'agreement'=>1,
+                'contactXinbie'=>'男',
+                'contactName'=>'ll',
+                'contactPhone'=>'15994752158',
+                'contactEmail'=>'1551393324@qq.com',
+                'accountNumber'=>'62220158467954521',
+                'bankName'=>'中国银行',
+                'shopName'=>'一幅画23',
+                'hopeLoginName'=>'lili',
+            ]));
+        $postStr = Util::des_encode(json_encode(
+            [
+                'artist'=>'',
+                'goods_id'=>'24',
+                'uid'=>0,
+
+            ]));
+        Util::jsonReturn(['status' => $postStr]);
+        //----模拟提交参数
+
+
+        $postStr = trim(I('post.param',''));//请求参数json字符串
+        $dataStr = Util::des_decode($postStr);
+        $data = json_decode($dataStr,true);
+        $userId = empty($data['userId'])?'':$data['userId'];//接收消息的用户
+        $content = empty($data['content'])?'':$data['content'];//发送内容
+
+
+        if(empty($userId) || empty($userId)){
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误');
+        }
+
+        $messageLogic = new MessageLogic();
+        $msg = $messageLogic->where([ 'content' => $content,'to_user_id' => $userId, 'type' => 8,])->find();
+        if(empty($msg)){
+            $id = $messageLogic->sendSysMessage($userId,$content);
+            //$id = $messageLogic->sendMessage($data['user'], $userId, $data['content'], $messageLogic->type['mallMessage'], MessageLogic::$showmsg, '', '', false, '', $data['topic_id']);
+            if ($id) {
+                Util::jsonReturn(['status' => 1000]);
+            } else {
+                Util::jsonReturn(null, Code::SYS_ERR);
+            }
+        }else{
+            Util::jsonReturn(null, Code::SYS_ERR, '已发送消息');
+        }
+
+    }
+
+
+    //发送短信
+    public function sendInformation()
+    {
+        try {
+            $mobile = Checker::mobile();
+            $code = addslashes(I('post.code', ''));
+            $debug = I('get.debug', 'off');//on or off
+            if ($debug === 'on') {
+                //S(Cache::VERIFY_CODE_PREFIX . $mobile, $randomCode, ['expire' => Time::VERIFY_CODE_EXPIRE_30_MIN]);
+                Util::jsonReturn(null, Code::SYS_OK, 'success', "$code");
+            }
+            $sendState = Sms::sendInformation($mobile, $code);
+            if ($sendState['state'] === 200) {
+                //S(Cache::VERIFY_CODE_PREFIX . $mobile, $randomCode, ['expire' => Time::VERIFY_CODE_EXPIRE_30_MIN]);
+                Util::jsonReturnSuccess();
+            } else {
+                throw  new Exception(var_export($sendState, true), -1);
+            }
+        } catch (Exception $e) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'Infomation send failed!', $e->getMessage());
+        }
+    }
+
+
+    /**
+     * 商城端发送消息到app
+     */
+    public function isIP()
+    {
+        Util::jsonReturn(null, Code::SYS_ERR, $_SERVER['REMOTE_ADDR']);
+    }
+}

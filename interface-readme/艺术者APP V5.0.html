@@ -1,0 +1,1007 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>艺术者APP V5.0</title>
+</head>
+<body>
+<div id="wmd-preview" class="wmd-preview"><div class="md-section-divider"></div><p data-anchor-id="ffv8"><div class="toc">
+<ul>
+<li><a href="#艺术者app-v50">艺术者APP V5.0</a><ul>
+<li><a href="#1-话题">1 话题</a><ul>
+<li><a href="#11-创建新话题">1.1 创建新话题</a></li>
+<li><a href="#12-获取包含关键字已存在的话题包含关键字的浏览量最多的20条话题">1.2 获取包含关键字已存在的话题（包含关键字的浏览量最多的20条话题）</a></li>
+<li><a href="#13-获取我关注的话题">1.3 获取我关注的话题</a></li>
+<li><a href="#14-获取热门话题">1.4 获取热门话题</a></li>
+<li><a href="#15-话题详情基本信息">1.5 话题详情基本信息</a></li>
+<li><a href="#16-话题详情讨论列表">1.6 话题详情讨论列表</a></li>
+<li><a href="#17-关注话题">1.7 关注话题</a></li>
+<li><a href="#18-取消关注话题">1.8 取消关注话题</a></li>
+<li><a href="#19-分享话题和话题讨论">1.9 分享话题和话题讨论</a></li>
+</ul>
+</li>
+<li><a href="#2-话题讨论">2 话题讨论</a><ul>
+<li><a href="#21-创建话题讨论">2.1 创建话题讨论</a></li>
+<li><a href="#22-讨论详情">2.2 讨论详情</a></li>
+<li><a href="#23-话题讨论点赞列表">2.3 话题讨论点赞列表</a></li>
+<li><a href="#24-话题讨论转发列表">2.4 话题讨论转发列表</a></li>
+<li><a href="#25-话题讨论评论列表">2.5 话题讨论评论列表</a></li>
+<li><a href="#26-话题讨论评论详情">2.6 话题讨论评论详情</a></li>
+<li><a href="#27-喜欢话题讨论">2.7 喜欢话题讨论</a></li>
+<li><a href="#28-取消喜欢话题讨论">2.8 取消喜欢话题讨论</a></li>
+<li><a href="#29-评论讨论">2.9 评论讨论</a></li>
+<li><a href="#210-回复评论">2.10 回复评论</a></li>
+<li><a href="#211-删除评论">2.11 删除评论</a></li>
+</ul>
+</li>
+<li><a href="#3-搜索">3 搜索</a><ul>
+<li><a href="#31-获取搜索页面的热搜关键字和搜索推荐">3.1 获取搜索页面的热搜关键字和搜索推荐</a></li>
+<li><a href="#32-获取搜索结果艺术家作品艺术号话题">3.2 获取搜索结果(艺术家、作品、艺术号、话题)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#艺术者app-v51">艺术者APP V5.1</a><ul>
+<li><a href="#1-画作">1 画作</a><ul>
+<li><a href="#11-评论列表">1.1 评论列表</a></li>
+</ul>
+</li>
+<li><a href="#2-艺术圈">2 艺术圈</a><ul>
+<li><a href="#11-艺术圈列表列表">1.1 艺术圈列表列表</a></li>
+</ul>
+</li>
+<li><a href="#3-话题">3 话题</a><ul>
+<li><a href="#31-话题详情讨论列表">3.1 话题详情讨论列表</a></li>
+<li><a href="#32-讨论详情">3.2 讨论详情</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</p><div class="md-section-divider"></div><h1 data-anchor-id="vtx4" id="艺术者app-v50">艺术者APP V5.0</h1><div class="md-section-divider"></div><h2 data-anchor-id="a78l" id="1-话题">1 话题</h2><div class="md-section-divider"></div><h3 data-anchor-id="h6g1" id="11-创建新话题">1.1 创建新话题</h3><blockquote data-anchor-id="9xxv" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V50/Topic/addTopic" target="_blank">http://test-api.artzhe.com/V50/Topic/addTopic</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="ixg2"><strong>请求参数列表</strong></p><table data-anchor-id="6kix" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>title</td>
+ <td style="text-align:center;">话题标题</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>content</td>
+ <td style="text-align:center;">话题背景</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+</tbody></table><p data-anchor-id="jyvh"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="3h10" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span><span class="com">//话题id</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"dedddd"</span><span class="com">//话题标题</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L1"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="ljsl" id="12-获取包含关键字已存在的话题包含关键字的浏览量最多的20条话题">1.2 获取包含关键字已存在的话题（包含关键字的浏览量最多的20条话题）</h3><blockquote data-anchor-id="rl34" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V50/Topic/getKeyTopic" target="_blank">http://test-api.artzhe.com/V50/Topic/getKeyTopic</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="8rjn"><strong>请求参数列表</strong></p><table data-anchor-id="2svn" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>title</td>
+ <td style="text-align:center;">话题标题</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="pey2"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="svfy" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span><span class="com">//话题id</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"dedddd"</span><span class="com">//话题标题</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="pun">},</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="9uax" id="13-获取我关注的话题">1.3 获取我关注的话题</h3><blockquote data-anchor-id="tuwt" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V50/Topic/getMyFollowTopic" target="_blank">http://test-api.artzhe.com/V50/Topic/getMyFollowTopic</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="l87s"><strong>请求参数列表</strong></p><table data-anchor-id="urni" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>page</td>
+ <td style="text-align:center;">当前页</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页记录数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="1at4"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="3ybg" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span><span class="com">//话题id</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"dedddd"</span><span class="com">//话题标题</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="pun">},</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="49ae" id="14-获取热门话题">1.4 获取热门话题</h3><blockquote data-anchor-id="zti6" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V50/Topic/getHotTopic" target="_blank">http://test-api.artzhe.com/V50/Topic/getHotTopic</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="636k"><strong>请求参数列表</strong></p><table data-anchor-id="reb7" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>page</td>
+ <td style="text-align:center;">当前页</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页记录数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="4eed"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="3cfr" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span><span class="com">//话题id</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"dedddd"</span><span class="com">//话题标题</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="pun">},</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="8j7w" id="15-话题详情基本信息">1.5 话题详情基本信息</h3><blockquote data-anchor-id="6ejm" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  app请求地址：<a href="https://test-api.artzhe.com/V50/Topic/getTopicDetail" target="_blank">https://test-api.artzhe.com/V50/Topic/getTopicDetail</a> <br>
+  h5请求地址：<a href="https://test-api.artzhe.com/V50/MobileGetH5/getTopicDetail" target="_blank">https://test-api.artzhe.com/V50/MobileGetH5/getTopicDetail</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="9d9p"><strong>请求参数列表</strong></p><table data-anchor-id="jofp" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+</tbody></table><p data-anchor-id="jbet"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="p61z" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//话题id</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"最爱"</span><span class="pun">,</span><span class="com">//话题标题</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">            </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"ttt"</span><span class="pun">,</span><span class="com">//话题背景</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"view_num"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"3"</span><span class="pun">,</span><span class="com">//话题浏览量</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/iosapp1500357868258091.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//用户头像</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">            </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"潇潇"</span><span class="pun">,</span><span class="com">//用户昵称</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">            </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span><span class="com">//1--男  2--女 3--未知</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">            </span><span class="str">"is_follow"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Y"</span><span class="com">//是否关注  Y--是   N--否</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">             </span><span class="str">"shareLink"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://test-m.artzhe.com/topic/detail/1"</span><span class="pun">,</span><span class="com">//分享链接</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L8"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="x7sa" id="16-话题详情讨论列表">1.6 话题详情讨论列表</h3><blockquote data-anchor-id="vd8o" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  app请求地址：<a href="https://dev-api.artzhe.com/V50/Topic/getTopicDiscuss" target="_blank">https://dev-api.artzhe.com/V50/Topic/getTopicDiscuss</a> <br>
+  h5请求地址：<a href="https://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscuss" target="_blank">https://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscuss</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="nhm5"><strong>请求参数列表</strong></p><table data-anchor-id="dqqh" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+<tr>
+ <td>type</td>
+ <td style="text-align:center;">讨论列表类型</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">hot</td>
+ <td style="text-align:center;">hot--热门，date--时间</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">页码</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页获取条数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+</tbody></table><p data-anchor-id="k1jt"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="jutz" style=""><ol class="linenums"><li class="L0"><code><span class="pun">{</span></code></li><li class="L1"><code><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code><span class="pln">            </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L5"><code><span class="pln">                </span><span class="pun">{</span></code></li><li class="L6"><code><span class="pln">                    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span><span class="com">//讨论id</span></code></li><li class="L7"><code><span class="pln">                    </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">'ddd,//讨论标题</span></code></li><li class="L8"><code><span class="str">                    "type": 1,//1--文本 2--图片 3--视频  4--文章（类似艺术号）</span></code></li><li class="L9"><code><span class="str">                    "is_top": 1,//是否置顶  1--是  0--否</span></code></li><li class="L0"><code><span class="str">                    "datetime": "2017-08-25",//创建时间</span></code></li><li class="L1"><code><span class="str">                    "like_count": 0,//喜欢数量</span></code></li><li class="L2"><code><span class="str">                    "isLike": 0,//是否喜欢 1--喜欢  0--不喜欢</span></code></li><li class="L3"><code><span class="str">                    "comment_count": 0,//评论数量</span></code></li><li class="L4"><code><span class="str">                    "share_count": 0,//分享数量</span></code></li><li class="L5"><code><span class="str">                    "userinfo": {//发表讨论者信息</span></code></li><li class="L6"><code><span class="str">                        "id": "111295",//用户id</span></code></li><li class="L7"><code><span class="str">                        "nickname": "lilygg",//用户昵称</span></code></li><li class="L8"><code><span class="str">                        "gender": 1,//1--男  2--女 3--未知</span></code></li><li class="L9"><code><span class="str">                        "faceUrl"://用户头像 "http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg",</span></code></li><li class="L0"><code><span class="str">                        "is_artist": 0,//是否是艺术家  1--是  0--不是</span></code></li><li class="L1"><code><span class="str">                        "is_agency": 0,//是否是机构  1--是  0--不是</span></code></li><li class="L2"><code><span class="str">                        "AgencyType": 0,//机构类型</span></code></li><li class="L3"><code><span class="str">                        "is_planner": 0,//是否是策展人  1--是  0--不是</span></code></li><li class="L4"><code><span class="str">                        "is_follow": "Y"//是否关注</span></code></li><li class="L5"><code><span class="str">                    },</span></code></li><li class="L6"><code><span class="str">                    "content": "3ddd",//描述文字</span></code></li><li class="L7"><code><span class="str">                    "thumbnails": [</span></code></li><li class="L8"><code><span class="str">                        "http://artzhe.oss-cn-shenzhen.aliyuncs.com/2017/10/23/18/4a3e21e05d8015a3b15dbe1e23291fb7.png?x-oss-process=image/resize,w_300,limit_0,image/format,jpg"//缩略图</span></code></li><li class="L9"><code><span class="str">                    ],</span></code></li><li class="L0"><code><span class="str">                    "images_url": [</span></code></li><li class="L1"><code><span class="str">                        "http://artzhe.oss-cn-shenzhen.aliyuncs.com/2017/10/23/18/4a3e21e05d8015a3b15dbe1e23291fb7.png?x-oss-process=image/auto-orient,1/watermark,image_dXBsb2Fkcy8yMDE3LzA2LzE0LzE0OTc0MTExMDg2MjkzODIucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLFBfMTU,t_50,g_se,x_10,y_10"//大图</span></code></li><li class="L2"><code><span class="str">                    ],</span></code></li><li class="L3"><code><span class="str">                    "video_poster": "",//视频封面</span></code></li><li class="L4"><code><span class="str">                    "video_url": "",//视频url</span></code></li><li class="L5"><code><span class="str">                    "shareLink": "https://test-m.artzhe.com/topicDiscuss/detail/1"</span></code></li><li class="L6"><code><span class="str">                }</span></code></li><li class="L7"><code><span class="str">            ],</span></code></li><li class="L8"><code><span class="str">            "page": 1,</span></code></li><li class="L9"><code><span class="str">            "total": "1",</span></code></li><li class="L0"><code><span class="str">            "pagesize": 20,</span></code></li><li class="L1"><code><span class="str">            "maxpage": 1</span></code></li><li class="L2"><code><span class="str">        }</span></code></li><li class="L3"><code><span class="str">    },</span></code></li><li class="L4"><code><span class="str">    "code": 30000,</span></code></li><li class="L5"><code><span class="str">    "message": "success",</span></code></li><li class="L6"><code><span class="str">    "debug": false</span></code></li><li class="L7"><code><span class="str">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="vsz9" id="17-关注话题">1.7 关注话题</h3><blockquote data-anchor-id="27zy" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V50/Topic/followTopic" target="_blank">http://test-api.artzhe.com/V50/Topic/followTopic</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="8w00"><strong>请求参数列表</strong></p><table data-anchor-id="0wqa" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="60jk"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="hsdm" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L7"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="6nrn" id="18-取消关注话题">1.8 取消关注话题</h3><blockquote data-anchor-id="pnyt" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V50/Topic/unfollowTopic" target="_blank">http://test-api.artzhe.com/V50/Topic/unfollowTopic</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="4qwd"><strong>请求参数列表</strong></p><table data-anchor-id="53xo" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="agsh"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="pjry" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L7"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="ar1v" id="19-分享话题和话题讨论">1.9 分享话题和话题讨论</h3><blockquote data-anchor-id="gnrz" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V50/Topic/addShare" target="_blank">http://test-api.artzhe.com/V50/Topic/addShare</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="qfi6"><strong>请求参数列表</strong></p><table data-anchor-id="0yje" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题id或讨论id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>type</td>
+ <td style="text-align:center;">id类型</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">topic</td>
+ <td style="text-align:center;">topic--话题  discuss--讨论</td>
+</tr>
+</tbody></table><p data-anchor-id="upja"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="q6jc" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L7"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h2 data-anchor-id="3kve" id="2-话题讨论">2 话题讨论</h2><div class="md-section-divider"></div><h3 data-anchor-id="ncok" id="21-创建话题讨论">2.1 创建话题讨论</h3><blockquote data-anchor-id="0r4q" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V50/Topic/addTopicDiscuss" target="_blank">http://test-api.artzhe.com/V50/Topic/addTopicDiscuss</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="4d9b"><strong>请求参数列表</strong></p><table data-anchor-id="ed1o" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>topic_id</td>
+ <td style="text-align:center;">话题id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>type</td>
+ <td style="text-align:center;">话题讨论类型</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">1--短文（类似艺术圈）  2--文章（类似艺术号）</td>
+</tr>
+<tr>
+ <td>title</td>
+ <td style="text-align:center;">文章标题</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否，type为2时传入</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>content</td>
+ <td style="text-align:center;">文章内容</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否，type为2时传入</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+<tr>
+ <td>desc</td>
+ <td style="text-align:center;">短文内容</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否，type为1时传入</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>images_url</td>
+ <td style="text-align:center;">短文图片</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否，type为1时传入</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>video_poster</td>
+ <td style="text-align:center;">短文视频封面</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否，type为1时传入</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>video_url</td>
+ <td style="text-align:center;">短文视频</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否，type为1时传入</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="5f1w"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="74ry" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L7"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="70m1" id="22-讨论详情">2.2 讨论详情</h3><blockquote data-anchor-id="cuu4" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V50/Topic/getTopicDiscussDetail" target="_blank">http://test-api.artzhe.com/V50/Topic/getTopicDiscussDetail</a> <br>
+  h5请求地址：<a href="https://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscussDetail" target="_blank">https://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscussDetail</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="36hn"><strong>请求参数列表</strong></p><table data-anchor-id="rkyk" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">讨论id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+</tbody></table><p data-anchor-id="lt08"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="xucn" style=""><ol class="linenums"><li class="L0"><code><span class="pun">{</span></code></li><li class="L1"><code><span class="pln">    </span><span class="str">"data"</span><span class="pln">      </span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code><span class="pln">    </span><span class="str">"status"</span><span class="pln">    </span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code><span class="pln">    </span><span class="str">"info"</span><span class="pln">      </span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code><span class="pln">    </span><span class="str">"id"</span><span class="pln">        </span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//讨论id</span></code></li><li class="L5"><code><span class="pln">    </span><span class="str">"type"</span><span class="pln">      </span><span class="pun">:</span><span class="pln"> </span><span class="str">"4"</span><span class="pun">,</span><span class="com">//1--文本 2--图片 3--视频  4--文章（类似艺术号）</span></code></li><li class="L6"><code><span class="pln">    </span><span class="str">"title"</span><span class="pln">     </span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//文章标题</span></code></li><li class="L7"><code><span class="pln">    </span><span class="str">"content"</span><span class="pln">   </span><span class="pun">:</span><span class="pln"> </span><span class="str">"帮一部小说配插图，画的都是有关儿时的记忆啊"</span><span class="pun">,</span><span class="com">//短文内容或文章内容</span></code></li><li class="L8"><code><span class="pln">    </span><span class="str">"thumbnails"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="com">//缩略图</span></code></li><li class="L9"><code><span class="pln">    </span><span class="str">"http       ://artzhe.oss-cn-shenzhen.aliyuncs.com/2017/10/23/18/4a3e21e05d8015a3b15dbe1e23291fb7.png?x-oss-process=image/resize,w_300,limit_0,image/format,jpg"</span></code></li><li class="L0"><code><span class="pln">            </span><span class="pun">],</span></code></li><li class="L1"><code><span class="pln">            </span><span class="str">"images_url"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="com">//原图</span></code></li><li class="L2"><code><span class="pln">            </span><span class="str">"http       ://artzhe.oss-cn-shenzhen.aliyuncs.com/2017/10/23/18/4a3e21e05d8015a3b15dbe1e23291fb7.png?x-oss-process=image/auto-orient,1/watermark,image_dXBsb2Fkcy8yMDE3LzA2LzE0LzE0OTc0MTExMDg2MjkzODIucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLFBfMTU,t_50,g_se,x_10,y_10"</span></code></li><li class="L3"><code><span class="pln">            </span><span class="pun">],</span></code></li><li class="L4"><code><span class="pln">            </span><span class="str">"video_poster"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//视频封面</span></code></li><li class="L5"><code><span class="pln">            </span><span class="str">"video_url"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//视频</span></code></li><li class="L6"><code><span class="pln">            </span><span class="str">"view_num"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"8"</span><span class="pun">,</span><span class="com">//浏览数</span></code></li><li class="L7"><code><span class="pln">            </span><span class="str">"like_num"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="com">//喜欢数</span></code></li><li class="L8"><code><span class="pln">            </span><span class="str">"comment_num"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="com">//评论数</span></code></li><li class="L9"><code><span class="pln">            </span><span class="str">"share_num"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="com">//转发数</span></code></li><li class="L0"><code><span class="pln">            </span><span class="str">"is_top"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//是否置顶 1--置顶  0--否</span></code></li><li class="L1"><code><span class="pln">            </span><span class="str">"datetime"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017-08-25"</span><span class="pun">,</span><span class="com">//时间</span></code></li><li class="L2"><code><span class="pln">            </span><span class="str">"topic"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span><span class="com">//相关话题</span></code></li><li class="L3"><code><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"3"</span><span class="pun">,</span><span class="com">//话题id</span></code></li><li class="L4"><code><span class="pln">                </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"最爱额画"</span><span class="com">//话题标题</span></code></li><li class="L5"><code><span class="pln">            </span><span class="pun">},</span></code></li><li class="L6"><code><span class="pln">            </span><span class="str">"userinfo"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span><span class="com">//用户信息</span></code></li><li class="L7"><code><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"111295"</span><span class="pun">,</span><span class="com">//用户id</span></code></li><li class="L8"><code><span class="pln">                </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"lilygg"</span><span class="pun">,</span><span class="com">//用户昵称</span></code></li><li class="L9"><code><span class="pln">                </span><span class="str">"faceUrl"</span><span class="pun">:</span><span class="com">//头像 "http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg",</span></code></li><li class="L0"><code><span class="pln">                </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//性别  1--男 2--女  3--未知</span></code></li><li class="L1"><code><span class="pln">                </span><span class="str">"is_artist"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span><span class="com">//是否是艺术家  1--是 0--否</span></code></li><li class="L2"><code><span class="pln">                </span><span class="str">"is_agency"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span><span class="com">//是否是机构  1--是 0--否</span></code></li><li class="L3"><code><span class="pln">                </span><span class="str">"AgencyType"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span><span class="com">//机构类型</span></code></li><li class="L4"><code><span class="pln">                </span><span class="str">"is_planner"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span><span class="com">//是否是策展人  1--是 0--否</span></code></li><li class="L5"><code><span class="pln">                </span><span class="str">"is_follow"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="com">//是否关注用户  Y--是 N--否</span></code></li><li class="L6"><code><span class="pln">            </span><span class="pun">},</span></code></li><li class="L7"><code><span class="pln">            </span><span class="str">"is_like"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="pun">,</span><span class="com">//是否喜欢讨论</span></code></li><li class="L8"><code><span class="pln">            </span><span class="str">"shareLink"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://test-m.artzhe.com/topic/detail/1"</span><span class="pun">,</span><span class="com">//分享链接</span></code></li><li class="L9"><code><span class="pln">            </span><span class="str">"shareContent"</span><span class="pun">:</span><span class="str">"ddddd"</span><span class="pun">,</span></code></li><li class="L0"><code><span class="pln">        </span><span class="pun">}</span></code></li><li class="L1"><code><span class="pln">    </span><span class="pun">},</span></code></li><li class="L2"><code><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L3"><code><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L4"><code><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L5"><code><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="5rik" id="23-话题讨论点赞列表">2.3 话题讨论点赞列表</h3><blockquote data-anchor-id="cooq" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V50/Topic/getTopicDiscussLike" target="_blank">http://test-api.artzhe.com/V50/Topic/getTopicDiscussLike</a> <br>
+  h5请求地址：<a href="http://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscussLike" target="_blank">http://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscussLike</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="ya5b"><strong>请求参数列表</strong></p><table data-anchor-id="nnty" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题讨论id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">页码</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页获取条数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+</tbody></table><p data-anchor-id="2jp8"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="4a95" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="pun">{</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"create_time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017-08-25"</span><span class="pun">,</span><span class="com">//时间</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"userid"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"111295"</span><span class="pun">,</span><span class="com">//用户id</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//用户头像</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"lilygg"</span><span class="pun">,</span><span class="com">//用户昵称</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="com">//用户性别  1--男  2--女  3--未知</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                </span><span class="pun">}</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="pun">],</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"page"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"total"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"pagesize"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">20</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">            </span><span class="str">"maxpage"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L2"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="byku" id="24-话题讨论转发列表">2.4 话题讨论转发列表</h3><blockquote data-anchor-id="8gba" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V50/Topic/getTopicDiscussShare" target="_blank">http://test-api.artzhe.com/V50/Topic/getTopicDiscussShare</a> <br>
+  h5请求地址：<a href="http://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscussShare" target="_blank">http://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscussShare</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="ijkv"><strong>请求参数列表</strong></p><table data-anchor-id="gkkx" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题讨论id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">页码</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页获取条数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+</tbody></table><p data-anchor-id="v2zg"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="8cn9" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="pun">{</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"create_time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017-08-25"</span><span class="pun">,</span><span class="com">//时间</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"userid"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"111295"</span><span class="pun">,</span><span class="com">//用户id</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//用户头像</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"lilygg"</span><span class="pun">,</span><span class="com">//用户昵称</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="com">//用户性别  1--男  2--女  3--未知</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                </span><span class="pun">}</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="pun">],</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"page"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"total"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"pagesize"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">20</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">            </span><span class="str">"maxpage"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L2"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="gp0r" id="25-话题讨论评论列表">2.5 话题讨论评论列表</h3><blockquote data-anchor-id="iekp" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V50/Topic/getTopicDiscussComment" target="_blank">http://test-api.artzhe.com/V50/Topic/getTopicDiscussComment</a> <br>
+  h5请求地址：<a href="http://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscussComment" target="_blank">http://test-api.artzhe.com/V50/MobileGetH5/getTopicDiscussComment</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="4avv"><strong>请求参数列表</strong></p><table data-anchor-id="jtkh" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题讨论id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">页码</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页获取条数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+</tbody></table><p data-anchor-id="azte"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="bq15" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="pun">{</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//评论id</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"dddd"</span><span class="pun">,</span><span class="com">//评论内容</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//评论状态  0删除 1正常</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"create_time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2018-11-30"</span><span class="pun">,</span><span class="com">//评论时间</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"isAllowDelete"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span><span class="com">//0--否  1-是</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                    </span><span class="str">"comment_num"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">3</span><span class="pun">,</span><span class="com">//子评论数量</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                    </span><span class="str">"list"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="com">//子评论</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                        </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                            </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"6"</span><span class="pun">,</span><span class="com">//子评论id</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                            </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"red2222ddd"</span><span class="pun">,</span><span class="com">//子评论内容</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                            </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//评论状态  0删除 1正常</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                            </span><span class="str">"create_time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2018-11-30"</span><span class="pun">,</span><span class="com">//子评论时间</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                            </span><span class="str">"isAllowDelete"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span><span class="com">//0--否  1-是</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                            </span><span class="str">"userid"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"111295"</span><span class="pun">,</span><span class="com">//子评论评论者id</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                            </span><span class="str">"comment_to"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"simao"</span><span class="pun">,</span><span class="com">//子评论被评论者id</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                            </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//子评论用户头像</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                            </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"lilygg"</span><span class="pun">,</span><span class="com">//子评论用户昵称</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                            </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="com">//子评论用户性别1--男  2--女  3--未知</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                        </span><span class="pun">},</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                    </span><span class="pun">],</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"userinfo"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                        </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//用户id</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                        </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//用户头像</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                        </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"simao"</span><span class="pun">,</span><span class="com">//用户昵称</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                        </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"3"</span><span class="com">//用户性别1--男  2--女  3--未知</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                    </span><span class="pun">}</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                </span><span class="pun">}</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="pun">],</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"page"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"total"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">            </span><span class="str">"pagesize"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">20</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"maxpage"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="bapg" id="26-话题讨论评论详情">2.6 话题讨论评论详情</h3><blockquote data-anchor-id="mnmx" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V50/Topic/getTopicDiscussCommentDetail" target="_blank">http://test-api.artzhe.com/V50/Topic/getTopicDiscussCommentDetail</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="7rm1"><strong>请求参数列表</strong></p><table data-anchor-id="hiv7" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题讨论评论id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="lcde"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="xnjx" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//评论id</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"dddd"</span><span class="pun">,</span><span class="com">//评论内容</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">            </span><span class="str">"create_time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2018-11-30"</span><span class="pun">,</span><span class="com">//评论时间</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"isAllowDelete"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span><span class="com">//0--否  1-是</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="str">"userid"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"100028"</span><span class="pun">,</span><span class="com">//评论用户id</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">            </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//评论用户头像</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">            </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"simao"</span><span class="pun">,</span><span class="com">//评论用户昵称</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">            </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"3"</span><span class="pun">,</span><span class="com">//评论用户性别1--男  2--女  3--未知</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="str">"list"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="com">//评论的下级评论</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"6"</span><span class="pun">,</span><span class="com">//下级评论id</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                    </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"red2222ddd"</span><span class="pun">,</span><span class="com">//下级评论内容</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"create_time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2018-11-30"</span><span class="pun">,</span><span class="com">//下级评论时间</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"isAllowDelete"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span><span class="com">//0--否  1-是</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"userid"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"111295"</span><span class="pun">,</span><span class="com">//下级评论评论者id</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"comment_to"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"simao"</span><span class="pun">,</span><span class="com">//子评论被评论者id</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg"</span><span class="pun">,</span><span class="com">//下级评论用户头像</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                    </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"lilygg"</span><span class="pun">,</span><span class="com">//下级评论用户昵称</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                    </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="com">//下级评论用户性别1--男  2--女  3--未知</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                </span><span class="pun">},</span></code></li><li class="L4"><code class="language-javascript"></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="pun">]</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L1"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="ki07" id="27-喜欢话题讨论">2.7 喜欢话题讨论</h3><blockquote data-anchor-id="a0fq" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V50/Topic/likeTopicDiscuss" target="_blank">http://test-api.artzhe.com/V50/Topic/likeTopicDiscuss</a> <br>
+  h5请求地址：<a href="http://test-api.artzhe.com/V50/MobileGetH5/likeTopicDiscuss" target="_blank">http://test-api.artzhe.com/V50/MobileGetH5/likeTopicDiscuss</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="4raq"><strong>请求参数列表</strong></p><table data-anchor-id="ipdc" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="o1cn"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="ajhy" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"faceurl"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg"</span><span class="com">//用户头像</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L8"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="5j1w" id="28-取消喜欢话题讨论">2.8 取消喜欢话题讨论</h3><blockquote data-anchor-id="pq59" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V50/Topic/unlikeTopicDiscuss" target="_blank">http://test-api.artzhe.com/V50/Topic/unlikeTopicDiscuss</a> <br>
+  h5请求地址：<a href="http://test-api.artzhe.com/V50/MobileGetH5/unlikeTopicDiscuss" target="_blank">http://test-api.artzhe.com/V50/MobileGetH5/unlikeTopicDiscuss</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="lvl7"><strong>请求参数列表</strong></p><table data-anchor-id="86o0" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="bsvg"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="lif1" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L7"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="f69p" id="29-评论讨论">2.9 评论讨论</h3><blockquote data-anchor-id="abuu" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V50/Topic/commentDiscuss" target="_blank">http://test-api.artzhe.com/V50/Topic/commentDiscuss</a> <br>
+  h5请求地址：<a href="http://test-api.artzhe.com/V50/MobileGetH5/commentDiscuss" target="_blank">http://test-api.artzhe.com/V50/MobileGetH5/commentDiscuss</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="p49o"><strong>请求参数列表</strong></p><table data-anchor-id="dqv9" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">讨论id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;"></td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>content</td>
+ <td style="text-align:center;">评论内容</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;"></td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="3mq6"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="5bvp" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"21"</span><span class="pun">,</span><span class="com">//评论id</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"commenter"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"gg"</span><span class="pun">,</span><span class="com">//评论者</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">            </span><span class="str">"commenter_user_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1111"</span><span class="pun">,</span><span class="com">//评论者id</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"comment_to"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//评论对象</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"tttttt4"</span><span class="pun">,</span><span class="com">//评论内容</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">            </span><span class="str">"datetime"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017-11-08 16:40:45"</span><span class="com">//评论时间</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span><span class="com">//其它非30000表示错误的情况</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L5"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="xxdr" id="210-回复评论">2.10 回复评论</h3><blockquote data-anchor-id="ylk0" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V50/Topic/replyComment" target="_blank">http://test-api.artzhe.com/V50/Topic/replyComment</a> <br>
+  h5请求地址：<a href="http://test-api.artzhe.com/V50/MobileGetH5/replyComment" target="_blank">http://test-api.artzhe.com/V50/MobileGetH5/replyComment</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="mi0r"><strong>请求参数列表</strong></p><table data-anchor-id="4yp6" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>commentId</td>
+ <td style="text-align:center;">要回复的评论ID</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;"></td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>content</td>
+ <td style="text-align:center;">内容</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;"></td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="foip"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="a8oh" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"22"</span><span class="pun">,</span><span class="com">//评论id</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"commenter"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"dd"</span><span class="pun">,</span><span class="com">//评论者</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">            </span><span class="str">"commenter_user_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1111"</span><span class="pun">,</span><span class="com">//评论者id</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="str">"comment_to"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"dd"</span><span class="pun">,</span><span class="com">//评论对象</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"tttttt4rr"</span><span class="pun">,</span><span class="com">//评论内容</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">            </span><span class="str">"datetime"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017-11-08 16:46:59"</span><span class="com">//评论时间</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span><span class="com">//其它非30000表示错误的情况</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L5"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="ka7n" id="211-删除评论">2.11 删除评论</h3><blockquote data-anchor-id="z14f" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：是 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V50/Topic/deleteComment" target="_blank">http://test-api.artzhe.com/V50/Topic/deleteComment</a> <br>
+  h5请求地址：<a href="http://test-api.artzhe.com/V50/MobileGetH5/deleteComment" target="_blank">http://test-api.artzhe.com/V50/MobileGetH5/deleteComment</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="oty4"><strong>请求参数列表</strong></p><table data-anchor-id="4ntf" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">评论id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;"></td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="y5yq"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="gj43" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"commentId"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"22"</span><span class="com">//评论id</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span><span class="com">//其它非30000表示错误的情况</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L8"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h2 data-anchor-id="x716" id="3-搜索">3 搜索</h2><div class="md-section-divider"></div><h3 data-anchor-id="pbdz" id="31-获取搜索页面的热搜关键字和搜索推荐">3.1 获取搜索页面的热搜关键字和搜索推荐</h3><blockquote data-anchor-id="7hq9" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V47/Search/getSearchKey" target="_blank">http://test-api.artzhe.com/V47/Search/getSearchKey</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="0ny0"><strong>请求参数列表</strong></p><table data-anchor-id="181i" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>name</td>
+ <td style="text-align:center;">关键字</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">有--搜索推荐  无--热搜关键字</td>
+</tr>
+</tbody></table><p data-anchor-id="207w"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="i7ot" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="com">//搜索关键字</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"画"</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"游记"</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L1"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="zbhm" id="32-获取搜索结果艺术家作品艺术号话题">3.2 获取搜索结果(艺术家、作品、艺术号、话题)</h3><blockquote data-anchor-id="0jfe" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  请求地址：<a href="http://test-api.artzhe.com/V47/Search/getSearchResult" target="_blank">http://test-api.artzhe.com/V47/Search/getSearchResult</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="39pf"><strong>请求参数列表</strong></p><table data-anchor-id="x7ol" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>name</td>
+ <td style="text-align:center;">关键字</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>type</td>
+ <td style="text-align:center;">类型</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">all--综合 artist--艺术家  artwork--作品  article--艺术号  topic--话题</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">当前页</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页记录数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="0wnn"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="v5un" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="com">//综合</span></code></li><li class="L1"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="pun">{</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                </span><span class="str">"type"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span><span class="com">//1--艺术家  2--作品  3--艺术号 4--话题</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"110628"</span><span class="pun">,</span><span class="com">//id</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"全富绘画"</span><span class="pun">,</span><span class="com">//艺术家昵称，作品名称，艺术号标题</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                </span><span class="str">"cover"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://wx.qlogo.cn/mmhead/Q3auHgzwzM6bHmZH2fqokribBtt87aVNlQ23oWXeQBf3aicyxtbrEeAg/0?x-oss-process=image/resize,m_fill,h_50,w_50,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//艺术家头像，作品封面，艺术号封面</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="com">//艺术家性别  1男2女3未知</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                </span><span class="str">"update_times"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//作品更新次数</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                </span><span class="str">"views"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"227"</span><span class="pun">,</span><span class="com">//艺术号浏览数</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"艺术者新闻号"</span><span class="pun">,</span><span class="com">//艺术号用户名称</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/common/avatar512.png?x-oss-process=image/resize,m_fill,h_50,w_50,limit_0,image/format,jpg"</span><span class="com">//艺术号用户头像</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="pun">}</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L1"><code class="language-javascript"><span class="pun">}</span></code></li><li class="L2"><code class="language-javascript"></code></li><li class="L3"><code class="language-javascript"><span class="com">//艺术家</span></code></li><li class="L4"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">            </span><span class="pun">{</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"110628"</span><span class="pun">,</span><span class="com">//艺术家id</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"全富绘画"</span><span class="pun">,</span><span class="com">//昵称</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://wx.qlogo.cn/mmhead/Q3auHgzwzM6bHmZH2fqokribBtt87aVNlQ23oWXeQBf3aicyxtbrEeAg/0?x-oss-process=image/resize,m_fill,h_50,w_50,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//头像</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//性别  1男2女3未知</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="pun">}</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L9"><code class="language-javascript"><span class="pun">}</span></code></li><li class="L0"><code class="language-javascript"></code></li><li class="L1"><code class="language-javascript"><span class="com">//作品</span></code></li><li class="L2"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">             </span><span class="pun">{</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"332"</span><span class="pun">,</span><span class="com">//作品id</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">" 《漂流者》原创油画 "</span><span class="pun">,</span><span class="com">//作品名称</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                </span><span class="str">"cover"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/uploads/2017-08-21/h4FScH5yFf.jpg?x-oss-process=image/resize,m_fill,h_50,w_50,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//作品封面  </span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                 </span><span class="str">"update_times"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="com">//更新次数</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">            </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L7"><code class="language-javascript"><span class="pun">}</span></code></li><li class="L8"><code class="language-javascript"></code></li><li class="L9"><code class="language-javascript"><span class="com">//艺术号</span></code></li><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">             </span><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"251"</span><span class="pun">,</span><span class="com">//艺术号id</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"艺趣 | 当世界名画动起来，根本停不下来！"</span><span class="pun">,</span><span class="com">//艺术号标题</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                </span><span class="str">"cover"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://artzhe.oss-cn-shenzhen.aliyuncs.com/article/auto/2017/11/10/07/0ucfIxd7/1436330453.png?x-oss-process=image/resize,m_fill,h_50,w_50,limit_0,image/format,jpg"</span><span class="pun">,</span><span class="com">//艺术号封面</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                </span><span class="str">"views"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"227"</span><span class="pun">,</span><span class="com">//浏览数</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"艺术者新闻号"</span><span class="pun">,</span><span class="com">//用户名称</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/common/avatar512.png?x-oss-process=image/resize,m_fill,h_50,w_50,limit_0,image/format,jpg"</span><span class="com">//用户头像</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">            </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L7"><code class="language-javascript"><span class="pun">}</span></code></li><li class="L8"><code class="language-javascript"></code></li><li class="L9"><code class="language-javascript"><span class="com">//话题</span></code></li><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">             </span><span class="pun">{</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"332"</span><span class="pun">,</span><span class="com">//话题id</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">" 《漂流者》原创油画 "</span><span class="pun">,</span><span class="com">//话题标题</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">            </span><span class="pun">},</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">        </span><span class="pun">]</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L3"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h1 data-anchor-id="n15p" id="艺术者app-v51">艺术者APP V5.1</h1><div class="md-section-divider"></div><h2 data-anchor-id="mrof" id="1-画作">1 画作</h2><div class="md-section-divider"></div><h3 data-anchor-id="9elz" id="11-评论列表">1.1 评论列表</h3><blockquote data-anchor-id="i434" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  请求地址：<a href="https://test-api.artzhe.com/V51/Artwork/getCommentList" target="_blank">https://test-api.artzhe.com/V51/Artwork/getCommentList</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="6ry9"><strong>返回说明</strong></p><blockquote data-anchor-id="tffa" class="white-blockquote">
+  <p>list添加返回参数： <br>
+  "type": "1"//1--画作评论  2--话题讨论评论 <br>
+  "topicInfo": {话题信息 <br>
+                          "id": "142", <br>
+                          "title": "雕塑" <br>
+                      }</p>
+</blockquote><p data-anchor-id="ap37"><strong>请求参数列表</strong></p><table data-anchor-id="awx3" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">画作id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>type</td>
+ <td style="text-align:center;">类型</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">1</td>
+ <td style="text-align:center;">1--画作评论  2--创作花絮评论</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">当前页</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页记录数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="yplc"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="bvsm" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"list"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                 </span><span class="pun">{</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"type"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span><span class="com">//1--画作评论  2--话题讨论评论</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"饿鬼"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"time"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"23小时前"</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"likes"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"artist"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"111550"</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                    </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"arta"</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                    </span><span class="str">"faceurl"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://tvax2.sinaimg.cn/crop.0.0.996.996.50/665b1c54ly8fh3pmo477vj20ro0roq5k.jpg"</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                    </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"3"</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                    </span><span class="str">"commentId"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"9357"</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                    </span><span class="str">"repayer"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"arta"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"repayContent"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"巡考"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"repayTime"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"23小时前"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"isLike"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Y"</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                     </span><span class="str">"topicInfo"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                        </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"142"</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                        </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"雕塑"</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                    </span><span class="pun">}</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                </span><span class="pun">}</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="pun">],</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"shareInfo"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                </span><span class="str">"name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"arta"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                </span><span class="str">"face"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://tvax2.sinaimg.cn/crop.0.0.996.996.50/665b1c54ly8fh3pmo477vj20ro0roq5k.jpg?x-oss-process=image/resize,m_fixed,h_180,w_180,P_10"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                </span><span class="str">"motto"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                </span><span class="str">"category"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"插画/工笔/雕塑"</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">            </span><span class="pun">},</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">            </span><span class="str">"page"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="str">"total"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"pagesize"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">10</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"maxpage"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"is_repay"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Y"</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L1"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h2 data-anchor-id="p9lh" id="2-艺术圈">2 艺术圈</h2><div class="md-section-divider"></div><h3 data-anchor-id="0hh9" id="11-艺术圈列表列表">1.1 艺术圈列表列表</h3><blockquote data-anchor-id="hae1" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  请求地址：<a href="https://test-api.artzhe.com/V51/ArtCircle/GetList" target="_blank">https://test-api.artzhe.com/V51/ArtCircle/GetList</a> 艺术圈列表 <br>
+  <a href="https://test-api.artzhe.com/V51/ArtCircle/userCirlelist" target="_blank">https://test-api.artzhe.com/V51/ArtCircle/userCirlelist</a> 个人艺术圈列表 <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="03gm"><strong>返回说明</strong></p><blockquote data-anchor-id="ct1t" class="white-blockquote">
+  <p>添加返回参数： <br>
+  type：新增type类型，数据使用share_link中的数据， 101 --同步话题   102--同步话题讨论   201--同步画作 <br>
+  修改topicInfo，以前是对象，现在是数组， <br>
+  "topicInfo": [ <br>
+                  { <br>
+                      "id": 143, <br>
+                      "title": "静物" <br>
+                  }, <br>
+              ],</p>
+</blockquote><p data-anchor-id="1406"><strong>请求参数列表</strong></p><table data-anchor-id="l7gy" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">画作id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>type</td>
+ <td style="text-align:center;">类型</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">1</td>
+ <td style="text-align:center;">1--画作评论  2--创作花絮评论</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">当前页</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页记录数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">否</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;">-</td>
+</tr>
+</tbody></table><p data-anchor-id="17d9"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="qott" style=""><ol class="linenums"><li class="L0"><code class="language-javascript"><span class="pun">{</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                </span><span class="pun">{</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1150</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"type"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">2</span><span class="pun">,</span><span class="com">//1:文本 2:图片 3:视频 11:分享作品 12:分享创作记录 13:分享艺术号文章 14:分享画廊   15:分享专题    16:分享话题  17：分享话题讨论  101：同步话题   102：同步话题讨论   201：同步画作</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"address"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"《二富贵花》"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"thumbnails"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                        </span><span class="str">"https://artzhe.oss-cn-shenzhen.aliyuncs.com/user/111/550/files/2019/01/4hdra0adac.jpg?x-oss-process=image/resize,m_fill,h_300,w_300,limit_0,image/format,jpg"</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                    </span><span class="pun">],</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                    </span><span class="str">"images_url"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                        </span><span class="str">"https://artzhe.oss-cn-shenzhen.aliyuncs.com/user/111/550/files/2019/01/4hdra0adac.jpg?x-oss-process=image/auto-orient,1/watermark,image_dXBsb2Fkcy8yMDE3LzA2LzE0LzE0OTc0MTExMDg2MjkzODIucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLFBfMTU,t_50,g_se,x_10,y_10"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                    </span><span class="pun">],</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                    </span><span class="str">"video_poster"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                    </span><span class="str">"video_url"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="str">"datetime"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2天前"</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"like_count"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"isLike"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                    </span><span class="str">"comment_count"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                    </span><span class="str">"isAllowDelete"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                    </span><span class="str">"userinfo"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                        </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"111550"</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                        </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"arta"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                        </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">3</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                        </span><span class="str">"faceUrl"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://tvax2.sinaimg.cn/crop.0.0.996.996.50/665b1c54ly8fh3pmo477vj20ro0roq5k.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                        </span><span class="str">"is_artist"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                        </span><span class="str">"is_agency"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                        </span><span class="str">"AgencyType"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                        </span><span class="str">"is_planner"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                    </span><span class="pun">},</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                    </span><span class="str">"share_link"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                        </span><span class="str">"type"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"artwork"</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                        </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"977"</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                        </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"《二富贵花》"</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                        </span><span class="str">"content"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"想回家卡罗拉"</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                        </span><span class="str">"thumbnail"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://artzhe.oss-cn-shenzhen.aliyuncs.com/user/111/550/files/2019/01/4hdra0adac.jpg?x-oss-process=image/resize,w_700,limit_0,image/format,jpg"</span><span class="pun">,</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                        </span><span class="str">"image_url"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://artzhe.oss-cn-shenzhen.aliyuncs.com/user/111/550/files/2019/01/4hdra0adac.jpg?x-oss-process=image/auto-orient,1/watermark,image_dXBsb2Fkcy8yMDE3LzA2LzE0LzE0OTc0MTExMDg2MjkzODIucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLFBfMTU,t_50,g_se,x_10,y_10"</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                        </span><span class="str">"thumbnails"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                            </span><span class="str">"https://artzhe.oss-cn-shenzhen.aliyuncs.com/user/111/550/files/2019/01/4hdra0adac.jpg?x-oss-process=image/resize,m_fill,h_300,w_300,limit_0,image/format,jpg"</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                        </span><span class="pun">],</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                        </span><span class="str">"image_urls"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                            </span><span class="str">"https://artzhe.oss-cn-shenzhen.aliyuncs.com/user/111/550/files/2019/01/4hdra0adac.jpg?x-oss-process=image/auto-orient,1/watermark,image_dXBsb2Fkcy8yMDE3LzA2LzE0LzE0OTc0MTExMDg2MjkzODIucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLFBfMTU,t_50,g_se,x_10,y_10"</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                        </span><span class="pun">],</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                        </span><span class="str">"video_poster"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                        </span><span class="str">"video_url"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                    </span><span class="pun">},</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                    </span><span class="str">"like_nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[],</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="str">"comment_list"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[],</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                    </span><span class="str">"artworkInfo"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">                        </span><span class="str">"artworkId"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">                        </span><span class="str">"artworkName"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">                    </span><span class="pun">},</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">                    </span><span class="str">"topicInfo"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">                        </span><span class="pun">{</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">                            </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">143</span><span class="pun">,</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">                            </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"静物"</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">                        </span><span class="pun">},</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">                    </span><span class="pun">],</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">                </span><span class="pun">},</span></code></li><li class="L2"><code class="language-javascript"><span class="pln">            </span><span class="pun">],</span></code></li><li class="L3"><code class="language-javascript"><span class="pln">            </span><span class="str">"page"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L4"><code class="language-javascript"><span class="pln">            </span><span class="str">"total"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"910"</span><span class="pun">,</span></code></li><li class="L5"><code class="language-javascript"><span class="pln">            </span><span class="str">"pagesize"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">20</span><span class="pun">,</span></code></li><li class="L6"><code class="language-javascript"><span class="pln">            </span><span class="str">"maxpage"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">46</span></code></li><li class="L7"><code class="language-javascript"><span class="pln">        </span><span class="pun">}</span></code></li><li class="L8"><code class="language-javascript"><span class="pln">    </span><span class="pun">},</span></code></li><li class="L9"><code class="language-javascript"><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L0"><code class="language-javascript"><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L1"><code class="language-javascript"><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L2"><code class="language-javascript"><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h2 data-anchor-id="px5m" id="3-话题">3 话题</h2><div class="md-section-divider"></div><h3 data-anchor-id="z2av" id="31-话题详情讨论列表">3.1 话题详情讨论列表</h3><blockquote data-anchor-id="nk8e" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  app请求地址：<a href="https://dev-api.artzhe.com/V51/Topic/getTopicDiscuss" target="_blank">https://dev-api.artzhe.com/V51/Topic/getTopicDiscuss</a> <br>
+  h5请求地址：<a href="https://test-api.artzhe.com/V51/MobileGetH5/getTopicDiscuss" target="_blank">https://test-api.artzhe.com/V51/MobileGetH5/getTopicDiscuss</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="6krx"><strong>返回说明</strong></p><blockquote data-anchor-id="uyy8" class="white-blockquote">
+  <p>添加返回参数： <br>
+  新增relation_info <br>
+   "relation_info": { <br>
+                          "type": "artwork",//关联类型：artwork--画作   artwork_update--花絮  art_article--艺术号  subject--专题 <br>
+                          "relation_id": "868",//对应id <br>
+                          "title": "《yuki's test》"//标题 <br>
+                      },</p>
+</blockquote><p data-anchor-id="d3w8"><strong>请求参数列表</strong></p><table data-anchor-id="2ij8" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">话题id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+<tr>
+ <td>type</td>
+ <td style="text-align:center;">讨论列表类型</td>
+ <td style="text-align:center;">string</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">hot</td>
+ <td style="text-align:center;">hot--热门，date--时间</td>
+</tr>
+<tr>
+ <td>page</td>
+ <td style="text-align:center;">页码</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+<tr>
+ <td>pagesize</td>
+ <td style="text-align:center;">每页获取条数</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+</tbody></table><p data-anchor-id="c5gj"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="ycg0" style=""><ol class="linenums"><li class="L0"><code><span class="pun">{</span></code></li><li class="L1"><code><span class="pln">    </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code><span class="pln">        </span><span class="str">"status"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code><span class="pln">        </span><span class="str">"info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code><span class="pln">            </span><span class="str">"data"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L5"><code><span class="pln">                </span><span class="pun">{</span></code></li><li class="L6"><code><span class="pln">                    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span><span class="com">//讨论id</span></code></li><li class="L7"><code><span class="pln">                    </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">'ddd,//讨论标题</span></code></li><li class="L8"><code><span class="str">                    "type": 1,//1--文本 2--图片 3--视频  4--文章（类似艺术号）</span></code></li><li class="L9"><code><span class="str">                    "is_top": 1,//是否置顶  1--是  0--否</span></code></li><li class="L0"><code><span class="str">                    "datetime": "2017-08-25",//创建时间</span></code></li><li class="L1"><code><span class="str">                    "like_count": 0,//喜欢数量</span></code></li><li class="L2"><code><span class="str">                    "isLike": 0,//是否喜欢 1--喜欢  0--不喜欢</span></code></li><li class="L3"><code><span class="str">                    "comment_count": 0,//评论数量</span></code></li><li class="L4"><code><span class="str">                    "share_count": 0,//分享数量</span></code></li><li class="L5"><code><span class="str">                    "userinfo": {//发表讨论者信息</span></code></li><li class="L6"><code><span class="str">                        "id": "111295",//用户id</span></code></li><li class="L7"><code><span class="str">                        "nickname": "lilygg",//用户昵称</span></code></li><li class="L8"><code><span class="str">                        "gender": 1,//1--男  2--女 3--未知</span></code></li><li class="L9"><code><span class="str">                        "faceUrl"://用户头像 "http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg",</span></code></li><li class="L0"><code><span class="str">                        "is_artist": 0,//是否是艺术家  1--是  0--不是</span></code></li><li class="L1"><code><span class="str">                        "is_agency": 0,//是否是机构  1--是  0--不是</span></code></li><li class="L2"><code><span class="str">                        "AgencyType": 0,//机构类型</span></code></li><li class="L3"><code><span class="str">                        "is_planner": 0,//是否是策展人  1--是  0--不是</span></code></li><li class="L4"><code><span class="str">                        "is_follow": "Y"//是否关注</span></code></li><li class="L5"><code><span class="str">                    },</span></code></li><li class="L6"><code><span class="str">                     "relation_info": {</span></code></li><li class="L7"><code><span class="str">                        "type": "artwork",//关联类型：artwork--画作   artwork_update--花絮  art_article--艺术号  subject--专题</span></code></li><li class="L8"><code><span class="str">                        "relation_id": "868",//对应id</span></code></li><li class="L9"><code><span class="str">                        "title": "《yuki'</span><span class="pln">s test</span><span class="pun">》</span><span class="str">"//标题</span></code></li><li class="L0"><code><span class="str">                    },</span></code></li><li class="L1"><code><span class="str">                    "</span><span class="pln">content</span><span class="str">": "</span><span class="lit">3ddd</span><span class="str">",//描述文字</span></code></li><li class="L2"><code><span class="str">                    "</span><span class="pln">thumbnails</span><span class="str">": [</span></code></li><li class="L3"><code><span class="str">                        "</span><span class="pln">http</span><span class="pun">:</span><span class="com">//artzhe.oss-cn-shenzhen.aliyuncs.com/2017/10/23/18/4a3e21e05d8015a3b15dbe1e23291fb7.png?x-oss-process=image/resize,w_300,limit_0,image/format,jpg"//缩略图</span></code></li><li class="L4"><code><span class="pln">                    </span><span class="pun">],</span></code></li><li class="L5"><code><span class="pln">                    </span><span class="str">"images_url"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span></code></li><li class="L6"><code><span class="pln">                        </span><span class="str">"http://artzhe.oss-cn-shenzhen.aliyuncs.com/2017/10/23/18/4a3e21e05d8015a3b15dbe1e23291fb7.png?x-oss-process=image/auto-orient,1/watermark,image_dXBsb2Fkcy8yMDE3LzA2LzE0LzE0OTc0MTExMDg2MjkzODIucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLFBfMTU,t_50,g_se,x_10,y_10"</span><span class="com">//大图</span></code></li><li class="L7"><code><span class="pln">                    </span><span class="pun">],</span></code></li><li class="L8"><code><span class="pln">                    </span><span class="str">"video_poster"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//视频封面</span></code></li><li class="L9"><code><span class="pln">                    </span><span class="str">"video_url"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//视频url</span></code></li><li class="L0"><code><span class="pln">                    </span><span class="str">"shareLink"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://test-m.artzhe.com/topicDiscuss/detail/1"</span></code></li><li class="L1"><code><span class="pln">                </span><span class="pun">}</span></code></li><li class="L2"><code><span class="pln">            </span><span class="pun">],</span></code></li><li class="L3"><code><span class="pln">            </span><span class="str">"page"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span><span class="pun">,</span></code></li><li class="L4"><code><span class="pln">            </span><span class="str">"total"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span></code></li><li class="L5"><code><span class="pln">            </span><span class="str">"pagesize"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">20</span><span class="pun">,</span></code></li><li class="L6"><code><span class="pln">            </span><span class="str">"maxpage"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1</span></code></li><li class="L7"><code><span class="pln">        </span><span class="pun">}</span></code></li><li class="L8"><code><span class="pln">    </span><span class="pun">},</span></code></li><li class="L9"><code><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L0"><code><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L1"><code><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L2"><code><span class="pun">}</span></code></li></ol></pre><div class="md-section-divider"></div><h3 data-anchor-id="pret" id="32-讨论详情">3.2 讨论详情</h3><blockquote data-anchor-id="c20h" class="white-blockquote">
+  <p>请求方法：POST <br>
+  需要登录：否 <br>
+  app请求地址：<a href="http://test-api.artzhe.com/V51/Topic/getTopicDiscussDetail" target="_blank">http://test-api.artzhe.com/V51/Topic/getTopicDiscussDetail</a> <br>
+  h5请求地址：<a href="https://test-api.artzhe.com/V51/MobileGetH5/getTopicDiscussDetail" target="_blank">https://test-api.artzhe.com/V51/MobileGetH5/getTopicDiscussDetail</a> <br>
+  需要token：是(GET方式传token)</p>
+</blockquote><p data-anchor-id="tmb6"><strong>返回说明</strong></p><blockquote data-anchor-id="9ps3" class="white-blockquote">
+  <p>添加返回参数： <br>
+  新增relation_info <br>
+   "relation_info": { <br>
+                          "type": "artwork",//关联类型：artwork--画作   artwork_update--花絮  art_article--艺术号  subject--专题 <br>
+                          "relation_id": "868",//对应id <br>
+                          "title": "《yuki's test》"//标题 <br>
+                      },</p>
+</blockquote><p data-anchor-id="swo8"><strong>请求参数列表</strong></p><table data-anchor-id="vvpk" class="table table-striped-white table-bordered">
+<thead>
+<tr>
+ <th>字段</th>
+ <th style="text-align:center;">字段描述</th>
+ <th style="text-align:center;">规格</th>
+ <th style="text-align:center;">必须</th>
+ <th style="text-align:center;">示例</th>
+ <th style="text-align:center;">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+ <td>id</td>
+ <td style="text-align:center;">讨论id</td>
+ <td style="text-align:center;">int</td>
+ <td style="text-align:center;">是</td>
+ <td style="text-align:center;">-</td>
+ <td style="text-align:center;"></td>
+</tr>
+</tbody></table><p data-anchor-id="1qfw"><strong>响应结果示例</strong></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="sjf2" style=""><ol class="linenums"><li class="L0"><code><span class="pun">{</span></code></li><li class="L1"><code><span class="pln">    </span><span class="str">"data"</span><span class="pln">      </span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L2"><code><span class="pln">    </span><span class="str">"status"</span><span class="pln">    </span><span class="pun">:</span><span class="pln"> </span><span class="lit">1000</span><span class="pun">,</span></code></li><li class="L3"><code><span class="pln">    </span><span class="str">"info"</span><span class="pln">      </span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L4"><code><span class="pln">    </span><span class="str">"id"</span><span class="pln">        </span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//讨论id</span></code></li><li class="L5"><code><span class="pln">    </span><span class="str">"type"</span><span class="pln">      </span><span class="pun">:</span><span class="pln"> </span><span class="str">"4"</span><span class="pun">,</span><span class="com">//1--文本 2--图片 3--视频  4--文章（类似艺术号）</span></code></li><li class="L6"><code><span class="pln">    </span><span class="str">"title"</span><span class="pln">     </span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//文章标题</span></code></li><li class="L7"><code><span class="pln">    </span><span class="str">"content"</span><span class="pln">   </span><span class="pun">:</span><span class="pln"> </span><span class="str">"帮一部小说配插图，画的都是有关儿时的记忆啊"</span><span class="pun">,</span><span class="com">//短文内容或文章内容</span></code></li><li class="L8"><code><span class="pln">    </span><span class="str">"relation_info"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span></code></li><li class="L9"><code><span class="pln">                        </span><span class="str">"type"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"artwork"</span><span class="pun">,</span><span class="com">//关联类型：artwork--画作   artwork_update--花絮  art_article--艺术号  subject--专题</span></code></li><li class="L0"><code><span class="pln">                        </span><span class="str">"relation_id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"868"</span><span class="pun">,</span><span class="com">//对应id</span></code></li><li class="L1"><code><span class="pln">                        </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"《yuki's test》"</span><span class="com">//标题</span></code></li><li class="L2"><code><span class="pln">                    </span><span class="pun">},</span></code></li><li class="L3"><code><span class="pln">    </span><span class="str">"thumbnails"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="com">//缩略图</span></code></li><li class="L4"><code><span class="pln">    </span><span class="str">"http       ://artzhe.oss-cn-shenzhen.aliyuncs.com/2017/10/23/18/4a3e21e05d8015a3b15dbe1e23291fb7.png?x-oss-process=image/resize,w_300,limit_0,image/format,jpg"</span></code></li><li class="L5"><code><span class="pln">            </span><span class="pun">],</span></code></li><li class="L6"><code><span class="pln">            </span><span class="str">"images_url"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="com">//原图</span></code></li><li class="L7"><code><span class="pln">            </span><span class="str">"http       ://artzhe.oss-cn-shenzhen.aliyuncs.com/2017/10/23/18/4a3e21e05d8015a3b15dbe1e23291fb7.png?x-oss-process=image/auto-orient,1/watermark,image_dXBsb2Fkcy8yMDE3LzA2LzE0LzE0OTc0MTExMDg2MjkzODIucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLFBfMTU,t_50,g_se,x_10,y_10"</span></code></li><li class="L8"><code><span class="pln">            </span><span class="pun">],</span></code></li><li class="L9"><code><span class="pln">            </span><span class="str">"video_poster"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//视频封面</span></code></li><li class="L0"><code><span class="pln">            </span><span class="str">"video_url"</span><span class="pun">:</span><span class="pln"> </span><span class="str">""</span><span class="pun">,</span><span class="com">//视频</span></code></li><li class="L1"><code><span class="pln">            </span><span class="str">"view_num"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"8"</span><span class="pun">,</span><span class="com">//浏览数</span></code></li><li class="L2"><code><span class="pln">            </span><span class="str">"like_num"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="com">//喜欢数</span></code></li><li class="L3"><code><span class="pln">            </span><span class="str">"comment_num"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="com">//评论数</span></code></li><li class="L4"><code><span class="pln">            </span><span class="str">"share_num"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"0"</span><span class="pun">,</span><span class="com">//转发数</span></code></li><li class="L5"><code><span class="pln">            </span><span class="str">"is_top"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//是否置顶 1--置顶  0--否</span></code></li><li class="L6"><code><span class="pln">            </span><span class="str">"datetime"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2017-08-25"</span><span class="pun">,</span><span class="com">//时间</span></code></li><li class="L7"><code><span class="pln">            </span><span class="str">"topic"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span><span class="com">//相关话题</span></code></li><li class="L8"><code><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"3"</span><span class="pun">,</span><span class="com">//话题id</span></code></li><li class="L9"><code><span class="pln">                </span><span class="str">"title"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"最爱额画"</span><span class="com">//话题标题</span></code></li><li class="L0"><code><span class="pln">            </span><span class="pun">},</span></code></li><li class="L1"><code><span class="pln">            </span><span class="str">"userinfo"</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span><span class="com">//用户信息</span></code></li><li class="L2"><code><span class="pln">                </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"111295"</span><span class="pun">,</span><span class="com">//用户id</span></code></li><li class="L3"><code><span class="pln">                </span><span class="str">"nickname"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"lilygg"</span><span class="pun">,</span><span class="com">//用户昵称</span></code></li><li class="L4"><code><span class="pln">                </span><span class="str">"faceUrl"</span><span class="pun">:</span><span class="com">//头像 "http://artzhe.oss-cn-shenzhen.aliyuncs.com/other/artzhe/user/android2017-08-30-165736-4m7ey8spvc.jpg?x-oss-process=image/resize,m_fill,h_180,w_180,limit_0,image/format,jpg",</span></code></li><li class="L5"><code><span class="pln">                </span><span class="str">"gender"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="com">//性别  1--男 2--女  3--未知</span></code></li><li class="L6"><code><span class="pln">                </span><span class="str">"is_artist"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span><span class="com">//是否是艺术家  1--是 0--否</span></code></li><li class="L7"><code><span class="pln">                </span><span class="str">"is_agency"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span><span class="com">//是否是机构  1--是 0--否</span></code></li><li class="L8"><code><span class="pln">                </span><span class="str">"AgencyType"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span><span class="com">//机构类型</span></code></li><li class="L9"><code><span class="pln">                </span><span class="str">"is_planner"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">0</span><span class="pun">,</span><span class="com">//是否是策展人  1--是 0--否</span></code></li><li class="L0"><code><span class="pln">                </span><span class="str">"is_follow"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="com">//是否关注用户  Y--是 N--否</span></code></li><li class="L1"><code><span class="pln">            </span><span class="pun">},</span></code></li><li class="L2"><code><span class="pln">            </span><span class="str">"is_like"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"N"</span><span class="pun">,</span><span class="com">//是否喜欢讨论</span></code></li><li class="L3"><code><span class="pln">            </span><span class="str">"shareLink"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"https://test-m.artzhe.com/topic/detail/1"</span><span class="pun">,</span><span class="com">//分享链接</span></code></li><li class="L4"><code><span class="pln">            </span><span class="str">"shareContent"</span><span class="pun">:</span><span class="str">"ddddd"</span><span class="pun">,</span></code></li><li class="L5"><code><span class="pln">        </span><span class="pun">}</span></code></li><li class="L6"><code><span class="pln">    </span><span class="pun">},</span></code></li><li class="L7"><code><span class="pln">    </span><span class="str">"code"</span><span class="pun">:</span><span class="pln"> </span><span class="lit">30000</span><span class="pun">,</span></code></li><li class="L8"><code><span class="pln">    </span><span class="str">"message"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"success"</span><span class="pun">,</span></code></li><li class="L9"><code><span class="pln">    </span><span class="str">"debug"</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">false</span></code></li><li class="L0"><code><span class="pun">}</span></code></li></ol></pre></div>
+</body>
+</html>

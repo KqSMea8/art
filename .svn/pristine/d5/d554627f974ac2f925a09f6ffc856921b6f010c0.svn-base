@@ -1,0 +1,9 @@
+<?php
+
+namespace V2\Model;
+
+use V2\Base\BaseModel;
+
+class PushLogModel extends BaseModel{
+    protected $tableName = 'push_log';
+}

@@ -1,0 +1,386 @@
+<?php
+namespace Admin\Controller;
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Oss;
+
+class WebsiteConfigController extends AdminBaseController
+{
+    //网站首页轮播图片列表
+    public function imageLunbo()
+    {
+        $image = M('website_lunbo_img');
+        $lists=$image->order("num asc")->select();
+        $this->assign('lists',$lists);
+        $this->display('image');
+    }
+
+    //网站首页轮播图片--添加页面展示
+    public function showAddImage()
+    {
+        $this->display('addImage');
+    }
+
+    //网站首页轮播图片--添加图片操作
+    public function addImage()
+    {
+        $description = addslashes(trim(I('post.description')));  //描述
+        $num = intval(I('post.num'));  //序号
+        if ($_FILES['picture']['error'] == 4) {
+            $response = ['error' => 2, 'message' => '没有上传图片'];
+            echo json_encode($response);
+        } else {
+            //处理上传图片
+            $imgbuff = file_get_contents($_FILES['picture']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'png');
+            $picture = $result['info']['url'];
+            $data = [
+                'url' => $picture,
+                'des' => $description,
+                'num' => $num,
+            ];
+            //插入数据，返回插入后的id
+            $insert_id = M('website_lunbo_img')->add($data);
+            if ($insert_id) {
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '添加失败，请重试'];
+                echo json_encode($response);
+            }
+        }
+    }
+
+    //网站首页轮播图片--删除图片操作
+    public function deleteImage()
+    {
+        $ids = I('post.id');
+
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+
+        $where['id'] = array('in',$ids);
+        $num = M('website_lunbo_img')->where($where)->delete();
+        $return=['error'=>0,'delete_num'=>$num];
+        echo json_encode($return);
+    }
+
+    //网站首页轮播图片--编辑页面显示
+    public function showEditImage()
+    {
+        $id = intval(I('get.id'));
+        $data = M('website_lunbo_img')->find($id);
+        $this->assign('data', $data);
+        $this->display('editImage');
+    }
+
+    //网站首页轮播图片--编辑图片操作
+    public function editImage()
+    {
+        $id = intval(I('post.id'));  //ID
+        $description = addslashes(trim(I('post.description','',false)));  //描述
+        $num = intval(I('post.num'));  //序号
+        if ($_FILES['picture']['error'] == 4) {
+            $data = [
+                'des' => $description,
+                'num' => $num,
+            ];
+        } else {
+            $imgbuff = file_get_contents($_FILES['picture']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'png');
+            $picture = $result['info']['url'];
+            $data = [
+                'url' => $picture,
+                'des' => $description,
+                'num' => $num,
+            ];
+        }
+        $where['id'] = $id;
+        $result = M('website_lunbo_img')->where($where)->save($data);  //更新记录
+        if (false !== $result) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+    }
+
+    //网站首页轮播艺术家列表
+    public function authorLunbo()
+    {
+        $author = M('website_lunbo_author');
+        $lists=$author->order("num asc")->select();
+        $this->assign('lists',$lists);
+        $this->display('author');
+    }
+
+    //网站首页轮播艺术家--添加页面展示
+    public function showAddAuthor()
+    {
+        $this->display('addAuthor');
+    }
+
+    //网站首页轮播艺术家--添加艺术家操作
+    public function addAuthor()
+    {
+        $name = addslashes(trim(I('post.name')));  //艺术家名称
+        $statement = addslashes(trim(I('post.statement')));  //艺术家简述
+        $num = intval(I('post.num'));  //序号
+        if ($_FILES['picture']['error'] == 4) {
+            $response = ['error' => 2, 'message' => '没有上传图片'];
+            echo json_encode($response);
+        } else {
+            //处理上传图片
+            $imgbuff = file_get_contents($_FILES['picture']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'png');
+            $picture = $result['info']['url'];
+            $data = [
+                'name' => $name,
+                'statement' => $statement,
+                'imgurl' => $picture,
+                'num' => $num,
+            ];
+            //插入数据，返回插入后的id
+            $insert_id = M('website_lunbo_author')->add($data);
+            if ($insert_id) {
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '添加失败，请重试'];
+                echo json_encode($response);
+            }
+        }
+    }
+
+    //网站首页轮播艺术家--删除艺术家操作
+    public function deleteAuthor()
+    {
+        $ids = I('post.id');
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+        $where['id'] = array('in',$ids);
+        $num = M('website_lunbo_author')->where($where)->delete();
+        $return=['error'=>0,'delete_num'=>$num];
+        echo json_encode($return);
+    }
+
+    //网站首页轮播艺术家--编辑页面显示
+    public function showEditAuthor()
+    {
+        $id = intval(I('get.id'));
+        $data = M('website_lunbo_author')->find($id);
+        $this->assign('data', $data);
+        $this->display('editAuthor');
+    }
+
+    //网站首页轮播艺术家--编辑艺术家操作
+    public function editAuthor()
+    {
+        $id = intval(I('post.id'));  //ID
+        $name = addslashes(trim(I('post.name','')));  //名称
+        $statement = addslashes(trim(I('post.statement','')));  //描述
+        $num = intval(I('post.num'));  //序号
+        if ($_FILES['picture']['error'] == 4) {
+            $data = [
+                'name' => $name,
+                'statement' => $statement,
+                'num' => $num,
+            ];
+        } else {
+            $imgbuff = file_get_contents($_FILES['picture']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'png');
+            $picture = $result['info']['url'];
+            $data = [
+                'name' => $name,
+                'statement' => $statement,
+                'imgurl' => $picture,
+                'num' => $num,
+            ];
+        }
+        $where['id'] = $id;
+        $result = M('website_lunbo_author')->where($where)->save($data);  //更新记录
+        if (false !== $result) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+    }
+
+
+    //网站最新动态列表
+    public function news()
+    {
+        $news = M('website_news');
+        $lists=$news->order("news_date desc")->select();
+        foreach ($lists as &$data) {
+            $data['view_total'] = 1 == $data['type']?$data['view_total']:'/';
+            $data['type'] = 1 == $data['type']?'内容':'链接';
+        }
+        $this->assign('lists',$lists);
+        $this->display('news');
+    }
+
+    //网站最新动态--添加页面展示
+    public function showAddNews()
+    {
+        $this->display('addNews');
+    }
+
+    //网站首页最新动态--添加动态
+    public function addNews()
+    {
+        $title = addslashes(trim(I('post.title')));  //标题
+        $newsDate = addslashes(trim(I('post.news_date')));  //新闻显示时间
+        $newsDate = empty($newsDate) ? time() : strtotime($newsDate);
+        $createtime = time();//数据创建时间
+        $type = intval(I('post.type'));  //类型
+       // $source = I('post.source');  //数据来源
+        if($type == 1){//内容
+            $content = addslashes(trim(I('post.content')));  //内容
+            $data = [
+                'title' => $title,
+                'content' => $content,
+                'news_date' => $newsDate,
+                'type' => $type,
+                'createtime' => $createtime,
+            ];
+        }else{//链接
+            $url = addslashes(trim(I('post.url')));  //链接
+            $data = [
+                'title' => $title,
+                'url' => $url,
+                'news_date' => $newsDate,
+                'type' => $type,
+                'createtime' => $createtime,
+            ];
+        }
+
+        //插入数据，返回插入后的id
+        $insert_id = M('website_news')->add($data);
+        if ($insert_id) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '添加失败，请重试'];
+            echo json_encode($response);
+        }
+    }
+
+    //网站最新动态--删除动态操作
+    public function deleteNews()
+    {
+        $ids = I('post.id');
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+        $where['id'] = array('in',$ids);
+        $num = M('website_news')->where($where)->delete();
+        $return=['error'=>0,'delete_num'=>$num];
+        echo json_encode($return);
+    }
+
+    //网站最新动态--编辑页面显示
+    public function showEditNews()
+    {
+        $id = intval(I('get.id'));
+        $data = M('website_news')->find($id);
+        $this->assign('data', $data);
+        $this->display('editNews');
+    }
+
+    //网站最新动态--编辑动态操作
+    public function editNews()
+    {
+        $id =intval( I('post.id'));  //ID
+        $title = addslashes(trim(I('post.title')));  //标题
+        $newsDate = addslashes(trim(I('post.news_date')));  //创建时间
+       // $source = addslashes(I('post.source'));  //数据来源
+        $newsDate = empty($newsDate) ? time() : strtotime($newsDate);
+        $createtime = time();//数据创建时间
+        $type = intval(I('post.type'));  //类型
+
+        if($type == 1){//内容
+            $content = addslashes(trim(I('post.content')));  //内容
+            $data = [
+                'title' => $title,
+                'content' => $content,
+                'news_date' => $newsDate,
+                'createtime' => $createtime,
+                'type' => $type,
+            ];
+        }else{//链接
+            $url = addslashes(trim(I('post.url')));  //链接
+            $data = [
+                'title' => $title,
+                'url' => $url,
+                'news_date' => $newsDate,
+                'createtime' => $createtime,
+                'type' => $type,
+            ];
+        }
+        $where['id'] = $id;
+        $result = M('website_news')->where($where)->save($data);  //更新记录
+        if (false !== $result) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+    }
+
+    //获取某个动态详情
+    public function getNewsDetail()
+    {
+        $id = intval(I('get.id'));  //获取艺术专题id
+        $data = M('website_news')->find($id);  //主题名称
+        $data['view_total'] = 1 == $data['type']?$data['view_total']:'/';
+        $this->assign('data', $data);
+        $this->display('getNewsDetail');
+    }
+
+
+    //编辑器上传图片
+    public function uploadpic()
+    {
+        //sleep(2);
+        if ($_FILES['image']['error'] != 4) {
+            $imgbuff = file_get_contents($_FILES['image']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'png');
+            $cover = $result['info']['url'];
+        }
+        echo "<script>top.$('.mce-btn.mce-open').parent().find('.mce-textbox').val('".$cover."').closest('.mce-window').find('.mce-primary').click();</script>";
+    }
+
+    //编辑器上传视频
+    public function uploadvideo()
+    {
+        if ($_FILES['image']['error'] != 4) {
+            $imgbuff = file_get_contents($_FILES['image']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'MP4');
+            $cover = $result['info']['url'];
+        }
+        echo "<script>top.$('.mce-btn.mce-open').parent().find('.mce-textbox').val('".$cover."').closest('.mce-window').find('.mce-primary').click();</script>";
+    }
+
+}

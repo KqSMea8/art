@@ -1,0 +1,11 @@
+<?php
+
+namespace V51\Model;
+
+
+use V51\Base\BaseModel;
+
+class ArticleModel extends BaseModel
+{
+    protected $tableName = 'article';
+}

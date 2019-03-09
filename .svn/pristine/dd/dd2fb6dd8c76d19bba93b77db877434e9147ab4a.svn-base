@@ -1,0 +1,47 @@
+html,body {
+  background-color: #f2f2f2;
+}
+h2 {
+  font-size: 0.5rem;
+  line-height: 2;
+  text-align: center;
+}
+.text:focus, .input:focus {
+  border-color: #f4ad23;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 0.08rem rgba(244,173,35,.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 0.08rem rgba(244,173,35,.6);
+}
+.message-form {
+  width: 100%;
+  padding: 0.24rem 0.32rem;
+  /*background-color: #fff;*/
+  /*border-top: 1px solid #eee;*/
+}
+.message-form .text {
+    width: 7.86667rem;
+}
+.message-form input {
+  width: 6.66667rem;
+  height: 0.8rem;
+  padding: 0.08rem 0.24rem;
+  font-size: 0.4rem;
+  line-height: 0.8rem;
+  color: #333;
+  border: none;
+  border-radius: 0.12rem;
+  background-color: #fff;
+}
+.btn-sm {
+  float: right;
+  display: inline-block;
+  width: 1.32rem;
+  height: 0.8rem;
+  font-size: 0.4rem;
+  line-height: 0.8rem;
+  text-align: center;
+  color: #141414;
+  background-color: #f4ad23;
+  border-radius: 0.08rem;
+  cursor: pointer;
+}

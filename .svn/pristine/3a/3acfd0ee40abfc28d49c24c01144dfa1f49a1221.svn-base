@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>个人资料</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/user.css">
+  </head>
+  <body>
+    <div class="user-profile" id="user-profile">
+      <ul class="user-pic">
+        <li class="item" @click="showDownload('如需修改头像，请在APP中修改')">
+          <a href="javascript:;">
+            <span class="title">头像</span>
+            <i class="icons icon-arrow"></i>
+            <img class="avatar" src="/Public/H5/image/user/avatar.png">
+          </a>
+        </li>
+        <li class="item" @click="showDownload('如需修改个人画廊封面，请在APP中修改')">
+          <a href="javascript:;">
+            <span class="title">个人画廊封面</span>
+            <i class="icons icon-arrow"></i>
+            <img class="pic" src="/Public/H5/image/user/avatar.png">
+          </a>
+        </li>
+      </ul>
+      <ul class="user-info">
+        <li class="item">
+          <a href="/H5/user/nickname">
+            <span class="title">昵称</span>
+            <i class="icons icon-arrow"></i>
+            <span class="desc ellipsis">Poon</span>
+          </a>
+        </li>
+        <li class="item" @click="showQrcode">
+          <span class="title">二维码</span>
+          <i class="icons icon-arrow"></i>
+          <i class="icons icon-qrcode desc"></i>
+        </li>
+        <li class="item" @click="showDownload('如需修改性别，请在APP中修改')">
+          <span class="title">性别</span>
+          <i class="icons icon-arrow"></i>
+          <i class="desc">保密</i>
+        </li>
+        <li class="item" @click="showDownload('如需修改生日，请在APP中修改')">
+          <a href="javascript:;">
+            <span class="title">生日</span>
+            <i class="icons icon-arrow"></i>
+            <!-- <input class="desc" type="date" name="birthday" value="1992/10/10"> -->
+            <span class="desc ellipsis">1990年10月30日</span>
+          </a>
+        </li>
+        <li class="item">
+          <a href="/H5/user/motto">
+            <span class="title">个性签名</span>
+            <i class="icons icon-arrow"></i>
+            <span class="desc ellipsis">享受每一天</span>
+          </a>
+        </li>
+        <li class="item">
+          <a href="/H5/user/intro">
+            <span class="title">个人介绍</span>
+            <i class="icons icon-arrow"></i>
+            <span class="desc ellipsis">2015年时尚时尚最时尚最时尚最时尚</span>
+          </a>
+        </li>
+      </ul>
+      <!-- 弹窗 -->
+      <div v-cloak v-show="boxIsShow" class="layerbox layermshow" id="j_layerShow">
+        <div @click="hideBox" class="layershade"></div>
+        <div class="layermain">
+          <div v-show="downloadIsShow" class="thirdLayerIn anim-scale download-box" id="download-app">
+            <h3 class="title">艺术者提示 <i @click="hideBox" class="icons icon-close"></i></h3>
+            <div class="content">
+              {{boxMsg}}
+            </div>
+            <div class="btn-group">
+              <input type="button" class="btn2 btn-down" value="下载艺术者APP">
+            </div>
+          </div>
+          <div v-show="qrcodeIsShow" class="thirdLayerIn anim-scale qrcode-box" id="qrcode-box">
+            <img class="logo" src="/Public/H5/image/logo-b.png">
+            <div id="qrcode"></div>
+            <p class="info">Poon的艺术画廊</p>
+            <input @click="getScreenShot" type="button" class="btn2" value="保存图片发送给好友">
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="/Public/H5/js/lib/vue.js"></script>
+  <script src="/Public/H5/js/lib/zepto.js"></script>
+  <script src="/Public/H5/js/lib/jweixin-1.0.0.js"></script>
+  <script src="/Public/H5/js/plugins/qrcode.min.js"></script>
+  <script src="/Public/H5/js/util.js"></script>
+  <script src="/Public/H5/js/user/userprofile.js"></script>
+
+</html>

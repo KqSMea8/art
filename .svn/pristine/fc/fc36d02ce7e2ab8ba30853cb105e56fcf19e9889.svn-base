@@ -1,0 +1,18 @@
+<?php
+
+namespace V32\Logic;
+
+
+use V32\Base\BaseLogic;
+use V32\Model\CommentModel;
+use V32\Model\CommentLikeModel;
+use V32\Logic\UserLogic;
+use V32\Logic\MessageLogic;
+use V32\Logic\ArtworkLogic;
+use V32\Logic\ArtworkUpdateLogic;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+
+class FeedbackLogic extends BaseLogic{
+
+}

@@ -1,0 +1,858 @@
+html, body {
+  height: 100%;
+}
+body {
+  background-color: #eee;
+}
+span {
+  display: inline-block;
+  vertical-align: middle;
+}
+.artist-content a {
+  color: #333;
+}
+#main {
+  margin-bottom: 1.33333rem;
+}
+.icons.icon-artist {
+  width: 0.48rem;
+  height: 0.48rem;
+  background-position: -0.29333rem -5.26667rem;
+}
+a {
+  vertical-align: middle;
+}
+
+/*个人信息*/
+.userinfo {
+  position: relative;
+  color: #666;
+  background-color: #fff;
+  box-shadow: 0 0.08rem 0.10667rem rgba(0,0,0,.15);
+}
+.userinfo a {
+  color: #666;
+}
+.userinfo .avatar {
+  position: absolute;
+  top: 0.24rem;
+  left: 0.33333rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  box-shadow: 0 0.08rem 0.13333rem rgba(0,0,0, .3);
+}
+.userinfo .detail,
+.userinfo .invite {
+  position: relative;
+  padding-left: 2.26667rem;
+  line-height: 1.5;
+}
+.userinfo .detail {
+  padding-top: 0.4rem;
+  padding-bottom: 0.2rem;
+}
+.userinfo .desc {
+  display: block;
+  font-size: 0.4rem;
+}
+.userinfo .nickname {
+  display: inline-block;
+  font-size: 0.48rem;
+  font-weight: 700;
+  vertical-align: middle;
+  color: #333;
+}
+.userinfo .artist,
+.userinfo .artist span {
+  display: inline-block;
+  vertical-align: middle;
+}
+.icons.icon-set {
+  position: absolute;
+  right: 0.42rem;
+  top: 0.46667rem;
+  width: 1.0rem;
+  height: 1.0rem;
+  background-position: -3.0rem -5.0rem;
+}
+.userinfo .invite {
+  padding-bottom: 0.26667rem;
+  padding-right: 0.6rem;
+}
+
+.userinfo .invite span {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0.32rem;
+}
+.icons.icon-question {
+  width: 0.48rem;
+  height: 0.48rem;
+  background-position: -1.28rem -5.26667rem;
+}
+.icons.icon-arrow {
+  float: right;
+  width: 0.48rem;
+  height: 0.48rem;
+  background-position: -2.33333rem -5.26667rem;
+}
+/*个人信息*/
+.appeal {
+  width: 9.36rem;
+  margin: 0 auto;
+  padding: 0 1.93333rem;
+  height: 0.8rem;
+  border-bottom: 2px solid #e6e6e6;
+}
+.appeal .btn-appeal {
+  display: inline-block;
+  font-size: 0.32rem;
+  line-height: 1;
+  padding: 0.13333rem;
+  color: #333;
+  background-color: #eee;
+  border-radius: 4px;
+}
+
+/* my-bar-list */
+.my-bar-list {
+  position: relative;
+  table-layout: fixed;
+  width: 100%;
+  padding-top: 0.16rem;
+}
+.my-bar-item {
+  position: relative;
+  display: table-cell;
+  width: 1%;
+  text-align: center;
+  vertical-align: middle;
+}
+.my-bar-item .icons {
+  position: relative;
+  margin: 0 auto;
+  width: 0.6rem;
+  height: 0.6rem;
+}
+.my-bar-item .icons,
+.my-bar-label {
+  display: block;
+  position: relative;
+}
+.my-bar-item .my-bar-label {
+  height: 0.64rem;
+  line-height: 0.64rem;
+  font-size: 0.32rem;
+  color: #666;
+}
+/*.my-bar-item.on .my-bar-label {
+  color: #edb22f;
+}*/
+.my-bar-item .icons.icon-follow {
+  background-position: -9.2rem -0.1rem;
+}
+
+.my-bar-item .icons.icon-like {
+  background-position: -7.18rem -0.1rem;
+}
+.my-bar-item .icons.icon-msg {
+  background-position: -6.18667rem -0.1rem;
+}
+
+/* my-bar-list end */
+
+/*欣赏者详情*/
+.go-enjoy {
+  position: relative;
+  margin: 4.46667rem 0.32rem 0;
+
+}
+.go-enjoy .btn-go-enjoy {
+  height: 1.17333rem;
+  line-height: 1.17333rem;
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #333;
+  box-shadow: none;
+}
+.go-enjoy .go-enjoy-info {
+  position: absolute;
+  top: -2.66667rem;
+  left: 50%;
+  margin-left: -2.93333rem;
+  padding: 0.24rem 0.32rem 0.4rem;
+  font-size: 0.4rem;
+  line-height: 1.5;
+  text-align: center;
+  background-color: #efc87d;
+  border-radius: 0.10667rem;
+}
+.go-enjoy-info::after {
+  content: '';
+  position: absolute;
+  bottom: -0.26667rem;
+  left: 0.77333rem;
+  margin-left: -0.12rem;
+  width: 0;
+  height: 0;
+  border-top: 0.26667rem solid #efc87d;
+  border-left: 0.17333rem solid transparent;
+  border-right: 0.17333rem solid transparent;
+}
+
+  /*欣赏着动态*/
+.trend {
+  position: relative;
+  margin-top: 0.26667rem;
+}
+.trend .list {
+  background-color: #fff;
+}
+.trend .list .item {
+  padding: 0.24rem 0.4rem;
+  border-bottom: 1px solid #ccc;
+}
+.trend .list .item:last-of-type {
+  border-bottom: none;
+}
+.trend .list .item .info {
+  height: 0.66667rem;
+}
+.trend .list .item .info,
+.trend .list .item .avatar,
+.trend .list .item .name,
+.trend .list .item .time {
+  line-height: 0.66667rem;
+  vertical-align: middle;
+}
+.trend .list .item .avatar {
+  width: 0.6rem;
+  height: 0.6rem;
+}
+.trend .list .item .name {
+  padding-left: 0.16rem;
+  font-size: 0.4rem;
+  color: #6fa4c3;
+
+}
+.trend .list .item .time {
+  float: right; 
+  font-size: 0.26667rem;
+  color: #999;
+}
+.trend .list .item .desc {
+  font-size: 0.4rem;
+  line-height: 1.8;
+  vertical-align: middle;
+  color: #666;
+}
+.trend .more {
+  margin-top: 0.66667rem;
+  text-align: center;
+  line-height: 0.48rem;
+  font-size: 0.32rem;
+  color: #74acc7;
+}
+.trend .more span {
+  line-height: 0.48rem;
+}
+.trend .more .icons.icon-arrow-two {
+  width: 0.48rem;
+  height: 0.48rem;
+  background-position: -6.28rem -5.17333rem;
+}
+
+
+  /*欣赏着动态 end*/
+
+/*欣赏者详情 end*/
+
+
+/*艺术家详情*/
+.artist-content {
+  margin-top: 0.26667rem;
+}
+.artist-content .item {
+  padding: 0 0.6rem 0 0.4rem;
+  width: 100%;
+  height: 1.33333rem;
+  line-height: 1.33333rem;
+  border-bottom: 1px solid #dedede;
+  background-color: #fff;
+}
+
+.artist-content .item:first-of-type {
+  margin-bottom: 0.2rem;
+}
+.artist-content .item:last-of-type {
+  border-bottom: none;
+}
+.artist-content .icons {
+  width: 0.66667rem;
+  height: 0.66667rem;
+}
+.artist-content .icons.icon-gallery {
+  background-position: -1.17333rem -0.16rem;
+}
+.artist-content .icons.icon-invite {
+  background-position: -5.2rem -0.1rem;
+}
+.artist-content .icons.icon-msg {
+  background-position: -6.18667rem -0.1rem;
+}
+.artist-content .icons.icon-like {
+  background-position: -7.18rem -0.1rem;
+}
+.artist-content .icons.icon-fans {
+  background-position: -8.18667rem -0.1rem;
+}
+.artist-content .icons.icon-follow {
+  background-position: -9.2rem -0.1rem;
+}
+.artist-content .icons.icon-arrow {
+  margin-top: 0.42667rem;
+  width: 0.48rem;
+  height: 0.48rem;
+  background-position: -2.33333rem -5.26667rem;
+}
+.artist-content .item .my {
+  display: inline-block;
+  padding-left: 0.26667rem;
+  font-size: 0.4rem;
+  line-height: 1.33333rem;
+  vertical-align: middle;
+}
+.artist-content .item .num {
+  float: right;
+  padding-right: 0.24rem;
+  font-size: 0.4rem;
+}
+
+/* 发布新作品按钮 */
+#add {
+  position: absolute;
+  bottom: 2.53333rem;
+  right: 0.53333rem;
+}
+#add .btn-add {
+  width: 1.33333rem;
+  height: 1.33333rem;
+  background-position: 0 -9.0rem;
+}
+#add .publish {
+  position: absolute;
+  right: 1.66rem;
+  top: -0.6rem;
+  padding: 0.16rem 0.4rem 0.16rem 0;
+  width: 5.33333rem;
+  font-size: 0.4rem;
+  text-align: right;
+  line-height: 0.64rem;
+  border-radius: 0.13333rem;
+  background-color: #efc87d;
+  -webkit-animation-duration: 3.5s;
+  animation-duration: 3.5s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+#add .publish::after {
+  content: '';
+  position: absolute;
+  bottom: 0.33333rem;
+  right: -0.2rem;
+  width: 0;
+  height: 0;
+  border-top: 0.16rem solid transparent;
+  border-left: 0.21333rem solid #efc87d;
+  border-bottom: 0.16rem solid transparent;
+}
+/* 发布新作品按钮 end */
+.upload {
+  position: absolute;
+  opacity: 0;
+  bottom: 1.41333rem;
+  right: 0.48rem;
+  padding: 0 0.32rem;
+  font-size: 0.32rem;
+  line-height: 0.72rem;
+  background-color: #efc87d;
+  border-radius: 4px;
+  animation-delay: 4s;
+  -webkit-animation-duration: 3.5s;
+  animation-duration: 3.5s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+.upload::after {
+  content: '';
+  position: fixed;
+  bottom: 1.30667rem;
+  left: 50%;
+  margin-left: -0.12rem;
+  width: 0;
+  height: 0;
+  border-top: 0.13333rem solid #efc87d;
+  border-left: 0.12rem solid transparent;
+  border-right: 0.12rem solid transparent;
+}
+
+
+/* 艺术家详情 end */
+
+
+/*设置*/
+.userset {
+
+}
+.set-list {
+  padding-top: 0.16rem;
+}
+.set-list .item {
+  padding: 0 0.4rem 0 0.4rem;
+  width: 100%;
+  height: 1.33333rem;
+  line-height: 1.33333rem;
+  border-bottom: 2px solid #dedede;
+  background-color: #fff;
+}
+.set-list .item:last-of-type {
+  border-bottom: none;
+}
+.set-list .icons {
+  width: 0.66667rem;
+  height: 0.66667rem;
+}
+.set-list .icons.icon-userinfo {
+  background-position: -0.16rem -4.2rem;
+}
+.set-list .icons.icon-pass{
+  background-position: -1.17333rem -4.2rem;
+}
+
+.set-list .icons.icon-arrow {
+  margin-top: 0.42667rem;
+}
+.set-list .item .title {
+  display: inline-block;
+  padding-left: 0.16rem;
+  font-size: 0.4rem;
+  color: #333;
+  line-height: 1.33333rem;
+  vertical-align: middle;
+}
+.userset .btn-quit {
+  margin-top: 4.93333rem;
+  height: 1.17333rem;
+  font-size: 0.48rem;
+  line-height: 1.17333rem;
+  vertical-align: middle;
+  text-align: center;
+  color: #c44a3b;
+  background-color: #fff;
+}
+/*设置 end*/
+
+/*我的消息*/
+.usermsg {
+  position: relative;
+}
+/*.usermsg .title {
+  padding: 0.24rem 0.53333rem;
+  line-height: 1;
+  font-size: 0.32rem;
+  color: #666;
+  background-color: #eee;
+}*/
+.usermsg .list {
+  background-color: #fff;
+}
+.usermsg .list .item {
+  padding: 0.24rem 0.4rem;
+  border-bottom: 1px solid #ccc;
+}
+.usermsg .list .item:last-of-type {
+  border-bottom: none;
+}
+.usermsg .list .item .info {
+  height: 0.66667rem;
+}
+.usermsg .list .item .info,
+.usermsg .list .item .avatar,
+.usermsg .list .item .name,
+.usermsg .list .item .time {
+  line-height: 0.66667rem;
+  vertical-align: middle;
+}
+.usermsg .list .item .avatar {
+  width: 0.6rem;
+  height: 0.6rem;
+}
+.usermsg .list .item .name {
+  padding-left: 0.16rem;
+  font-size: 0.4rem;
+  color: #6fa4c3;
+
+}
+.usermsg .list .item .time {
+  float: right; 
+  font-size: 0.26667rem;
+  color: #999;
+}
+.usermsg .list .item .desc {
+  font-size: 0.4rem;
+  line-height: 1.8;
+  vertical-align: middle;
+  color: #666;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden;
+}
+.usermsg .list .item.active .desc {
+  line-height: 1.5;
+  white-space: normal;
+}
+.usermsg .list .item .btn-reply {
+  display: none;
+  float: right;
+  margin-right: 0.32rem;
+  padding: 0.10667rem 0.26667rem;
+  font-size: 0.32rem;
+  line-height: 1;
+  border: 2px solid #777;
+  border-radius: 0.13333rem;
+}
+.usermsg .list .item.active .btn-reply {
+  display: block;
+}
+/*我的消息 end*/
+/*我的关注*/
+.user-follow {
+
+}
+.artist-info {
+  position: relative;
+  margin-bottom: 0.16rem;
+  color: #666;
+  background-color: #fff;
+}
+.artist-info .avatar {
+  position: absolute;
+  top: 0.24rem;
+  left: 0.33333rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  box-shadow: 0 0.08rem 0.13333rem rgba(0,0,0, .3);
+}
+.artist-info .detail,
+.artist-info .invite {
+  position: relative;
+  padding-left: 2.26667rem;
+  line-height: 1.5;
+}
+.artist-info .detail {
+  padding-top: 0.4rem;
+  padding-bottom: 0.53333rem;
+}
+.artist-info .desc {
+  display: block;
+  font-size: 0.32rem;
+}
+.artist-info .nickname {
+  display: inline-block;
+  font-size: 0.48rem;
+  font-weight: 700;
+  vertical-align: middle;
+  color: #333;
+}
+.artist-info .icons.icon-follow {
+  position: absolute;
+  right: 0.53333rem;
+  top: 0.46667rem;
+  width: 0.66667rem;
+  height: 0.66667rem;
+  background-position: -4.24rem -0.13333rem;
+}
+.artist-info .icons.icon-follow.icon-followed {
+  background-position: -4.24rem -1.13333rem;
+}
+/*我的关注 end*/
+
+/* 我的喜欢 */
+.user-like {
+  position: relative;
+}
+.user-like .item {
+  margin-top: 0.16rem;
+  padding: 0.16rem 0.33333rem 0.33333rem;
+  background-color: #fff;
+}
+.user-like .icons.icon-like {
+  float: right;
+  width: 0.53333rem;
+  height: 0.53333rem;
+  background-position: -5.24rem -5.24rem;
+}
+.user-like .icons.icon-like.icon-liked {
+  background-position: -5.24rem -6.24rem;
+}
+.user-like .pic {
+  float: left;
+  width: 1.33333rem;
+  height: 1.33333rem;
+  border-radius: 3px;
+}
+.user-like .group {
+  float: left;
+  margin-left: 0.21333rem;
+}
+.user-like .title,
+.user-like .name {
+  display: inline-block;
+  vertical-align: middle;
+}
+.user-like .title {
+  padding-left: 0.08rem;
+  margin: 0.13333rem;
+  max-width: 5rem;
+  line-height: 1;
+  font-size: 0.4rem;
+  border-left: 0.08rem solid #f5c729;
+}
+.user-like .title-row .icons {
+  margin-left: 0.26667rem;
+  width: 0.66667rem;
+  height: 0.66667rem;
+}
+.user-like .name-row {
+  margin-top: 0.16rem;
+}
+.user-like .name {
+  line-height: 1.5;
+  font-size: 0.32rem;
+
+}
+.user-like .desc {
+  margin-top: 0.26667rem;
+  padding: 0.08rem 0.13333rem;
+  font-size: 0.32rem;
+  line-height: 1.5;
+  background-color: #eee;
+  border-radius: 4px;
+}
+/* 我的喜欢 end */
+
+/*修改密码*/
+.modify-pass {
+  position: relative;
+  padding-top: 0.16rem;
+}
+
+.modify-pass .form-item {
+  margin-top: 0.16rem;
+}
+.modify-pass .form-item:first-of-type {
+  margin-top: 0;
+}
+.modify-pass .form-item:last-of-type {
+  margin: 4.90667rem 0.33333rem 0;
+}
+.modify-pass .input-box {
+  display: block;
+
+  padding: 0.4rem;
+  width: 100%;
+  font-size: 0.4rem;
+  line-height: 1;
+  border: none;
+}
+
+.modify-pass .btn.btn-complete {
+  font-weight: 700;
+}
+/*修改密码 end */
+
+/*个人资料*/
+
+.user-profile {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.user-profile .item {
+  padding: 0 0.4rem;
+  width: 100%;
+  vertical-align: middle;
+  border-bottom: 1px solid #dedede;
+  background-color: #fff;
+}
+.user-profile .icon.icon-arrow {
+  color: #999;
+}
+
+/*头像及封面*/
+.user-profile .user-pic .item {
+  padding: 0.2rem 0.4rem;
+  width: 100%;
+}
+.user-profile .item .avatar,
+.user-profile .item .pic {
+  float: right;
+  margin-right: 0.32rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  vertical-align: middle;
+}
+.user-profile .item .pic {
+  border-radius: 0.10667rem;
+}
+.user-profile .user-pic .item .title {
+  line-height: 1.6rem;
+}
+.user-profile .user-pic .icons.icon-arrow {
+  margin-top: 0.6rem;
+}
+
+/*头像及封面 end*/
+
+.user-profile .user-info {
+  margin-top: 0.16rem;
+}
+.user-profile .user-info .item {
+  height: 1.2rem;
+  line-height: 1.2rem;
+}
+.user-profile .user-info .desc {
+  float: right;
+  margin-right: 0.32rem;
+  max-width: 4.4rem;
+  font-size: 0.32rem;
+  vertical-align: middle;
+  color: #999;
+}
+.user-profile .user-info .icons.icon-qrcode {
+  margin-top: 0.13333rem;
+  margin-right: 0.08rem;
+  width: 1.0rem;
+  height: 1.0rem;
+  background-position: -7.0rem -5.0rem;
+}
+
+.user-profile .user-info .icons.icon-arrow {
+  margin-top: 0.4rem;
+}
+
+/*.user-profile .item:first-of-type {
+  margin-bottom: 0.2rem;
+}*/
+/*.user-profile .item:last-of-type {
+  border-bottom: none;
+}*/
+/*.user-profile .icon {
+  font-size: 0.53333rem;
+}*/
+
+.user-profile .item .title {
+  display: inline-block;
+  font-size: 0.4rem;
+  color: #333;
+  /*line-height: 1.33333rem;*/
+  vertical-align: top;
+}
+.qrcode-box.thirdLayerIn {
+  margin-top: -5.2rem;
+  margin-left: -3.33333rem;
+  padding: 0.48rem 0.29333rem;
+  width: 6.66667rem;
+  height: 10.4rem;
+  border-radius: 0.06667rem;
+  box-shadow: 0 0.06667rem 0.12rem rgba(0,0,0, 0.1);
+}
+.qrcode-box .logo {
+  display: block;
+  margin: 0.16rem auto;
+  width: 1.92rem;
+  height: 1.28rem;
+}
+#qrcode {
+  margin: 0.96rem auto 0.8rem;
+  width: 3.4rem;
+  height: 3.4rem;
+}
+.qrcode-box .info {
+  text-align: center;
+  font-size: 0.48rem;
+  font-weight: 700;
+  line-height: 0.96rem;
+}
+.qrcode-box .btn2 {
+  margin-top: 0.66667rem;
+  font-weight: 700;
+}
+
+/*个人资料 end*/
+
+/*昵称*/
+.user-nickname {
+  position: relative;
+  padding-top: 0.16rem;
+}
+
+.user-nickname .form-item {
+  margin-top: 0.16rem;
+}
+.user-nickname .form-item:first-of-type {
+  margin-top: 0;
+}
+.user-nickname .form-item:last-of-type {
+  margin: 4.90667rem 0.33333rem 0;
+}
+.user-nickname .input-box {
+  display: block;
+  padding: 0.4rem;
+  width: 100%;
+  font-size: 0.4rem;
+  line-height: 1;
+  border: none;
+}
+
+.user-nickname .btn.btn-complete {
+  font-weight: 700;
+}
+/*昵称 end */
+
+/*个人资料 end*/
+
+/*个性签名&个人介绍*/
+.user-signature {
+  position: relative;
+  padding-top: 0.16rem;
+}
+
+.user-signature .form-item {
+  margin-top: 0.16rem;
+}
+.user-signature .form-item:first-of-type {
+  margin-top: 0;
+}
+.user-signature .form-item:last-of-type {
+  margin: 0.64rem 0.33333rem 0;
+}
+.user-signature .input-area {
+  display: block;
+  padding: 0.4rem;
+  width: 100%;
+  height: 5.0rem;
+  font-size: 0.4rem;
+  line-height: 1.5;
+  border: none;
+}
+.user-intro .input-area {
+  height: 10.0rem;
+}
+.user-signature .btn.btn-complete {
+  font-weight: 700;
+}
+/*个性签名&个人介绍 end */
+
+
+

@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<!-- Bootstrap Core CSS -->
+    <link href="/Public/Admin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="/Public/Admin/vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+    <link href="/Public/Admin/vendor/Magnific-Popup/magnific-popup.css" rel="stylesheet">
+    <link href="/Public/Admin/vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/Public/Admin/dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/Public/Admin/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+<style type="text/css">
+body {
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	font-size:13px;
+}
+td {
+	padding:3px;
+}
+</style>
+</head>
+
+<body>
+<table width="850" border="1" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td colspan="9" style="text-align:center; "><span style="text-align:center; color:#00F; font-size:16px; font-weight:bold;">艺术者版画</span></td>
+    <td colspan="2" style="text-align:center; "><a href="{:U('ArtworkPrints/exportExcel')}?prints_id=<?php echo $prints_id?>" style="color:#00F; font-size:16px; font-weight:bold;"> 导出excel</a></td>
+  </tr>
+  <tr>
+    <td width="75">画作名称</td>
+    <td width="75">艺术家</td>
+    <td width="75">印刷年份</td>
+    <td width="108">印刷版次</td>
+    <td width="42">印刷数量</td>
+    <td width="139">艺术者-版画数量</td>
+    <td width="75">&nbsp;</td>
+    <td width="57">&nbsp;</td>
+    <td width="75">&nbsp;</td>
+    <td width="38">&nbsp;</td>
+    <td width="67">&nbsp;</td>
+  </tr>
+  <tr>
+    <td><?php echo htmlspecialchars($artwork_prints_info['art_name'])?></td>
+    <td><?php echo $artwork_prints_info['artist_name']?></td>
+    <td><?php echo $artwork_prints_info['print_year']?></td>
+    <td><?php echo $artwork_prints_info['print_version']?></td>
+    <td><?php echo $artwork_prints_info['print_total']?></td>
+    <td><?php echo $counts?></td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>编号</td>
+    <td>画作名称</td>
+    <td>艺术家</td>
+    <td>第N幅</td>
+    <td>形状</td>
+    <td>尺寸</td>
+    <td>销售状态</td>
+    <td>购买人</td>
+    <td>购买时间</td>
+    <td>价格</td>
+    <td>&nbsp;</td>
+  </tr>
+  <?php 
+  foreach ($artwork_prints_list as $key=>$value){
+	  if($value['shape']==1){
+                        $shape_t='方形';
+                        $size_t=$value['length'].'×'.$value['width'];
+                    }elseif($value['shape']==2){
+                        $shape_t='圆形';
+                        $size_t='直径:'.$value['diameter'];
+                    }
+					
+				
+  ?>
+  <tr>
+    <td><?php echo $value['serial_number'];?></td>
+    <td><?php echo htmlspecialchars($value['art_name']);?></td>
+    <td><?php echo $value['artist_name'];?></td>
+    <td><?php if($value['is_ap']==1){
+									echo 'A/P版';
+									if(trim($value['storage_address'])!='')echo '&nbsp;('.$value['storage_address'].')';
+									}else{
+										 echo $value['prints_number'];
+										 }?></td>
+    <td><?php echo $shape_t;?></td>
+    <td><?php echo $size_t;?></td>
+    <td <?php if($value['is_sold'] == 1)echo 'style=" color:#00F"';?>><?php echo $value['is_sold'] == 1 ? '已经出售' : '未出售'?></td>
+    <td><?php echo $value['is_sold'] == 1 ? $value['buyer'] : ''?></td>
+    <td><?php echo $value['is_sold'] == 1 ? date('Y-m-d', $value['buy_time']) : '';?></td>
+    <td><?php echo $value['is_sold'] == 1 ? $value['price'] : '';?></td>
+    <td>&nbsp;</td>
+  </tr>
+  <?php }?>
+</table>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<?php
+
+namespace Common\Logic;
+
+use Common\Base\BaseLogic;
+use Common\Logic\ArtworkLogic;
+use Common\Logic\UserLogic;
+use Common\Logic\ArtworkUpdateLogic;
+use Common\Logic\MessageLogic;
+use Common\Logic\RecommendLogic;
+use Custom\Define\Image;
+
+class ArtworkLikeLogic extends BaseLogic
+{
+    public function getList($userId, $page, $perPageCount,$type = '1')
+    {
+      $artLogic = new ArtworkLogic();
+      $artUpLogic = new ArtworkUpdateLogic();
+      $userLogic = new UserLogic();
+      $return = [];
+      $data = $this->model
+          ->where(['like_user_id'=>$userId, 'is_like'=>'Y'])
+          ->page($page, $perPageCount)
+          ->order('like_time DESC')
+          ->select();
+      foreach ($data as $key => $value) {
+        if($value['type'] == '2'){
+          $upInfo = $artUpLogic->find($value['artwork_id']);
+          $artInfo = $artLogic->find($upInfo['artwork_id']);
+        }elseif($value['type'] == '1'){
+          $artInfo = $artLogic->find($value['artwork_id']);
+        }
+        $return[] = [
+          'artworkId' => $artInfo['id'],
+          'coverUrl' => $artInfo['cover'],
+          'name' => $artInfo['name'],
+          'updateTimes' => $artInfo['update_times'],
+          'artistName' => $userLogic->getUserField('nickname',$artInfo['artist']),
+          'story' => $artInfo['story']
+        ];
+      }
+      return $return;
+    }
+    public function like($data,$type = 1){
+        $recommendLogic = new RecommendLogic();
+        $messageLogic = new MessageLogic();
+        if(empty($this->where(['type'=>$type,'artwork_id'=>$data['artwork_id'],'like_user_id'=>$data['like_user_id'],'is_like'=>'Y'])->find())){
+            $id = $this->add($data);
+            if($type == 1){
+                $artwork = new ArtworkLogic();
+                $artwork->where(['id'=>$data['artwork_id']])->setInc('like_total',1);
+                $messageLogic->like($data['like_user_id'],$data['artwork_id']);
+                $recommendLogic->toArtworklike($data['artwork_id'],$data['like_user_id']);
+            }elseif($type == 2){
+                $artwork = new ArtworkUpdateLogic();
+                $artwork->where(['id'=>$data['artwork_id']])->setInc('like_total',1);
+                $artId = $artwork->where(['id' => $data['artwork_id']])->getField('artwork_id');
+                $messageLogic->like($data['like_user_id'],$artId);
+            }
+            return $id;
+        }else{
+            return false;
+        }
+    }
+    public function saveUnlike($unlikeData,$type = 1)
+    {
+        $recommendLogic = new RecommendLogic();
+        $condition = ['artwork_id'=>$unlikeData['artwork_id'],'like_user_id'=>$unlikeData['like_user_id'],'is_like'=>'Y'];
+        if($type == 1){
+            $artwork = new ArtworkLogic();
+            $like_total = $artwork->where(['id'=>$unlikeData['artwork_id']])->getField('like_total');
+            if($like_total > 1){
+                $artwork->where(['id'=>$unlikeData['artwork_id']])->setDec('like_total',1);
+            }else{
+                $artwork->where(['id'=>$unlikeData['artwork_id']])->setField('like_total',0);
+            }
+
+            $recommendLogic->toArtworkunlike($unlikeData['artwork_id'],$unlikeData['like_user_id']);
+        }elseif($type == 2){
+            $artwork = new ArtworkUpdateLogic();
+            $like_total = $artwork->where(['id'=>$unlikeData['artwork_id']])->getField('like_total');
+            if($like_total > 1){
+                $artwork->where(['id'=>$unlikeData['artwork_id']])->setDec('like_total',1);
+            }else{
+                $artwork->where(['id'=>$unlikeData['artwork_id']])->setField('like_total',0);
+            }
+        }
+        return  $this->where($condition)->delete();
+    }
+    public function isLike($id,$type,$uid){
+      $info = $this->where(['artwork_id' => $id , 'like_user_id' => $uid ,'is_like' => 'Y'])->find();
+      return !empty($info) ? 'Y' : 'N';
+    }
+    public function total($id,$type){
+      return $this->where(['type'=>$type,'is_like' => 'Y','artwork_id' => $id])->count();
+    }
+    public function totalByUser($uid,$type){
+      return $this->where(['type'=>$type,'is_like' => 'Y','like_user_id' => $uid])->count();
+    }
+    public function getLikesByArtUpdate($upId,$field = ''){
+      $userLogic = new UserLogic();
+      if(empty($field)){
+        return $this->where(['type'=>2,'is_like' => 'Y','artwork_id' => $upId])->select();
+      }else{
+        $list = $this->where(['type'=>2,'is_like' => 'Y','artwork_id' => $upId])->select();
+        $fields = [];
+        foreach ($list as $key => $value) {
+          $userInfo = $userLogic->where(['id' => $value['like_user_id']])->find();
+          $fields[] = $userInfo[$field];
+        }
+        return $fields;
+      }
+    }
+}

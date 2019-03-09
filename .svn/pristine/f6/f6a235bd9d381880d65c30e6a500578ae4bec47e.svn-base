@@ -1,0 +1,16 @@
+<?php
+
+namespace V32\Model;
+
+
+use V32\Base\BaseModel;
+
+class ArtCircleBannerModel extends BaseModel
+{
+    protected $tableName = 'art_circle_banner';
+
+    public function getBanner(){
+        $image = $this->field('image')->order("id desc")->find();
+        return empty($image) ? '' : $image['image'];
+    }
+}

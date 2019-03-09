@@ -1,0 +1,79 @@
+// JavaScript Document
+//chenliang 
+//artzhe pop
+
+
+//例子
+//<a href="dd.html" id="artzhe_pop_link" artzhe_pop_data="artzhePopWidth=700&artzhePopheight=200">带宽高</a>
+//<a href="dd.html"  id="artzhe_pop_link">本站链接</a>
+//<a href="http://example.com"  id="artzhe_pop_link">外部链接</a> 
+
+
+jQuery.extend({
+	pop_width : '880',
+	pop_height : '460',
+    artzhePopIframe:function (iframe_src,width,height) {
+		body_width=document.documentElement.clientWidth
+		body_height=document.documentElement.clientHeight
+		width=width||this.pop_width;
+		height=height||this.pop_height;
+		
+		
+		//计算间距
+		float_left=(body_width-width)/2;
+		float_top=(body_height-height)/2;
+		
+		var iframe_style=' style="border:0px;width: '+width+'px; height:'+height+'px;"';
+        $("body").append('<div id="artzhe_pop_container"><div id="artzhe_pop_box"><div id="artzhe_pop_box_close"></div><div id="artzhe_pop_box_content"><iframe id="artzhePop_iframe" name="artzhePop_iframe" '+iframe_style+' src="'+iframe_src+'"></iframe> </div></div></div>');
+		$("#artzhe_pop_box").css({"width":width+"px","height":height+"px",'left':float_left+"px",'top':float_top+"px"});
+		
+		$("#artzhe_pop_box_close").click(function(){
+			  $.artzhePopClose();
+			  return false;
+			});
+			
+		$("#artzhe_pop_container").click(function(){
+			  $.artzhePopClose();
+			  return false;
+			});
+			
+		$("#artzhe_pop_box").click(function(){
+			  return false;
+			});
+    },
+    artzhePopMsg:function (msg,width,height) {
+    //
+	//...........
+	//
+    },
+	artzhePopBind:function () {
+		$("a[id='artzhe_pop_link']").each(function(){
+            var the_href=$(this).attr("href");
+			var artzhe_pop_data=$(this).attr("artzhe_pop_data");
+			var artzhePopWidth=$.artzheGetUrlParameter(artzhe_pop_data,'artzhePopWidth');
+			var artzhePopheight=$.artzheGetUrlParameter(artzhe_pop_data,'artzhePopheight');
+			$(this).click(function(){
+			  $.artzhePopIframe(the_href,artzhePopWidth,artzhePopheight);
+			  return false;
+			});
+		})
+	},
+	artzheGetUrlParameter: function(thelink,sParam){
+		var results = new RegExp('[\?&]' + sParam + '=([^&#]*)').exec(thelink);
+		if (results==null){
+		   return null;
+		}
+		else{
+		   return decodeURI(results[1]) || 0;
+		}
+	},
+	artzhePopClose:function (msg,width,height) {
+	 $("#artzhe_pop_container").remove();
+    }
+	
+});
+
+$(document).ready(function(){
+$.artzhePopBind();
+
+});

@@ -1,0 +1,11 @@
+<?php
+
+namespace Mp\Model;
+
+
+use Mp\Base\BaseModel;
+
+class ArtCircleShareModel extends BaseModel
+{
+    protected $tableName = 'art_circle_share';
+}

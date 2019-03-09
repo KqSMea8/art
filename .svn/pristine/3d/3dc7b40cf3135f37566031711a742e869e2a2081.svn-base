@@ -1,0 +1,17 @@
+<?php
+namespace Home\Controller;
+use Think\Controller;
+class AuthController extends Controller {
+    public function rule(){
+      $this->display();
+    }
+    public function first(){
+      $this->display();
+    }
+    public function second(){
+      $this->display();
+    }
+    public function third(){
+      $this->display();
+    }
+}

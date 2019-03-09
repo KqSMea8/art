@@ -1,0 +1,210 @@
+html, body {
+  height: 100%;
+}
+body {
+  background: #f4f4f4;
+}
+/*.icons.icon-status1 {
+  background-position: -4px -137px;
+}
+.icons.icon-status2 {
+  background-position: -51px -140px;
+}
+.icons.icon-status3 {
+  background-position: -97px -138px;
+}
+.icons.icon-status4 {
+  background-position: -144px -138px;
+}
+.icons.icon-status5 {
+  background-position: -189px -139px;
+}
+.icons.icon-status6 {
+  background-position: -235px -138px;
+}
+.icons.icon-status7 {
+  background-position: -279px -138px;
+}
+.icons.icon-status8 {
+  background-position: -372px -139px;
+}
+.icons.icon-status9 {
+  background-position: -372px -138px;
+}
+.icons.icon-statusmore {
+  background-position: -418px -139px;
+}*/
+
+.icons.icon-status0 {
+  background-position: -362px -342px;
+}
+/*更新次数为0，不显示icon*/
+.icons.icon-status0 {
+  background-position: 50px 50px;
+}
+.icons.icon-status1 {
+  background-position: -2px -342px;
+}
+.icons.icon-status2 {
+  background-position: -38px -342px;
+}
+.icons.icon-status3 {
+  background-position: -74px -342px;
+}
+.icons.icon-status4 {
+  background-position: -110px -342px;
+}
+.icons.icon-status5 {
+  background-position: -146px -342px;
+}
+.icons.icon-status6 {
+  background-position: -182px -342px;
+}
+.icons.icon-status7 {
+  background-position: -218px -342px;
+}
+.icons.icon-status8 {
+  background-position: -254px -342px;
+}
+.icons.icon-status9 {
+  background-position: -290px -342px;
+}
+.icons.icon-statusmore {
+  background-position: -326px -342px;
+}
+.upload-rImgStatu.finished{background-position: -398px -342px;}
+
+.icons.icon-edit{
+   background-position: -10px -186px;
+}
+
+.upload-right {
+  position: relative;
+  margin-left: 210px;
+  min-height: 760px;
+  padding-left: 20px;
+  overflow: hidden;
+}
+.upload-rH {
+  position: relative;
+  height: 55px;
+  line-height: 55px;
+  font-size: 16px;
+  color: #1a1a1a;
+  border-bottom: 1px solid #eee;
+}
+.upload-rH:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  border-bottom: 2px solid #ebac1a;
+
+}
+.upload-rCon li{
+  position: relative;
+  float: left;
+  width: 220px;
+  margin: 20px 20px 0 0;
+  box-shadow:3px 5px 20px rgba(0, 0, 0, .2);
+  transform: translateY(0px);
+  transition: transform .4s ease;
+}
+.upload-rCon li:hover {
+  transform: translateY(-5px);
+}
+.upload-rImg{
+  position: relative;
+  height: 140px;background-repeat: no-repeat;background-position: center;background-size: 100% auto}
+.upload-rImgmask{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,.2)
+}
+
+.upload-rImg .myself {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  font-size: 14px;
+  line-height: 30px;
+  color: #fff;
+  z-index: 5;
+} 
+.upload-rImg .icons.icon-myself {
+  width: 30px;
+  height: 30px;
+  vertical-align: top;
+  background-position: -365px -304px;
+}
+/*.upload-rImgStatu{display: inline-block;width: 30px;height: 30px;vertical-align: top;margin-top: -6px;margin-left:15px;}*/
+.upload-rImgStatu{
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  vertical-align: top;
+  margin-top: -2px;
+  margin-left:15px;
+}
+.upload-rImg h2{
+  position: absolute;
+  bottom:0px;
+  left:0px;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  font-size: 14px;
+  white-space: nowrap;
+  text-overflow:ellipsis;
+  color: #fff;
+  background-color: rgba(0,0,0,0.6);
+  z-index: 6;
+}
+.upload-rImg h2 > div{
+  display: inline-block;
+  margin-left: 10px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/*.upload-rImg h2:before{content:'';display: inline-block;width: 5px;margin-right: 6px;height:100%;vertical-align: top;background-color: #e9ab32;}*/
+.upload-rTxt{height: 80px;overflow: hidden; padding:6px 10px 0; font-size: 14px;line-height: 24px;color: #666;}
+.upload-rDate{
+  padding:20px 10px 14px; font-size: 14px;color: #999;}
+.upload-rEdit{position: absolute;width: 25px;height: 25px;right: 10px;bottom:10px;}
+.upload-page{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: right;
+  padding: 24px 50px 25px;
+}
+.upload-button {
+  position: absolute;
+  right: 20px;
+  top:7px;
+  padding: 0;
+  line-height: 40px;
+  height: 40px;
+  width: 160px;
+  color: #fff;
+}
+.upload-jump.is-plain{height: 28px;line-height: 28px; padding:0 6px;vertical-align: bottom;border-color: #b7b7b7;}
+.el-pagination__editor2{border-color: #b7b7b7;}
+.upload-page .btn-prev,.upload-page .btn-next{width: 30px;height: 30px;border-radius: 50%;border:1px solid #a9a9a9;}
+span.upload-num{font-size: 16px;color: #7b7b7b;text-align: center}
+
+  .el-loading-mask{background-color: transparent;}
+
+.mask{position: fixed;z-index: 10001; width: 100%;height: 100%;left: 0;top:0;background:rgba(0,0,0,.4);}
+.mask.zIndex{z-index: 10003}
+
+.alertSelect{position: fixed;z-index: 10004;background-color:#fff; width:736px;height: 456px;top:50%;left: 50%;transform: translate(-50%,-60%); text-align: center; }
+.alertSelect h2{height: 60px; line-height: 60px; font-size: 20px;color: #fff;background-color: #222;}
+.alertSelect p{padding:63px 0 150px 0; font-size: 24px;color: #444;}
+.alertCon .el-button{width: 227px;height: 47px;line-height: 47px;padding:0;}
+
+

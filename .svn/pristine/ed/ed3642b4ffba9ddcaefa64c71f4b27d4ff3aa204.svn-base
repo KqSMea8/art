@@ -1,0 +1,24 @@
+<?php
+
+namespace V40\Model;
+
+
+use V40\Base\BaseModel;
+
+class ArtCircleBannerModel extends BaseModel
+{
+    protected $tableName = 'art_circle_banner';
+
+    public function getBanner(){
+        $image = $this->field('image')->order("id desc")->find();
+        $time = time();
+        $where['up_time']=['elt',$time];
+        $where['down_time']=['gt',$time];
+        $image = $this->field('id,image,type,link')->where($where)->order("id desc")->find();
+        if(empty($image)){
+            $image = $this->field('id,image,type,link')->where(['down_time'=>['elt',$time]])->order("down_time desc")->find();
+        }
+        $image['link']=htmlspecialchars_decode($image['link']);
+        return empty($image) ? '' : $image['image'];
+    }
+}

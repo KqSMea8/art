@@ -1,0 +1,15 @@
+<?php
+
+namespace Common\Model;
+
+use Common\Base\BaseModel;
+
+class ArtworkStyleModel extends BaseModel
+{
+    protected $tableName = 'artwork_style';
+
+    public function getList(){
+        $list = $this->field('id,sort,cn_name as name')->order('sort asc')->select();
+        return empty($list) ? [] : $list;
+    }
+}

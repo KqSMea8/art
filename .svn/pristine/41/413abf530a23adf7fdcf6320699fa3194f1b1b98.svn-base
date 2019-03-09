@@ -1,0 +1,207 @@
+<?php
+namespace H5\Controller;
+
+use Custom\Helper\Util;
+use Think\Controller;
+
+//艺术品模块
+class ArtworkController extends Controller {
+
+	//列表
+	public function getData(){
+
+		$data = [
+					'list'=>[
+								[
+									'id'=>1,
+									'artist'=>[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'owner'=>	[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'category'=>[
+													['id'=>'1','name'=>'油画'],
+												],
+									'name'=>'愤怒的小鸟',
+									'length'=>200,
+									'width'=>200,
+									'cover'=>[
+												['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+											],
+									'panorama'=>[
+												['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+											],
+									'topography'=>[
+												['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+											],
+									'story'=>'愤怒的小鸟',
+									'subjects'=>[
+												['id'=>'1','name'=>'温暖'],
+												['id'=>'2','name'=>'快乐'],
+											],
+									'styles'=>[
+												['id'=>'1','name'=>'温暖'],
+												['id'=>'2','name'=>'快乐'],
+											],
+									'tags'=>[
+												['id'=>'1','name'=>'温暖'],
+												['id'=>'2','name'=>'快乐'],
+											],
+									'create_time'=>'2017-04-01 12:12',
+									'last_update_time'=>'2017-04-01 12:12',
+									'price'=>256,
+									'state'=>1,
+									'like_total'=>256,
+									'view_total'=>256,
+								],
+								[
+									'id'=>1,
+									'artist'=>[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'owner'=>	[
+												[
+													'id'=>'1',
+													'nickname'=>'油画',
+													'motto'=>'motto',
+													'gender'=>'gender',
+													'face'=>'face',
+													'level'=>'level',
+													'mp'=>'mp',
+												]
+											],
+									'category'=>[
+													['id'=>'1','name'=>'油画'],
+												],
+									'name'=>'愤怒的小鸟',
+									'length'=>200,
+									'width'=>200,
+									'cover'=>[
+												['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+											],
+									'panorama'=>[
+												['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+											],
+									'topography'=>[
+												['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+											],
+									'story'=>'愤怒的小鸟',
+									'subjects'=>[
+												['id'=>'1','name'=>'温暖'],
+												['id'=>'2','name'=>'快乐'],
+											],
+									'styles'=>[
+												['id'=>'1','name'=>'温暖'],
+												['id'=>'2','name'=>'快乐'],
+											],
+									'tags'=>[
+												['id'=>'1','name'=>'温暖'],
+												['id'=>'2','name'=>'快乐'],
+											],
+									'create_time'=>'2017-04-01 12:12',
+									'last_update_time'=>'2017-04-01 12:12',
+									'price'=>256,
+									'state'=>1,
+									'like_total'=>256,
+									'view_total'=>256,
+								],
+							],
+					'total'=>138,
+					'curpage'=>2,
+					'size'=>20,
+					'last'=>7,
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+	//详情
+	public function getInfo(){
+
+		$data = [
+					'id'=>1,
+					'artist'=>[
+								[
+									'id'=>'1',
+									'nickname'=>'油画',
+									'motto'=>'motto',
+									'gender'=>'gender',
+									'face'=>'face',
+									'level'=>'level',
+									'mp'=>'mp',
+								]
+							],
+					'owner'=>	[
+								[
+									'id'=>'1',
+									'nickname'=>'油画',
+									'motto'=>'motto',
+									'gender'=>'gender',
+									'face'=>'face',
+									'level'=>'level',
+									'mp'=>'mp',
+								]
+							],
+					'category'=>[
+									['id'=>'1','name'=>'油画'],
+								],
+					'name'=>'愤怒的小鸟',
+					'length'=>200,
+					'width'=>200,
+					'cover'=>[
+								['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+							],
+					'panorama'=>[
+								['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+							],
+					'topography'=>[
+								['id'=>10,'url'=>'https://www.artzhe.com/other/artzhe/user/android2017-03-07-103417-g308k9izjy.jpeg'],
+							],
+					'story'=>'愤怒的小鸟',
+					'subjects'=>[
+								['id'=>'1','name'=>'温暖'],
+								['id'=>'2','name'=>'快乐'],
+							],
+					'styles'=>[
+								['id'=>'1','name'=>'温暖'],
+								['id'=>'2','name'=>'快乐'],
+							],
+					'tags'=>[
+								['id'=>'1','name'=>'温暖'],
+								['id'=>'2','name'=>'快乐'],
+							],
+					'create_time'=>'2017-04-01 12:12',
+					'last_update_time'=>'2017-04-01 12:12',
+					'price'=>256,
+					'state'=>1,
+					'like_total'=>256,
+					'view_total'=>256,
+				];
+		Util::jsonReturn($data, 2000, 'ok');
+	}
+
+}

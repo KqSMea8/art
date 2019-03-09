@@ -1,0 +1,65 @@
+var vmUserFollow = new Vue({
+  el: '#user-follow',
+  data: {
+    isActive: false,
+    followList: [
+      {
+        "id":"1212",
+        "faceUrl":"https://artzhe.oss-cn-shenzhen.aliyuncs.com/test1.png",
+        "categoryNames":"油画；板画",
+        "motto":"个性签名",
+        "followTime":"关注者时间"
+      },
+      {
+        "id":"1213",
+        "faceUrl":"https://artzhe.oss-cn-shenzhen.aliyuncs.com/test1.png",
+        "categoryNames":"油画；板画",
+        "motto":"个性签名",
+        "followTime":"关注者时间"
+      },
+      {
+        "id":"1214",
+        "faceUrl":"https://artzhe.oss-cn-shenzhen.aliyuncs.com/test1.png",
+        "categoryNames":"油画；板画",
+        "motto":"个性签名",
+        "followTime":"关注者时间"
+      }
+    ],
+    boxIsShow: false,
+    msgBoxIsShow: false,
+    tempId: ''
+  },
+  methods: {
+    hideBox: function() {
+      this.boxIsShow = false;
+      this.msgBoxIsShow = false;
+    },
+    showMsgBox: function(id) {
+      this.tempId = id;
+      this.boxIsShow = true;
+      this.msgBoxIsShow = true;
+    },
+    confirm: function () {
+      // body...
+      var that = this;
+      this.boxIsShow = false;
+      this.msgBoxIsShow = false;
+      this.$nextTick(function () {
+        this.followList.forEach(function (item) {
+          if (item.id == that.tempId) {
+            Vue.set(item, "unfollow", true);
+          }
+        });
+      });
+    },
+    followArtist: function (id) {
+      this.$nextTick(function () {
+        this.followList.forEach(function (item) {
+          if (item.id == id) {
+            Vue.set(item, "unfollow", false);
+          }
+        });
+      });
+    }
+  }
+});

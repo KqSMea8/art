@@ -1,0 +1,30 @@
+var galleryNav = new Vue({
+  el: '#gallery-nav',
+  data: {
+    isActive: false,
+    current: 1,
+    tabs: [
+      {class: 'icon-printer-man', label: '男画家'},
+      {class: 'icon-printer', label: '看全部'},
+      {class: 'icon-printer-woman', label: '女画家'}
+    ],
+    tabContent: [
+      {cate: '全部', num: '340'},
+      {cate: '油画', num: '110'},
+      {cate: '水彩', num: '105'},
+      {cate: '素描', num: '109'},
+      {cate: '插画', num: '6'}
+    ]
+  },
+  methods: {
+    toggle: function () {
+      this.isActive = !this.isActive;
+    },
+    choosePrinter: function (index) {
+      this.current = index;
+    },
+    chooseCate: function (index) {
+      this.isActive = false;
+    }
+  }
+});

@@ -1,0 +1,139 @@
+<?php
+
+namespace Admin\Controller;
+
+use Admin\Logic\AdminLogic;
+use Common\Base\AdminBaseController;
+use Common\Logic\AssetsLogic;
+use Common\Model\PlannerModel;
+use Custom\Helper\Nav;
+use Custom\Helper\Util;
+use Common\Logic\PlannerLogic;
+use Common\Logic\MessageLogic;
+use Common\Logic\UserLogic;
+
+class PlannerController extends AdminBaseController
+{
+    public function index()
+    {
+        $page = I('get.page', 1);
+        $perPageCount = I('get.perPageCount', 10);
+        $status = I('get.verifyState',null);
+        $date = I('get.date',null);
+
+        $plannerLogic = new PlannerLogic();
+        $listInfo = $plannerLogic->getList($status, $date, $page, $perPageCount);
+        foreach ($listInfo['list'] as &$apply) {
+            $apply['addtime'] = date('Y-m-d H:i:s', $apply['addtime']);
+            $apply['status'] = PlannerModel::VERIFY_STATE_CN_LIST[$apply['status']];
+        }
+        $queryParams = [
+            'page'=>$page,
+            'perPageCount'=>$perPageCount,
+            'status'=>$status,
+            'date'=>$date
+        ];
+        $totalCount = $listInfo['total'];
+        $nav = Nav::render(U('Admin/Planner/index'), ['status'=>$status,], $page, $perPageCount, $totalCount);
+        $this->assign('applyList', $listInfo['list']);
+        $this->assign('nav', $nav);
+        $this->assign('queryParams', $queryParams);
+        $this->display('index');
+    }
+
+    //策划者详情
+    public function getPlannerDetail(){
+
+        $id = I('get.id');  //获取传过来的策划者id
+        $plannerLogic = new PlannerLogic();  //实例化机构模型
+        $detail = $plannerLogic->getDetail($id);  //根据策划者id获取详情
+
+        //处理身份证照片
+        $assetsLogic = new AssetsLogic();
+        $certImageIdList = explode(',', $detail['planner_image']);
+        $certImageUrlList = $assetsLogic->getUrlList($certImageIdList);
+        $process = 'image/resize,m_lfit,h_100,w_100';
+        foreach ($certImageUrlList as $certImageUrl) {
+            $certImageUrlMini = AssetsLogic::processImage($certImageUrl, $process);
+            $detail['certImageUrlListPair'][] = ['raw'=>$certImageUrl, 'mini'=>$certImageUrlMini];
+        }
+
+        //审核状态
+        $detail['verifyState'] = PlannerModel::VERIFY_STATE_CN_LIST[$detail['status']];
+
+        $this->assign('detail', $detail);
+        $this->display('detail');
+
+    }
+
+    public function update(){
+        $id = I('post.id',0);
+        $status = I('post.status',1);
+        if(empty($id)){
+            Util::jsonReturn([], 3000, '缺失参数');
+        }
+        $plannerLogic = new PlannerLogic();
+        $result = $plannerLogic->updateData($status,$id);
+        Util::jsonReturn($result, 2000, 'ok');
+    }
+
+    //审核功能
+    public function verify(){
+        if (!IS_POST) {
+            $this->error('错误的访问方式！');
+        }
+        $id = I('post.id');
+        if (!preg_match('/^\d+$/',$id)) {
+            $this->error("id参数不正确！");
+        }
+
+        //2 pass -1 not pass
+        $verifyState = I('post.verifyState');
+        $verifyMemo = I('post.verifyMemo');
+
+
+        if ($verifyState != -1 && $verifyState != 2) {
+            $this->error('审核状态没有变更！');
+        }
+
+        //获取机构详情
+        $plannerLogic = new PlannerLogic();
+        $plannerInfo = $plannerLogic->getDetail($id);
+        $messageLogic = new MessageLogic();
+        if (empty($plannerInfo)) {
+            $this->error("审核信息不存在！");
+        }
+
+        //判断提交的审核状态
+        if ($verifyState == -1) {
+            //改变审核信息
+            $plannerUpdateInfo = ['status'=>-1, 'memo'=>$verifyMemo, 'checktime'=>$_SERVER['REQUEST_TIME']];
+            $updateResult = $plannerLogic->update($plannerInfo['id'], $plannerUpdateInfo);
+            //$messageLogic->authFailed($plannerInfo['uid']);
+            $messageLogic->plannerAuthFailed($plannerInfo['uid']);
+            $this->redirect('Admin/Planner/getPlannerDetail',['id'=>$id], 3, '跳转中，请稍后');
+        }else if($verifyState == 2){
+            //改变审核信息
+            $plannerUpdateInfo = ['status'=>2, 'memo'=>$verifyMemo, 'checktime'=>$_SERVER['REQUEST_TIME']];
+            $updateResult = $plannerLogic->update($plannerInfo['id'], $plannerUpdateInfo);
+
+
+
+            $userLogic = new UserLogic();
+            $the_user_info=$userLogic->where(['id'=>$plannerInfo['uid']])->find();
+            //$role=$the_user_info['role'];
+            $role=role_str_add($the_user_info['role'],'planner');//添加planner角色
+            $updateUserInfo = [
+                'role'=>$role,
+            ];
+            $userUpdateResult =$userLogic->update($plannerInfo['uid'], $updateUserInfo);
+
+
+            //$messageLogic->authSuccess($plannerInfo['uid']);
+            $messageLogic->plannerAuthSuccess($plannerInfo['uid']);
+            $this->redirect('Admin/Planner/getPlannerDetail',['id'=>$id], 3, '跳转中，请稍后');
+        }else{
+            $this->error('!');
+        }
+    }
+}

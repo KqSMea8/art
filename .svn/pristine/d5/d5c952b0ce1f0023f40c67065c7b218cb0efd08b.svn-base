@@ -1,0 +1,873 @@
+<?php
+
+namespace V32\Controller;
+
+use V32\Base\ApiBaseController;
+use V32\Logic\AgencyLogic;
+use V32\Logic\ArtistApplyLogic;
+use V32\Logic\ArtworkLikeLogic;
+use V32\Logic\AssetsLogic;
+use V32\Logic\GalleryLogic;
+use V32\Logic\InviteLogLogic;
+use V32\Logic\MessageLogic;
+use V32\Logic\PlannerLogic;
+use V32\Logic\UserFollowerLogic;
+use V32\Logic\ArtworkCategoryLogic;
+use V32\Logic\ArtworkLogic;
+use V32\Logic\UserLogic;
+use V32\Model\UserModel;
+use V32\Model\ArtworkModel;
+use V32\Model\ArtworkCategoryModel;
+use Custom\Define\Cache;
+use Custom\Define\Code;
+use Custom\Define\Image;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Manager\Token;
+use V32\Logic\ArticleLogic;
+
+//my profile
+class UserCenterController extends ApiBaseController
+{
+    //only artist
+    public function setMotto()
+    {
+        $this->checkLogin();
+        $motto = I('post.motto', '');
+
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $userLogic = new UserLogic();
+        $setResult = $userLogic->setUserField($userId, ['motto' => $motto]);
+        if ($setResult) {
+            Util::jsonReturn();
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!', var_export(M()->getDbError()));
+        }
+    }
+
+    //only artist
+    public function setResume()
+    {
+        $this->checkLogin();
+        $resume = I('post.resume', '');
+        if (empty($resume)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'Parameter is error!', $resume);//参数错误
+        }
+        $userLogic = new UserLogic();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $role = $userLogic->getUserField('role',$userId);
+        $roleArr = explode(',',$role);
+        if (in_array('artist', $roleArr)) {
+            $setResult = $userLogic->setUserField($userId, ['resume' => $resume]);
+            if ($setResult) {
+                Util::jsonReturn();
+            } else {
+                Util::jsonReturn(null, Code::SYS_ERR, 'System error!', var_export(M()->getDbError()));
+            }
+        } else {
+            Util::jsonReturn(null, Code::HAVE_NO_RIGHT, 'You have no right!', $this->token);
+        }
+    }
+
+    //set password
+    public function setPassword()
+    {
+        $this->checkLogin();
+        $userLogic = new UserLogic();
+        $oldPassword = I('post.oldPassword', '');
+        $oldPassword = Checker::password($oldPassword);
+        $newPassword = I('post.newPassword', '');
+        $newPassword = Checker::password($newPassword);
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userInfo = $userLogic->where(['id' => $this->loginUserId])->find();
+        if (!Util::isPasswordMatch($oldPassword, $userInfo['enc_password'], $userInfo['enc_salt'])) {
+            Util::jsonReturn(['status' => 1001], Code::SYS_OK, 'Password is not matched!', $oldPassword);
+        }
+        $encInfo = Util::encryptPassword($newPassword);
+        $setResult = $userLogic->setUserField($userInfo['id'], ['enc_password' => $encInfo['encryptedPassword'], 'enc_salt' => $encInfo['salt']]);
+        if ($setResult) {
+            //set success.
+            Util::jsonReturn();
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!', var_export(M()->getDbError()));
+        }
+    }
+
+    public function setNickname()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+
+        $nickname = I('post.nickname', '');
+
+        if (empty($nickname)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'nickname is error!', $nickname);//参数错误
+        }
+        $userLogic = new UserLogic();
+        $setResult = $userLogic->setUserField($userId, ['nickname' => $nickname, 'name' => $nickname]);
+        if ($setResult) {
+            Util::jsonReturn();
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!', var_export(M()->getDbError()));
+        }
+    }
+
+    public function setGender()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $gender = I('post.gender', '');
+        if (empty($gender)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'gender is error!', $gender);//参数错误
+        }
+        $userLogic = new UserLogic();
+        $setResult = $userLogic->setUserField($userId, ['gender' => $gender]);
+        if ($setResult) {
+            Util::jsonReturn();
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!', var_export(M()->getDbError()));
+        }
+    }
+
+    public function setBirthday()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+
+        $birthday = I('post.birthday', '');
+        if (empty($birthday)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'birthday is error!', $birthday);//参数错误
+        }
+
+        $userLogic = new UserLogic();
+        $setResult = $userLogic->setUserField($userId, ['birthday' => $birthday]);
+        if ($setResult) {
+            Util::jsonReturn();
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!', var_export(M()->getDbError()));
+        }
+    }
+
+    public function setFace()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $face = I('post.face', '');
+        if (empty($face)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'face is error!', $face);//参数错误
+        }
+
+        $userLogic = new UserLogic();
+        $setResult = $userLogic->setUserField($userId, ['face' => $face]);
+        if ($setResult) {
+            $assetsLogic = new AssetsLogic();
+            $faceUrl = $assetsLogic->getUrl($face);
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => Util::getFillImage($faceUrl, Image::faceWidth, Image::faceHeight)]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!', var_export(M()->getDbError()));
+        }
+    }
+
+    public function setGalleryCover()
+    {
+        $this->checkLogin();
+        $galleryCover = I('post.galleryCover', '');
+        if (empty($galleryCover)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'galleryCover is error!', $galleryCover);//参数错误
+        }
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $galleryLogic = new GalleryLogic();
+        $userLogic = new UserLogic();
+        $userInfo = $userLogic->getUserInfoById($userId);
+        if ($userInfo['type'] == 3 || $userInfo['type'] == 7) {//如果是艺术家，就设置画廊封面
+            $galleryLogic->setFieldByArtistId($userId, ['cover' => $galleryCover]);
+        }
+        $setResult = $userLogic->setUserField($userId, ['cover' => $galleryCover]);
+        if ($setResult) {
+            $assetsLogic = new AssetsLogic();
+            $galleryCoverUrl = $assetsLogic->getUrl($galleryCover);
+            Util::jsonReturn(['status' => 1000, 'galleryCoverUrl' => Util::getFillImage($galleryCoverUrl, 100, 100)]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!', var_export(M()->getDbError()));
+        }
+    }
+
+    public function applyArtistStepOne()
+    {
+        $this->checkLogin();
+        //手机号码mobile
+        //验证码verifyCode
+        //邀请码inviteCode
+        $mobile = Checker::mobile();
+        $verifyCode = Checker::verifyCode();
+        Util::checkVerifyCodeResult($mobile, $verifyCode);
+        $inviteCode = I('post.inviteCode', '');
+        $userLogic = new UserLogic();
+        $inviteLogLogic = new InviteLogLogic();
+        if (S(Cache::VERIFY_CODE_PREFIX . $mobile) != $verifyCode) {
+            Util::jsonReturn(null, Code::VERIFY_CODE_NOT_MATCHED);
+        }
+        $count = $userLogic->where(['banned_to' => '-1', 'is_deleted' => 'N', 'type' => 3])->count();
+        if ($count > 0) {
+            $artistApplyLogic = new ArtistApplyLogic();
+            $applyInfo = $artistApplyLogic->getApplyByMobile($mobile);
+            if (!empty($applyInfo) && $applyInfo['verify_state'] == -1) {
+
+            } else {
+                if (!$inviteLogLogic->checkInvite($inviteCode)) {
+                    Util::jsonReturn(null, Code::INVITE_CODE_INVALID);
+                }
+            }
+        }
+        $oldTokenInfo = S(Cache::TOKEN_PREFIX . $this->token);
+        $newTokenInfo = array_merge($oldTokenInfo, ['applyInfo' => ['mobile' => $mobile, 'inviteCode' => $inviteCode]]);
+        S(Cache::TOKEN_PREFIX . $this->token, $newTokenInfo);
+        Util::jsonReturn();
+    }
+
+    public function applyArtistStepTwo()
+    {
+        $this->checkLogin();
+        //真实姓名 name
+        //身份证号码 idCardNo
+        //个性签名 motto
+        //个人履历 resume
+        $name = I('post.name');
+        if (empty($name)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'name is error!');
+        }
+        $idCardNo = I('post.idCardNo');
+        if (empty($idCardNo)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'idCardNo is error!');
+        }
+        $motto = I('post.motto');
+        if (empty($motto)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'motto is error!');
+        }
+        $resume = I('post.resume');
+        if (empty($resume)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'resume is error!');
+        }
+        $memo = I('post.memo');
+        if (empty($memo)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'memo is error!');
+        }
+        $oldTokenInfo = S(Cache::TOKEN_PREFIX . $this->token);
+        $applyInfo = ['name' => $name, 'idCardNo' => $idCardNo, 'motto' => $motto, 'resume' => $resume, 'memo' => $memo];
+        $newApplyInfo = array_merge($oldTokenInfo['applyInfo'], $applyInfo);
+        $newTokenInfo = array_merge($oldTokenInfo, ['applyInfo' => $newApplyInfo]);
+        S(Cache::TOKEN_PREFIX . $this->token, $newTokenInfo);
+        Util::jsonReturn();
+    }
+
+    public function applyArtistStepThree()
+    {
+        $this->checkLogin();
+        //画廊封面图片coverImageId
+        //身份证图片idCardImgIds
+        //证书图片certImageIds 3张以上
+        //与自己作品的合照 groupPhotoIds 3张以上
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $applyInfo = $tokenInfo['applyInfo'];
+
+        $userId = $tokenInfo['userInfo']['id'];
+        $coverImageId = I('post.coverImageId');
+        if (empty($coverImageId)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'coverImageId is error!');
+        }
+        $pos = strpos($coverImageId, '?');
+        if ($pos !== false) {
+            $coverImageId = substr($coverImageId, 0, $pos);
+        }
+
+        $idCardImageId = I('post.idCardImageId');
+        if (empty($idCardImageId)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'idCardImageId is error!');
+        }
+
+        $certImageIds = I('post.certImageIds');
+        if (empty($certImageIds)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'certImageIds is error!');
+        }
+        $groupPhotoIds = I('post.groupPhotoIds');
+        if (empty($groupPhotoIds)) {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'groupPhotoIds is error!');
+        }
+        $idCardNo = $applyInfo['idCardNo'];
+        $artistApplyLogic = new ArtistApplyLogic();
+        $isApply = $artistApplyLogic->where(['user_id' => $this->loginUserId])->find();
+        $data = [
+            'user_id' => $userId,
+            'name' => $applyInfo['name'],
+            'mobile' => $applyInfo['mobile'],
+            'invite_code' => $applyInfo['inviteCode'],
+            'cover_image_id' => $coverImageId,
+            'motto' => $applyInfo['motto'],
+            'resume' => $applyInfo['resume'],
+            'memo' => $applyInfo['memo'],
+            'id_card_image_id' => $idCardImageId,
+            'cert_image_ids' => $certImageIds,
+            'group_photo_ids' => $groupPhotoIds,
+            'id_card_no' => $idCardNo,
+            'create_time' => time()
+        ];
+        if (!empty($isApply)) {
+            $data['verify_state'] = '1';
+            $artistApplyLogic->where(['id' => $isApply['id']])->save($data);
+        } else {
+            $applyId = $artistApplyLogic->addOne($data);
+        }
+        Util::jsonReturn();
+    }
+
+    //get artist apply status
+    public function getApplyStatus()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $artistApplyLogic = new ArtistApplyLogic();
+        $applyStatus = $artistApplyLogic->getApplyStatus($tokenInfo['userInfo']['id']);
+        switch ($applyStatus) {
+            case "Y":
+                $status = 1000;//pass
+                break;
+            case "N":
+                $status = 1001;//not pass
+                break;
+            default://-1
+                $status = 1002;//not apply
+        }
+        Util::jsonReturn(['status' => $status]);
+    }
+
+    public function getMyApplyInfo()
+    {
+        $this->checkLogin();
+        $applyLogic = new ArtistApplyLogic();
+        $appyInfo = $applyLogic->where(['user_id' => $this->loginUserId])->find();
+        if (!empty($appyInfo)) {
+            $appyInfo['cert_image_ids'] = explode(',', $appyInfo['cert_image_ids']);
+            $appyInfo['group_photo_ids'] = explode(',', $appyInfo['group_photo_ids']);
+            Util::jsonReturn(['status' => 1000, 'info' => $appyInfo]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '该用户没有申请');
+        }
+    }
+
+    //get “my” homepage info
+    public function getMyGalleryDetail()
+    {
+        $this->checkLogin();  //检查用户是否登录
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+
+        $userLogic = new UserLogic(); //实例化用户模块
+        $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+
+        $messageLogic = new MessageLogic(); //获取用户未读信息数
+        $unreadMessageTotal = $messageLogic->getMessageTotal(['type[in]' => '8,9,10,12,13', 'is_deleted' => 'N', 'is_read' => 'N', 'to_user_id' => $this->loginUserId]);
+
+        $assetsLogic = new AssetsLogic(); //获取用户头像
+        $faceUrl = $assetsLogic->getUrl($userInfo['face']);
+
+        $applyLogic = new ArtistApplyLogic(); //获取用户申请艺术家信息
+        $agencyLogic = new AgencyLogic(); //获取用户艺术机构信息
+        $plannerLogic = new PlannerLogic(); //策展人认证模块
+
+        if ($userInfo['type'] == 3 || $userInfo['type'] == 7) {
+            $isArtist = 1;
+        } else {
+            $isArtist = -1;
+        }
+        //获取用户申请艺术家信息
+        $applyInfo = $applyLogic->field('user_id,verify_memo,verify_state')->where(['user_id' => $this->loginUserId])->find();
+        //申请认证机构认证信息
+        $agencyInfo = $agencyLogic->field('memo,status,type')->where(['uid' => $this->loginUserId])->find();
+        //申请策展人认证信息
+        $plannerInfo = $plannerLogic->field('memo,status')->where(['uid' => $this->loginUserId])->find();
+        $total = M('Artwork')->where(['is_deleted' => 'N', 'state' => 1, 'update_times' => ['gt', 0], 'artist' => $tokenInfo['userInfo']['id']])->count();
+
+        $info = [
+            'artist' => $userInfo['id'], //艺术者编号
+            'mobile' => $userInfo['mobile'], //手机号
+            'name' => $userInfo['nickname'], //用户昵称
+            'faceUrl' => empty($faceUrl) ? '' : Util::getFillImage($faceUrl, Image::faceWidth, Image::faceHeight), //用户头像
+            'motto' => html_entity_decode($userInfo['motto'], ENT_QUOTES), //用户签名
+            'isArtist' => $isArtist, //是否艺术家
+            'isSetCover' => empty($userInfo['cover']) ? 'N' : 'Y', //是否设置画廊封面
+            'applyStatus' => !empty($applyInfo) ? $applyInfo['verify_state'] : '0', //审核状态
+            'applyRemark' => strval($applyInfo['verify_memo']), //审核艺术家备注
+            'agencyStatus' => !empty($agencyInfo) ? $agencyInfo['status'] : '0', //认证机构审核状态
+            'agencyRemark' => strval($agencyInfo['memo']), //审核认证机构备注信息
+            'isAgency' => $agencyInfo['status'] == 2 ? 1 : -1,
+            'AgencyType' => $agencyInfo['status'] == 2 ? (int)$agencyInfo['type'] : 0,
+            'plannerStatus' => !empty($plannerInfo) ? $plannerInfo['status'] : '0', //策展人审核状态
+            'plannerRemark' => strval($plannerInfo['memo']), //审核策展人备注信息
+            'isPlanner' => $plannerInfo['status'] == 2 ? 1 : -1
+        ];
+        if ($isArtist) {
+            $galleryLogic = new GalleryLogic();
+            $artLikeLogic = new ArtworkLikeLogic();
+            $followLogic = new UserFollowerLogic();
+            $inviteLogLogic = new InviteLogLogic();
+            $galleryInfo = $galleryLogic->getDetailByArtist($userInfo['id']);
+
+            $inviteCode = $inviteLogLogic->getInvite($userInfo['id']);
+            $likeInfo = $artLikeLogic->field('type,artwork_id')->where(['like_user_id' => $this->loginUserId, 'is_like' => 'Y'])->select();
+            $likeTemp = [];
+            foreach ($likeInfo as $k => $v) {
+                if ($v['type'] == '1') {
+                    $likeTemp[$k] = $v['artwork_id'];
+                } else {
+                    $res = M('ArtworkUpdate')->field('artwork_id')->find($v['artwork_id']);
+                    $likeTemp[$k] = $res['artwork_id'];
+                }
+            }
+            $likeTemp = array_unique($likeTemp);
+
+            $info['inviteCode'] = $inviteCode;
+            $info['artTotal'] = $userInfo['art_total'];
+            $info['realtotal'] = $total;
+            $info['viewTotal'] = (int)$galleryInfo['view_total'];
+            $info['inviteTotal'] = $userInfo['invite_total'];
+            $info['cover'] = $userInfo['cover'];
+            $info['unreadMessageTotal'] = (int)$messageLogic->getMessageTotal(['type[in]' => '8,9,10,12,13', 'is_deleted' => 'N', 'is_read' => 'N', 'to_user_id' => $this->loginUserId]);
+            $info['unreadLikeMessageTotal'] = (int)$messageLogic->getMessageTotal(['type[in]' => '9,12', 'is_deleted' => 'N', 'is_read' => 'N', 'to_user_id' => $this->loginUserId]);
+            $info['unreadCommentMessageTotal'] = (int)$messageLogic->getMessageTotal(['type[in]' => '10,13', 'is_deleted' => 'N', 'is_read' => 'N', 'to_user_id' => $this->loginUserId]);
+            $info['unreadSystemMessageTotal'] = (int)$messageLogic->getMessageTotal(['is_deleted' => 'N', 'is_read' => 'N', 'from_user_id' => -1, 'to_user_id' => $this->loginUserId]);
+            $info['likeTotal'] = count($likeTemp);
+            $info['followerTotal'] = $followLogic->where(['user_id' => $this->loginUserId, 'is_follow' => 'Y'])->count();
+            $info['followTotal'] = $followLogic->where(['follower' => $this->loginUserId, 'is_follow' => 'Y'])->count();
+        }
+
+        Util::jsonReturn(['status' => 1000, 'info' => $info]);
+    }
+
+    //get user's like artwork list
+    public function getMyLikeArtworkList()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $artworkLikeLogic = new ArtworkLikeLogic();
+        $page = I('post.page', 1);
+        $perPageCount = I('post.perPageCount', 5);
+
+        $list = $artworkLikeLogic->getList($userId, $page, $perPageCount);
+        //print_r($list);
+        if (empty($list)) {
+            $list = [];
+        }
+        Util::jsonReturn(['status' => 1000, 'info' => $list]);
+    }
+
+    //get the artist's follower list
+    public function getMyFollowList()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $page = I('post.page', 1);
+        $perPageCount = I('post.perPageCount', 10);
+        if ($perPageCount > 50) {
+            $perPageCount = 10;
+        }
+        $userFollowerLogic = new UserFollowerLogic();
+        $userLogic = new UserLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $followerList = $userFollowerLogic->getFollowerList($userId, $page, $perPageCount);
+        $retList = [];
+        foreach ($followerList as $followInfo) {
+            $user = $userLogic->getUserInfo($followInfo['follower']);
+            $retList[] = [
+                'id' => $followInfo['id'],
+                'name' => $user['nickname'],
+                'faceUrl' => Util::getFillImage($user['face'], Image::faceWidth, Image::faceHeight),
+                'categoryNames' => $categoryLogic->getCategoryByUser($user['id']),
+                'motto' => $user['motto'],
+                'followTime' => date('Y-m-d', $followInfo['follow_time'])
+            ];
+        }
+        Util::jsonReturn(['status' => 1000, 'info' => $retList]);
+    }
+
+    //get my follow artist list
+    public function getMyFollowerList()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $followerId = $tokenInfo['userInfo']['id'];
+        $page = I('post.page', 1);
+        $perPageCount = I('post.perPageCount', 10);
+        if ($perPageCount > 50) {
+            $perPageCount = 10;
+        }
+        $userFollowerLogic = new UserFollowerLogic();
+        $userLogic = new UserLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $followList = $userFollowerLogic->getFollowList($followerId, $page, $perPageCount);
+        $retList = [];
+
+
+        $userid_arr = [];
+        foreach ($followList as $followInfo) {
+            array_push($userid_arr, $followInfo['user_id']);
+        }
+
+        //用户艺术品数
+        $artwork_total_arr = [];
+        if (count($userid_arr) > 0) {
+            $ArtworkLogic = new ArtworkLogic();
+            $artwork_total_list = $ArtworkLogic->field('count(artist) as artwork_total,artist')
+                ->where("artist in (" . implode(',', $userid_arr) . ") and is_deleted='N' and state=1")
+                ->group('artist')
+                ->select();
+            foreach ($artwork_total_list as $artwork_total) {
+                $artwork_total_arr[$artwork_total['artist']] = $artwork_total['artwork_total'];
+            }
+
+        }
+        //用户艺术品数 end
+
+        //是否艺术者
+        $artist_arr = [];
+        if (count($userid_arr) > 0) {
+            $artist_arr_list = M('User')->field('id')
+                ->where("id in (" . implode(',', $userid_arr) . ") and  type=3")
+                ->select();
+            foreach ($artist_arr_list as $artist) {
+                $artist_arr[$artist['id']] = $artist['id'];
+            }
+
+        }
+        //是否艺术者 end
+
+
+        $AgencyTypeList = $userLogic->getAgencyTypeList_byUids($userid_arr);//机构列表
+
+
+        foreach ($followList as $followInfo) {
+            $user = $userLogic->getUserInfo($followInfo['user_id']);
+            $AgencyType = $userLogic->getAgencyType($followInfo['user_id']);
+            $retList[] = [
+                'id' => $followInfo['id'],
+                'user_id' => $followInfo['user_id'],
+                'name' => $user['nickname'],
+                'faceUrl' => Util::getFillImage($user['face'], Image::faceWidth, Image::faceHeight),
+                'categoryNames' => $categoryLogic->getCategoryByUser($user['id']),
+                'motto' => $user['motto'],
+                'followTime' => date('Y-m-d', $followInfo['follow_time']),
+                'artwork_total' => $artwork_total_arr[$followInfo['user_id']],
+                'is_artist' => $userLogic->isArtist($followInfo['user_id']) ? 1 : 0,
+                'is_agency' => $AgencyTypeList[$followInfo['user_id']] > 0 ? 1 : 0,
+                'AgencyType' => (int)$AgencyTypeList[$followInfo['user_id']],
+                'is_planner' => $userLogic->isPlann($followInfo['user_id']) ? 1 : 0,
+            ];
+        }
+        Util::jsonReturn(['status' => 1000, 'info' => $retList]);
+    }
+
+    //get my message list
+    public function getMyMessageList()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $page = I('post.page', 1);
+        $type = I('post.type','8,9,10,12,13');
+        $perPageCount = I('post.perPageCount', 10);
+        if ($perPageCount > 50) {
+            $perPageCount = 10;
+        }
+
+        $messageLogic = new MessageLogic();
+        $messageList = $messageLogic->getMessageListByPage($this->loginUserId, $type, $page, $perPageCount);
+        if (empty($messageList)) {
+            Util::jsonReturn(['status' => 1000, 'info' => []]);
+        }
+        $userLogic = new UserLogic();
+        $fromUserIdList = array_column($messageList, 'to_user_id');//maybe include the system message and the default user.
+        $fromUserInfoList = $userLogic->getUserInfoListByIds($fromUserIdList);
+        $faceIdList = array_column($fromUserInfoList, 'face');
+        //add id key
+        $fromUserInfoListWithIdKey = [];
+        foreach ($fromUserInfoList as $fromUserInfo) {
+            $fromUserInfoListWithIdKey[$fromUserInfo['id']] = $fromUserInfo;
+        }
+        $assetsLogic = new AssetsLogic();
+        $faceUrlList = $assetsLogic->getUrlList($faceIdList);
+
+        $artupdate_nocover_list = $messageLogic->getUpdateidByNocover($messageList);
+
+        $MessagelinkStatus_list = $messageLogic->getMessagelinkStatus($messageList);
+
+
+        $retList = [];
+        foreach ($messageList as $message) {
+            // print_r($message);
+            $faceUrl = $message['from_user_id'] == '-1' ? C('ADMIN_FACE') : $userLogic->getUserField('face', $message['from_user_id']);
+            $name = $message['from_user_id'] == '-1' ? C('ADMIN_NAME') : $userLogic->getUserField('nickname', $message['from_user_id']);
+            $res = M('Comment')->field('flag,content')->find($message['comment_id']);
+            if (strpos($message['content'], '：')) {
+                $arr = explode('：', $message['content']);
+                if ('2' == $res['flag']) {
+                    if (empty($arr[1])) {
+                        $content = $message['content'];
+                    } else {
+                        $content = $arr[0] . '：' . "“" . base64_decode($res['content']) . "”";
+                    }
+
+                } else {
+                    $content = $message['content'];
+                }
+            } else {
+                $content = $message['content'];
+            }
+
+            $retList[] = [
+                'id' =>$message['id'],
+                'name' => empty($name) ? C('ADMIN_NAME') : $name,
+                'faceUrl' => empty($faceUrl) ? Util::getFillImage(C('ADMIN_FACE'), Image::faceWidth, Image::faceHeight) : Util::getFillImage($faceUrl, Image::faceWidth, Image::faceHeight),
+                'content' => $content,
+                'isRead' => $message['is_read'],
+                'createTime' => $message['create_time'],
+                'topicId' => $message['topic_id'],
+                'type' => $message['type'],//message type
+                'isRepay' => $message['is_repay'],
+                'showType' => $message['show_type'],
+                'comment_id' => $message['comment_id'],
+                'link' => $messageLogic->getLink($message, $artupdate_nocover_list, $MessagelinkStatus_list)
+            ];
+        }
+        $messageLogic->where(['is_deleted' => 'N', 'is_read' => 'N', 'to_user_id' => $this->loginUserId])->save(['is_read' => 'Y']);
+        Util::jsonReturn(['status' => 1000, 'info' => $retList]);
+    }
+
+    //on the edit my profile page view, include the artist and appreciator.
+    public function getMyProfile()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+
+        $userLogic = new UserLogic();
+        $userInfo = $userLogic->getUserInfoById($userId);
+
+        if ($userInfo['type'] == 3 || $userInfo['type'] == 7) {
+            $isArtist = true;
+        } else {
+            $isArtist = false;
+        }
+
+        $assetsLogic = new AssetsLogic();
+        $faceUrl = $assetsLogic->getUrl($userInfo['face']);
+        $retInfo = [
+            'id' => $userInfo['id'],
+            'faceUrl' => Util::getFillImage($faceUrl, Image::faceWidth, Image::faceHeight),
+            'nickname' => $userInfo['nickname'],
+            'gender' => UserModel::GENDER_CN_LIST[$userInfo['gender']],
+            'birthday' => $userInfo['birthday'],
+            'motto' => html_entity_decode($userInfo['motto'], ENT_QUOTES),
+        ];
+
+        if ($isArtist) {
+            $galleryLogic = new GalleryLogic();
+            $galleryInfo = $galleryLogic->where(['is_deleted' => 'N', 'artist' => $userId])->find();
+            $galleryCoverUrl = $assetsLogic->getUrl($galleryInfo['cover']);
+            if (!$galleryCoverUrl) {
+                $galleryCoverUrl = "";
+            }
+
+            $inviteCode = Util::genInviteCode($userId);
+
+            $retInfo['galleryCoverUrl'] = $galleryCoverUrl;
+            //artist gallery homepage
+            $retInfo['qrCodeUrl'] = C('m_site') . '/gallery/detail/' . $galleryInfo['artist'];
+            $retInfo['resume'] = html_entity_decode($userInfo['resume'], ENT_QUOTES);
+        }
+        Util::jsonReturn(['status' => 1000, 'info' => $retInfo]);
+    }
+
+    //get the specified artist's invite artist list.
+    public function getMyInviteList()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $retList = [];
+        $assetsLogic = new AssetsLogic();
+        $galleryLogic = new GalleryLogic();
+        $userLogic = new UserLogic();
+        $page = I('post.page', 1);
+        $perPageCount = I('post.perPageCount', 10);
+        $inviteLogLogic = new InviteLogLogic();
+        $cateModel = new ArtworkCategoryModel();
+        $artModel = new ArtworkModel();
+        $invitedList = $inviteLogLogic->where(['invited_user_id' => $this->loginUserId])->order('invite_time DESC')->page($page, $perPageCount)->select();
+        foreach ($invitedList as $invitedInfo) {
+            $userinfo = $userLogic->where(['is_deleted' => 'N', 'id' => $invitedInfo['invite_user_id']])->find();
+            $faceUrl = $userinfo['face'];
+            $category_content = $cateModel->getContent(implode(',', $artModel->getFields(['artist' => $invitedInfo['invite_user_id']], 'category')));
+            $categoryNames = implode('/', array_values($category_content));
+            $retList[] = [
+                'id' => $invitedInfo['id'],
+                'name' => $userinfo['nickname'],
+                'faceUrl' => Util::getFillImage($faceUrl, Image::faceWidth, Image::faceHeight),
+                'categoryNames' => $categoryNames,
+                'motto' => $userinfo['motto'],
+                'followTime' => date('Y-m-d', $invitedInfo['invite_time'])
+            ];
+        }
+        Util::jsonReturn(['status' => 1000, 'info' => $retList]);
+    }
+
+    public function saveUserInfo()
+    {
+        $this->checkLogin();
+        $userInfo = [];
+        $userInfo['nickname'] = I('post.nickname', '');
+        $userInfo['name'] = I('post.nickname', '');
+        $userInfo['motto'] = I('post.motto', '');
+        $userInfo['resume'] = I('post.resume', '');
+        $userInfo['gender'] = I('post.gender', '');
+        $userInfo['face'] = I('post.face', '');
+        $userInfo['email'] = I('post.email', '');
+        $userInfo['mobile'] = I('post.mobile', '');
+        $userInfo['cover'] = I('post.cover', '');
+        $userInfo = array_values_by_key($userInfo, [
+            'name', 'nickname', 'motto', 'resume', 'gender', 'face', 'email', 'mobile', 'cover'
+        ], function ($k, $v) {
+            if (is_null($v) || empty($v)) {
+                return false;
+            } else {
+                return true;
+            }
+        });
+        D('user')->where(['id' => $this->loginUserId])->save($userInfo);
+        Util::jsonReturnSuccess();
+    }
+
+    //获取我-我的喜欢-文章
+    public function getmylikearticleList()
+    {
+        $this->checkLogin();
+
+        $userId = $this->loginUserId;
+        $artworkLikeLogic = new ArtworkLikeLogic();
+
+
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $ArticleLogic = new ArticleLogic();
+
+        $where = 'az_article_like.like_user_id=' . $userId . ' and az_article_like.is_like=1 and az_article.status=1';
+        $total = $ArticleLogic->where($where)
+            ->join('az_article_like on az_article.id=az_article_like.article_id')
+            ->count();
+
+        $list = $ArticleLogic
+            ->field('az_article.cover,az_article.id,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+            ->join('az_article_like on az_article.id=az_article_like.article_id')
+            ->join('az_user on az_article.artist=az_user.id')
+            ->where($where)
+            ->order('az_article_like.like_time desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        $artist_list = [];//作者ids
+        foreach ($list as $value) {
+            array_push($artist_list, $value['artist']);
+        }
+        $userLogic = new UserLogic();
+        $AgencyTypeList = $userLogic->getAgencyTypeList_byUids($artist_list);//机构列表
+
+        $article_ids = [];//文章id列表
+        foreach ($list as $value) {
+            array_push($article_ids, $value['id']);
+        }
+
+        $like_list = [];//用户点赞列表
+        if (count($article_ids) && $this->loginUserId > 0) {//查询登录用户的点赞列表
+            $ArticleLike_list = M('ArticleLike')->where("article_id in (" . implode(',', $article_ids) . ") and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->select();
+        }
+        foreach ($ArticleLike_list as $like) {
+            $like_list[$like['article_id']] = 1;
+        }
+
+        $articles = [];
+        foreach ($list as $value) {
+            $article['id'] = $value['id'];
+            $article['title'] = $value['title'];
+            $article['excerpt'] = empty($value['excerpt'])?html_deconvert_content_cut($value['content'], 70):$value['excerpt'];;
+            $article['like_count'] = $value['like_count'];
+            $article['is_like'] = $like_list[$value['id']] == 1 ? 1 : 0;
+            $video = 0;
+            if(empty($value['cover'])){//没有封面图
+                //获取更新记录里面的视频
+                preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $value['content'], $match);
+                if(!empty($match[1])){//有视频
+                    $article['cover'] = Util::getImageResize($match[1][0], 300, 300);
+                    $video=1;
+                }else{
+                    preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $value['content'], $array);
+                    if(!empty($array)){//有图片
+                        $article['cover'] =  Util::getImageResize($array[1][0], 300, 300);
+                    }else{
+                        $article['cover']='';
+                    }
+                }
+            }else{
+                $article['cover'] = Util::getImageResize($value['cover'], 300, 300);
+            }
+            $article['video'] = $video;
+
+            $userLogic = new UserLogic();
+            $AgencyType = $userLogic->getAgencyType($value['artist']);
+
+
+            $article['user'] = [
+                "id" => $value['artist'],
+                "nickname" => $value['nickname'],
+                "faceUrl" => $value['face'],
+                "is_artist" => strpos(',' . $value['role'] . ',', ',artist,') !== false ? 1 : 0,
+                'is_agency' => $AgencyTypeList[$value['artist']] > 0 ? 1 : 0,
+                'AgencyType' => $AgencyTypeList[$value['artist']],
+                "is_planner" => strpos(',' . $value['role'] . ',', ',planner,') !== false ? 1 : 0,
+            ];
+
+
+            $articles[] = $article;//添加进articles
+        }
+
+
+        $maxpage = intval($total / $pagesize) + 1;
+        $info = [
+            'articles' => $articles,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+
+        //print_r($list);
+        if (empty($info)) {
+            $info = [];
+        }
+        Util::jsonReturn(['status' => 1000, 'info' => $info]);
+    }
+}

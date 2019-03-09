@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="专注手绘艺术，遇见你的品味">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>艺术心愿</title>
+    <link rel="shortcut icon" href="/Public/favicon.ico?v=1.0.1" type="image/x-icon"/>
+    <script src="/Public/js/lib/flexible.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/Public/css/queen/share-blue.css?v=1.0.9">
+    <script src="//res.wx.qq.com/open/js/jweixin-1.0.0.js" type="text/javascript" charset="utf-8"></script>
+    <!-- GrowingIO Analytics code version 2.1 -->
+    <!-- Copyright 2015-2017 GrowingIO, Inc. More info available at http://www.growingio.com -->
+    <script type='text/javascript'>
+    !function(e,t,n,g,i){e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},n=t.createElement("script"),tag=t.getElementsByTagName("script")[0],n.async=1,n.src=('https:'==document.location.protocol?'https://':'http://')+g,tag.parentNode.insertBefore(n,tag)}(window,document,"script","assets.growingio.com/2.1/gio.js","gio");
+      gio('init', '9aa9cc9a8407e110', {});
+    //custom page code begin here
+
+    //custom page code end here
+
+    gio('send');
+    </script>
+    <!-- End GrowingIO Analytics code version: 2.1 -->
+</head>
+<body>
+    <div v-cloak id="app">
+        <loading-box></loading-box>
+        <div class="header"></div>
+        <div class="user-wrap">
+            <div class="face-wrap">
+                <img class="face" :src="info.share_wx_face">
+            </div>
+            <p class="name">{{info.share_wx_name}}</p>
+        </div>
+        <div class="con-wrap">
+            <div class="goods-wrap">
+                <p class="msg">点击助力按钮为我减免版画价格吧！最高直接免 单，限50名好友助力！</p>
+                <div class="cover-wrap">
+                    <img class="cover" :src="goodsImgLink">
+                </div>
+                <h3 class="goods-title">{{info.share_goods_name}}</h3>
+                <h3 class="goods-price">原价：￥{{info.share_goods_price}}</h3>
+                <a class="see" :href="goodsLink">查看版画详情&gt;</a>
+            </div>
+            <!-- 本人 -->
+            <div v-if="isMe" class="btns-wrap">
+                <a @click="showUseBox" class="scale-btn btn-use fl">去使用</a>
+                <a href="javascript:;" @click="showShareBox" class="scale-btn btn-goto fr">去撒娇</a>
+            </div>
+            <div v-else class="btns-wrap">
+                <a @click="showFollowBox" href="javascript:;" class="scale-btn btn-want fl">我也要玩</a>
+                <a @click="support" href="javascript:;" class="scale-btn btn-support fr">助力女王</a>
+            </div>
+
+            <div v-if="isMe && (info.list && info.list.length == 0)" class="blank">
+                <p>助力墙还空空如也，快去呼唤小伙伴吧~~</p>
+            </div>
+            <div v-if="bargainTotal > 0" class="total">
+                <i class="icon icon-red"></i>大家为{{info.share_wx_name}}抢到了<strong class="money">{{bargainTotal}}</strong>元红包
+            </div>
+            <div class="bargain-wrap" v-if="info.list && info.list.length > 0">
+                <ul class="bargain-list">
+                    <li v-for="(item, index) in info.list" class="bargain-item">
+                        <span v-if="item.union_id && (item.union_id == info.share_union_id)  ">
+                            <img class="avatar" :src="item.face">
+                            <span class="msg">{{item.nickname}}帮自己抢到了{{item.bargain_value}}元红包</span>
+                        </span>
+                        <span v-else>
+                            <img class="avatar" :src="item.face">
+                            <span class="msg">{{item.nickname}}帮{{info.share_wx_name}}抢到了{{item.bargain_value}}元红包</span>
+                        </span>
+
+                    </li>
+                </ul>
+            </div>
+            <div v-if="isMe" class="generate-wrap">
+            <!-- <div class="generate-wrap"> -->
+                <p class="info">赶快呼唤小伙伴吧，帮你领取更多红包！</p>
+                <div class="btns-wrap">
+                    <a @click="generatePoster" href="javascript:;" class="scale-btn btn-generate">生成朋友圈海报</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <img src="/Public/image/queen/blue/footer_bg.png" alt="" class="footer-img">
+        </div>
+        <use-box></use-box>
+        <follow-box></follow-box>
+        <share-box></share-box>
+        <done-box></done-box>
+        <client-box></client-box>
+        <poster-box :info="info"></poster-box>
+      </div>
+    </div>
+    <script>
+        wx.config({
+            debug: false,
+            appId: '<?php echo $signPackage["appId"];?>',
+            timestamp: <?php echo $signPackage["timestamp"];?>,
+            nonceStr: '<?php echo $signPackage["nonceStr"];?>',
+            signature: '<?php echo $signPackage["signature"];?>',
+            jsApiList: ["onMenuShareTimeline","onMenuShareAppMessage"]// 所有要调用的 API 都要加到这个列表中
+        });
+    </script>
+    <script src="/Public/js/lib/vue.min.js"></script>
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/Public/js/plugin/html2canvas.min.js"></script>
+    <script src="/Public/js/plugin/qrcode.min.js"></script>
+    <script src="/Public/js/queen/share.js?v=1.1.6"></script>
+</body>
+</html>

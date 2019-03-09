@@ -1,0 +1,107 @@
+html, body {
+  height: 100%;
+}
+body {
+  background: #f4f4f4;
+}
+/*.icons.icon-status1 {
+  background-position: -4px -137px;
+}
+.icons.icon-status2 {
+  background-position: -51px -140px;
+}
+.icons.icon-status3 {
+  background-position: -97px -138px;
+}
+.icons.icon-status4 {
+  background-position: -144px -138px;
+}
+.icons.icon-status5 {
+  background-position: -189px -139px;
+}
+.icons.icon-status6 {
+  background-position: -235px -138px;
+}
+.icons.icon-status7 {
+  background-position: -279px -138px;
+}
+.icons.icon-status8 {
+  background-position: -372px -139px;
+}
+.icons.icon-status9 {
+  background-position: -372px -138px;
+}
+.icons.icon-statusmore {
+  background-position: -418px -139px;
+}*/
+
+.icons.icon-status0 {
+  background-position: -362px -342px;
+}
+.icons.icon-status1 {
+  background-position: -2px -342px;
+}
+.icons.icon-status2 {
+  background-position: -38px -342px;
+}
+.icons.icon-status3 {
+  background-position: -74px -342px;
+}
+.icons.icon-status4 {
+  background-position: -110px -342px;
+}
+.icons.icon-status5 {
+  background-position: -146px -342px;
+}
+.icons.icon-status6 {
+  background-position: -182px -342px;
+}
+.icons.icon-status7 {
+  background-position: -218px -342px;
+}
+.icons.icon-status8 {
+  background-position: -254px -342px;
+}
+.icons.icon-status9 {
+  background-position: -290px -342px;
+}
+.icons.icon-statusmore {
+  background-position: -326px -342px;
+}
+.upload-rImgStatu.finished{background-position: -398px -342px;}
+
+.icons.icon-edit{
+   background-position: -10px -186px;
+}
+
+.upload-right{overflow: hidden;padding:16px 0 0 16px;}
+.upload-rH{padding:27px 0 22px 0; line-height: 1; font-size: 22px;color: #444;}
+.upload-rCon li{position: relative; float: left;width: 289px; margin:0 16px 30px 0;box-shadow:3px 5px 20px rgba(0, 0, 0, .2);}
+.upload-rImg{position: relative; height: 289px;background-repeat: no-repeat;background-position: center;background-size: 100% auto}
+.upload-rImgmask{position: absolute;width: 100%;height: 100%;background-color: rgba(0,0,0,.5)}
+/*.upload-rImgStatu{display: inline-block;width: 30px;height: 30px;vertical-align: top;margin-top: -6px;margin-left:15px;}*/
+.upload-rImgStatu{display: inline-block;width: 32px;height: 32px;vertical-align: top;margin-top: -6px;margin-left:15px;}
+.upload-rImg h2{z-index: 6;text-overflow:ellipsis;/* overflow: hidden; */position: absolute;bottom:10px;left:10px;height: 18px;line-height: 1;font-size: 18px;color: #fff;width: 255px;white-space: nowrap;}
+.upload-rImg h2 > div{ display: inline-block;max-width: 200px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.upload-rImg h2:before{content:'';display: inline-block;width: 5px;margin-right: 6px;height:100%;vertical-align: top;background-color: #e9ab32;}
+.upload-rTxt{height: 80px;overflow: hidden; padding:6px 10px 0; font-size: 14px;line-height: 24px;color: #666;}
+.upload-rDate{padding:10px 10px 10px; font-size: 14px;color: #999;}
+.upload-rEdit{position: absolute;width: 25px;height: 25px;right: 10px;bottom:10px;}
+.upload-page{text-align: right;padding: 24px 50px 25px;}
+.upload-button{position: absolute;right: 16px;top:16px;line-height: 25px;}
+.upload-jump.is-plain{height: 28px;line-height: 28px; padding:0 6px;vertical-align: bottom;border-color: #b7b7b7;}
+.el-pagination__editor2{border-color: #b7b7b7;}
+.upload-page .btn-prev,.upload-page .btn-next{width: 30px;height: 30px;border-radius: 50%;border:1px solid #a9a9a9;}
+span.upload-num{font-size: 16px;color: #7b7b7b;text-align: center}
+
+  .el-loading-mask{background-color: transparent;}
+
+.mask{position: fixed;z-index: 10001; width: 100%;height: 100%;left: 0;top:0;background:rgba(0,0,0,.4);}
+.mask.zIndex{z-index: 10003}
+
+.alertSelect{position: fixed;z-index: 10004;background-color:#fff; width:736px;height: 456px;top:50%;left: 50%;transform: translate(-50%,-60%); text-align: center; }
+.alertSelect h2{height: 60px; line-height: 60px; font-size: 20px;color: #fff;background-color: #222;}
+.alertSelect p{padding:63px 0 150px 0; font-size: 24px;color: #444;}
+.alertCon .el-button{width: 227px;height: 47px;line-height: 47px;padding:0;}
+
+

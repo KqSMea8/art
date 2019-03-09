@@ -1,0 +1,577 @@
+/**
+ * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)
+ * http://cssreset.com
+ */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video, input {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font-weight: normal;
+    vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, menu, nav, section {
+    display: block;
+}
+
+body {
+    line-height: 1;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* custom */
+a {
+    color: #7e8c8d;
+    text-decoration: none;
+    -webkit-backface-visibility: hidden;
+}
+
+li {
+    list-style: none;
+}
+
+/*::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track-piece {
+    background-color: rgba(0, 0, 0, 0.2);
+    -webkit-border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+    height: 5px;
+    background-color: rgba(125, 125, 125, 0.7);
+    -webkit-border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+    width: 5px;
+    background-color: rgba(125, 125, 125, 0.7);
+    -webkit-border-radius: 6px;
+}*/
+
+html, body {
+    width: 100%;
+}
+* {
+	box-sizing: border-box;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+
+[v-cloak] {
+    display: none !important;
+}
+#app {
+    position: relative;
+}
+
+
+/*.bargain-wrap::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: #ffd6d9;
+}
+.bargain-wrap::-webkit-scrollbar {
+  width: 4px;
+  background-color: #ffd6d9;
+}
+.bargain-wrap::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #ffd6d9;
+}*/
+.fl {
+	float: left;
+}
+.fr {
+	float: right;
+}
+body {
+	width: 10.0rem;
+	margin: 0 auto;
+	font-family: 'microsoft yahei', 'PingFang SC Medium', 'Heiti SC', 'Helvetica', 'HelveticaNeue', 'Droidsansfallback', "Droid Sans", 'Dengxian', 'Segoe', sans-serif;
+	background-color: #ff5a58;
+}
+.header {
+	width: 100%;
+	height: 6.48rem;
+	background: url(../../image/queen/header-bg.png) no-repeat left top;
+	background-size: 100% 100%;
+}
+.con-wrap {
+	position: relative;
+	width: 100%;
+	padding-bottom: 2rem;
+	background: url(../../image/queen/share-bg.png) repeat-y left top;
+  -webkit-background-size: 100%;
+  background-size: 100%;
+}
+.user-wrap {
+	position: absolute;
+	top: 4.5rem;
+	left: 0.36rem;
+	width: 8.0rem;
+}
+.user-wrap .face-wrap {
+	width: 1.546667rem;
+	height: 1.546667rem;
+	padding: 0.12rem;
+	border: 1px dashed #dfeff2;
+	border-radius: 50%;
+}
+.user-wrap .face {
+	width: 1.28rem;
+	height: 1.28rem;
+	border-radius: 50%;
+}
+.user-wrap .name {
+	position: absolute;
+	left: 1.68rem;
+	top: 1.0rem;
+	text-align: center;
+	font-size: 0.32rem;
+	line-height: 1;
+	color: #fdf8e6;
+}
+.goods-wrap {
+	position: relative;
+	width: 100%;
+	text-align: center;
+}
+.goods-wrap .cover-wrap {
+	position: relative;
+	/*top: -0.64rem;*/
+	margin: 0 auto;
+  /*margin-bottom: -0.64rem;*/
+	width: 8rem;
+	height: 8rem;
+	padding: 0.133333rem;
+	border: 1px dashed #dfeff2;
+	border-radius: 0.24rem;
+  box-sizing: content-box;
+}
+.goods-wrap .cover {
+	width: 100%;
+	height: 100%;
+	border-radius: 0.2rem;
+}
+.goods-wrap .msg,
+.goods-title,
+.goods-price {
+	font-size: 0.373333rem;
+	line-height: 0.64rem;
+	color: #fdf8e6;
+}
+.goods-wrap .msg {
+  position: absolute;
+  left: 2.0rem;
+  top: -1.16rem;
+  width: 6.0rem;
+  line-height: 0.54rem;
+  /*color: #ffce44;*/
+}
+.goods-wrap .msg .free {
+  font-size: 0.42rem;
+  font-weight: 700;
+}
+.goods-wrap .see {
+	display: block;
+	line-height: 0.6rem;
+	font-size: 0.32rem;
+	color: #ffce44;
+}
+.bargain-wrap {
+	margin: 0.666667rem auto 0.32rem;
+	width: 9.2rem;
+	max-height: 6.933333rem;
+	overflow-y: auto;
+	border: 0.133333rem solid #f44745;
+	border-radius: 0.32rem;
+    -webkit-overflow-scrolling: touch;
+}
+.bargain-wrap::-webkit-scrollbar {
+    display: none
+}
+.bargain-wrap .bargain-item {
+	height: 1.333333rem;
+	padding: 0.266667rem;
+	font-size: 0;
+}
+.bargain-wrap .bargain-item .avatar {
+	display: inline-block;
+	width: 0.8rem;
+	height: 0.8rem;
+	vertical-align: top;
+	border-radius: 50%;
+}
+.bargain-wrap .bargain-item .msg {
+	display: inline-block;
+	margin-left: 0.266667rem;
+  width: 7rem;
+	font-size: 0.373333rem;
+	line-height: 0.8rem;
+  overflow: hidden; /*自动隐藏文字*/
+  text-overflow: ellipsis;/*文字隐藏后添加省略号*/
+  white-space: nowrap;/*强制不换行*/
+}
+.bargain-wrap .bargain-item:nth-of-type(2n) {
+	background-color: #ffd9dc;
+}
+.bargain-wrap .bargain-item:nth-of-type(2n+1) {
+	background-color: #f9bdc2;
+}
+.bargain-wrap .bargain-item:first-of-type {
+	/*border-radius: 0.2rem 0.2rem 0 0;*/
+}
+.total {
+	text-align: center;
+	font-size: 0.373333rem;
+	color: #fdf7e6;
+}
+.total .money {
+	font-size: 0.48rem;
+}
+.con-wrap:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 1.666667rem;
+	background: url(../../image/queen/cloud.png) no-repeat left bottom;
+	background-size: 100% 1.666667rem;
+}
+.btns-wrap {
+	position: relative;
+	margin: 0.4rem auto 0;
+	width: 8.4rem;
+	height: 1.44rem;
+}
+.btns-wrap [class*="btn-"] {
+  display: inline-block;
+	width: 4.0rem;
+	height: 1.44rem;
+  font-size: 0;
+	background-repeat: no-repeat;
+	-webkit-background-size: 100% 100%;
+	background-size: 100% 100%;
+}
+.btns-wrap .btn-want {
+	background-image: url(../../image/queen/btn-want.png);
+}
+.btns-wrap .btn-support {
+	background-image: url(../../image/queen/btn-support.png);
+}
+.btns-wrap .btn-goto {
+	background-image: url(../../image/queen/btn-goto.png);
+}
+.btns-wrap .btn-use {
+	background-image: url(../../image/queen/btn-use.png);
+}
+.btns-group {
+  margin-top: 0.533333rem;
+}
+.btn-know {
+  display: inline-block;
+  width: 3.066667rem;
+  height: 0.933333rem;
+  font-size: 0;
+  vertical-align: top;
+  background-repeat: no-repeat;
+  -webkit-background-size: 100% 100%;
+  background-size: 100% 100%;
+  background-image: url(../../image/queen/btn-know.png);
+}
+.btn-touse {
+    display: inline-block;
+    width: 2.933333rem;
+    height: 0.933333rem;
+    font-size: 0;
+    vertical-align: top;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background-image: url(../../image/queen/btn-touse.png);
+}
+.btn-noneed {
+    display: inline-block;
+    width: 2.506667rem;
+    height: 0.933333rem;
+    font-size: 0;
+    vertical-align: top;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background-image: url(../../image/queen/btn-noneed.png);
+}
+.btn-free {
+    display: inline-block;
+    width: 2.506667rem;
+    height: 0.933333rem;
+    font-size: 0;
+    vertical-align: top;
+    background-repeat: no-repeat;
+    -webkit-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background-image: url(../../image/queen/btn-free.png);
+}
+
+.blank {
+  margin-top: 0.533333rem;
+  padding-top: 0.533333rem;
+  text-align: center;
+  font-size: 0.32rem;
+  color: #fdf7e6;
+  border-top: 1px dashed #dfeff2;
+}
+
+
+/* 弹出层 */
+.layerbox {
+
+  /*display: none;*/
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+}
+.layershade {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .6);
+  pointer-events: auto;
+}
+.thirdLayerIn {
+  position: fixed;  /*display: none;*/
+  top: 50%;
+  left: 50%;  /*background-color: #fff;*/
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-duration: .2s;
+  animation-duration: .2s;
+}
+.layerbox .share {
+  position: fixed;
+  width: 9.08rem;
+  height: 8.16rem;
+  background: url(../image/gallerydetail/share.png) no-repeat left top;
+  background-size: 100% auto;
+}
+
+/*弹出层 end*/
+
+/* 关注微信弹窗 */
+.layerbox .qrcode-box {
+  margin-left: -3.333333rem;
+  margin-top: -3.133333rem;
+  padding-top: 0.48rem;
+  width: 6.666667rem;
+  height: 6.266667rem;
+  font-size: 0.42667rem;
+  text-align: center;
+  border-radius: 0.12rem;
+  background-color: #fff;
+  overflow: hidden;
+}
+.layerbox .qrcode-box .qrcode-weixin {
+  display: block;
+  margin: 0 auto;
+  width: 4.8rem;
+  height: 4.8rem;
+}
+.layerbox .qrcode-box .qrcode-info {
+  font-size: 0.373333rem;
+  color: #333;
+}
+
+/* 关注微信弹窗 end */
+
+/* 使用弹窗 */
+.layerbox .use-box {
+  margin-left: -3.333333rem;
+  margin-top: -2.5rem;
+  padding: 0.666667rem;
+  width: 6.666667rem;
+  height: 5.066667rem;
+  font-size: 0.42667rem;
+  text-align: center;
+  border-radius: 0.12rem;
+  background-color: #fff;
+  overflow: hidden;
+}
+.layerbox .use-box .use-info {
+  text-align: left;
+  font-size: 0.373333rem;
+  line-height: 0.666667rem;
+  color: #333;
+}
+
+/* 使用弹窗 end */
+
+
+/* 完成提醒弹窗 */
+.layerbox .remind-box {
+  margin-left: -3.333333rem;
+  margin-top: -2rem;
+  padding: 0.64rem;
+  width: 6.666667rem;
+  height: 4.0rem;
+  font-size: 0.42667rem;
+  text-align: center;
+  border-radius: 0.12rem;
+  background-color: #fff;
+  overflow: hidden;
+}
+.layerbox .remind-box .remind-info {
+  text-align: left;
+  font-size: 0.373333rem;
+  line-height: 0.666667rem;
+  color: #333;
+}
+
+/* 完成提醒弹窗 end */
+
+
+/*弹出层提示语*/
+#toastMessage {
+    position: fixed;
+    margin: 0 auto;
+    max-width: 8rem;
+    padding: 0.32rem;
+    font-size: 0.4rem;
+    line-height: 1.5;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 0.16rem;
+}
+/*弹出层提示语 end*/
+
+
+.scale-btn {
+	transform: scale(1 , 1);
+	animation:scale-btn 1s linear infinite;
+	-webkit-animation:scale-btn 1s linear infinite; /* Safari 和 Chrome */
+}
+@keyframes scale-btn {
+    0% {transform: scale(1 , 1);}
+    30% {transform: scale(1.1 , 1.1);}
+    60% {transform: scale(0.9 , 0.9);}
+    100% {transform: scale(1 , 1);}
+}
+@-webkit-keyframes scale-btn {
+    0% {transform: scale(1 , 1);}
+    30% {transform: scale(1.1 , 1.1);}
+    60% {transform: scale(0.9 , 0.9);}
+    100% {transform: scale(1 , 1);}
+}
+
+.anim-scale {
+  animation-name: anim-scale;
+  -webkit-animation-name: anim-scale;
+}
+@-webkit-keyframes anim-scale {
+
+  /* 默认 */
+  0% {
+    opacity: 0;
+    -webkit-transform: scale(.5);
+    transform: scale(.5)
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1)
+  }
+}
+@keyframes anim-scale {
+
+  /* 默认 */
+  0% {
+    opacity: 0;
+    -webkit-transform: scale(.5);
+    transform: scale(.5)
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1)
+  }
+}
+
+.wxTrip{
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  max-width: 10rem;
+  background-color: rgba(0,0,0,0.5);
+}
+.ruleimg{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 4.71rem;
+    height: 3.29rem;
+    background: url('/Public/image/queen/bg_tishi.png') no-repeat right top;
+    background-size: 100% 100%;
+}
+
+/* 加载动画 */
+#loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #eee;
+  z-index: 99999;
+}
+#loading img {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  margin-top: -0.66667rem;
+  margin-left: -0.66667rem;
+  width: 1.33333rem;
+  height: 1.33333rem;
+}
+/* 加载动画 end */

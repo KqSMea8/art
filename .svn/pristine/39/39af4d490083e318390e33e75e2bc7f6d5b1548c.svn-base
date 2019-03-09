@@ -1,0 +1,159 @@
+var urlHead = "http://www.artzhe.com/";
+
+//从第二个item开始，随着上划，item从下往上动画进入
+function fadeInUp($elList, $elItem, delaySecond) {
+  var $aLi = $($elList).find($elItem);
+  var num = $aLi.length;
+  $aLi.eq(1).css('animation-delay', delaySecond + 's').addClass('animated fadeInUp');
+
+  $(window).scroll(function() {
+    var wHeight = $(window).height();
+    var iHeight = $aLi.eq(0).height();
+    var sTop = $('body').scrollTop();
+    for (var i = 2; i < num; i++) {
+      var gapTop = $aLi.eq(i).offset().top;
+      if (sTop + wHeight + iHeight > gapTop) {
+        $aLi.eq(i).css('animation-delay', delaySecond + 's').addClass('animated fadeInUp');
+      }
+    }
+  });
+}
+
+
+//导航栏粘贴在顶部
+var StickUp = {
+  init: function(navEl) { //传入导航栏选择器字符串 示例 'nav'
+    this.attachEl(navEl);
+    this.bind();
+  },
+  attachEl: function(navEl) {
+    this.$el = $(navEl);
+    this.$c = $('body');
+    this.elTop = this.$el.offset().top;
+  },
+  bind: function() {
+    var me = this;
+    $(window).on('scroll', function() {
+      me.do();
+    });
+  },
+  do: function() {
+    var scrollTop = this.$c.scrollTop();
+    if (scrollTop > this.elTop - this.$el.height()) {
+      this.stick();
+    } else {
+      this.unstick();
+    }
+  },
+  stick: function() {
+    if (this.$el.hasClass('sticked')) {
+      return;
+    }
+    this.$el.addClass('sticked');
+    this.$el.css('position', 'fixed');
+    var $temp = $('<div class="temp"></div>');
+    $temp.height(this.$el.height());
+    this.$el.before($temp);
+  },
+  unstick: function() {
+    this.$el.removeClass('sticked');
+    this.$el.prev('.temp').remove();
+    this.$el.css('position', 'static');
+  }
+};
+
+//去除字符串首尾空格
+function trimStr(str) {
+  return str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+}
+
+var rememberUser = {
+  remember: function(account) {
+    setCookie("yszAccount", account);
+  },
+  getLast: function() {
+    return getCookie("yszAccount");
+  }
+}
+
+//cookie相关：设置、获取、删除
+function setCookie(name, value, expireMinutes) {
+  expireMinutes = expireMinutes || 2592000;
+  var time = new Date();
+  time.setMinutes(time.getMinutes() + expireMinutes);
+  document.cookie = name + "=" + value + ";path=/;expires=" + time.toUTCString();
+}
+
+function getCookie (name) {
+  var cookies = document.cookie.split(';');
+  var total   = cookies.length;
+  var i, cookie;
+  
+  for (i = 0; i < total; i++) {
+    cookie = cookies[ i ].split('=');
+    
+    if (cookie[0][0] == ' ') {
+      cookie[0] = cookie[0].substring(1, cookie[0].length);
+    }
+    
+    if (name == decodeURIComponent(cookie[0])) {
+      return (cookie.length > 1) ? decodeURIComponent(cookie.splice(1, cookie.length).join('=')) : true ;
+    }
+  }
+  
+  return '';
+}
+
+function deleteCookie(name) {
+  if (getCookie(name) === true) {
+    return setCookie(name, undefined, 0);
+  }
+
+  return setCookie(name, '', 0);
+}
+
+
+// 弹出层提示
+var isShow=false;
+var TipsShow=(function(){
+  var Showtips=function(o){
+    this.timer=o.timer||2000,
+    this.info=o.info||"请输入提示信息",
+    this.callback=o.callback,
+    this.init();
+  }
+  Showtips.prototype={
+    init:function(){
+      if(!isShow){
+        isShow=true;
+        var body=document.getElementsByTagName("body")[0];
+        var div=document.createElement("div");
+        div.className="tipshow effect";
+        div.id="tipshow";
+        body.insertBefore(div,null);
+        var tipbg=document.createElement("div");
+        tipbg.className="tipbg";
+        var tipshow=document.getElementById("tipshow");
+        tipshow.appendChild(tipbg);
+        var fontwrap=document.createElement("div");
+        fontwrap.className="fontwrap";
+        tipshow.appendChild(fontwrap);
+        var font=document.createElement("div");
+        font.className="font";
+        font.innerHTML=this.info;
+        tipshow.children.item(1).appendChild(font);
+        setTimeout(function(){
+          var ele=document.getElementById("tipshow");
+          ele.parentNode.removeChild(ele);
+          isShow=false;
+        },this.timer);
+      }
+      return;
+    }
+  }
+   return {
+        showtips: function(o) {
+            var st = new Showtips(o);
+        }
+    };
+})();

@@ -1,0 +1,80 @@
+<?php
+
+namespace Mp\Logic;
+
+use Mp\Base\BaseLogic;
+use Mp\Model\ConfigModel;
+use Mp\Model\ArtworkModel;
+use Mp\Logic\ArtworkLogic;
+use Mp\Model\ArtworkCategoryModel;
+use Custom\Define\Image;
+use Custom\Define\Cache;
+
+class ArtworkCategoryLogic extends BaseLogic
+{
+    public function getCategoryTagList(){
+        $list = $this->model->field('id,sort,cn_name as name')->where(['id'=>['neq',10]])->order('sort asc')->select();
+        return empty($list) ? [] : $list;
+    }
+
+    public function getName($category){
+      return $this->where(['id' => $category])->getField('cn_name');
+    }
+    public function getCategoryList($format = 'json')
+    {
+        $configLogic = new ConfigLogic();
+        return $configLogic->getConfig(ConfigModel::ARTWORK_CATEGORY_LIST, $format);
+    }
+    public  function getList($forceUpdate = false)
+    {
+        if ($forceUpdate) {
+            $ret = $this->model->getField('id,cn_name');
+            S(Cache::ARTWORK_CATEGORY_CN_LIST, $ret);
+        } else {
+            $ret = S(Cache::ARTWORK_CATEGORY_CN_LIST);
+            if (is_null($ret) ) {
+                $result = $this->model->getField('id,cn_name');
+                S(Cache::ARTWORK_CATEGORY_CN_LIST, $result);
+                $ret = $result;
+            }
+        }
+        if (!is_array($ret)) {
+            $ret = [];
+        }
+        return $ret;
+    }
+    public function getCategoryByUser($userid,$im = '/',$mode = '1'){
+      $artModel = new ArtworkModel();
+      $cateModel = new ArtworkCategoryModel();
+      $category_content = $cateModel->getContent(implode(',',$artModel->getFields(['artist' => $userid],'category')));
+      if($mode == '1'){
+        return implode($im,array_values($category_content));
+      }else{
+        return $category_content;
+      }
+    }
+    public function useTotal($id){
+      $artLogic = new ArtworkLogic();
+      return $artLogic->where(['is_deleted' => 'N' , 'category' => $id])->count();
+    }
+
+    public function  getStrByids($ids){
+        $return_str='';
+        $ids_arr = explode(',', $ids);
+        $ids_arr_fix=[];
+        foreach ($ids_arr as $value) {
+            if ($value > 0)
+                array_push($ids_arr_fix, intval($value));
+        }
+        if(count($ids_arr_fix)>0){
+            $map['id'] = ['in', implode(',', $ids_arr_fix)];
+            $color_list = $this->field('cn_name')->where($map)->select();
+            foreach ($color_list as $value) {
+                $return_str=$return_str==''?$value['cn_name']:$return_str.','.$value['cn_name'];
+            }
+            return $return_str;
+        }else{
+            return '';
+        }
+    }
+}

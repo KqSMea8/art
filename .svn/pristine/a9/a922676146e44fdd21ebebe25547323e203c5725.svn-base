@@ -1,0 +1,10 @@
+<?php
+
+namespace V22\Model;
+
+use V22\Base\BaseModel;
+
+class ArticleCommentLikeModel extends BaseModel
+{
+    protected $tableName = 'article_comment_like';
+}

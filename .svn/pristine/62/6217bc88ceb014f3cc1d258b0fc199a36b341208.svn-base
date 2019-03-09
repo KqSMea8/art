@@ -1,0 +1,39 @@
+<?php
+namespace V40\Base;
+
+
+use Think\Model;
+
+class BaseLogic extends Model
+{
+    protected  $model = null;
+    protected static $namespacePrefix = 'V40\\Model\\';
+    public function __construct($name = '', $tablePrefix = '', $connection = '')
+    {
+        parent::__construct($name, $tablePrefix, $connection);
+        $className = $this->getModelName();
+        $qualifiedClassName = static::$namespacePrefix.$className.'Model';
+        $this->model = new $qualifiedClassName();
+    }
+    public function addOne($data)
+    {
+        return $this->model->add($data);
+    }
+    public function update($id, $info)
+    {
+        return $this->model->where(['id'=>$id])->save($info);
+    }
+    public function setFieldInfoById($id, $fieldInfo)
+    {
+        return $this->model->where(['id'=>$id])->setField($fieldInfo);
+    }
+    public function getDetail($id)
+    {
+        $data = $this->model->where(['id'=>$id])->find();
+        if (empty($data)) {
+            return [];
+        } else {
+            return $data;
+        }
+    }
+}

@@ -1,0 +1,117 @@
+<?php
+
+namespace V60\Controller;
+
+use V60\Base\ApiBaseController;
+use Custom\Helper\AliyunMts;
+
+class AttachmentsController extends ApiBaseController
+{
+
+    //在线编辑器图片库
+    public function MyListForUeditor()
+    {
+
+        $start = intval(I('get.start'));
+        $size = intval(I('get.size'));
+
+        $Attachments = M("attachments");
+
+        $OSS_STS_array = C('OSS_STS');
+        $is_test = intval($OSS_STS_array['is_test']);
+        if($is_test==1){
+            $where=['poster_id' => $this->loginUserId,'mimetype'=>['LIKE','image%']];
+        }else{
+            $where=['poster_id' => $this->loginUserId,'is_test'=>0,'mimetype'=>['LIKE','image%']];
+        }
+
+        $total = $Attachments
+            ->where($where)
+            ->count();
+
+        $start = $start <= 0 ? 1 : $start;
+        $page = ceil($start / $size);
+
+        $Attachments_list = $Attachments
+            ->where($where)
+            ->order('attach_id desc')
+            ->page($page, $size)
+            ->select();
+
+        
+
+        if (count($Attachments_list) <= 0) {
+            $return = [
+                "state" => "no match file",
+                "list" => array(),
+                "start" => 0,
+                "total" => 0
+            ];
+            echo json_encode($return);
+            exit;
+        }
+
+        $list = [];
+        foreach ($Attachments_list as $value) {
+            $img = [
+                "url" => $value['file_domain_name'] . '/' . $value['file_url'],
+                "mtime" => $value['filetime']
+            ];
+            array_push($list, $img);
+        }
+
+
+        $return = [
+            'state' => 'SUCCESS',
+            'list' => $list,
+            'start' => $start,
+            'total' => $total,
+        ];
+        echo json_encode($return);
+
+    }
+
+    //视频封面生成，POST/GET图片地址video_src
+    public function MakeScreenshot()
+    {
+        $artzhe_oss = 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/';
+
+        $video_src = trim(I('post.video_src'));
+        
+        if($video_src==''){
+            $return=['state'=>0,'msg'=>'请输入视频地址'];
+            echo json_encode($return);
+            exit;
+        }
+        $pos = strpos($video_src, $artzhe_oss);
+        if ($pos === false) {
+            $return=['state'=>0,'msg'=>'不是artzhe的视频'];
+            echo json_encode($return);
+            exit;
+        }
+
+        $video_src = trim($video_src);
+        $video_src_path = str_replace($artzhe_oss, "", $video_src); //视频保存路径
+        $pos = strripos($video_src_path, '.');
+        if ($pos !== false) {
+            $screenshot_src_path = substr($video_src_path, 0, $pos) . '_screenshot.jpg'; //视频截图保存路径
+        } else {
+            $screenshot_src_path = $video_src_path . '_screenshot.jpg';
+        }
+        $AliyunMts = new AliyunMts();
+        $screenshot_result = $AliyunMts->screenshot($video_src_path, $screenshot_src_path);//截图
+
+        if ($screenshot_result->State == 'Success') {
+            $poster = $artzhe_oss . $screenshot_src_path;
+            $return=['state'=>1,'poster'=>$poster,'msg'=>'封面生成成功'];
+            echo json_encode($return);
+            exit;
+        }else{
+            $return=['state'=>0,'msg'=>'封面生成失败'];
+            echo json_encode($return);
+            exit;
+        }
+
+    }
+
+}

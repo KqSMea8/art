@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者">
+    <title>注册</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link href="/Public/Home/js/lib/element/index.css" rel="stylesheet">
+    <link href="/Public/Home/css/iconfont/iconfont.css" rel="stylesheet">
+    <link href="/Public/Home/css/global.css" rel="stylesheet">
+    <link href="/Public/Home/css/gcommon.css" rel="stylesheet">
+    <link href="/Public/Home/css/reg.css?v=0.0.1" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <header class="ysz-header">
+        <div class="y-header">
+          <div class="w clearfix">
+            <h1 class="y-head fl">
+            <img class="logo" src="/Public/Home/image/logo.png" alt="logo">
+            <span class="y-title">创作平台</span>
+            </h1>
+            <p class="login fr">已有账号？<a href="/home/index">登录</a></p>
+          </div>
+        </div>
+      </header>
+      <div id="main">
+        <div class="w clearfix">
+          <div class="main-wrap mb-60" id="reg">
+            <h2 class="title">注册</h2>
+            <div class="stage-wrap">
+              <div class="stage-info">
+                <ul class="navul clearfix">
+                  <li class="active">
+                    <i class="i-num">1</i>输入手机号
+                  </li>
+                  <li class="active">
+                    <i class="i-num">2</i>验证并设置密码
+                  </li>
+                  <li>
+                    <i class="i-num iconfont">&#xe601;</i>注册完成
+                  </li>
+                </ul>
+              </div>
+              <div class="reg-wrap">
+                <form class="yszform">
+                  <div class="second-wrap form">
+                    <div class="item clearfix">
+                      <div class="tit"><label for="verifyCode">验证码</label></div>
+                      <div class="con">
+                        <div class="box" >
+                          <input v-model="formData.verifyCode" class="input input-m" type="text" nullmsg="请输入验证码" errormsg="请填写正确的验证码" sucmsg=" " placeholder="请输入验证码" maxlength="6">
+                          <input v-model="getVerifyCodeText" @click="getVerifyCode" type="button" :class="[isClickgetVerify ? 'clicked' : '', 'btn', 'btn-14', 'fr']">
+                        </div>
+                        <div class="tip"><div class="Validform_checktip"></div></div>
+                      </div>
+                      <div class="item clearfix">
+                        <div class="tit"><label for="pass">设置密码</label></div>
+                        <div class="con">
+                          <div class="box" >
+                            <input v-model="formData.password" class="input" type="password" maxlength="16" placeholder="6-16位字母、数字或字符（除空格）" maxlength="16">
+                          </div>
+                          <div class="tip"><div class="Validform_checktip"></div></div>
+                        </div>
+                      </div>
+                      <div class="item clearfix">
+                        <div class="tit"><label for="rePass">确认密码</label></div>
+                        <div class="con">
+                          <div class="box" >
+                            <input v-model="formData.password2" class="input" type="password" datatype="*" errormsg="两次输入密码不一致"  placeholder="请再次输入密码" maxlength="16">
+                          </div>
+                          <div class="tip"><div class="Validform_checktip"></div></div>
+                        </div>
+                      </div>
+                      <div class="btn-group next">
+                        <p class="error-text">{{errorTip}}</p>
+                        <input @click="submitForm" class="btn btn-24" type="button" value="注册">
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <div class="y-footer">
+          <div class="w clearfix">
+            <p class="mail">联系邮箱：yishuzhe@gaosouyi.com</p>
+            <p class="qrcode">
+              <img src="/Public/Home/image/qrcode-wx.png">
+              <img src="/Public/Home/image/qrcode-app.png">
+            </p>
+            <p>
+              Copyright 2017 www.artzhe.com. All Rights Reserved<br>
+              粤ICP备17041531号-1
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+  <script src="/Public/Home/js/lib/vue.js"></script>
+  <script src="/Public/Home/js/lib/element/index.js"></script>
+  <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://cdn.bootcss.com/blueimp-md5/1.1.0/js/md5.min.js"></script>
+  <script src="/Public/Home/js/service/agent.js"></script>
+  <script src="/Public/Home/js/common.js"></script>
+  <script src="/Public/Home/js/reg/second.js"></script>
+</html>

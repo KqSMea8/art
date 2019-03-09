@@ -1,0 +1,11 @@
+<?php
+
+namespace V43\Model;
+
+
+use V43\Base\BaseModel;
+
+class FeedbackModel extends BaseModel
+{
+    protected $tableName = 'feedback';
+}

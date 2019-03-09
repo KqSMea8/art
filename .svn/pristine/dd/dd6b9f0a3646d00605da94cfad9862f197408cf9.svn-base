@@ -1,0 +1,338 @@
+<?php
+
+namespace V40\Logic;
+
+use V40\Base\BaseLogic;
+use V40\Model\ThirdModel;
+use V40\Model\UserModel;
+use V40\Model\ArtworkModel;
+use V40\Model\UserFollowerModel;
+use V40\Logic\ArtworkCategoryLogic;
+use Custom\Define\Cache;
+use Custom\Define\Code;
+use Custom\Define\Image;
+use Custom\Define\Time;
+use Custom\Helper\Oss;
+use Custom\Helper\Util;
+
+class UserLogic extends BaseLogic
+{
+    //判断手机号是否被使用
+    public function isMobileUsed($mobile)
+    {
+        //包含删除和禁用的用户
+        $id = $this->model->where(['mobile' => $mobile])->getField('id');
+        return empty($id) ? false : $id;
+    }
+
+    public function saveLoginInfo($userId)
+    {
+        $this->model->find($userId);
+        $this->model->last_login_time = $_SERVER['REQUEST_TIME'];
+        $this->model->login_times = $this->model->login_times + 1;
+        return $this->model->save();
+    }
+
+    /*
+      $params = [
+          'mobile'=>'',
+          'nickname'=>'',
+          'password'=>'',
+          'gender'=>'',
+          'inviteCode'=>'',
+          'deviceInfo'=>'',
+          'faceUrl'=>''
+      ];
+     */
+    public function addUser($params)
+    {
+        $passwordInfo = Util::encryptPassword($params['password']);
+
+        //创建新用户，如果有渠道信息就绑定对应的渠道
+        // $uploadResult = Oss::uploadFaceUrl($params['faceUrl']);
+        // $bodyJson = json_decode($uploadResult['body'], true);
+        $params['nickname'] = Util::emojiStrReplace($params['nickname']);
+        $userData = [
+            'mobile' => $params['mobile'],
+            'nickname' => empty(trim($params['nickname'])) ? '艺术者' : $params['nickname'],
+            'name' => empty(trim($params['nickname'])) ? '艺术者' : $params['nickname'],
+            'gender' => $params['gender'],
+            'face' => $params['faceUrl'],
+            'enc_password' => $passwordInfo['encryptedPassword'],
+            'enc_salt' => $passwordInfo['salt'],
+            'motto' => '',
+            'resume' => '',
+            'from' => empty($params['from']) ? '' : $params['from'],
+            'device_info_json' => '{}',
+            'ip' => get_client_ip(1),
+            'login_times' => 1,
+            'last_login_time' => time(),//注册好了之后马上返回登录信息
+            'update_time' => time(),
+            'create_time' => time(),
+            'last_update_time' => time()
+        ];
+        return $this->model->add($userData);
+    }
+
+    public function resetPasswd($mobile, $passwd)
+    {
+        if (!empty($mobile)) {
+            $passwordInfo = Util::encryptPassword($passwd);
+            return $this->where(['mobile' => $mobile])->save(['enc_password' => $passwordInfo['encryptedPassword'], 'enc_salt' => $passwordInfo['salt']]);
+        } else {
+            return false;
+        }
+    }
+
+    public function getUserInfoByIdShow($userId)
+    {
+        $categoryLogic = new ArtworkCategoryLogic();
+        $data = $this->model
+            ->field('name,nickname,account,motto,resume,birthday,gender,face,mobile,follower_total,follow_total,invite_total')
+            ->where(['id' => $userId])
+            ->find();
+        if (!empty($data)) {
+            $data['faceUrl'] = Util::getFillImage(Util::getImgUrlById($data['face']), Image::faceWidth, Image::faceHeight);
+            $data['category'] = $categoryLogic->getCategoryByUser($userId);
+            return $data;
+        } else {
+            return [];
+        }
+    }
+
+    public function getUserInfoById($userId)
+    {
+        $data = $this->model
+            ->where(['id' => $userId])
+            ->find();
+        return empty($data) ? [] : $data;
+    }
+
+    public function getUserInfoByMobile($mobile)
+    {
+        $data = $this->model
+            ->where(['mobile' => $mobile])
+            ->find();
+        return empty($data) ? [] : $data;
+    }
+
+    //get artist name list by the specified id array
+    public function getUserNamesByIds($idList)
+    {
+        $data = $this->model->where(['id' => $idList])->getField('id,name');
+        if (empty($data)) {
+            return [];
+        } else {
+            return $data;
+        }
+    }
+
+    public function getUserInfoListByIds($idList)
+    {
+        $list = $this->model->where(['id' => ['in',$idList], 'is_deleted' => 'N', 'banned_to' => -1])->select();
+        if (empty($list)) {
+            return [];
+        } else {
+            return $list;
+        }
+    }
+
+    //检查用户注册情况
+    public function checkMobileRegister($mobile, $password)
+    {
+        $userInfo = $this->getUserInfoByMobile($mobile);
+        $encInfo = Util::encryptPassword($password, $userInfo['enc_salt']);
+        return ($encInfo['encryptedPassword'] === $userInfo['enc_password']);
+    }
+
+    //修改用户信息
+    public function setUserField($userId, $kv)
+    {
+        if (!empty($userId)) {
+            return $this->model->where(['id' => $userId])->setField($kv);
+        } else {
+            return false;
+        }
+    }
+
+    //检查密码是否匹配
+    public function checkPassword($userId, $password)
+    {
+        $userInfo = $this->getUserInfoById($userId);
+        return Util::isPasswordMatch($password, $userInfo['enc_password'], $userInfo['enc_salt']);
+    }
+
+    public function isInviteCodeValid($inviteCode)
+    {
+        if (preg_match('/^\d+$/', $inviteCode)) {
+            $userId = Util::inviteCodeToUserId($inviteCode);
+            $userInfo = $this->model->where(['id' => $userId])->find();
+            if (!empty($userInfo)) {
+                if ($userInfo['type'] == 3 || $userInfo['type'] == 7) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function getUserInfo($uid, $field = 'id,face,nickname,name,motto,gender,follower_total,follow_total,invite_total')
+    {
+        $info = $this->field($field)->where(['id' => $uid, 'is_deleted' => 'N', 'banned_to' => '-1'])->find();
+        if (!empty($info)) {
+            $info['faceUrl'] = Util::getImageResize(Util::getImgUrlById($info['face']), Image::faceWidth, Image::faceHeight);
+            return $info;
+        } else {
+            return [];
+        }
+    }
+
+    public function getUserDesc($uid, $loginUid = '')
+    {
+        $userinfo = $this->field('id,nickname,name,gender,face,motto')->where(['id' => $uid, 'is_deleted' => 'N', 'banned_to' => '-1'])->find();
+        $artModel = new ArtworkModel();
+        $userFollowerModel = new UserFollowerModel();
+        $artTotal = $artModel->where(['artist' => $uid, 'is_deleted' => 'N'])->count();
+        $userinfo['artTotal'] = $artTotal;
+        $userinfo['faceUrl'] = Util::getImageResize(Util::getImgUrlById($userinfo['face']), Image::faceWidth, Image::faceHeight);
+        $userinfo['face'] = $userinfo['faceUrl'];
+        if ($loginUid) {
+            $userinfo['isFollow'] = $userFollowerModel->isFollow($uid, $loginUid);
+        } else {
+            $userinfo['isFollow'] = 'N';
+        }
+        $userinfo['follower_total'] = $userFollowerModel->where(['user_id' => $uid, 'is_follow' => 'Y'])->count();
+        return $userinfo;
+    }
+
+    public function getUserField($field, $uid)
+    {
+        return $this->where(['id' => $uid, 'is_deleted' => 'N', 'banned_to' => '-1'])->getField($field);
+    }
+
+    public function statCategory($loginUserId)
+    {
+        $categoryLogic = new ArtworkCategoryLogic();
+        $cate = $categoryLogic->getCategoryByUser($loginUserId, ',', '2');
+        if (!empty($cate)) {
+            $cate = implode(',', array_keys($cate));
+        } else {
+            $cate = '';
+        }
+        $this->where(['id' => $loginUserId])->setField('category', $cate);
+    }
+
+    public function total($type = 0, $etime = 0, $stime = 0)
+    {
+        $where = 'is_deleted="N"';
+        if (!empty($type)) {
+            $where .= ' and type=' . $type;
+        }
+        if (!empty($etime)) {
+            $where .= ' and create_time < ' . $etime;
+        }
+        if (!empty($stime)) {
+            $where .= ' and create_time>=' . $stime;
+        }
+
+        return $this->where($where)->count();
+    }
+
+    public function getFace($uid)
+    {
+        $face = $this->where(['id' => $uid])->getField('face');
+        return Util::getFillImage($face, Image::faceWidth, Image::faceHeight);
+    }
+
+    public function isArtist($userid)
+    {
+        $userid = intval($userid);
+        if ($userid <= 0) {
+            return false;
+        } else {
+            $res = M('User')->field('type')->find($userid);
+            if (empty($res)) {
+                return false;
+            } else {
+                if ($res['type'] == 3) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
+    public function isAgency($userid)
+    {
+        $userid = intval($userid);
+        if ($userid <= 0) {
+            return false;
+        } else {
+            $res = M('Agency')->where('uid=' . $userid . ' and status=2')->find();
+            if ($res) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function isPlann($userid)
+    {
+        $userid = intval($userid);
+        if ($userid <= 0) {
+            return false;
+        } else {
+            $res = M('Planner')->where('uid=' . $userid . ' and status=2')->find();
+            if ($res) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function getAgencyType($userid)
+    {
+        $userid = intval($userid);
+        if ($userid <= 0) {
+            return 0;
+        } else {
+            $res = M('Agency')->field('type')->where('uid=' . $userid . ' and status=2')->find();
+            if ($res) {
+                return (int)$res['type'];
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    public function getAgencyTypeList_byUids(array $userids)
+    {
+        if (count($userids) == 0) {
+            return [];
+        } else {
+            $arr_length=count($userids);
+            for ($i = 0; $i <$arr_length ; $i++) {
+                $userids[$i] = intval($userids[$i]);
+            }
+            $AgencyList = M('Agency')->field('uid,type')->where("uid in(".implode(',',$userids).") and status=2")->select();
+            if(!$AgencyList){
+                return [];
+            }else{
+                $AgencyTypeList=[];
+               foreach($AgencyList as $value){
+                   $AgencyTypeList[$value['uid']]=(int)$value['type'];
+               }
+               return $AgencyTypeList;
+            }
+        }
+    }
+
+}

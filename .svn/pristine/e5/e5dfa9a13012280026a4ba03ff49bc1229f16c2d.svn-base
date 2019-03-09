@@ -1,0 +1,10 @@
+<?php
+namespace H5\Controller;
+
+use Custom\Helper\Util;
+use Think\Controller;
+
+//测试模块
+class IndexController extends Controller {
+
+}

@@ -1,0 +1,11 @@
+var vmAuth = new Vue({
+  el: '#auth',
+  data: {
+    
+  },
+  methods: {
+    goToThird: function () {
+      window.location.href = '/home/auth/third';
+    }
+  }
+});

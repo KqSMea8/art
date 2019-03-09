@@ -1,0 +1,45 @@
+<?php
+
+namespace V31\Controller;
+
+use V31\Base\ApiBaseController;
+use V31\Logic\ArtworkCategoryLogic;
+use V31\Logic\ArtworkColorLogic;
+use V31\Logic\ArtworkLikeLogic;
+use V31\Logic\ArtworkLogic;
+use V31\Logic\ArtworkTagLogic;
+use V31\Logic\ArtworkUpdateLogic;
+use V31\Logic\CommentLogic;
+use V31\Logic\AssetsLogic;
+use V31\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+
+//artwork upload
+class CommentController extends ApiBaseController{
+  public function zan(){
+    $this->checkLogin();
+      $tokenInfo = Token::getTokenInfo($this->token);
+      $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+
+    $commentId = I('post.commentId','','number_int');
+    $uid = I('post.uid','','number_int');
+    $commentLogic = new CommentLogic();
+    $commentLogic->zan($commentId,$userId);
+    Util::jsonReturn(['status'=>Code::SUCCESS]);
+  }
+  public function unzan(){
+    $this->checkLogin();
+      $tokenInfo = Token::getTokenInfo($this->token);
+      $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+
+    $commentId = I('post.commentId','','number_int');
+    $uid = I('post.uid','','number_int');
+    $commentLogic = new CommentLogic();
+    $commentLogic->unzan($commentId,$userId);
+    Util::jsonReturn(['status'=>Code::SUCCESS]);
+  }
+}

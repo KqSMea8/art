@@ -1,0 +1,82 @@
+<?php
+
+namespace Mp\Controller;
+use Mp\Base\ApiBaseController;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+
+class VideoController extends ApiBaseController{
+
+    function postinfo(){
+        $url = trim(I('post.url'));
+        $poster = trim(I('post.poster'));
+        $video_name = trim(I('post.video_name'));
+
+
+        if($url==''||$poster==''){
+            Util::jsonReturn(null, Code::SYS_ERR, '不能为空');
+        }else{
+            $Video=M('Video');
+
+            $Videodata = [
+                'url' => $url,
+                'poster' => $poster,
+                'video_name' => $video_name,
+                'userid' => $this->loginUserId,
+                'create_time' => time(),
+            ];
+            $insertId = $Video->add($Videodata);
+            Util::jsonReturn(['status' => 1000]);
+        }
+    }
+
+    public function myvideo()
+    {
+
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $Video=M('Video');
+
+        $where['userid'] = $this->loginUserId;
+
+
+        $total = $Video->where($where)->count();
+        $lists = $Video
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+
+
+        $lists_return = [];
+        foreach ($lists as $value) {
+            $list['id'] = $value['id'];
+            $list["url"] = $value['url'];
+            $list["poster"] = $value['poster'];
+            $list["video_name"] = $value['video_name'];
+            $list["create_time"] = date('Y-m-d H:i:s',$value['create_time']);
+
+
+            $lists_return[] = $list;//添加进articles
+        }
+
+        $maxpage = ceil($total / $pagesize) ;
+        $info = [
+            'list' => $lists_return,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+}

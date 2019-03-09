@@ -1,0 +1,935 @@
+<?php
+
+namespace Admin\Controller;
+
+use Custom\Helper\AdmTpl;
+use Common\Base\AdminBaseController;
+use Admin\Logic\ArtworkPrintsLogic;
+use Think\Model;
+use Custom\Helper\Nav;
+use Common\Logic\UserLogic;
+
+class ArtworkPrintsController extends AdminBaseController
+{
+    public $pagesize = 15;  //每页显示条数
+
+    public function index()
+    {
+        $art_name = I('get.art_name');
+        $artist_name = I('get.artist_name');
+        $sdate = I('get.sdate');  //注册开始时间
+        $edate = I('get.edate');  //注册结束时间
+
+        $page = I('get.page', '1');  //页码
+        $ArtworkPrintsLogic = new ArtworkPrintsLogic();
+
+
+        $where = "1=1 ";
+        $where = "status!=0";
+        if (trim($art_name) != '') {
+            $where = $where . " and art_name like '%" . addslashes(trim($art_name)) . "%'";
+        }
+        if (trim($artist_name) != '') {
+            $where = $where . " and artist_name like '%" . addslashes(trim($artist_name)) . "%'";
+        }
+        if ($this->checkDateFormat($sdate)) {
+            if(strtotime($sdate)){
+                $where = $where . " and create_time>=" . strtotime($sdate);
+            }
+        }
+        if ($this->checkDateFormat($edate)) {
+            if(strtotime($edate)){
+                $edate_time = strtotime($edate) + 86400;
+                $where = $where . " and create_time<=" . $edate_time;
+            }
+        }
+
+        $ArticleTotal = $ArtworkPrintsLogic
+            // ->join('az_user on az_user.id=az_article.artist')
+            ->where($where)->count();
+//echo $ArticleLogic->getLastSql();
+        $lists = $ArtworkPrintsLogic
+            ->field('*')
+            // ->join('az_user on az_user.id=az_article.artist')
+            ->where($where)
+            ->order('id DESC')
+            ->page($page, $this->pagesize)
+            ->select();
+
+
+        $nav = Nav::render(U('Admin/ArtworkPrints/index'), ['art_name' => $art_name, 'artist_name' => $artist_name, 'sdate' => $sdate, 'edate' => $edate], $page, $this->pagesize, $ArticleTotal);
+
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+
+        $this->display();
+    }
+
+
+    protected function checkDateFormat($date)
+    {
+        if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $date, $parts)) {
+            if (checkdate($parts[2], $parts[3], $parts[1])) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+
+    function exportExcel()
+    {
+
+        /** Include PHPExcel */
+        require_once ROOT_PATH . "vendor/PHPExcel/PHPExcel.php";
+
+        //$prints_id = 7;
+        $prints_id = intval(I('get.prints_id'));
+
+        error_reporting(E_ALL);
+        ini_set('display_errors', TRUE);
+        ini_set('display_startup_errors', TRUE);
+        date_default_timezone_set('Asia/Chongqing');
+
+        if (PHP_SAPI == 'cli')
+            die('This example should only be run from a Web Browser');
+
+
+        $artwork_prints_info = M('artwork_prints')->where('id=' . intval($prints_id) . '  and  status=1')->find();
+
+        if ($artwork_prints_info) {
+
+            // Create new PHPExcel object
+            $objPHPExcel = new \PHPExcel();
+
+// Set document properties
+            $objPHPExcel->getProperties()->setCreator("Maarten Balliauw")
+                ->setLastModifiedBy("Maarten Balliauw")
+                ->setTitle("Office 2007 XLSX Test Document")
+                ->setSubject("Office 2007 XLSX Test Document")
+                ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+                ->setKeywords("office 2007 openxml php")
+                ->setCategory("Test result file");
+
+
+// Add some data
+
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A1:J2');
+            $objPHPExcel->getActiveSheet()->mergeCells('A5:J6');
+            $objPHPExcel->getActiveSheet()->getStyle('A1:J1')->getAlignment()->setHorizontal('center');
+            $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setName('宋体')->setSize(14)//字体
+            ->setBold(true); //字体加粗
+            $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(18);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(18);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(18);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(18);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(18);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(18);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setWidth(18);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(18);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(18);
+            $objPHPExcel->getActiveSheet()->getColumnDimension('J')->setWidth(18);
+
+            $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('A1', '艺术者版画');
+            $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->getColor()->setARGB('FF0000FF');
+
+            $objPHPExcel->getActiveSheet()->getStyle('A3')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('B3')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('C3')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('D3')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('E3')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('F3')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('G3')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('H3')->getFont()->setBold(true);
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('C4')->getNumberFormat()
+                ->setFormatCode('@');
+            $objPHPExcel->getActiveSheet()->getStyle('D4')->getNumberFormat()
+                ->setFormatCode('@');
+            $objPHPExcel->getActiveSheet()->getStyle('E4')->getNumberFormat()
+                ->setFormatCode('@');
+
+
+            $artwork_prints_list_count = M('artwork_prints_list')->where('prints_id=' . intval($prints_id))->count('id');
+
+
+            $counts = $artwork_prints_list_count;
+            $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('A3', '作品名称')
+                ->setCellValue('B3', '艺术家')
+                ->setCellValue('C3', '印刷年份')
+                ->setCellValue('D3', '印刷版次')
+                ->setCellValue('E3', '印刷数量')
+                ->setCellValue('F3', '艺术者-版画数量');
+
+            $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('A4', $artwork_prints_info['art_name'])
+                ->setCellValue('B4', $artwork_prints_info['artist_name'])
+                ->setCellValue('C4', $artwork_prints_info['print_year'])
+                ->setCellValue('D4', $artwork_prints_info['print_version'])
+                ->setCellValue('E4', $artwork_prints_info['print_total'])
+                ->setCellValue('F4', $counts);
+
+
+            $objPHPExcel->getActiveSheet()->getStyle('A7')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('B7')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('C7')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('D7')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('E7')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('F7')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('G7')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('H7')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('I7')->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->getStyle('J7')->getFont()->setBold(true);
+
+            $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('A7', '编号')
+                ->setCellValue('B7', '作品名称')
+                ->setCellValue('C7', '艺术家')
+                ->setCellValue('D7', '第N幅')
+                ->setCellValue('E7', '形状')
+                ->setCellValue('F7', '尺寸')
+                ->setCellValue('G7', '销售状态')
+                ->setCellValue('H7', '购买人')
+                ->setCellValue('I7', '购买时间')
+                ->setCellValue('J7', '价格');
+
+            $artwork_prints_list = M('artwork_prints_list')->where('prints_id=' . intval($prints_id))->select();
+            if ($artwork_prints_list) {
+                $i = 8;
+                // while ($obj = $result->fetch_object()) {
+                foreach ($artwork_prints_list as $key => $value) {
+                    // $objPHPExcel->getStyle('E'.$i)->getFill()->getStartColor()->setARGB("0017C405");
+                    if ($value['is_sold'] == 1) {
+                        $objPHPExcel->getActiveSheet()->getStyle('G' . $i)->getFont()->getColor()->setARGB('FF0000FF');
+                    }
+                    $objPHPExcel->getActiveSheet()->getStyle('A' . $i)->getNumberFormat()
+                        ->setFormatCode('@');
+                    $objPHPExcel->getActiveSheet()->getStyle('D' . $i)->getNumberFormat()
+                        ->setFormatCode('@');
+                    //$value['is_sold']
+                    if ($value['shape'] == 1) {
+                        $shape_t = '方形';
+                        $size_t = $value['length'] . '×' . $value['width'];
+                    } elseif ($value['shape'] == 2) {
+                        $shape_t = '圆形';
+                        $size_t = '直径:' . $value['diameter'];
+                    }
+                    if($value['is_ap']==1) {
+                        $prints_number_t = 'A/P版';
+                        if(trim($value['storage_address'])!='')$prints_number_t=$prints_number_t.' ('.$value['storage_address'].')';
+                    }else{
+                        $prints_number_t =  $value['prints_number'];
+                    }
+                    $objPHPExcel->setActiveSheetIndex(0)
+                        ->setCellValue('A' . $i, $value['serial_number'])
+                        ->setCellValue('B' . $i, $value['art_name'])
+                        ->setCellValue('C' . $i, $value['artist_name'])
+                        ->setCellValue('D' . $i, $prints_number_t)
+                        ->setCellValue('E' . $i, $shape_t)
+                        ->setCellValue('F' . $i, $size_t)
+                        ->setCellValue('G' . $i, $value['is_sold'] == 1 ? '已经出售' : '未出售')
+                        ->setCellValue('H' . $i, $value['is_sold'] == 1 ? $value['buyer'] : '')
+                        ->setCellValue('I' . $i, $value['is_sold'] == 1 ? date('Y-m-d', $value['buy_time']) : '')
+                        ->setCellValue('J' . $i, $value['is_sold'] == 1 ? $value['price'] : '');
+                    $i++;
+                }
+            }
+// Rename worksheet
+            $objPHPExcel->getActiveSheet()->setTitle('Simple');
+
+
+// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+            $objPHPExcel->setActiveSheetIndex(0);
+
+
+// Redirect output to a client’s web browser (Excel2007)
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . htmlspecialchars($artwork_prints_info['art_name'] . $artwork_prints_info['print_year'] . '-' . $artwork_prints_info['print_version']) . '.xlsx"');
+            header('Cache-Control: max-age=0');
+// If you're serving to IE 9, then the following may be needed
+            header('Cache-Control: max-age=1');
+
+// If you're serving to IE over SSL, then the following may be needed
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
+            header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+            header('Pragma: public'); // HTTP/1.0
+
+            $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+            $objWriter->save('php://output');
+            exit;
+        } else {
+            echo 'error';
+        }
+
+    }
+
+    function printsList()
+    {
+
+
+        //$prints_id = 7;
+        $prints_id = intval(I('get.prints_id'));
+
+
+        $artwork_prints_info = M('artwork_prints')->where('id=' . intval($prints_id) . '  and  status=1')->find();
+
+        if ($artwork_prints_info) {
+
+
+            $artwork_prints_list_count = M('artwork_prints_list')->where('prints_id=' . intval($prints_id))->count('id');
+
+
+            $counts = $artwork_prints_list_count;
+
+
+            $artwork_prints_list = M('artwork_prints_list')->where('prints_id=' . intval($prints_id))->select();
+
+            $this->assign('artwork_prints_info', $artwork_prints_info);
+            $this->assign('counts', $counts);
+            $this->assign('prints_id', $prints_id);
+            $this->assign('artwork_prints_list', $artwork_prints_list);
+            $this->display();
+        } else {
+            echo 'error';
+        }
+
+    }
+
+    public function gallery()
+    {
+
+
+        $artist_name = I('get.artist_name');
+        $sdate = I('get.sdate');  //注册开始时间
+        $edate = I('get.edate');  //注册结束时间
+
+        $page = I('get.page', '1');  //页码
+        $artwork_prints_gallery = M('artwork_prints_gallery');
+
+
+        $where = "1=1 ";
+        $where = "status!=0";
+
+        if (trim($artist_name) != '') {
+            $where = $where . " and artist_name like '%" . addslashes(trim($artist_name)) . "%'";
+        }
+        if ($this->checkDateFormat($sdate)) {
+            if(strtotime($sdate)){
+                $where = $where . " and create_time>=" . strtotime($sdate);
+            }
+        }
+        if ($this->checkDateFormat($edate)) {
+            if(strtotime($edate)){
+                $edate_time = strtotime($edate) + 86400;
+                $where = $where . " and create_time<=" . $edate_time;
+            }
+        }
+
+        $ArticleTotal = $artwork_prints_gallery
+            ->where($where)->count();
+        $lists = $artwork_prints_gallery
+            ->field('*')
+            ->where($where)
+            ->order('id DESC')
+            ->page($page, $this->pagesize)
+            ->select();
+
+        foreach($lists as $key=>$value){
+            $lists[$key]['sale_url']=htmlspecialchars_decode($value['sale_url']);
+        }
+
+        $nav = Nav::render(U('Admin/ArtworkPrints/gallery'), ['nickname' => $nickname, '$artist_name' => $artist_name, 'sdate' => $sdate, 'edate' => $edate], $page, $this->pagesize, $ArticleTotal);
+
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+
+        $this->display();
+    }
+
+
+    public function artworkSaleUrl()
+    {
+
+        $art_name = I('get.art_name');
+        $artist_name = I('get.artist_name');
+        $sdate = I('get.sdate');  //注册开始时间
+        $edate = I('get.edate');  //注册结束时间
+
+        $page = I('get.page', '1');  //页码
+        $artwork_prints_gallery = M('artwork_prints');
+
+
+        $where = "1=1 ";
+        $where = "status!=0";
+        if (trim($art_name) != '') {
+            $where = $where . " and art_name like '%" . addslashes(trim($art_name)) . "%'";
+        }
+        if (trim($artist_name) != '') {
+            $where = $where . " and artist_name like '%" . addslashes(trim($artist_name)) . "%'";
+        }
+        if ($this->checkDateFormat($sdate)) {
+            if(strtotime($sdate)){
+                $where = $where . " and az_artwork_prints.create_time>=" . strtotime($sdate);
+            }
+        }
+        if ($this->checkDateFormat($edate)) {
+            if(strtotime($edate)){
+                $edate_time = strtotime($edate) + 86400;
+                $where = $where . " and az_artwork_prints.create_time<=" . $edate_time;
+            }
+        }
+
+        $ArticleTotal = $artwork_prints_gallery
+            ->join('az_artwork on az_artwork_prints.artwork_id=az_artwork.id', 'left')
+            ->where($where)
+            //->group('az_artwork_prints.artwork_id')
+            ->count();
+        $lists = $artwork_prints_gallery
+            ->join('az_artwork on az_artwork_prints.artwork_id=az_artwork.id', 'left')
+            ->field('az_artwork_prints.id,az_artwork_prints.art_name,az_artwork_prints.artist_name,az_artwork_prints.artwork_id,az_artwork_prints.print_year,az_artwork_prints.print_version,az_artwork_prints.is_for_sale,az_artwork_prints.sale_url,az_artwork.name as artworkname')
+            ->where($where)
+            //->group('az_artwork_prints.artwork_id')
+            ->order('az_artwork_prints.id DESC')
+            ->page($page, $this->pagesize)
+            ->select();
+
+        foreach($lists as $key=>$value){
+            $lists[$key]['sale_url']=htmlspecialchars_decode($value['sale_url']);
+        }
+
+        $nav = Nav::render(U('Admin/ArtworkPrints/artworkSaleUrl'), ['art_name' => $art_name, 'artist_name' => $artist_name, 'sdate' => $sdate, 'edate' => $edate], $page, $this->pagesize, $ArticleTotal);
+
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+
+        $this->display();
+    }
+
+    public function galleryEdit()
+    {
+        if (IS_POST) {
+            $id = I('post.id');
+            $is_for_sale = intval(I('post.is_for_sale', ''));
+            $sale_url = trim(I('post.sale_url', '',''));
+            $artwork_prints_gallery = M('artwork_prints_gallery');
+            $data = [
+                'is_for_sale' => $is_for_sale,
+                'sale_url' => $sale_url,
+            ];
+
+            if($is_for_sale==1&&$sale_url==''){
+                $response = ['error' => 1, 'message' => 'error'];
+                echo json_encode($response);
+                exit;
+            }
+
+            $artwork_prints_gallery->where('id=' . intval($id))->save($data);
+
+
+            $response = ['error' => 0, 'message' => 'ok'];
+            echo json_encode($response);
+            exit;
+        }
+        $id = I('get.id');
+        $artwork_prints_gallery = M('artwork_prints_gallery');
+        $artwork_prints_gallery_info = $artwork_prints_gallery->where('id=' . intval($id))->find();
+        $artwork_prints_gallery_info['sale_url']=htmlspecialchars_decode($artwork_prints_gallery_info['sale_url']);
+        $this->assign('artwork_prints_gallery_info', $artwork_prints_gallery_info);
+        $this->display();
+    }
+
+
+    public function artworkSaleUrlEdit()
+    {
+
+        if (IS_POST) {
+            $id = I('post.id');
+            $is_for_sale = intval(I('post.is_for_sale', ''));
+            $sale_url = trim(I('post.sale_url', '',''));
+            $artwork_prints = M('artwork_prints');
+            $data = [
+                'is_for_sale' => $is_for_sale,
+                'sale_url' => $sale_url,
+            ];
+
+            if($is_for_sale==1&&$sale_url==''){
+                $response = ['error' => 1, 'message' => 'error'];
+                echo json_encode($response);
+                exit;
+            }
+            $artwork_prints->where('id=' . intval($id))->save($data);
+
+
+            //更新全部artwork_id相同的
+            $artwork_prints_info = $artwork_prints
+                ->join('az_artwork on az_artwork_prints.artwork_id=az_artwork.id', 'left')
+                ->field('az_artwork_prints.id,az_artwork_prints.artwork_id')
+                ->where('az_artwork_prints.id=' . intval($id))
+                ->find();
+            if (intval($artwork_prints_info['artwork_id']) > 0) {//艺术者平台有对应画作的，修改为同一个购买链接
+                $artwork_prints->where('artwork_id=' . intval($artwork_prints_info['artwork_id']))->save($data);
+            }
+            $response = ['error' => 0, 'message' => 'ok'];
+            echo json_encode($response);
+            exit;
+        }
+        $id = I('get.id');
+        $artwork_prints = M('artwork_prints');
+        $artwork_prints_info = $artwork_prints
+            ->join('az_artwork on az_artwork_prints.artwork_id=az_artwork.id', 'left')
+            ->field('az_artwork_prints.id,az_artwork_prints.art_name,az_artwork_prints.artist_name,az_artwork_prints.artwork_id,az_artwork_prints.print_year,az_artwork_prints.print_version,az_artwork_prints.is_for_sale,az_artwork_prints.sale_url,az_artwork.name as artworkname')
+            ->where('az_artwork_prints.id=' . intval($id))
+            ->find();
+        $artwork_prints_info['sale_url']=htmlspecialchars_decode($artwork_prints_info['sale_url']);
+        $this->assign('artwork_prints_info', $artwork_prints_info);
+        $this->display();
+    }
+
+    public function add()
+    {
+
+        if (IS_POST) {
+            $artist = intval(I('post.artist'));
+            $artist_name = trim(I('post.artist_name'));
+            $artwork_id = intval(I('post.artwork_id'));
+            $art_name = trim(I('post.art_name'));
+            $print_year = intval(I('post.print_year'));
+            $print_version = intval(I('post.print_version'));
+            $print_total = intval(I('post.print_total'));
+            $number_from = intval(I('post.number_from'));
+            $number_end = intval(I('post.number_end'));
+
+            $shape = intval(I('post.shape'));
+            $length = floatval(I('post.length'));
+            $width = floatval(I('post.width'));
+            $diameter = floatval(I('post.diameter'));
+
+            if ($shape == 1) {
+                $diameter = 0;
+            }
+            if ($shape == 2) {
+                $length = $width = 0;
+            }
+
+            if ($artist > 0 && $artist_name != '' && $artwork_id >= 0 && $art_name != '' && $print_year > 0 && $print_version > 0 && $print_total > 0 && $number_from > 0 && $number_end > 0 && $number_end > $number_from && ($number_end - $number_from + 1) <= $print_total) {
+                if (!in_array($shape, [1, 2])) {
+                    $response = ['error' => 1, 'message' => '只能是方形或者圆形'];
+                    echo json_encode($response);
+                    exit;
+                }
+                if ($shape == 1 && ($length <= 0 || $width <= 0)) {
+                    $response = ['error' => 1, 'message' => '长度宽带必填'];
+                    echo json_encode($response);
+                    exit;
+                }
+                if ($shape == 2 && $diameter <= 0) {
+                    $response = ['error' => 1, 'message' => '直径必填'];
+                    echo json_encode($response);
+                    exit;
+                }
+
+
+                ///
+                $item = [
+                    // ['number_from' => 1,
+                    //    'number_end' => 100,
+                    //     'shape' => 1,
+                    //    'length' => 34.5,
+                    //    'width' => 46.5 ,
+                    //    'diameter' => 0,
+                    // ],
+///////////////////////////////
+                    ['number_from' => $number_from,
+                        'number_end' => $number_end,
+                        'shape' => $shape,
+                        'length' => $length,
+                        'width' => $width,
+                        'diameter' => $diameter,
+                    ],
+
+                ];
+
+                $data = [
+                    'artwork_id' => $artwork_id,
+                    'art_name' => $art_name,
+                    'item' => $item,
+                    'artist' => $artist,
+                    'artist_name' => $artist_name,
+                    'print_year' => $print_year,
+                    'print_version' => $print_version,
+                    'print_total' => $print_total,
+                    'create_time' => time(),
+                ];
+                $artwork_prints = M('artwork_prints');
+
+                $thisdate = date('Y-m-d');
+                $time_from = strtotime($thisdate) - 86400 * 2;
+
+                //$artwork_prints_result = $artwork_prints->where('artist='.intval($artist).' and artwork_id=' . intval($artwork_id) . ' and create_time>' . $time_from . ' and create_time<' . $time_end)->find();
+                $artwork_prints_result = $artwork_prints->where('artist=' . intval($artist) . ' and artwork_id=' . intval($artwork_id) . ' and art_name=\'' . addslashes($art_name) . '\' and status =1 and print_year=\'' . addslashes($print_year) . '\' and print_version=' . intval($print_version) . ' and create_time>' . $time_from . ' ')->find();
+
+                if ($artwork_prints_result) {
+                    $response = ['error' => 1, 'message' => '添加过了,不能再添加'];
+                    echo json_encode($response);
+                    exit;
+                }
+
+
+                $result = $this->add_prints($data);
+                if ($result) {
+                    $response = ['error' => 0, 'message' => 'OK'];
+                    echo json_encode($response);
+                    exit;
+                } else {
+                    $response = ['error' => 1, 'message' => '添加失败，请重试'];
+                    echo json_encode($response);
+                    exit;
+                }
+
+
+            } else {
+                $response = ['error' => 1, 'message' => 'error'];
+                echo json_encode($response);
+                exit;
+            }
+
+        } else {
+            $artist = I('get.artist');
+            $artwork_id = I('get.artwork_id');
+
+            $user = M('user');
+            $artwork = M('artwork');
+
+            $userinfo = $user->where('id=' . intval($artist))->find();
+            $artworkinfo = $artwork->where('id=' . intval($artwork_id))->find();
+
+            $this->assign('userinfo', $userinfo);
+            $this->assign('artworkinfo', $artworkinfo);
+            $this->display();
+        }
+    }
+
+
+    public function ArtworkSelect()
+    {
+        $page = I('get.page', '1');  //页码
+
+
+        $artist = intval(I('get.artist'));
+        if ($artist <= 0) {
+            echo 'error';
+            exit;
+        }
+
+        $where = "az_artwork.artist=" . $artist . " and az_artwork.state=1 and az_artwork.is_deleted='N'";
+
+        $artwork = M('artwork');
+
+
+        $userTotal = $artwork
+            ->join('az_user on az_user.id=az_artwork.artist')
+            ->where($where)->count();
+
+        $artworklist = $artwork
+            ->field('az_artwork.id as artwork_id,az_artwork.name,az_artwork.create_time,az_user.name as artist_name,az_user.id as artist')
+            ->join('az_user on az_user.id=az_artwork.artist')
+            ->where($where)
+            ->order('az_artwork.id DESC')
+            ->page($page, $this->pagesize)
+            ->select();
+
+
+        $nav = Nav::render(U('Admin/ArtworkPrints/ArtworkSelect'), ['art_name' => $art_name, 'artist' => $artist, 'sdate' => $sdate, 'edate' => $edate], $page, $this->pagesize, $userTotal);
+
+        $this->assign('nav', $nav);
+        $this->assign('artist', $artist);
+        $this->assign('artworklist', $artworklist);
+        $this->display();
+    }
+
+
+    public function addStepFirst()
+    {
+        $page = I('get.page', '1');  //页码
+
+
+        $artist_name = I('get.artist_name');
+
+        $where = 'type=3';
+        if (trim($artist_name) != '') {
+            $where = $where . " and name like '%" . addslashes(trim($artist_name)) . "%'";
+        }
+
+
+        $user = M('user');
+
+
+        $userTotal = $user
+            // ->join('az_user on az_user.id=az_article.artist')
+            ->where($where)->count();
+
+        $userlist = $user->where($where)
+            ->order('id DESC')
+            ->page($page, $this->pagesize)
+            ->select();
+
+
+        $nav = Nav::render(U('Admin/ArtworkPrints/addStepFirst'), ['art_name' => $art_name, 'artist_name' => $artist_name, 'sdate' => $sdate, 'edate' => $edate], $page, $this->pagesize, $userTotal);
+
+        $this->assign('nav', $nav);
+        $this->assign('userlist', $userlist);
+        $this->display();
+    }
+
+    private function get_serial_number($serial_number_arr)
+    {
+        $serial_number = rand(0, 99999999);
+        $serial_number = sprintf("%08d", $serial_number);
+        if (in_array($serial_number, $serial_number_arr)) {//编号数组里面重复判断
+            return $this->get_serial_number($serial_number_arr);
+        }
+        $artwork_prints = M('artwork_prints_list');
+        $result = $artwork_prints->where(['serial_number' => $serial_number])->find();
+        if (!$result) {//数据库里面是否存在
+            return $serial_number;
+        } else {
+            return $this->get_serial_number($serial_number_arr);
+        }
+    }
+
+    public function add_prints(array $data)
+    {
+
+
+        $model = new Model();
+        //serial_number唯一索引 //开启事务
+        $model->startTrans();
+        $datas = [];
+        $serial_number_arr = [];
+
+
+        foreach ($data['item'] as $key => $value) {
+            // print_r($value);
+            $number_from = $value['number_from'];
+            $number_end = $value['number_end'];
+            for ($i = $number_from; $i <= $number_end; $i++) {//循环生成serial_number
+                $serial_number = $this->get_serial_number($serial_number_arr);
+                $serial_number_arr[] = $serial_number;
+                // if($i==20||$i==50||$i==70){
+                //$serial_number=9999999;
+                //}
+                $data_new = [];
+                $data_new['art_name'] = $data['art_name'];
+                $data_new['artist_name'] = $data['artist_name'];
+                $data_new['shape'] = $value['shape'];
+                $data_new['length'] = $value['length'];
+                $data_new['width'] = $value['width'];
+                $data_new['diameter'] = $value['diameter'];
+                $data_new['create_time'] = $data['create_time'];
+                $data_new['serial_number'] = $serial_number;
+                $data_new['prints_number'] = $i;
+                $datas[] = $data_new;
+            }
+        }
+
+
+        $data_prints = [
+            'art_name' => $data['art_name'],
+            'artist' => $data['artist'],
+            'artist_name' => $data['artist_name'],
+            //'shape' => $data['shape'],
+            // 'length' => $data['length'],
+            //'width' => $data['width'],
+            // 'diameter' => $data['diameter'],
+            'artwork_id' => $data['artwork_id'],
+            'print_year' => $data['print_year'],
+            'print_version' => $data['print_version'],
+            'print_total' => $data['print_total'],
+            'create_time' => $data['create_time'],
+        ];
+        try {
+            $artwork_prints_salelink_result = $model->table(C('DB_PREFIX') . 'artwork_prints_gallery')->where(['artist' => intval($data['artist']), 'status' => 1])->find();
+            if (!$artwork_prints_salelink_result) {
+                $model->table(C('DB_PREFIX') . 'artwork_prints_gallery')->add([
+                    'artist' => $data['artist'],
+                    'artist_name' => $data['artist_name'],
+                    'create_time' => $data['create_time'],
+                ]);
+
+            }
+            $model->table(C('DB_PREFIX') . 'artwork_prints')->add($data_prints);
+            $insertid = $model->getLastInsID();
+            foreach ($datas as $key => $value) {
+                $datas[$key]['prints_id '] = $insertid;
+            }
+            $model->table(C('DB_PREFIX') . 'artwork_prints_list')->addAll($datas);
+            $model->commit();
+            return true;
+        } catch (Exception $e) {
+            $model->rollback();
+            return false;
+        }
+
+
+    }
+
+
+    function printsListDetail()
+    {
+
+
+        //$prints_id = 7;
+        $prints_id = intval(I('get.prints_id'));
+
+
+        $artwork_prints_info = M('artwork_prints')->where('id=' . intval($prints_id) . '  and  status=1')->find();
+
+        if ($artwork_prints_info) {
+
+
+            $artwork_prints_list_count = M('artwork_prints_list')->where('prints_id=' . intval($prints_id))->count('id');
+
+
+            $counts = $artwork_prints_list_count;
+
+
+            $artwork_prints_list = M('artwork_prints_list')->where('prints_id=' . intval($prints_id))->select();
+
+            $this->assign('artwork_prints_info', $artwork_prints_info);
+            $this->assign('counts', $counts);
+            $this->assign('prints_id', $prints_id);
+            $this->assign('artwork_prints_list', $artwork_prints_list);
+            $this->display();
+        } else {
+            echo 'error';
+        }
+
+    }
+
+    function printsListEdit()
+    {
+
+        if (IS_POST) {
+            $id = I('post.id');
+            $is_sold = intval(I('post.is_sold', ''));
+            $buyer = trim(I('post.buyer', ''));
+            $buyer_mobile = trim(I('post.buyer_mobile', ''));
+            $buy_time = trim(I('post.buy_time', ''));
+            $price= floatval(I('post.price', ''));
+
+            if($is_sold==1&&($buyer==''||$buy_time==''||$price<=0)){
+                $response = ['error' => 1, 'message' => 'error'];
+                echo json_encode($response);
+                exit;
+            }
+
+            $artwork_prints_list = M('artwork_prints_list');
+            $data = [
+                'is_sold' => $is_sold,
+                'buyer' => $buyer,
+                'buyer_mobile' => $buyer_mobile,
+                'buy_time' => strtotime($buy_time),
+                'price' => $price,
+            ];
+            $artwork_prints_list->where('id=' . intval($id))->save($data);
+
+           // echo $artwork_prints_list->getLastSql();exit;
+
+            $response = ['error' => 0, 'message' => 'ok'];
+            echo json_encode($response);
+            exit;
+
+
+        }
+
+        $id = I('get.id');
+        $artwork_prints_list = M('artwork_prints_list');
+        $artwork_prints_list_info = $artwork_prints_list->where('id=' . intval($id))->find();
+        $this->assign('artwork_prints_list_info', $artwork_prints_list_info);
+        $this->display();
+    }
+
+
+    function importAP()//  A/P版生成
+    {
+        $aa = I('get.aa');
+
+        $prints_id=intval(I('get.prints_id'));
+        $counts=intval(I('get.counts',10));
+
+        if($aa!='abcde'){
+            echo 'error';
+            exit;
+        }
+
+
+        $artwork_prints_list = M('artwork_prints_list');
+        $artwork_prints_list_result = $artwork_prints_list->where("prints_id=".intval($prints_id)." and is_ap=1")->find();
+
+        if ($artwork_prints_list_result) {
+            $response = ['error' => 1, 'message' => '添加过了,不能再添加'];
+            echo json_encode($response);
+            exit;
+        }else{
+
+            $artwork_prints_list_info = $artwork_prints_list->where("prints_id=".intval($prints_id)." and is_ap=0")->find();
+
+            if (!$artwork_prints_list_info) {
+                $response = ['error' => 1, 'message' => 'no record'];
+                echo json_encode($response);
+                exit;
+            }
+
+            $datas = [];
+            $serial_number_arr = [];
+
+                for ($i = 1; $i <= $counts; $i++) {//循环生成serial_number
+                    $serial_number = $this->get_serial_number($serial_number_arr);
+                    $serial_number_arr[] = $serial_number;
+                    // if($i==20||$i==50||$i==70){
+                    //$serial_number=9999999;
+                    //}
+                    $data_new = [];
+                    $data_new['is_ap'] = 1;
+                    $data_new['prints_id'] = $prints_id;
+                    $data_new['art_name'] = $artwork_prints_list_info['art_name'];
+                    $data_new['artist_name'] = $artwork_prints_list_info['artist_name'];
+                    $data_new['shape'] = $artwork_prints_list_info['shape'];
+                    $data_new['length'] = $artwork_prints_list_info['length'];
+                    $data_new['width'] = $artwork_prints_list_info['width'];
+                    $data_new['diameter'] = $artwork_prints_list_info['diameter'];
+                    $data_new['create_time'] = $artwork_prints_list_info['create_time'];
+                    $data_new['serial_number'] = $serial_number;
+                    $data_new['prints_number'] = $i;
+
+                    $datas[] = $data_new;
+                }
+            $model = new Model();
+            //serial_number唯一索引 //开启事务
+            $model->startTrans();
+
+            try{
+                $model->table(C('DB_PREFIX') . 'artwork_prints_list')->addAll($datas);
+                $model->commit();
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+                exit;
+            } catch (Exception $e) {
+                $model->rollback();
+                $response = ['error' => 1, 'message' => 'error'];
+                echo json_encode($response);
+                exit;
+            }
+
+        }
+
+    }
+}

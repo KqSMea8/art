@@ -1,0 +1,13 @@
+<?php 
+namespace V40\Logic;
+
+use V40\Base\BaseLogic;
+use Custom\Define\Image;
+
+class Sub_artLogic extends BaseLogic
+{
+
+}
+
+
+ ?>

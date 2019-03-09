@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>我的消息</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/user.css">
+  </head>
+  <body>
+  <div class="usermsg" id="usermsg">
+    <ul class="time-list">
+      <li class="time-item">
+        <h3 class="title">今日</h3>
+        <ul class="list">
+          <li class="item active fix">
+            <div class="info">
+              <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png" alt="">
+              <span class="name">Poon</span>
+              <span class="time">1天前</span>
+            </div>
+            <p class="desc">回复了你对《这一年》的评论“很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮很漂亮”</p>
+            <div class="btn-reply">回复</div>
+          </li>
+          <li class="item">
+            <div class="info">
+              <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png" alt="">
+              <span class="name">Poon</span>
+              <span class="time">1天前</span>
+            </div>
+            <p class="desc">回复了你对《这一年》的评论“很漂亮”</p>
+          </li>
+        </ul>
+      </li>
+      <li class="time-item">
+        <h3 class="title">近一周</h3>
+        <ul class="list">
+          <li class="item">
+            <div class="info">
+              <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png" alt="">
+              <span class="name">Poon</span>
+              <span class="time">1天前</span>
+            </div>
+            <p class="desc">回复了你对《这一年》的评论“很漂亮”</p>
+          </li>
+          <li class="item">
+            <div class="info">
+              <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png" alt="">
+              <span class="name">Poon</span>
+              <span class="time">1天前</span>
+            </div>
+            <p class="desc">回复了你对《这一年》的评论“很漂亮”</p>
+          </li>
+        </ul>
+      </li>
+      <li class="time-item">
+        <h3 class="title">近一个月</h3>
+        <ul class="list">
+          <li class="item">
+            <div class="info">
+              <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png" alt="">
+              <span class="name">Poon</span>
+              <span class="time">1天前</span>
+            </div>
+            <p class="desc">回复了你对《这一年》的评论“很漂亮”</p>
+          </li>
+          <li class="item">
+            <div class="info">
+              <img class="avatar" src="/Public/H5/image/gallerydetail/avatar.png" alt="">
+              <span class="name">Poon</span>
+              <span class="time">1天前</span>
+            </div>
+            <p class="desc">回复了你对《这一年》的评论“很漂亮”</p>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+  </div>
+  </body>
+  <script src="/Public/H5/js/lib/vue.js"></script>
+  <script src="/Public/H5/js/lib/zepto.js"></script>
+  <script src="/Public/H5/js/util.js"></script>
+  <script type="text/javascript" src="/Public/H5/js/usermsg.js"></script>
+</html>

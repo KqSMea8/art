@@ -1,0 +1,10 @@
+<?php
+
+namespace V40\Model;
+
+use V40\Base\BaseModel;
+
+class ArticleCommentLikeModel extends BaseModel
+{
+    protected $tableName = 'article_comment_like';
+}

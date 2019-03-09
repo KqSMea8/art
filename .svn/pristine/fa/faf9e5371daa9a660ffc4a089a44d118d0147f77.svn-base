@@ -1,0 +1,77 @@
+<?php
+
+namespace V30\Logic;
+
+use V30\Base\BaseLogic;
+use V30\Logic\InviteLogic;
+use V30\Logic\UserLogic;
+use Custom\Define\Image;
+use Custom\Define\Time;
+
+class InviteLogLogic extends BaseLogic
+{
+    public function getInviteList($userId, $page =1,$perPageCount = 10)
+    {
+        $inviteList = $this->model
+            ->where(['invite_user_id'=>$userId])
+            ->page($page,$perPageCount)
+            ->order('invite_time DESC')
+            ->select();
+        if (empty($inviteList)) {
+            return [];
+        }
+        return $inviteList;
+    }
+    public function getInvite($uid){
+      $time = time();
+      $valid = Time::INVITE_VALID;
+      $invitelogic = new InviteLogic();
+      $code = $invitelogic->field('invite_code')->where("artist = {$uid}  AND time + {$valid} > {$time}")->getField('invite_code');
+      if(empty($code)){
+        $code = $this->createCode($uid);
+        $invitelogic->add([
+          'artist' => $uid,
+          'invite_code' => $code,
+          'valid' => $valid,
+          'time' => time()
+        ]);
+        return $code;
+      }else{
+        return $code;
+      }
+    }
+    public function checkInvite($code){
+      $time = time();
+      $valid = Time::INVITE_VALID;
+      $invitelogic = new InviteLogic();
+      $userLogic = new UserLogic();
+      $exist = $userLogic->where('type = 3')->find();
+      if(empty($exist)){
+        return true;
+      }else{
+          $isset = $invitelogic
+              ->field('az_invite.id')
+              ->join('az_user on az_user.id=az_invite.artist')
+              ->where("invite_code = '{$code}'  AND time + {$valid} > {$time} and az_user.type=3")
+              ->getField('az_invite.id');
+          // echo $invitelogic->getLastSql();exit;
+          return $isset ? true : false;
+      }
+    }
+    public function using($code,$uid){
+      $invitelogic = new InviteLogic();
+      $userLogic = new UserLogic();
+      $inviteInfo = $invitelogic->where(['invite_code' => $code])->find();
+      $invited_user_id = $inviteInfo['artist'] ? $inviteInfo['artist'] : '0';
+      $userLogic->where(['id' => $invited_user_id])->setInc('invite_total',1);
+      return $this->add([
+        'invite_user_id' => $uid,
+        'invited_user_id' => $invited_user_id,
+        'invite_code' => $code,
+        'invite_time' => time()
+      ]);
+    }
+    private function createCode($uid){
+      return substr(md5($uid),0,3).substr(md5(time()),0,3);
+    }
+}

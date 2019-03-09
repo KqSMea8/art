@@ -1,0 +1,9 @@
+<?php
+
+namespace V51\Logic;
+
+use V51\Base\BaseLogic;
+
+class InviteLogic extends BaseLogic{
+
+}

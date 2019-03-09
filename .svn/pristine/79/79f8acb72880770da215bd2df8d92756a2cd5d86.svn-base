@@ -1,0 +1,241 @@
+<?php
+namespace Admin\Controller;
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\AliyunMts;
+
+
+class AttachmentController extends AdminBaseController
+{
+    //批量上传--艺术圈banner
+    public function uploadPicBatchArtcirclebanner()
+    {
+        $this->display();
+    }
+
+    //批量上传--艺签
+    public function uploadPicBatch()
+    {
+        $toTagid = trim(I('get.toTagid'));//要修改的标签ID
+        $previewId = trim(I('get.previewId'));//图片预览展示id
+        $this->assign('toTagid', $toTagid);
+        $this->assign('previewId', $previewId);
+        $this->display();
+    }
+
+    public function uploadPic2HtmlTagIdForm()
+    {
+
+        $toTagid = trim(I('get.toTagid'));//要修改的标签ID
+        $previewId = trim(I('get.previewId'));//图片预览展示id
+        $this->assign('toTagid', $toTagid);
+        $this->assign('previewId', $previewId);
+        $this->display();
+    }
+    public function uploadPicForm()
+    {
+        $this->display();
+    }
+    public function uploadVideoForm()
+    {
+        $this->display();
+    }
+    
+   private function gmt_iso8601($time) {
+        $dtStr = date("c", $time);
+        $mydatetime = new \DateTime($dtStr);
+        $expiration = $mydatetime->format(\DateTime::ISO8601);
+        $pos = strpos($expiration, '+');
+        $expiration = substr($expiration, 0, $pos);
+        return $expiration."Z";
+    }
+    
+    public function uploadAndroidPatchForm()
+    {
+      
+        $channel = trim(I('get.channel'));
+        if(!in_array($channel, C('AppUpgrade_android_channel'))){
+            echo 'android渠道号错误';
+            exit();
+        }
+        $this->assign('channel', $channel);
+        $this->display();
+    }
+    
+    //上传安卓补丁包签名授权
+    public function WebJsUploadAndroidPatch(){
+        
+       
+        $channel = trim(I('get.channel'));
+        if(!in_array($channel, C('AppUpgrade_android_channel'))){
+            echo 'android渠道号错误';
+            exit();
+        }
+        
+        $id= C('OSS')['appKeyId'];
+        $key= C('OSS')['appKeySecret'];
+        $host = 'https://artzhe.oss-cn-shenzhen.aliyuncs.com';
+        
+        $now = time();
+        $expire = 30; //设置该policy超时时间是10s. 即这个policy过了这个有效时间，将不能访问
+        $end = $now + $expire;
+        $expiration = $this->gmt_iso8601($end);
+        
+        $dir = 'AppUpgrade/Android/'.$channel.'/';//固定目录
+        
+        //最大文件大小.用户可以自己设置
+        $condition = array(0=>'content-length-range', 1=>0, 2=>1024*1024*200);//200M
+        $conditions[] = $condition;
+        
+        //表示用户上传的数据,必须是以$dir开始, 不然上传会失败,这一步不是必须项,只是为了安全起见,防止用户通过policy上传到别人的目录
+        $start = array(0=>'starts-with', 1=>'$key', 2=>$dir);
+        $conditions[] = $start;
+        
+        
+        $arr = array('expiration'=>$expiration,'conditions'=>$conditions);
+        //echo json_encode($arr);
+        //return;
+        $policy = json_encode($arr);
+        $base64_policy = base64_encode($policy);
+        $string_to_sign = $base64_policy;
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $key, true));
+        
+        $response = array();
+        $response['accessid'] = $id;
+        $response['host'] = $host;
+        $response['policy'] = $base64_policy;
+        $response['signature'] = $signature;
+        $response['expire'] = $end;
+        //这个参数是设置用户上传指定的前缀
+        $response['dir'] = $dir;
+        echo json_encode($response);
+    }
+    
+    //js直传图片签名授权
+    public function WebJsUploadPic(){
+        $id= C('OSS')['appKeyId'];
+        $key= C('OSS')['appKeySecret'];
+        $host = 'https://artzhe.oss-cn-shenzhen.aliyuncs.com';
+        
+        $now = time();
+        $expire = 30; //设置该policy超时时间是10s. 即这个policy过了这个有效时间，将不能访问
+        $end = $now + $expire;
+        $expiration = $this->gmt_iso8601($end);
+        
+        $dir = 'uploads/'.date('Y/m/d/H/', time());
+        
+        //最大文件大小.用户可以自己设置
+        $condition = array(0=>'content-length-range', 1=>0, 2=>1024*1024*30);
+        $conditions[] = $condition;
+        
+        //表示用户上传的数据,必须是以$dir开始, 不然上传会失败,这一步不是必须项,只是为了安全起见,防止用户通过policy上传到别人的目录
+        $start = array(0=>'starts-with', 1=>'$key', 2=>$dir);
+        $conditions[] = $start;
+        
+        
+        $arr = array('expiration'=>$expiration,'conditions'=>$conditions);
+        //echo json_encode($arr);
+        //return;
+        $policy = json_encode($arr);
+        $base64_policy = base64_encode($policy);
+        $string_to_sign = $base64_policy;
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $key, true));
+        
+        $response = array();
+        $response['accessid'] = $id;
+        $response['host'] = $host;
+        $response['policy'] = $base64_policy;
+        $response['signature'] = $signature;
+        $response['expire'] = $end;
+        //这个参数是设置用户上传指定的前缀
+        $response['dir'] = $dir;
+        echo json_encode($response);
+    }
+    
+    
+    //js直传视频签名授权
+    public function WebJsUploadVideo(){
+        $id= C('OSS')['appKeyId'];
+        $key= C('OSS')['appKeySecret'];
+        $host = 'https://artzhe.oss-cn-shenzhen.aliyuncs.com';
+        
+        $now = time();
+        $expire = 30; //设置该policy超时时间是10s. 即这个policy过了这个有效时间，将不能访问
+        $end = $now + $expire;
+        $expiration = $this->gmt_iso8601($end);
+        
+        $dir = 'uploads/'.date('Y/m/d/H/', time());
+        
+        //最大文件大小.用户可以自己设置
+        $condition = array(0=>'content-length-range', 1=>0, 2=>1024*1024*500);//500M
+        $conditions[] = $condition;
+        
+        //表示用户上传的数据,必须是以$dir开始, 不然上传会失败,这一步不是必须项,只是为了安全起见,防止用户通过policy上传到别人的目录
+        $start = array(0=>'starts-with', 1=>'$key', 2=>$dir);
+        $conditions[] = $start;
+        
+        
+        $arr = array('expiration'=>$expiration,'conditions'=>$conditions);
+        //echo json_encode($arr);
+        //return;
+        $policy = json_encode($arr);
+        $base64_policy = base64_encode($policy);
+        $string_to_sign = $base64_policy;
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $key, true));
+        
+        $response = array();
+        $response['accessid'] = $id;
+        $response['host'] = $host;
+        $response['policy'] = $base64_policy;
+        $response['signature'] = $signature;
+        $response['expire'] = $end;
+        //这个参数是设置用户上传指定的前缀
+        $response['dir'] = $dir;
+        echo json_encode($response);
+    }
+    
+    //视频封面生成，POST/GET图片地址video_src
+    public function MakeScreenshot()
+    {
+        $artzhe_oss = 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/';
+        
+        $video_src = trim(I('post.video_src'));
+        
+        if($video_src==''){
+            $return=['state'=>0,'msg'=>'请输入视频地址'];
+            echo json_encode($return);
+            exit;
+        }
+        $pos = strpos($video_src, $artzhe_oss);
+        if ($pos === false) {
+            $return=['state'=>0,'msg'=>'不是artzhe的视频'];
+            echo json_encode($return);
+            exit;
+        }
+        
+        $video_src = trim($video_src);
+        $video_src_path = str_replace($artzhe_oss, "", $video_src); //视频保存路径
+        $pos = strripos($video_src_path, '.');
+        if ($pos !== false) {
+            $screenshot_src_path = substr($video_src_path, 0, $pos) . '_screenshot.jpg'; //视频截图保存路径
+        } else {
+            $screenshot_src_path = $video_src_path . '_screenshot.jpg';
+        }
+        $AliyunMts = new AliyunMts();
+        $screenshot_result = $AliyunMts->screenshot($video_src_path, $screenshot_src_path);//截图
+        
+        if ($screenshot_result->State == 'Success') {
+            $poster = $artzhe_oss . $screenshot_src_path;
+            $return=['state'=>1,'poster'=>$poster,'msg'=>'封面生成成功'];
+            echo json_encode($return);
+            exit;
+        }else{
+            $return=['state'=>0,'msg'=>'封面生成失败'];
+            echo json_encode($return);
+            exit;
+        }
+        
+    }
+    
+}
+

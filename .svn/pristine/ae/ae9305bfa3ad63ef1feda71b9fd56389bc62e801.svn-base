@@ -1,0 +1,11 @@
+<?php
+namespace Home\Controller;
+use Think\Controller;
+class PromoteController extends Controller {
+    public function index(){
+      $this->display();
+    }
+    public function apply(){
+      $this->display();
+    }
+}

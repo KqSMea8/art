@@ -1,0 +1,102 @@
+<?php
+
+namespace Common\Logic;
+
+use Common\Base\BaseLogic;
+use Common\Logic\ArtworkLogic;
+use Common\Logic\CommentLogic;
+use Common\Logic\UserLogic;
+use Common\Logic\ArtworkLikeLogic;
+use Common\Logic\ArtworkCategoryLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+
+class ArtworkUpdateLogic extends BaseLogic
+{
+    public function getLastUpdateCover($artworkId)
+    {
+        return $this->model->where(['artwork_id'=>$artworkId])->order('id DESC')->getField('cover');
+    }
+    public function getLastUpdateDetail($artworkId)
+    {
+        $data =  $this->model->where(['artwork_id'=>$artworkId])->order('id DESC')->find();
+        if (empty($data)) {
+            return [];
+        } else {
+            return $data;
+        }
+    }
+    public function related($upId){
+      $artLogic = new ArtworkLogic();
+      $info = $this->where(['id' => $upId])->find();
+      $artInfo = $artLogic->where(['id' => $info['artwork_id']])->find();
+      $list = $this->field('id,number,cover,create_date')->where("artwork_id = {$info['artwork_id']} AND id != {$upId}")->select();
+      if(empty($list)){
+        return [];
+      }else{
+        foreach ($list as $key => $value) {
+          $list[$key]['name'] = "《{$artInfo['name']}》纪录".$value['number'];
+        }
+        return $list;
+      }
+    }
+    public function getDetailWithComment($id,$loginUid){
+      $artLogic = new ArtworkLogic();
+      $commentLogic = new CommentLogic();
+      $userLogic = new UserLogic();
+      $artLikeLogic = new ArtworkLikeLogic();
+      $categoryLogic = new ArtworkCategoryLogic();
+      $updateInfo = $this->where(['id'=>$id,'is_deleted'=>'N'])->find();
+      $artInfo = $artLogic->where(['id' => $updateInfo['artwork_id'],'is_deleted' => 'N'])->find();
+      $max = 1000000;
+      $commentList = $commentLogic->getList($updateInfo['id'],2,1,$max,$loginUid);
+      $orgImgs = Util::extractWitImgUrl($updateInfo['wit'],'org','org');
+      $imgUrls = Util::getHtmlImgSrc($updateInfo['wit']);
+      $fillImgUrls = Util::getFillImages($imgUrls,Image::galleryWidth,'');
+      $updateInfo['wit'] = Util::replaceHtmlImgSrc($imgUrls,$fillImgUrls,$updateInfo['wit']);
+      $updateInfo['wit'] = htmlspecialchars_decode($updateInfo['wit']);
+      $this->where(['is_deleted' => 'N','id' => $updateInfo['id']])->setInc('view_total');
+      $publisher = $userLogic->getUserField('id,nickname,face',$artInfo['artist']);
+      $artistid = key($publisher);
+      $artistname = $publisher[$artistid];
+      $likes = $artLikeLogic->getLikesByArtUpdate($updateInfo['id'],'face');
+      $publisherInfo = $userLogic->getUserDesc($artInfo['artist'],$loginUid);
+      //water
+      return [
+        'id' =>$updateInfo['id'],
+        'artwork_id' => $updateInfo['artwork_id'],
+        'artname' => $artInfo['name'],
+        'orgImages' => Util::imageWaters($orgImgs),
+        'time' => $updateInfo['create_date'],
+        'artistid' => $artistid,
+        'publisher' => $publisherInfo['nickname'],
+        'wit' => $updateInfo['wit'],
+        'cover' => $updateInfo['cover'],
+        'commentList' => $commentList['list'],
+        'commentTotal' => $commentList['total'],
+        'is_repay' => $loginUid == $artInfo['artist'] ? 'Y' : 'N',
+        'is_edit' => $loginUid == $artInfo['artist'] ? 'Y' : 'N',
+        'is_finished' => $artInfo['is_finished'],
+        'is_like' => $artLikeLogic->islike($updateInfo['id'],'2',$loginUid),
+        'likes' => $likes,
+        'number' => $updateInfo['number'],
+        'like_total' => $artLikeLogic->total($updateInfo['id'],2),
+        'view_total' => $updateInfo['view_total'],
+        'create_time' => date('Y-m-d',$updateInfo['create_time']),
+        'publisherInfo' => $publisherInfo,
+        'shareTitle' => "{$publisherInfo['nickname']}《{$artInfo['name']}》更新 {$updateInfo['number']}",
+        'shareDesc' => $updateInfo['summary'],
+        'shareImg' => Util::getFillImage(Util::getImgUrlById($artInfo['cover']),Image::faceWidth,Image::faceHeight),
+        'shareLink' => C('m_site').'/artwork/update/'.$id,
+        'related' => $this->related($updateInfo['id']),
+        'shareInfo' => [
+          'cover' => $updateInfo['cover'],
+          'face' => $userLogic->where(['id' => $artInfo['artist']])->getField('face'),
+          'name' => $userLogic->where(['id' => $artInfo['artist']])->getField('nickname'),
+            'motto' => $userLogic->where(['id' => $artInfo['artist']])->getField('motto'),
+          'category' => $categoryLogic->getCategoryByUser($artInfo['artist']),
+          'link' => C('m_site').'/artwork/update/'.$id
+        ]
+      ];
+    }
+}

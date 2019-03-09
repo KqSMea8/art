@@ -1,0 +1,1063 @@
+<?php
+
+namespace V30\Controller;
+require_once ROOT_PATH."vendor/simple_html_dom.php";
+use V30\Base\ApiBaseController;
+use V30\Logic\ArticleLogic;
+use V30\Logic\ArticleLikeLogic;
+use V30\Logic\UserLogic;
+use V30\Logic\AssetsLogic;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use Custom\Manager\Token;
+use Custom\Helper\Verify;
+use Custom\Helper\Checker;
+use V30\Logic\UserFollowerLogic;
+use V30\Logic\ArtworkCategoryLogic;
+use V30\Logic\ArtworkLogic;
+use Custom\Define\Image;
+use Custom\Helper\AliyunMts;
+use V30\Logic\ArtCircleLogic;
+use V30\Logic\ArtCircleShareLogic;
+
+class ArticleController extends ApiBaseController
+{
+    public function getlist()
+    {
+        $userLogic = new UserLogic(); //实例化用户模块
+        //$udd=$userLogic->getUserInfoById($this->loginUserId);
+        //print_r($udd);
+
+
+
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $ArticleLogic = new ArticleLogic();
+
+        $where = 'az_article.status=1';
+        $total = $ArticleLogic->where($where)->count();
+
+        $list = $ArticleLogic
+            ->field('az_article.cover,az_article.id,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+            ->join('az_user on az_article.artist=az_user.id', 'left')
+            ->where($where)
+            ->order('publish_time desc,id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        $artist_list = [];//作者ids
+        foreach ($list as $value) {
+            array_push($artist_list, $value['artist']);
+        }
+        $AgencyTypeList=$userLogic->getAgencyTypeList_byUids($artist_list);//机构列表
+
+
+        $article_ids = [];//文章id列表
+        foreach ($list as $value) {
+            array_push($article_ids, $value['id']);
+        }
+
+        $like_list = [];//用户点赞列表
+        if (count($article_ids) && $this->loginUserId > 0) {//查询登录用户的点赞列表
+            $ArticleLike_list = M('ArticleLike')->where("article_id in (" . implode(',', $article_ids) . ") and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->select();
+        }
+        foreach ($ArticleLike_list as $like) {
+            $like_list[$like['article_id']] = 1;
+        }
+
+        $articles = [];
+        foreach ($list as $value) {
+            $article['id'] = $value['id'];
+            $article['title'] = $value['title'];
+            $article['excerpt'] = $value['excerpt'];
+            $article['like_count'] = $value['like_count'];
+            $article['is_like'] = $like_list[$value['id']] == 1 ? 1 : 0;
+            $article['cover'] = Util::getImageResize($value['cover'], 300, 300);
+
+            $article['user'] = [
+                "id" => $value['artist'],
+                "nickname" => $value['nickname'],
+                "faceUrl" => Util::getImageResize($value['face'], Image::faceWidth, Image::faceHeight),
+                "is_artist" => strpos(',' . $value['role'] . ',', ',artist,') !== false ? 1 : 0,
+                'is_agency' => $AgencyTypeList[$value['artist']]>0 ? 1 : 0,
+                'AgencyType' => (int)$AgencyTypeList[$value['artist']],
+                "is_planner" => strpos(',' . $value['role'] . ',', ',planner,') !== false ? 1 : 0,
+            ];
+
+
+            $articles[] = $article;//添加进articles
+        }
+
+
+        $maxpage = intval($total / $pagesize) + 1;
+        $info = [
+            'articles' => $articles,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+
+    }
+    public function getlist_20170920()//20170920 三张图片的备份
+    {
+        $userLogic = new UserLogic(); //实例化用户模块
+        //$udd=$userLogic->getUserInfoById($this->loginUserId);
+        //print_r($udd);
+
+
+
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $ArticleLogic = new ArticleLogic();
+
+        $where = 'az_article.status=1';
+        $total = $ArticleLogic->where($where)->count();
+
+        $list = $ArticleLogic
+            ->field('az_article.cover,az_article.id,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+            ->join('az_user on az_article.artist=az_user.id', 'left')
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        $artist_list = [];//作者ids
+        foreach ($list as $value) {
+            array_push($artist_list, $value['artist']);
+        }
+        $AgencyTypeList=$userLogic->getAgencyTypeList_byUids($artist_list);//机构列表
+
+
+        $article_ids = [];//文章id列表
+        foreach ($list as $value) {
+            array_push($article_ids, $value['id']);
+        }
+
+        $like_list = [];//用户点赞列表
+        if (count($article_ids) && $this->loginUserId > 0) {//查询登录用户的点赞列表
+            $ArticleLike_list = M('ArticleLike')->where("article_id in (" . implode(',', $article_ids) . ") and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->select();
+        }
+        foreach ($ArticleLike_list as $like) {
+            $like_list[$like['article_id']] = 1;
+        }
+
+        $articles = [];
+        foreach ($list as $value) {
+            $article['id'] = $value['id'];
+            $article['title'] = $value['title'];
+            $article['excerpt'] = $value['excerpt'];
+            $article['like_count'] = $value['like_count'];
+            $article['is_like'] = $like_list[$value['id']] == 1 ? 1 : 0;
+
+
+            //获取里面的图片
+            preg_match_all('/<img.*?src="(.*?)".*?>/is', $value['content'], $array);
+            $article['images'] = empty($array[1]) ? [] : Util::getImageResizes($array[1], 300, 300);
+            $article['images']=array_slice($article['images'],0,3);
+            //文章里面图片少于3张，则显示封面图
+            if (count($article['images']) < 3 && trim($value['cover']) != '') {
+                $article['images'] = Util::getImageResizes([$value['cover']], 300, 300);
+
+            }
+            // $article['images']=count($article['images'])==0&&trim($value['cover'])!=''?Util::getImageResizes([$value['cover']], 300, 300):$article['images'];
+
+            //获取里面的视频
+            preg_match_all('/<video.*?poster="(.*?)".*?>/is', $value['content'], $match);
+            $article['video'] = empty($match[1]) ? '' : $match[1][0];
+            if(trim($article['video'])!=''){
+                $article['video'] = Util::getImageResize($article['video'], 750, 350);
+            }
+            $article['user'] = [
+                "id" => $value['artist'],
+                "nickname" => $value['nickname'],
+                "faceUrl" => $value['face'],
+                "is_artist" => strpos(',' . $value['role'] . ',', ',artist,') !== false ? 1 : 0,
+                'is_agency' => $AgencyTypeList[$value['artist']]>0 ? 1 : 0,
+                'AgencyType' => (int)$AgencyTypeList[$value['artist']],
+                "is_planner" => strpos(',' . $value['role'] . ',', ',planner,') !== false ? 1 : 0,
+            ];
+
+
+            $articles[] = $article;//添加进articles
+        }
+
+
+        $maxpage = intval($total / $pagesize) + 1;
+        $info = [
+            'articles' => $articles,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+
+    }
+
+    public function save()
+    {
+        $this->checkLogin();  //判断用户是否登录
+
+        $UserLogic = new UserLogic();
+        //艺术家 策展人 艺术机构才能发布艺术号
+        if (!$UserLogic->isArtist($this->loginUserId) && !$UserLogic->isAgency($this->loginUserId) && !$UserLogic->isPlann($this->loginUserId)) {
+            Util::jsonReturn(null, Code::SYS_ERR, '没有权限');
+        }
+
+        $id = I('post.id', '', 'number_int');
+        $type = I('post.type', '', 'number_int');//草稿还是正式文章
+        $title = trim(I('post.title', ''));
+        $content = trim(I('post.content', ''));
+        //echo $content;exit;
+        $excerpt = trim(I('post.excerpt', ''));//描述
+        $cover = trim(I('post.cover'));
+        $Share2ArtCircle= I('post.Share2ArtCircle'); //是否分享到艺术圈
+        if ($title == '' || $content == '' || (!in_array($type, [1, 2])) || ($type == 1 && ($excerpt == '' || $cover == ''))) {
+            Util::jsonReturn(null, Code::SYS_ERR, '不能为空');
+        }
+
+
+        $ArticleLogic = new ArticleLogic();
+        if ($id > 0) { //编辑
+            $thistime = time();
+            //$articleinfo = $ArticleLogic->where(['id' => intval($id), 'artist' => $this->loginUserId])->find();
+            $articleinfo = $ArticleLogic->where('id=' . intval($id) . ' and artist=' . $this->loginUserId . ' and status!=0')->find();
+            if (!$articleinfo) {
+                Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+            }
+            if ($type == 2 && $articleinfo['status'] == 1) {//已经是正式的文章，不能保存到草稿
+                Util::jsonReturn(null, Code::SYS_ERR, '正式的文章，不能保存到草稿');
+            }
+            //if($articleinfo['status']==1&&$thistime-$articleinfo['modified_time']>86400){//24小时后不能再修改
+            //   Util::jsonReturn(null, Code::SYS_ERR, '已经发布了的文章，24小时后不能再修改');
+            // }
+            $content=$this->html_insert_video_screenshot($content);
+            $data = [
+                'status' => intval($type),
+                'title' => $title,
+                'content' => $content,
+                'excerpt' => $excerpt,
+                'cover' => $cover,
+                'modified_time' => $thistime,
+            ];
+
+            if($type==1&&intval($articleinfo['publish_time'])==0){
+                $data['publish_time']=$thistime;//发布时间
+            }
+
+            if($type==1){
+                //分享到艺术圈
+                if($Share2ArtCircle==1){
+                    $ArtCircleLogic = new ArtCircleLogic();
+                    $share_info=$ArtCircleLogic->getShareInfo('art_article',$id);
+                    if ($share_info!==false) {
+                        $ArtCircledata = [
+                            'type' => 13,
+                            'address' => '',
+                            'content' => '',
+                            'images_url' => '',
+                            'video_poster' => '',
+                            'video_url' => '',
+                            'user_id' => $this->loginUserId,
+                            'create_time' => time(),
+                        ];
+                        $ArtCircle_insertId = $ArtCircleLogic->add($ArtCircledata);
+                        $ArtCircleShareLogic=new ArtCircleShareLogic();
+                        $share_info['art_circle_id']=$ArtCircle_insertId;
+                        $share_insertId = $ArtCircleShareLogic->add($share_info);
+                    }
+                }
+
+            }
+
+            $condition['where'] = 'id=' . intval($id) . ' and artist=' . $this->loginUserId;
+            $ArticleLogic->save($data, $condition);
+            // echo $ArticleLogic->getLastSql();
+            Util::jsonReturn(['status' => 1000]);
+
+
+        } else {//新增
+            $thistime = time();
+            //发布文章限制
+            $draft_max = 100;
+            $publish_max = 50;
+            $time_from = strtotime(date('Y-m-d'));
+            $time_end = $time_from + 86400;
+            $article_draft = $ArticleLogic->where('artist=' . $this->loginUserId . ' and status=2 and create_time>=' . $time_from . ' and create_time<' . $time_end)->count();
+            $article_publish = $ArticleLogic->where('artist=' . $this->loginUserId . ' and status=1 and create_time>=' . $time_from . ' and create_time<' . $time_end)->count();
+            if ($type == 2 && $article_draft >= $draft_max) {
+                Util::jsonReturn(null, Code::SYS_ERR, '你的草稿已超过' . $draft_max . '篇了');
+            }
+            if ($type == 1 && $article_publish >= $publish_max) {
+                Util::jsonReturn(null, Code::SYS_ERR, '你今天已发布了' . $publish_max . '篇文章了');
+            }
+            //发布文章限制 end
+            $content=$this->html_insert_video_screenshot($content);
+            $data = [
+                'artist' => $this->loginUserId,
+                'id' => intval($id),
+                'status' => intval($type),
+                'title' => $title,
+                'content' => $content,
+                'excerpt' => $excerpt,
+                'cover' => $cover,
+                'create_time' => $thistime,
+                'modified_time' => $thistime,
+            ];
+            if($type==1){
+                $data['publish_time']=$thistime;//发布时间
+            }
+
+            $Article_id=$ArticleLogic->add($data);
+            if($type==1){
+                //分享到艺术圈
+                if($Share2ArtCircle==1){
+                    $ArtCircleLogic = new ArtCircleLogic();
+                    $share_info=$ArtCircleLogic->getShareInfo('art_article',$Article_id);
+                    if ($share_info!==false) {
+                        $ArtCircledata = [
+                            'type' => 13,
+                            'address' => '',
+                            'content' => '',
+                            'images_url' => '',
+                            'video_poster' => '',
+                            'video_url' => '',
+                            'user_id' => $this->loginUserId,
+                            'create_time' => time(),
+                        ];
+                        $ArtCircle_insertId = $ArtCircleLogic->add($ArtCircledata);
+                        $ArtCircleShareLogic=new ArtCircleShareLogic();
+                        $share_info['art_circle_id']=$ArtCircle_insertId;
+                        $share_insertId = $ArtCircleShareLogic->add($share_info);
+                    }
+                }
+            }
+
+            Util::jsonReturn(['status' => 1000, 'id' => $ArticleLogic->getLastInsID()]);
+
+        }
+
+
+        // Util::jsonReturn(['status'=>1000, 'faceUrl'=>00]);
+    }
+
+    public function getTodayArticle()
+    {
+        $ArticleLogic = new ArticleLogic();
+        $time_from = strtotime(date('Y-m-d'));
+        $time_end = $time_from + 86400;
+        $article_draft = $ArticleLogic->where('artist=' . $this->loginUserId . ' and status=2 and create_time>=' . $time_from . ' and create_time<' . $time_end)->count();
+        $article_publish = $ArticleLogic->where('artist=' . $this->loginUserId . ' and status=1 and create_time>=' . $time_from . ' and create_time<' . $time_end)->count();
+        $article = [
+            'draft' => $article_draft,
+            'publish' => $article_publish,
+        ];
+        Util::jsonReturn(['status' => Code::SUCCESS, 'article' => $article]);
+
+    }
+
+    public function like()
+    {
+
+        $this->checkLogin();
+
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $id = Checker::numberId();
+
+        $ArticleLogic = new ArticleLogic();
+        $Articleinfo = $ArticleLogic->where(['id' => intval($id), 'status' => 1])->find();
+        if (!$Articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+
+
+        $ArticleLikeLogic = new ArticleLikeLogic();
+        $likeData = [
+            'article_id' => $id,
+            'like_user_id' => $this->loginUserId,
+            'like_time' => time(),
+            'is_like' => 1,
+
+        ];
+        $likeId = $ArticleLikeLogic->like($likeData);
+        if ($likeId) {
+            $userLogic = new UserLogic(); //实例化用户模块
+            $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+            $assetsLogic = new AssetsLogic(); //获取用户头像
+            $faceUrl = $assetsLogic->getUrl($userInfo['face']);
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => $faceUrl]);
+        } else {
+            //Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经喜欢了');
+            $userLogic = new UserLogic(); //实例化用户模块
+            $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+            $assetsLogic = new AssetsLogic(); //获取用户头像
+            $faceUrl = $assetsLogic->getUrl($userInfo['face']);
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => $faceUrl]);
+        }
+    }
+
+    public function unlike()
+    {
+
+        $this->checkLogin();
+
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $id = Checker::numberId();
+
+        $ArticleLogic = new ArticleLogic();
+        $Articleinfo = $ArticleLogic->where(['id' => intval($id), 'status' => 1])->find();
+        if (!$Articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+
+
+        $ArticleLikeLogic = new ArticleLikeLogic();
+        $likeData = [
+            'article_id' => $id,
+            'like_user_id' => $this->loginUserId,
+            'unlike_time' => time(),
+            'is_like' => 0,
+
+        ];
+        $likeresult = $ArticleLikeLogic->unlike($likeData);
+        if ($likeresult) {
+            $userLogic = new UserLogic(); //实例化用户模块
+            $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+            $assetsLogic = new AssetsLogic(); //获取用户头像
+            $faceUrl = $assetsLogic->getUrl($userInfo['face']);
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => $faceUrl]);
+        } else {
+            //Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+            $userLogic = new UserLogic(); //实例化用户模块
+            $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+            $assetsLogic = new AssetsLogic(); //获取用户头像
+            $faceUrl = $assetsLogic->getUrl($userInfo['face']);
+            Util::jsonReturn(['status' => 1000, 'faceUrl' => $faceUrl]);
+        }
+    }
+
+    public function getcontent___20170826()
+    {
+        $id = I('post.id', '', 'number_int');
+        $ArticleLogic = new ArticleLogic();
+        $articleinfo = $ArticleLogic->where("id=" . intval($id) . " and status=1")->find();
+        if (!$articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+        $imgUrls = $ArticleLogic->getHtmlImgSrc($articleinfo['content']);
+        $articleinfo['content']=$ArticleLogic->replaceHtmlImgSrc($imgUrls,$articleinfo['content']);
+
+
+        $info['article']['content'] = $articleinfo['content'];
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    public function getdetail()
+    {
+        $id = I('post.id', '', 'number_int');
+        $ArticleLogic = new ArticleLogic();
+        $articleinfo = $ArticleLogic->where("id=" . intval($id) . " and status=1")->find();
+        if (!$articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+        $ArticleLogic->where('id=' . intval($id))->setInc('views', 1);
+
+        $userLogic = new UserLogic();
+        $userinfo = $userLogic->where("id=" . $articleinfo['artist'])->find();
+
+        $ArticleLike = M('ArticleLike')->where("article_id=" . intval($id) . " and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->find();
+        $UserFollowerLogic = new UserFollowerLogic();
+        $UserFollower = $UserFollowerLogic->field('id')->where("follower=" . intval($this->loginUserId) . " and user_id=" . $articleinfo['artist'] . " and is_follow='Y'")->find();
+//echo $UserFollowerLogic->getLastSql();exit;
+        //$article['id'] = $articleinfo['id'];
+
+        $article['is_repay'] = $articleinfo['artist'] == $this->loginUserId ? 1 : 0;
+        $article['title'] = $articleinfo['title'];
+        $article['like_count'] = $articleinfo['like_count'];
+        $article['create_time'] = date('Y-m-d', $articleinfo['create_time']);
+        $article['views'] = $articleinfo['views'];
+        $article['is_like'] = $ArticleLike ? 1 : 0;
+        $article['follow_user'] = $UserFollower ? 1 : 0;
+        $article['html5_url'] = C('m_site') . '/article/content/' . $id;
+
+
+        $article['userinfo'] = [
+            "id" => $userinfo['id'],
+            "nickname" => $userinfo['nickname'],
+            "faceUrl" => $userinfo['face'],
+            'gender' => $userinfo['gender'],
+            'motto' => $userinfo['motto'],
+            'category' => $this->get_user_category($userinfo['id']),
+            "is_artist" => strpos(',' . $userinfo['role'] . ',', ',artist,') !== false ? 1 : 0,
+            "is_agency" => strpos(',' . $userinfo['role'] . ',', ',agency,') !== false ? 1 : 0,
+            "is_planner" => strpos(',' . $userinfo['role'] . ',', ',planner,') !== false ? 1 : 0,
+        ];
+
+        $ArticleLike_list = M('ArticleLike')->field('az_user.face')->join('az_user on az_article_like.like_user_id=az_user.id')->where("az_article_like.article_id=" . intval($id))->order('az_article_like.id desc')->limit(10)->select();
+
+
+        $article['like_users'] = [];
+        foreach ($ArticleLike_list as $value) {
+            $article['like_users'][] = $value['face'].'?x-oss-process=image/resize,m_fixed,h_180,w_180';
+        }
+
+        //获取里面的图片
+        preg_match_all('/<img.*?src="(.*?)".*?>/is', $articleinfo['content'], $array);
+        $article['images'] = empty($array[1]) ? [] : self::thumbnails($array[1]);
+
+        //获取里面的视频
+        preg_match_all('/<video.*?poster="(.*?)".*?>/is', $articleinfo['content'], $match);
+        $article['video'] = empty($match[1]) ? '' : $match[1][0];
+
+
+        $ArticleComment_count = M('ArticleComment')->where("topic_id=" . intval($id) . " and parent_id=0 and status=1")->count();
+        $ArticleComment_list = M('ArticleComment')
+            ->field('az_article_comment.id,az_article_comment.commenter as artist,az_user.face,az_user.nickname,az_user.gender
+            ,az_article_comment.create_time,az_article_comment.content,az_article_comment.like_total')
+            ->join('az_user on az_article_comment.commenter=az_user.id')
+            ->where("az_article_comment.topic_id=" . intval($id) . " and az_article_comment.parent_id=0 and az_article_comment.status=1")
+            ->order('az_article_comment.id desc')
+            ->limit(5)
+            ->select();
+
+        $comments = [];
+        foreach ($ArticleComment_list as $value) {
+            $repayinfo = M('ArticleComment')
+                ->field('az_article_comment.id,az_article_comment.commenter as artist,az_user.face,az_user.nickname,az_user.gender
+            ,az_article_comment.create_time,az_article_comment.content,az_article_comment.like_total')
+                ->join('az_user on az_article_comment.commenter=az_user.id')
+                ->where("az_article_comment.topic_id=" . intval($id) . " and az_article_comment.parent_id=" . $value['id'] . " and az_article_comment.status=1")
+                ->find();
+            $ArticleCommentLike = M('ArticleCommentLike')->where("comment_id=" . intval($value['id']) . " and liker=" . intval($this->loginUserId) . " ")->find();
+
+            if ($repayinfo) {
+                $value['repayer'] = $repayinfo['nickname'];
+                $value['repayContent'] = $repayinfo['content'];
+                $value['repayTime'] = $repayinfo['create_time'];
+            }
+            $comments[] = [
+                'commentId' => $value['id'],
+                'artist' => $value['artist'],
+                'faceUrl' => $value['face'].'?x-oss-process=image/resize,m_fixed,h_180,w_180',
+                'nickname' => $value['nickname'],
+                'gender' => $value['gender'],
+                'time' => date('Y-m-d', $value['create_time']),
+                'content' => $value['content'],
+                "isLike" => $ArticleCommentLike ? 'Y' : 'N',
+                'repayer' => trim($value['repayer']) == '' ? '' : $value['repayer'],
+                'repayContent' => trim($value['repayContent']) == '' ? '' : $value['repayContent'],
+                'repayTime' => $value['repayTime'] ? date('Y-m-d', $value['repayTime']) : '',
+                'likes' => $value['like_total'],
+                'isRepay' => $repayinfo ? 1 : 0,
+
+
+            ];
+        }
+
+        $article['comments'] = [
+            'total' => $ArticleComment_count,
+            'commentlist' => $comments
+        ];
+
+
+        //相关推荐
+        $where = 'az_article.artist=' . $articleinfo['artist'] . ' and az_article.id!=' . intval($id) . ' and az_article.status=1';
+        $total = $ArticleLogic->where($where)->count();
+
+        if ($total) {
+
+            $list = $ArticleLogic
+                ->field('az_article.cover,az_user.gender,az_article.id,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_article.artist=az_user.id', 'left')
+                ->where($where)
+                ->order('id desc')
+                ->limit(5)
+                ->select();
+        } else {
+            $where = 'az_article.id!=' . intval($id) . ' and az_article.status=1';
+            $list = $ArticleLogic
+                ->field('az_article.cover,az_user.gender,az_article.id,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_article.artist=az_user.id', 'left')
+                ->where($where)
+                ->order('id desc')
+                ->limit(5)
+                ->select();
+        }
+
+        $article_ids = [];//文章id列表
+        foreach ($list as $value) {
+            array_push($article_ids, $value['id']);
+        }
+
+        $like_list = [];//用户点赞列表
+        if (count($article_ids) && $this->loginUserId > 0) {//查询登录用户的点赞列表
+            $ArticleLike_list = M('ArticleLike')->where("article_id in (" . implode(',', $article_ids) . ") and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->select();
+        }
+        foreach ($ArticleLike_list as $like) {
+            $like_list[$like['article_id']] = 1;
+        }
+
+        $related_articles = [];
+        foreach ($list as $value) {
+            $related_article['id'] = $value['id'];
+            $related_article['cover'] = Util::getImageResize($value['cover'], 300, 300);
+            $related_article['title'] = $value['title'];
+            $related_article['content'] = $this->article_content_cut(strip_tags($value['content']), 70);
+
+            $related_articles[] = $related_article;
+        }
+        $article['related'] = $related_articles;
+        $article['shareInfo'] = [
+            'shareTitle' => $articleinfo['title'],
+            'shareDesc' => $articleinfo['excerpt'],
+            'shareImg' => Util::getFillImage(Util::getImgUrlById($articleinfo['cover']), Image::faceWidth, Image::faceHeight),
+            'shareLink' => C('m_site') . '/article/detail/' . $id,
+        ];
+
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $article]);
+    }
+
+    public function getdetailSimple()
+    {
+        $id = I('post.id', '', 'number_int');
+        $ArticleLogic = new ArticleLogic();
+        $articleinfo = $ArticleLogic->where("id=" . intval($id) . " and status=1")->find();
+        if (!$articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+        $ArticleLogic->where('id=' . intval($id))->setInc('views', 1);
+
+        $userLogic = new UserLogic();
+        $userinfo = $userLogic->where("id=" . $articleinfo['artist'])->find();
+
+        $ArticleLike = M('ArticleLike')->where("article_id=" . intval($id) . " and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->find();
+
+
+        $article['title'] = $articleinfo['title'];
+        $article['like_count'] = $articleinfo['like_count'];
+        $article['create_time'] = date('Y-m-d', $articleinfo['create_time']);
+        $article['views'] = $articleinfo['views'];
+        $article['is_like'] = $ArticleLike ? 1 : 0;
+        $article['uname']=$userinfo['nickname'];
+
+        //获取里面的图片
+        preg_match_all('/<img.*?src="(.*?)".*?>/is', html_entity_decode($articleinfo['content'],ENT_QUOTES), $array);
+        $article['images'] = empty($array[1]) ? [] : self::thumbnails($array[1]);
+
+
+
+        $ArticleComment_count = M('ArticleComment')->where("topic_id=" . intval($id) . " and parent_id=0 and status=1")->count();
+
+        $article['comments'] = [
+            'total' => $ArticleComment_count,
+        ];
+
+
+
+        $article['shareInfo'] = [
+            'shareTitle' => $articleinfo['title'],
+            'shareDesc' => $articleinfo['excerpt'],
+            'shareImg' => Util::getFillImage(Util::getImgUrlById($articleinfo['cover']), Image::faceWidth, Image::faceHeight),
+            'shareLink' => C('m_site') . '/article/detail/' . $id,
+        ];
+
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $article]);
+    }
+    public function getdetailH5()
+    {
+        $id = I('post.id', '', 'number_int');
+        $ArticleLogic = new ArticleLogic();
+        $articleinfo = $ArticleLogic->where("id=" . intval($id) . " and status=1")->find();
+        if (!$articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+        $ArticleLogic->where('id=' . intval($id))->setInc('views', 1);
+
+        $userLogic = new UserLogic();
+        $userinfo = $userLogic->where("id=" . $articleinfo['artist'])->find();
+
+        $ArticleLike = M('ArticleLike')->where("article_id=" . intval($id) . " and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->find();
+        $UserFollowerLogic = new UserFollowerLogic();
+        $UserFollower = $UserFollowerLogic->field('id')->where("follower=" . intval($this->loginUserId) . " and user_id=" . $articleinfo['artist'] . " and is_follow='Y'")->find();
+//echo $UserFollowerLogic->getLastSql();exit;
+        //$article['id'] = $articleinfo['id'];
+
+        $imgUrls = $ArticleLogic->getHtmlImgSrc(html_entity_decode($articleinfo['content'],ENT_QUOTES));
+        $article_content = $ArticleLogic->replaceHtmlImgSrc($imgUrls, html_entity_decode($articleinfo['content'],ENT_QUOTES));
+
+        $article['is_repay'] = $articleinfo['artist'] == $this->loginUserId ? 1 : 0;
+        $article['title'] = $articleinfo['title'];
+        $article['content'] = $article_content;
+        $article['like_count'] = $articleinfo['like_count'];
+        $article['create_time'] = date('Y-m-d', $articleinfo['create_time']);
+        $article['views'] = $articleinfo['views'];
+        $article['is_like'] = $ArticleLike ? 1 : 0;
+        $article['follow_user'] = $UserFollower ? 1 : 0;
+        $article['html5_url'] = C('m_site') . '/article/content/' . $id;
+
+        $AgencyType=$userLogic->getAgencyType($articleinfo['artist']);
+        $article['userinfo'] = [
+            "id" => $userinfo['id'],
+            "nickname" => $userinfo['nickname'],
+            "faceUrl" => $userinfo['face'],
+            'gender' => $userinfo['gender'],
+            'motto' => $userinfo['motto'],
+            'category' => $this->get_user_category($userinfo['id']),
+            "is_artist" => strpos(',' . $userinfo['role'] . ',', ',artist,') !== false ? 1 : 0,
+            "is_agency" => $AgencyType>0 ? 1 : 0,
+            'AgencyType' => $AgencyType,
+            "is_planner" => strpos(',' . $userinfo['role'] . ',', ',planner,') !== false ? 1 : 0,
+        ];
+
+        $ArticleLike_list = M('ArticleLike')->field('az_user.face')->join('az_user on az_article_like.like_user_id=az_user.id')->where("az_article_like.article_id=" . intval($id))->order('az_article_like.id desc')->limit(10)->select();
+
+
+        $article['like_users'] = [];
+        foreach ($ArticleLike_list as $value) {
+            $article['like_users'][] = $value['face'].'?x-oss-process=image/resize,m_fixed,h_180,w_180';
+        }
+
+        //获取里面的图片
+        preg_match_all('/<img.*?src="(.*?)".*?>/is', $articleinfo['content'], $array);
+        $article['images'] = empty($array[1]) ? [] : self::thumbnails($array[1]);
+
+        //获取里面的视频
+        preg_match_all('/<video.*?poster="(.*?)".*?>/is', $articleinfo['content'], $match);
+        $article['video'] = empty($match[1]) ? '' : $match[1][0];
+
+
+        $ArticleComment_count = M('ArticleComment')->where("topic_id=" . intval($id) . " and parent_id=0 and status=1")->count();
+        $ArticleComment_list = M('ArticleComment')
+            ->field('az_article_comment.id,az_article_comment.commenter as artist,az_user.face,az_user.nickname,az_user.gender
+            ,az_article_comment.create_time,az_article_comment.content,az_article_comment.like_total')
+            ->join('az_user on az_article_comment.commenter=az_user.id')
+            ->where("az_article_comment.topic_id=" . intval($id) . " and az_article_comment.parent_id=0 and az_article_comment.status=1")
+            ->order('az_article_comment.id desc')
+            ->limit(5)
+            ->select();
+
+        $comments = [];
+        foreach ($ArticleComment_list as $value) {
+            $repayinfo = M('ArticleComment')
+                ->field('az_article_comment.id,az_article_comment.commenter as artist,az_user.face,az_user.nickname,az_user.gender
+            ,az_article_comment.create_time,az_article_comment.content,az_article_comment.like_total')
+                ->join('az_user on az_article_comment.commenter=az_user.id')
+                ->where("az_article_comment.topic_id=" . intval($id) . " and az_article_comment.parent_id=" . $value['id'] . " and az_article_comment.status=1")
+                ->find();
+            $ArticleCommentLike = M('ArticleCommentLike')->where("comment_id=" . intval($value['id']) . " and liker=" . intval($this->loginUserId) . " ")->find();
+
+            if ($repayinfo) {
+                $value['repayer'] = $repayinfo['nickname'];
+                $value['repayContent'] = $repayinfo['content'];
+                $value['repayTime'] = $repayinfo['create_time'];
+            }
+            $comments[] = [
+                'commentId' => $value['id'],
+                'artist' => $value['artist'],
+                'faceUrl' => $value['face'].'?x-oss-process=image/resize,m_fixed,h_180,w_180',
+                'nickname' => $value['nickname'],
+                'gender' => $value['gender'],
+                'time' => date('Y-m-d', $value['create_time']),
+                'content' => $value['content'],
+                "isLike" => $ArticleCommentLike ? 'Y' : 'N',
+                'repayer' => trim($value['repayer']) == '' ? '' : $value['repayer'],
+                'repayContent' => trim($value['repayContent']) == '' ? '' : $value['repayContent'],
+                'repayTime' => $value['repayTime'] ? date('Y-m-d', $value['repayTime']) : '',
+                'likes' => $value['like_total'],
+                'isRepay' => $repayinfo ? 1 : 0,
+
+
+            ];
+        }
+
+        $article['comments'] = [
+            'total' => $ArticleComment_count,
+            'commentlist' => $comments
+        ];
+
+
+        //相关推荐
+        $where = 'az_article.artist=' . $articleinfo['artist'] . ' and az_article.id!=' . intval($id) . ' and az_article.status=1';
+        $total = $ArticleLogic->where($where)->count();
+
+        if ($total) {
+
+            $list = $ArticleLogic
+                ->field('az_article.cover,az_user.gender,az_article.id,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_article.artist=az_user.id', 'left')
+                ->where($where)
+                ->order('id desc')
+                ->limit(5)
+                ->select();
+        } else {
+            $where = 'az_article.id!=' . intval($id) . ' and az_article.status=1';
+            $list = $ArticleLogic
+                ->field('az_article.cover,az_user.gender,az_article.id,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_article.artist=az_user.id', 'left')
+                ->where($where)
+                ->order('id desc')
+                ->limit(5)
+                ->select();
+        }
+
+        $article_ids = [];//文章id列表
+        foreach ($list as $value) {
+            array_push($article_ids, $value['id']);
+        }
+
+        $like_list = [];//用户点赞列表
+        if (count($article_ids) && $this->loginUserId > 0) {//查询登录用户的点赞列表
+            $ArticleLike_list = M('ArticleLike')->where("article_id in (" . implode(',', $article_ids) . ") and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->select();
+        }
+        foreach ($ArticleLike_list as $like) {
+            $like_list[$like['article_id']] = 1;
+        }
+
+        $related_articles = [];
+        foreach ($list as $value) {
+            $related_article['id'] = $value['id'];
+            $related_article['cover'] = Util::getImageResize($value['cover'], 300, 300);
+            $related_article['title'] = $value['title'];
+            $related_article['content'] = $this->article_content_cut(strip_tags($value['content']), 70);
+
+            $related_articles[] = $related_article;
+        }
+        $article['related'] = $related_articles;
+        $article['shareInfo'] = [
+            'shareTitle' => $articleinfo['title'],
+            'shareDesc' => $articleinfo['excerpt'],
+            'shareImg' => Util::getFillImage(Util::getImgUrlById($articleinfo['cover']), Image::faceWidth, Image::faceHeight),
+            'shareLink' => C('m_site') . '/article/detail/' . $id,
+        ];
+
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $article]);
+    }
+
+    public function getmyarticlelist()
+    {
+        $this->checkLogin();
+
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $ArticleLogic = new ArticleLogic();
+
+        $where = 'az_article.artist=' . $this->loginUserId . ' and az_article.status!=0';
+        $total = $ArticleLogic->where($where)->count();
+
+        $list = $ArticleLogic
+            ->field('az_article.create_time,az_article.status,az_article.modified_time,az_article.id,az_article.cover,az_article.artist,az_article.title,az_article.excerpt,az_article.like_count,az_article.content,az_user.nickname,az_user.face,az_user.role')
+            ->join('az_user on az_article.artist=az_user.id', 'left')
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        $article_ids = [];//文章id列表
+        foreach ($list as $value) {
+            array_push($article_ids, $value['id']);
+        }
+
+        $like_list = [];//用户点赞列表
+        if (count($article_ids) && $this->loginUserId > 0) {//查询登录用户的点赞列表
+            $ArticleLike_list = M('ArticleLike')->where("article_id in (" . implode(',', $article_ids) . ") and like_user_id=" . intval($this->loginUserId) . " and is_like=1")->select();
+        }
+        foreach ($ArticleLike_list as $like) {
+            $like_list[$like['article_id']] = 1;
+        }
+
+        $articles = [];
+        foreach ($list as $value) {
+            $article['id'] = $value['id'];
+            $article['type'] = $value['status'];
+            $article['cover'] = trim($value['cover']);
+            $article['title'] = $value['title'];
+            $article['excerpt'] = $value['excerpt'];
+            $article['like_count'] = $value['like_count'];
+            $article['is_like'] = $like_list[$value['id']] == 1 ? 1 : 0;
+            $article['isEdit'] = 'Y';
+            $article['last_update_time'] = date('Y-m-d H:i', $value['modified_time']);
+            $article['create_time'] = date('Y-m-d H:i', $value['create_time']);
+            //获取里面的图片
+            preg_match_all('/<img.*?src="(.*?)".*?>/is', $value['content'], $array);
+            $article['images'] = empty($array[1]) ? [] : Util::getImageResizes($array[1], 300, 300);
+
+            //获取里面的视频
+            preg_match_all('/<video.*?poster="(.*?)".*?>/is', $value['content'], $match);
+            $article['video'] = empty($match[1]) ? '' : $match[1][0];
+
+            $article['user'] = [
+                "id" => $value['artist'],
+                "nickname" => $value['nickname'],
+                "faceUrl" => $value['face'],
+                "is_artist" => strpos(',' . $value['role'] . ',', ',artist,') !== false ? 1 : 0,
+                "is_agency" => strpos(',' . $value['role'] . ',', ',agency,') !== false ? 1 : 0,
+                "is_planner" => strpos(',' . $value['role'] . ',', ',planner,') !== false ? 1 : 0,
+            ];
+
+
+            $articles[] = $article;//添加进articles
+        }
+
+
+        $maxpage =intval($total / $pagesize)<($total / $pagesize)? intval($total / $pagesize) + 1:intval($total / $pagesize);
+        $info = [
+            'articles' => $articles,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+
+    }
+
+
+    public function getmyarticle()
+    {
+        $this->checkLogin();
+
+        $id = I('post.id', '', 'number_int');
+        $ArticleLogic = new ArticleLogic();
+        $articleinfo = $ArticleLogic->where("id=" . intval($id) . " and artist=" . $this->loginUserId . " and status!=0")->find();
+        if (!$articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+
+        $articleinfo = [
+            'id' => $id,
+            'type' => $articleinfo['status'],
+            'title' => $articleinfo['title'],
+            'excerpt' => $articleinfo['excerpt'],
+            'content' => html_entity_decode($articleinfo['content'],ENT_QUOTES),
+            'cover' => trim($articleinfo['cover']),
+            'last_update_time' => date('Y-m-d', $articleinfo['modified_time']),
+        ];
+
+        $info = $articleinfo;
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    private function get_user_category($artist)
+    {//获取用户作品分类
+        $ArtworkLogic = new ArtworkLogic();
+        $ArtworkCategoryLogic = new ArtworkCategoryLogic();
+        $categorys = $ArtworkLogic->field('category')->where("artist=" . intval($artist) . " and is_deleted='N'")->select();
+        $categorys_str = '';
+        foreach ($categorys as $value) {
+            $categorys_str = $categorys_str . ',' . $value['category'];
+        }
+        $categorys_arr = explode(',', $categorys_str);
+        $categorys_arr = array_filter($categorys_arr);
+        $categorys_arr = array_unique($categorys_arr);
+        if (count($categorys_arr)) {
+            $categorys = $ArtworkCategoryLogic->field('cn_name')->where('id in (' . implode(',', $categorys_arr) . ')')->select();
+            $cat_name = '';
+            foreach ($categorys as $value) {
+                $cat_name = $cat_name == '' ? $value['cn_name'] : $cat_name . '/' . $value['cn_name'];
+            }
+            return $cat_name;
+        } else {
+            return '';
+        }
+
+    }
+
+    public function ddddd()
+    {
+        //$AliyunMts = new AliyunMts();
+        //$screenshot_result = $AliyunMts->screenshot('2017/08/21/13/2994888147bdb2eda501b78cb3ec8de3.MP4', '2017/08/21/13/2994888147bdb2eda501b78cb3ec8de3.jpg');
+       // if ($screenshot_result->State != 'Fail') {
+         //   echo 111;
+       // }
+    }
+
+    private function html_insert_video_screenshot($str)
+    {
+        $artzhe_oss = 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/';
+        $html = str_get_html($str);
+        foreach ($html->find('video') as $video) {
+            if (trim($video->poster) != '') {
+                continue;
+            }
+            $i = 0;
+            $poster = '';
+            foreach ($video->find('source') as $source) {
+                if ($i > 0) {
+                    continue;
+                }
+                if (trim($source->src) != '') {
+                    $pos = strpos(trim($source->src), $artzhe_oss);
+                    if ($pos === false) {
+                        continue;
+                    }
+                    $video_src = trim($source->src);
+                    $video_src_path = str_replace($artzhe_oss, "", $video_src); //视频保存路径
+                    $pos = strripos($video_src_path, '.');
+                    if ($pos !== false) {
+                        $screenshot_src_path = substr($video_src_path, 0, $pos) . '.jpg'; //视频截图保存路径
+                    } else {
+                        $screenshot_src_path = $video_src_path . '.jpg';
+                    }
+                    $AliyunMts = new AliyunMts();
+                    $screenshot_result = $AliyunMts->screenshot($video_src_path, $screenshot_src_path);//截图
+
+                    if ($screenshot_result->State == 'Success') {
+                        $poster = $artzhe_oss . $screenshot_src_path;
+                    }
+                }
+                $i++;
+            }
+            if ($poster != '') {
+                $video->poster = $poster;
+            }
+        }
+        return $html->__toString();
+    }
+
+    private function article_content_cut($content, $len = 20)
+    {
+        $content = trim($content);
+        if (mb_strlen($content) <= $len) {
+            return $content;
+        } else {
+            return rtrim(mb_substr($content, 0, $len)) . '...';
+        }
+    }
+
+    private static function thumbnails($images)
+    {//加水印，质量压缩
+
+        foreach ($images as $key => $image) {
+            $obj = Util::waterObject($image);
+            $images[$key] = $image . '?x-oss-process=image/watermark,image_' . $obj . ',t_50,g_se,x_10,y_10/quality,q_50';
+        }
+        return $images;
+    }
+}

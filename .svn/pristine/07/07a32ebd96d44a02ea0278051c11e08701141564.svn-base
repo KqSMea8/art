@@ -1,0 +1,82 @@
+<extend name="Public:base" />
+<style type="text/css" rel="stylesheet">
+    div.row {
+        margin-bottom: 10px;
+    }
+</style>
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {$sub['sub_name']}-添加画作
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="row">
+                        <form action="{:U('Subject/addArtwork',['subid'=>$subid])}" class="form-inline" method="post" >
+                        <div class="col-md-2">搜索画作</div>
+                        <div class="col-md-10">
+                            <div style="float: left"><input type="text" name="artname" class="form-control" style="width: 200px;" /></div>
+                            <div style="float: left;margin-left: 10px;"><button class="btn btn-default form-control" type="submit">搜索画作</button></div>
+                        </div>
+                        </form>
+                        <notempty name="list">
+                            <table class="table table-hover">
+                                <tr>
+                                    <td>选择</td>
+                                    <td>画作名</td>
+                                    <td>艺术家</td>
+                                </tr>
+                                <volist name="list" id="vo">
+                                    <tr>
+                                        <td><input type="checkbox" value="{$vo['id']}" name="artid" /></td>
+                                        <td>{$vo['name']}</td>
+                                        <td>{$vo['uname']}</td>
+                                    </tr>
+                                </volist>
+                                <tr>
+                                    <td colspan="3"><button class="btn btn-default" id="addArt">添加画作</button></td>
+                                </tr>
+                            </table>
+                        </notempty>
+                    </div>
+
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <a href="{:U('Subject/index')}" class="btn btn-default">返回</a>
+            <!-- /.panel -->
+            <!-- /.col-lg-12 -->
+        </div>
+</block>
+<block name="customJs">
+    <script type="text/javascript">
+        $("#addArt").click(function(){
+            var obj=document.getElementsByName('artid');
+            //取到对象数组后，我们来循环检测它是不是被选中
+            var s='';
+            for(var i=0; i<obj.length; i++){
+                if(obj[i].checked) s+=obj[i].value+','; //如果选中，将value添加到变量s中
+            }
+            //那么现在来检测s的值就知道选中的复选框的值了
+            //alert(s==''?'你还没有选择任何内容！':s);
+            if(s==''){
+                alert('你还没有选择任何内容！');
+            }else{
+                $.post("{:U('Subject/addApply')}",
+                    {
+                        sid:s,
+                        subid:"{$subid}"
+                    },
+                    function(result){
+                       if(result.status == 1){
+                           alert('添加成功');
+                           window.location.href="{:U('Subject/getApplyDetail',['subid'=>$subid])}";
+                       }
+                    }
+                );
+            }
+        });
+    </script>
+</block>

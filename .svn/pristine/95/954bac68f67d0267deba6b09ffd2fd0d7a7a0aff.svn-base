@@ -1,0 +1,48 @@
+var vmApp = new Vue({
+  el: '#app',
+  data: {
+    isToApply: false,
+    isNext: false,
+    applyInfo: {
+
+    },
+    applyed: false,
+    templateInfo: {
+      curIdx: '0',
+      curUrl: '/Public/Home/image/promote/tuiguang.png',
+      list: [
+      {num: '38', imgUrl:'/Public/Home/image/promote/tuiguang.png'},
+      {num: '39', imgUrl:'/Public/Home/image/promote/tuiguang1.png'},
+      {num: '36', imgUrl:'/Public/Home/image/promote/tuiguang2.png'},
+      {num: '35', imgUrl:'/Public/Home/image/promote/tuiguang3.png'}
+      ]
+    },
+    promoteInfo: {
+
+    }
+  },
+  methods: {
+    stopPromote: function () {
+
+    },
+    rePromote: function () {
+      this.isToApply = true;
+    },
+    gotoPromote: function () {
+      this.isToApply = true;
+    },
+    downloadPic: function () {
+
+    },
+    chooseTemplate: function (index, imgUrl) {
+      this.templateInfo.curIdx = index;
+      this.templateInfo.curUrl = imgUrl;
+    },
+    goToSecond: function () {
+      this.isNext = true;
+    },
+    submitApply: function () {
+
+    }
+  }
+});

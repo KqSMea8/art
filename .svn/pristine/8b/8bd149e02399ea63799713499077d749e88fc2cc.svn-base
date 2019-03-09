@@ -1,0 +1,9 @@
+<?php
+
+namespace V40\Base;
+
+use Think\Controller;
+
+class BaseController extends Controller
+{
+}

@@ -1,0 +1,100 @@
+<?php
+
+namespace V41\Controller;
+
+use V41\Base\ApiBaseController;
+use V41\Logic\ArtworkCategoryLogic;
+use V41\Logic\ArtworkColorLogic;
+use V41\Logic\ArtworkLikeLogic;
+use V41\Logic\ArtworkLogic;
+use V41\Logic\ArtworkTagLogic;
+use V41\Logic\ArtworkUpdateLogic;
+use V41\Logic\ArtistExtensionLogic;
+use V41\Logic\CommentLogic;
+use V41\Logic\AssetsLogic;
+use V41\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+use V41\Model\LoginLogModel;
+
+//artwork upload
+class ExtensionController extends ApiBaseController
+{
+    public function apply()
+    {
+        $artist = I('artist', '');
+        $desc = I('desc', '');
+        $img = I('img', '');
+        $userLogic = new UserLogic();
+        $extLogic = new ArtistExtensionLogic();
+        $userInfo = $userLogic->find($artist);
+        $url = "gallery-{$userInfo['id']}-{$userInfo['nickname']}";
+        $extLogic->apply($artist, $img, $desc, $url);
+        Util::jsonReturn(['status' => Code::SUCCESS]);
+    }
+
+    public function edit()
+    {
+        $id = I('id', '');
+        $artist = I('artist', '');
+        $desc = I('desc', '');
+        $img = I('img', '');
+        $extLogic = new ArtistExtensionLogic();
+        $extLogic->edit($id, $artist, $img, $desc);
+        Util::jsonReturn(['status' => Code::SUCCESS]);
+    }
+
+    public function stop()
+    {
+        $id = I('id', '');
+        $extLogic = new ArtistExtensionLogic();
+        $extLogic->stop($id);
+        Util::jsonReturn(['status' => Code::SUCCESS]);
+    }
+
+    //app启动页
+    public function getNext()
+    {
+        $id = I('id', '');
+
+        $device = I('device', '');
+        $system = I('system', '');
+        $version = I('version', '');
+        //统计登录信息
+        $loginLogMode = new LoginLogModel();
+        $loginLogMode->addData($device,$system,$version,$this->token,'Extension/getNext');
+
+        //app启动时判断用户登录情况并记录登录次数
+        $isLogin = $this->isLogin();
+        if ($isLogin) {//登录
+            $userLogic = new UserLogic(); //实例化用户模块
+            $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+            if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+               $userLogic->where(['id' => $tokenInfo['userInfo']['id']])->setInc('login_times', 1);
+            }
+        }
+
+        $extLogic = new ArtistExtensionLogic();
+        $info = $extLogic->getNextCover();
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    public function getInfoByArtist()
+    {
+        $artistid = I('artistid', '');
+        $userLogic = new UserLogic();
+        if (empty($artistid)) {
+            Util::jsonReturn(['status' => Code::NOT_FOUND, 'info' => $artistid]);
+        }
+        $extLogic = new ArtistExtensionLogic();
+        $info = $extLogic->getInfoByArtist($artistid);
+        if (!empty($info)) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        } else {
+            Util::jsonReturn(['status' => 1001, 'info' => $info, 'artTotal' => $userLogic->where(['id' => $this->loginUserId])->getField('art_total')]);
+        }
+    }
+}

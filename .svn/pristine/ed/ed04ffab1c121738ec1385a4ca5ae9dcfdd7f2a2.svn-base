@@ -1,0 +1,151 @@
+<?php
+
+namespace V47\Controller;
+require_once ROOT_PATH."vendor/simple_html_dom.php";
+use V47\Base\ApiBaseController;
+use OSS\OssClient;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+class AppUpgradeController extends ApiBaseController
+{
+    
+    private function apk_patch_to_version_list($channel){//apk增量升级文件列表 降序排
+        
+        $ossConfig = C('OSS'); // 获取OSS配置信息
+        $ossClient = new OssClient($ossConfig['appKeyId'], $ossConfig['appKeySecret'], $ossConfig['endPoint']);
+        
+        $prefix = 'AppUpgrade/Android/'.$channel.'/';
+        $delimiter = '/';
+        $nextMarker = '';
+        $maxkeys = 1000;
+        
+        $options = array(
+            'delimiter' => $delimiter,
+            'prefix' => $prefix,
+            'max-keys' => $maxkeys,
+            'marker' => $nextMarker
+        );
+        
+        $listObjectInfo = $ossClient->listObjects($ossConfig['bucket'], $options);
+        
+        $listObject = $listObjectInfo->getObjectList();
+//                 print_r($listObject);
+        $OSS_file_list = [];
+        foreach ($listObject as $value) {
+            $file_url = "https://".$ossConfig['bucket'].".oss-cn-shenzhen.aliyuncs.com/" . $value->getKey();
+            $file_size = $value->getSize();
+            $file_Modifi_time = $value->getLastModified();
+            
+            if($file_size>0){
+                array_push($OSS_file_list, basename($file_url));
+            }
+        }
+        
+        
+        
+        $file_list = [];
+        $file_list_sort = [];
+        foreach ($OSS_file_list as $filename) {
+            $fileinfo = pathinfo($filename);
+            if (preg_match("/^artzhe_([0-9a-z]+)_([0-9\.]+)-to-([0-9\.]+)$/", $fileinfo['filename'],$maths)) {
+//                 print_r($maths);
+                array_push($file_list, $maths[3]);
+            }
+        }
+        $file_list=array_unique($file_list);
+        rsort($file_list);//降序
+        foreach ($file_list as $value) {
+            array_push($file_list_sort, $value);
+        }
+//          print_r($file_list_sort);
+        return $file_list_sort;
+    }
+    //安卓增量升级
+    public function Android(){
+        $channel = I('post.channel');
+        $version_old = I('post.version_old');
+        
+        if(!in_array($channel, C('AppUpgrade_android_channel'))){
+          
+            Util::jsonReturn(null, Code::PARAM_ERR, 'android渠道号错误');
+        }
+        
+        if ($version_old != '') {
+            $version_old_pos = strpos($version_old, '..');
+            if (! preg_match("/^[0-9\.]+$/", $version_old) || $version_old_pos !== false) {
+                Util::jsonReturn(null, Code::PARAM_ERR, '版本格式错误');
+            }
+            $timeout=60;
+            $cache_key='android_latest_version'.$channel;//缓存,避免经常遍历
+
+            //列表最新版本
+            $list_version_new_info=M('softinfo')->field('version,appurl,content,forced_update')->where(['flag'=>2])->order('publish_date desc,id desc')->find();
+            $version_new =$list_version_new_info['version'];
+            //最新版本补丁包
+            /*$version_new = S($cache_key);
+            if (trim($version_new) == '') {
+                $apk_patch_to_version_list = $this->apk_patch_to_version_list($channel);
+                $version_new = $apk_patch_to_version_list[0];
+                S($cache_key,$version_new,$timeout);
+            }*/
+            if ($version_old >= $version_new) {
+                Util::jsonReturn(null, Code::NOT_FOUND, '已经是最新版本');
+            }
+
+            $object="AppUpgrade/Android/".$channel."/artzhe_".$channel."_".$version_old . '-to-' . $version_new . '.patch';//增量升级
+            $object_full="AppUpgrade/Android/".$channel."/artzhe_".$channel."_".$version_new . '.apk';//完整升级
+            
+            $md5sum="AppUpgrade/Android/".$channel."/md5sum.txt";
+            
+            $file_url = "https://".C('OSS')['bucket'].".oss-cn-shenzhen.aliyuncs.com/".$object;
+            $file_full_url = "https://".C('OSS')['bucket'].".oss-cn-shenzhen.aliyuncs.com/".$object_full;
+            
+            $md5sum_url = "https://".C('OSS')['bucket'].".oss-cn-shenzhen.aliyuncs.com/".$md5sum;
+
+            $ossConfig = C('OSS'); // 获取OSS配置信息
+            $ossClient = new OssClient($ossConfig['appKeyId'], $ossConfig['appKeySecret'], $ossConfig['endPoint']);
+            $file_exist = $ossClient->doesObjectExist(C('OSS')['bucket'], $object);
+            
+            $file_full_exist = $ossClient->doesObjectExist(C('OSS')['bucket'], $object_full);
+            
+            //升级记录描述
+           // $softinfo_M=M('softinfo');
+            //$softinfo_info=$softinfo_M->where(['version'=>$version_new,'flag'=>2])->find();
+            
+            if ($file_exist == 1) {//补丁包
+                $md5sum_arry = parse_ini_string(file_get_contents($md5sum_url));
+                
+                $md5sum_value=$md5sum_arry[''."artzhe_".$channel."_".$version_new . '.apk'.''];
+                
+                Util::jsonReturn([
+                    'file_url' => $file_url,
+                    'md5sum'=>trim($md5sum_value),
+                    'content'=>trim($list_version_new_info['content']),
+                    'forced_update'=>intval($list_version_new_info['forced_update']),
+                    'version'=>$version_new,
+                    'isPatch'=>1,
+                ]);
+            } elseif ($file_full_exist == 1) {//版本列表中的下载地址
+                Util::jsonReturn([
+                    'file_full_url' => $file_full_url,
+                    'content'=>trim($list_version_new_info['content']),
+                    'forced_update'=>intval($list_version_new_info['forced_update']),
+                    'version'=>$version_new,
+                    'isPatch'=>0,
+                ]);
+            } else {
+                Util::jsonReturn([
+                    'file_full_url' => trim($list_version_new_info['appurl']),
+                    'content'=>trim($list_version_new_info['content']),
+                    'forced_update'=>intval($list_version_new_info['forced_update']),
+                    'version'=>$version_new,
+                    'isPatch'=>0,
+                ]);
+            }
+        } else {
+            Util::jsonReturn(null, Code::PARAM_ERR, '参数错误或不全');
+        }
+        
+    }
+    
+}

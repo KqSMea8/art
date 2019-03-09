@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="专注手绘艺术，遇见你的品味">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>注册</title>
+
+    <script src="/js/lib/flexible.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/global.css">
+
+    <link rel="stylesheet" type="text/css" href="/css/login.css">
+  </head>
+  <body>
+    <div style="display: none;">
+      <input type="hidden" id="nickname" name="nickname" value="@if(!empty($user['nickname'])){{$user['nickname']}} @else 0 @endif">
+      <input type="hidden" id="face" name="face" value="@if(!empty($user['face_url'])){{$user['face_url']}} @else 0 @endif">
+    </div>
+    <div class="container">
+      <div class="frame-box">
+        <div v-cloak id="reg-wrap">
+          <div class="userinfo" v-if="userInfo.nickname">
+            <img class="userinfo-avatar" :src="userInfo.face">
+            <span class="userinfo-nickname">{{userInfo.nickname}}</span>
+          </div>
+          <div v-else class="logo"></div>
+          <div class="form-item verify-item">
+            <i class="icons icon-verify"></i>
+            <input v-model="verifycode" class="input-verify" type="number" id="verifycode" name="verifycode" placeholder="请输入验证码" maxlength='6'>
+            <span @click="getVerifyCode" :class="[isClickgetVerify ? 'clicked' : '', 'btn-sm', 'btn-verify']">{{getVerifyCodeText}}</span>
+          </div>
+          <div class="form-item setpass-item">
+            <i class="icons icon-pass"></i>
+            <input v-if="open" v-model="password" type="text" class="input-pass" placeholder="请设置登录密码" maxlength='16'>
+            <input v-else v-model="password" type="password" class="input-pass" placeholder="请设置登录密码" maxlength='16'>
+            <i @click="toggle" :class="['icons', open? 'icon-open': 'icon-close']"></i>
+          </div>
+          <p class="agree-check" @click="agreeToggle"><input type="checkbox"><label for="agree"><i :class="['icons', isAgree? 'icon-agreed': 'icon-agree']"></i>同意<a @click.stop href="./regrule">《艺术者注册协议》</a></label></p>
+          <input @click="reg" type="button" class="btn btn-reg" name="" value="注册">
+        </div>
+      </div>
+    </div>
+    <script src="/js/lib/vue.min.js"></script>
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/util.js"></script>
+    <script type="text/javascript" src="/js/login/login-reg.js?v=1.2.0"></script>
+  </body>
+</html>

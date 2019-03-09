@@ -1,0 +1,54 @@
+<?php
+
+namespace V30\Logic;
+
+use V30\Base\BaseLogic;
+use V30\Logic\UserLogic;
+
+// artist apply
+class ArtistExtensionLogic extends BaseLogic{
+  public function apply($artist,$image,$desc,$url){
+    return $this->add([
+      'artist' => $artist,
+      'desc' => $desc,
+      'img' => $image,
+      'url' => $url,
+      'status' => 1,
+      'time' => time()
+    ]);
+  }
+  public function stop($id){
+    return $this->where(['id'=>$id])->save(['status' => '4']);
+  }
+  public function edit($id,$artist,$image,$desc){
+    $this->where(['id' => $id])->save([
+      'artist' => $artist,
+      'desc' => $desc,
+      'img' => $image,
+      'status' => 1,
+    ]);
+  }
+  public function verifySuccess($id){
+    return $this->verify($id,3);
+  }
+  public function verifyFailed($id){
+    return $this->verify($id,2);
+  }
+  public function verify($id,$status){
+    return $this->where(['id' => $id])->save(['status' => $status]);
+  }
+  public function getInfoByArtist($artist){
+    $info = $this->field('id,artist,desc,img,url,status,one,two,three')->where(['artist' => $artist])->order('time DESC')->find();
+    return $info;
+  }
+  public function getNextCover(){
+    $list = $this->field('id,artist,desc,img,url,two')->where(['status' => '3'])->select();
+    if(!empty($list)){
+      $once = $list[array_rand($list)];
+      $once['img'] = $once['two'];
+      return $once;
+    }else{
+      return (object)null;
+    }
+  }
+}

@@ -1,0 +1,661 @@
+html, body {
+  height: 100%;
+  background-color: #f7f7f7;
+}
+#header {
+  position: relative;
+}
+
+/* 最新作品 */
+
+/* 轮播切换点 */
+.swiper-pagination-bullet {
+  width: 0.16rem;
+  height: 0.16rem;
+  border: 1px solid #eaab32;
+  background-color: transparent;
+  opacity: 1;
+}
+.swiper-pagination-bullet-active {
+  background-color: #eaab32;
+}
+
+/* 轮播切换点 end */
+
+/* 作品描述 */
+.painting-new {
+  position: relative;
+  width: 10.0rem;
+}
+.painting-new .cover {
+  position: relative;
+  width: 10.0rem;
+  height: 10.0rem;
+}
+.painting-new .cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.painting-new .cover .icon-update {
+  position: absolute;
+  right: 0.36rem;
+  top: 0.2rem;
+}
+.painting-new .detail {
+  position: relative;
+  padding: 0 0.4rem;
+  background-color: #fff;
+}
+.painting-new .detail .title {
+  height: 0.90667rem;
+  vertical-align: middle;
+}
+.painting-new .title h3 {
+  float: left;
+  margin-top: 0.24rem;
+  height: 0.42667rem;
+  max-width: 5.0rem;
+  line-height: 0.42667rem;
+  font-size: 0.37333rem;
+  vertical-align: middle;
+  color: #333;
+}
+.painting-new .detail .label {
+  color: #999;
+}
+.painting-new .title .icon-r {
+  float: right;
+  margin-top: 0.24rem;
+  margin-left: 0.46667rem;
+  vertical-align: middle;
+}
+.painting-new .title .label {
+  display: inline-block;
+  height: 0.4rem;
+  line-height: 0.4rem;
+  vertical-align: middle;
+  font-size: 0.24rem;
+  color: #999;
+}
+.painting-new .title .icons {
+  width: 0.53333rem;
+  height: 0.53333rem;
+}
+.icons.icon-eye-grey {
+  background-position: -10.26667rem -4.24rem;
+}
+.icons.icon-heart-grey {
+  background-position: -9.28rem -4.24rem;
+}
+.painting-new .flags {
+  height: 0.96rem
+}
+.icons.icon-flag {
+  width: 0.48rem;
+  height: 0.96rem;
+  background-position: -0.24rem -8.0rem;
+}
+.painting-new .flags .label {
+  display: inline-block;
+  margin: 0.24rem 0.06rem 0;
+  padding: 0.09333rem 0.21333rem;
+  font-size: 0.26667rem;
+  line-height: 1;
+}
+
+/* 作品描述 end */
+
+/* 作者信息 */
+.painting-new .painter {
+  position: relative;
+  margin-top: 0.22rem;
+  padding: 0 0.4rem;
+  background-color: #fff;
+}
+.painting-new .painter .desc {
+  padding: 0.13333rem 0;
+  line-height: 0.64rem;
+  font-size: 0.4rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+.painting-new .painter .desc p {
+  font-size: 0.32rem;
+}
+.painter .info {
+  position: relative;  /*height: 1.54667rem;*/
+}
+.painter .info .avatar {
+  position: absolute;
+  top: 50%;
+  margin-top: -0.58667rem;
+  width: 1.17333rem;
+  height: 1.17333rem;
+  border-radius: 50%;
+  box-shadow: 0 0.08rem 0.18667rem rgba(0, 0, 0, .15);
+}
+.painter .info .det {
+  padding: 0.3rem 0 0.3rem 1.6rem;
+}
+.info .det .name {
+  height: 0.74667rem;
+  line-height: 0.74667rem;
+  font-size: 0.48rem;
+  color: #333;
+}
+.info .det span {
+  display: inline-block;
+  padding-right: 0.2rem;
+  height: 0.58667rem;
+  line-height: 0.58667rem;
+  font-size: 0.32rem;
+  color: #666;
+}
+.painter .info .follow {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  height: 1.2rem;
+  margin-top: -0.6rem;
+}
+.painter .info .follow .label {
+  line-height: 0.53333rem;
+  font-size: 0.32rem;
+}
+.painter .info .follow.followed {
+  color: #eaab32;
+}
+.icons.icon-follow {
+  display: block;
+  margin: 0 auto;
+  width: 0.66667rem;
+  height: 0.66667rem;
+  background-position: -0.16rem -7.16rem;
+}
+.followed .icons.icon-follow {
+  display: block;
+  margin: 0 auto;
+  width: 0.66667rem;
+  height: 0.66667rem;
+  background-position: -1.16rem -6.16rem;
+}
+
+/* 作者信息 end */
+
+/* 最新作品 end */
+
+/* 留言板 */
+.message-board {
+  position: relative;
+  margin-top: 0.16rem;
+  padding: 0 0.4rem;
+  background-color: #fff;
+}
+.message-board .title {
+  padding: 0.56rem 0;
+  font-size: 0.42667rem;
+  line-height: 1;
+  color: #333;
+}
+.message-board .user-list {
+  margin-right: 0.24rem;
+}
+.message-board .user-list .avatar {
+  float: right;
+  margin: 0.49rem 0 0 -0.16rem;
+  width: 0.56rem;
+  height: 0.56rem;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+}
+.message-board .icons {
+  position: absolute;
+  right: 0.3rem;
+  top: 50%;
+  margin-top: -0.16rem;
+  height: 0.4rem;
+  width: 0.32rem;
+  background-position: -2.4rem -5.33333rem;
+}
+
+/* 留言板 end */
+
+/* 创作过程 */
+.updates {
+  position: relative;
+  margin-top: 0.16rem;
+  padding-bottom: 2.66rem;
+}
+.update-list {
+  padding-top: 0.2rem;
+}
+.updates .title {
+  padding: 0.34667rem 0.4rem;
+  font-size: 0.42667rem;
+  line-height: 1;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+}
+.updates .title .year {
+  position: relative;
+  margin-left: 0.16rem;
+  padding-left: 0.13333rem;
+  font-size: 0.37333rem;
+  line-height: 1;
+  color: #666;
+}
+.updates .title .year:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-top: -0.13333rem;
+  height: 0.26667rem;
+  width: 1px;
+  background-color: #d8d8d8;
+}
+.update-year-item .year {
+  top: 0;
+  width: 100%;
+  padding-left: 1.08rem;
+  font-size: 0.64rem;
+  line-height: 0.88rem;
+  background-color: #f7f7f7;
+  z-index: 1;
+}
+.updates .update-detail-item {
+  position: relative;
+  margin-top: 0.4rem;
+  margin-left: 1.08rem;
+  padding-bottom: 0.66667rem;
+  width: 8.56rem;
+}
+.update-detail-item .icons.icon-timeline {
+  position: absolute;
+  left: -0.82rem;
+  top: 0;
+  height: 0.69333rem;
+  width: 0.69333rem;
+  background-position: -1.17333rem -8.16rem;
+}
+.update-detail-item:before {
+  content: '';
+  position: absolute;
+  left: -0.53333rem;
+  top: 0.72rem;
+  width: 0.08rem;
+  height: 120%;
+  background-color: #e4e4e4;
+}
+.update-year-item:last-of-type .update-detail-item:last-of-type:before {
+  left: -0.56rem;
+  width: 0.15rem;
+  top: -0.04rem;
+  height: 80%;
+  background-color: #f7f7f7;
+}
+.icons.icon-ring {
+  position: absolute;
+  top: 0.34rem;
+  left: 0.26667rem;
+  width: 0.53333rem;
+  height: 1.6rem;
+  background-position: -1.49333rem -8.93333rem;
+  z-index: 10;
+}
+.update-detail-item .info {
+  position: relative;
+}
+.update-detail-item .detail {
+  position: relative;
+  margin-top: 0.16rem;
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 0.04rem;
+}
+.detail .icons.icon-smallarrow {
+  position: absolute;
+  top: -0.18rem;
+  left: 0.48rem;
+  width: 0.26667rem;
+  height: 0.26667rem;
+  background-position: -2.37333rem -8.36rem;
+}
+.update-detail-item .detail .desc {
+  margin: 0 0.24rem;
+  padding-bottom: 0.21333rem;
+  font-size: 0.37333rem;
+  line-height: 0.48rem;
+  color: #666;
+  border-bottom: 1px solid #e9e9e9;
+}
+.update-detail-item .date {
+  height: 0.66667rem;
+  color: #444;
+}
+.update-detail-item .date .day {
+  font-size: 0.50rem;
+  font-weight: 700;
+}
+.update-detail-item .date .month {
+  margin-left: -0.04rem;
+  font-size: 0.32rem;
+}
+.update-detail-item .update-num {
+  float: right;
+  vertical-align: middle;
+}
+.update-detail-item .update-num .label {
+  display: inline-block;
+  font-size: 0.32rem;
+  line-height: 0.66667rem;
+  vertical-align: middle;
+}
+
+/* 图片排版 */
+.img-wrap {
+  position: relative;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  width: 8.05333rem;
+  margin: 0.26667rem auto 0.13333rem;
+  justify-content: flex-start;
+}
+[class*="img-item-"] {
+  margin-bottom: 0.13333rem;
+}
+.img-item-1 {
+  width: 4.16rem;
+  height: 4.16rem;
+}
+.img-item-2, .img-item-4 {
+  width: 3.81333rem;
+  height: 3.81333rem;
+}
+.img-item-3 {
+  margin-right: 0.1rem;
+  width: 2.6rem;
+  height: 2.6rem;
+}
+.img-wrap .img-item-3:last-of-type {
+  margin-right: 0;
+}
+/* 图片排版 end */
+.update .desc, .update-detail-item .detail .mess {
+  padding: 0.24rem 0.4rem;
+  color: #666;
+}
+.update-detail-item .detail .desc {
+  margin: 0 0.24rem;
+  padding-bottom: 0.21333rem;
+  font-size: 0.37333rem;
+  line-height: 0.48rem;
+  color: #666;
+  border-bottom: 1px solid #e9e9e9;
+  word-break: break-all;
+}
+.update-detail-item .detail .mess .mess-num {
+}
+.mess .mess-item .username, .mess .mess-item .con {
+  float: left;
+  padding-left: 0.16rem;
+  font-size: 0.32rem;
+  line-height: 1.5;
+}
+.mess .mess-item .username {
+  padding-left: 0;
+  color: #6ea6c3;
+}
+.mess .mess-item .con {
+  max-width: 6.0rem;
+  word-break:break-all;
+}
+.mess .more {
+  position: relative;
+  margin-top: 0.24rem;
+  line-height: 1;
+  font-size: 0.32rem;
+  text-align: right;
+  color: #999;
+}
+.mess .more span {
+  padding-right: 0.4rem;
+}
+.mess .more .icon-arrow {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  margin-top: -0.16rem;
+  height: 0.4rem;
+  width: 0.32rem;
+  background-position: -2.4rem -5.33333rem;
+}
+
+/* 创作过程 end */
+
+/*.records-tab .records-tab-list.sticked {
+  top:0;
+  left: 0;
+  margin-top: 0;
+  width: 100%;
+  z-index: 99;
+}*/
+
+/*新增交互栏*/
+
+/* interact-bar-list */
+.interact-bar-list {
+  position: fixed;
+  table-layout: fixed;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1.30667rem;
+  color: #fff;
+  border-top: 1px solid #e1e1e1;
+  z-index: 10;
+}
+.interact-bar-item {
+  position: relative;
+  display: table-cell;
+  width: 1%;
+  height: 1.30667rem;
+  text-align: center;
+  vertical-align: middle;
+  /*background: #161616;*/
+  background: #fff;
+}
+.interact-bar-item .icons {
+  position: relative;
+  margin: 0 auto;
+  width: 0.8rem;
+  height: 0.8rem;
+}
+.interact-bar-item .icons, .interact-bar-item .label {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
+.interact-bar-item .label {
+  height: 0.8rem;
+  line-height: 0.8rem;
+  font-size: 0.37333rem;
+  /*color: #fff;*/
+  color: #888;
+}
+.interact-bar-item.active .label {
+  /*color: #eaab32;*/
+}
+.interact-bar-item .icon-com {
+  /*background-position: -11.1rem -7.1rem;*/
+  background-position: -5.12rem -10.07rem;
+}
+.interact-bar-item .icon-like {
+  /*background-position: -8.02rem -6.09333rem;*/
+  background-position: -6.12rem -9.10rem;
+}
+.interact-bar-item.active .icon-like {
+  /*background-position: -9.02rem -6.09333rem;*/
+  background-position: -6.12rem -8.10rem;
+}
+.interact-bar-item.followed .icon-follow {
+  background-position: -4.24rem -1.17333rem;
+}
+.interact-bar-item.share {
+  /*background-color: #eaab32;*/
+}
+.interact-bar-item .icon-share {
+  /*background-position: -6.14rem -6.12rem;*/
+  background-position: -6.1rem -10.1rem;
+}
+.interact-bar-item::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0.44rem;
+  width: 0;
+  height: 0.4rem;
+  border-right: 1px solid #ebebeb;
+
+}
+.interact-bar-item:last-of-type::after {
+  display: none;
+}
+
+/* interact-bar-list end */
+
+a.buy-link {
+  margin: 0 auto;
+  width: 5.6rem;
+  height: 0.96rem;
+  line-height: 0.96rem;
+  font-size: 0.4rem;
+  text-align: center;
+  color: #f4ad23;
+  border: 1px solid #f4ad23;
+  border-radius: 0.08rem;
+}
+.icons.icon-buy {
+  background-position: -10.96rem -11.0rem;
+  width: 0.96rem;
+  height: 0.96rem;
+  vertical-align: top;
+}
+/* 版画出售，原作出售 start*/
+.sellinfo{
+  padding: 0 0.4rem;
+  background-color: #fff;
+  border-top: 1px solid #E3E3E3;
+  border-bottom: 1px solid #E3E3E3;
+}
+.yuanzuosell,.banhuasell{
+  position: relative;
+  /* padding-right: 2.93333rem; */
+}
+.yuanzuosellTitle{
+  font-size: .32rem;
+  color: #444444;
+  padding-top: .53333rem;
+  margin-bottom: .30667rem;
+}
+.yuanzuosell .ysp1,.yuanzuosell .ysp2,.yuanzuosell .ysp3{
+  display: inline-block;
+  margin-right: .41333rem;
+  font-size: .32rem;
+  color: #999999;
+
+}
+.hassomething{
+  display: inline-block;
+  width: .30667rem;
+  height: .30667rem;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAeCAYAAABE4bxTAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjk5NzIwOUREMDIzQjExRThCNTZERTc2RTlFNjlDQTQxIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjk5NzIwOURFMDIzQjExRThCNTZERTc2RTlFNjlDQTQxIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6OTk3MjA5REIwMjNCMTFFOEI1NkRFNzZFOUU2OUNBNDEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6OTk3MjA5REMwMjNCMTFFOEI1NkRFNzZFOUU2OUNBNDEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4aw8N6AAACMElEQVR42sSXyytEURzHZ1CyImKjyB9gL8UYhBUbsvBIeS3ksREpJRuUUiy8ycY7z4Uis2AhpZTklUeyEJHEQjL4/uo3NW7nnvswc++vPot7zrmnz5zzu+d3xlnhqXDYGZPuyT/PTruFENGgB2xDbjbERhEnKANnoAo0U2OYTTKJYBxk8bMXDNslRKsyACL5+ROUYrsWrBaiXBkCRX5tJFMEmTVfg1VCKWAOJChkCiGz7j/QiqRuADsKGcqZErCuHBzMFQoHI6Bc0f4DasCi6KVgCcWBZZAq6GsDE2ovBkMoGayCJEHfIOiWvRzoHHJxvohktkC91gQhgqU2K5kPNkCUoO+CP3evEaEccMKTxhqUocRdAhGCvleWfdUzEQmFgk4WiWGxQ5CmU6aSijbPIwqqU+d6fxkJTYN2xWrFAw9o1djCajAqGdOv9nnLhCjrn1W+wC7JFpZzQXSqzL3vq+BGhWh7MsGjyhjRFhbwWaImQ/lSzOXBsBDFEcgA9yrjfFvYwleGeUnOUDSCWzOfqv/BeArcdHNjAdFY2t5vjbxaAVNmDzLlxPQ1pGv8OpkMbXvtf05W0eTXfOLemJivSZKLpoUcvEIuPmH1xiaY+W/tkS3/HSf6qY55PkBdIIqhVt26Z6ljjXH0N+bSCiFforr5LBLFA+gN1HVBb2V/4vPnQNDXAd6tFqJ4Adlgz6/tCowF8kJl9O5DJSEX7PJzH/iyU4jiDeSBBdnd2Gz8CjAAW39wWCBrsPsAAAAASUVORK5CYII=') no-repeat center center;
+  background-size: 100% 100%;
+}
+.hasnothing{
+  display: inline-block;
+  width: .24rem;
+  height: .24rem;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM5MkJDNDQzMDIzQjExRThBMzQ0RDJGMkVCMDgzQjQ0IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM5MkJDNDQ0MDIzQjExRThBMzQ0RDJGMkVCMDgzQjQ0Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzkyQkM0NDEwMjNCMTFFOEEzNDREMkYyRUIwODNCNDQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzkyQkM0NDIwMjNCMTFFOEEzNDREMkYyRUIwODNCNDQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4Lxw0KAAAA9klEQVR42qyVjQ3CIBCFCxMwghu0bmA30A10AusEuoEj2BHcoG4gbOIG9WEOQyk/16SXvJC7cF+AvoIYx7FaM6SfGGPuULMEgPk3SM2AKD4wdNDAhVLPlXrUH4hkg2FP8xQHSrAjpQ0tphLuDAkwENDGB2rrutYFmI0e806TLVNjS6DkSnOw2UcpQUuwyZaDVcS2//LOOQpLAhPQqgTLAj3oOyg/ATuwjB2Jc6S2y1lKMn3mR9ankgnroW3JUlFgyhpcn8olpuVAJRfGhbrLQdEPXvRZBtqEl4MiI+scLGH+C3r6X9ECnbTWys85CnvE2k/AV4ABAKvv6fjldsGDAAAAAElFTkSuQmCC') no-repeat center center;
+  background-size: 100% 100%;
+}
+.yuanzuosellTitle span{
+  padding-left: .22667rem;
+  font-weight: bold;
+  font-size: .45rem;
+  color: #FF2A2A
+}
+.yuanzuosell .yhsellbtn{
+  display: block;
+  position: absolute;
+  top: .833rem;
+  right: 0;
+  width: 2.4rem;
+  height: .73333rem;
+  background: #E9AB32;
+  font-size: .32rem;
+  line-height: .73333rem;
+  text-align: center;
+  border-radius: .13333rem;
+  color: #333333;
+}
+.yhselldbtn{
+  display: block;
+  position: absolute;
+  top: .833rem;
+  right: 0rem;
+  width: 2.4rem;
+  height: .73333rem;
+  background: #ddd;
+  font-size: .32rem;
+  line-height: .73333rem;
+  text-align: center;
+  border-radius: .13333rem;
+  color: #999;
+}
+.banhuasell .bhsellTitle{
+  font-size: .32rem;
+  color: #444;
+  margin-top: .66667rem;
+  margin-bottom: .73333rem;
+}
+.banhuasell .bhsellTitle>span{
+  padding-left: .22667rem;
+  font-weight: bold;
+  font-size: .45rem;
+  color: #FF2A2A;
+}
+.banhuasell .bhsellbtn{
+  display: block;
+  position: absolute;
+  top: -0.1833rem;
+  right: 0rem;
+  width: 2.4rem;
+  height: .73333rem;
+  border: 1px solid #F5B230;
+  border-radius: .13333rem;
+  font-size: .32rem;
+  color: #F5B230;
+  line-height: .73333rem;
+  text-align: center;
+}
+
+/* 版画出售，原作出售 end */
+/*预付定金弹窗(待做)start*/
+.downPaymentbox{
+  display: none;
+  position: fixed;
+  z-index: 1;
+
+}
+.downPaymentbox .downPayment{
+  position: absolute;
+}
+/*预付定金弹窗(待做)end*/

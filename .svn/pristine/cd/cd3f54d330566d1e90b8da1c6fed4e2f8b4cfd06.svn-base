@@ -1,0 +1,15 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: gsy
+ * Date: 2018/9/21
+ * Time: 14:09
+ */
+
+namespace Admin\Model;
+
+use Admin\Base\BaseModel;
+class ArtworkModel extends BaseModel
+{
+
+}

@@ -1,0 +1,151 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Custom\Helper\AdmTpl;
+use Common\Base\AdminBaseController;
+use Custom\Helper\Util;
+use Common\Logic\CommentLogic;
+use Common\Logic\ArtworkLogic;
+use Common\Logic\ArtworkUpdateLogic;
+use Common\Logic\UserLogic;
+use Custom\Helper\Nav;
+use Common\Model\CommentLikeModel;
+use Common\Model\MessageModel;
+
+class CommentController extends AdminBaseController
+{
+    public $size = 15;  //每页显示条数
+
+    public function index()
+    {
+        $nickname = I('get.nickname');
+        $content = I('get.content');
+        $sdate = I('get.sdate');  //注册开始时间
+        $edate = I('get.edate');  //注册结束时间
+
+        $page = I('get.page', '1');  //页码
+        $CommentLogic = new CommentLogic();
+
+        //$encInfo = Util::encryptPassword('gw4KHJKpo5f*Irt', '543gOg4g');
+        //print_r($encInfo);
+        // exit;
+
+        $where = "1=1 ";
+        //$where = "is_deleted='N' ";
+        if (trim($nickname) != '') {
+            $where = $where . " and nickname like '%" . addslashes(trim($nickname)) . "%'";
+        }
+        if (trim($content) != '') {
+            $where = $where . " and content like '%" . addslashes(trim($content)) . "%'";
+        }
+        if ($this->checkDateFormat($sdate)) {
+            if(strtotime($sdate)){
+                $where = $where . " and create_time>=" . strtotime($sdate);
+            }
+        }
+        if ($this->checkDateFormat($edate)) {
+            if(strtotime($edate)){
+                $edate_time = strtotime($edate) + 86400;
+                $where = $where . " and create_time<=" . $edate_time;
+            }
+        }
+
+        $CommentTotal = $CommentLogic->where($where)->count();
+        // echo $CommentTotal;exit;
+//echo $CommentLogic->getLastSql();exit;
+        $lists = $CommentLogic->where($where)
+            ->order('id DESC')
+            ->page($page, $this->size)
+            ->select();
+        // echo $CommentLogic->getLastSql();exit;
+        $ArtworkLogic = new ArtworkLogic();
+        $ArtworkUpdateLogic = new ArtworkUpdateLogic();
+        $UserLogic = new UserLogic();
+        $users = [];
+        foreach ($lists as $list) {
+            $users[] = intval($list['commenter']);
+        }
+        $users_idstr = join(',', $users);
+        if ($users_idstr) {
+            $commentUserlist = $UserLogic->where('id in (' . $users_idstr . ')')->select();
+        }
+        $Userlist = [];
+        foreach ($commentUserlist as $user) {
+            $Userlist[$user['id']] = $user;
+        }
+        $artwork_update = [];
+        foreach ($lists as $list) {
+            $artInfo = null;
+            $ArtworkUpdateInfo = null;
+            //print_r($list['topic_id'] . '--' . $list['type']);
+            if ($list['type'] == 1) {
+                $artInfo = $ArtworkLogic->where(['id' => $list['topic_id']])->find();
+                $artwork_update[$list['id']]['artwork'] = $artInfo;
+            } elseif ($list['type'] == 2) {
+                $ArtworkUpdateInfo = $ArtworkUpdateLogic->where(['id' => $list['topic_id']])->find();
+
+                $artInfo = $ArtworkLogic->where(['id' => $ArtworkUpdateInfo['artwork_id']])->find();
+
+                $artwork_update[$list['id']]['artwork'] = $artInfo;
+                $artwork_update[$list['id']]['artupdate'] = $ArtworkUpdateInfo;
+            }
+        }
+
+        $nav = Nav::render(U('Admin/Comment/index'), ['nickname' => $nickname, 'content' => $content, 'sdate' => $sdate, 'edate' => $edate], $page, $this->size, $CommentTotal);
+
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+        $this->assign('artwork_update', $artwork_update);
+        $this->assign('Userlist', $Userlist);
+        $this->display();
+    }
+
+    function delecomment()
+    {//单条删除，批量删除
+        $ids = I('post.id');
+
+        if (!is_array($ids)) {//单个id转化成数组
+            $ids = [$ids];
+        }
+        $num = 0;
+        foreach ($ids as $key => $id) {
+            $id = intval($id);
+            if ($id <= 0) continue;
+            $condition['id'] = $id;
+            $commentinfo = M('comment')->where($condition)->select();
+
+            $commentlikeModel = new CommentLikeModel();
+            $commentlikeModel->where('comment_id=' . $id)->delete();
+            $MessageModel = new MessageModel();
+            $MessageModel->where('comment_id=' . $id)->delete();
+            $num = $num + M('comment')->where($condition)->delete();
+            if ($commentinfo['type'] == 1) {
+                M('artwork')->where(['id' => intval($commentinfo['topic_id'])])->setDec('comment_total', 1);
+            } elseif ($commentinfo['type'] == 2) {
+                M('ArtworkUpdate')->where(['id' => intval($commentinfo['topic_id'])])->setDec('comment_total', 1);
+            }
+
+        }
+        $return = ['error' => 0, 'msg' => $id, 'delete_num' => $num];
+        echo json_encode($return);
+        return;
+    }
+
+
+    protected function checkDateFormat($date)
+    {
+        if (preg_match("/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/", $date, $parts)) {
+            if (checkdate($parts[2], $parts[3], $parts[1])) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+
+}

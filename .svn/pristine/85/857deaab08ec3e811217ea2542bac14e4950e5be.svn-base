@@ -1,0 +1,123 @@
+<?php
+
+namespace Mp\Controller;
+
+use Mp\Base\ApiBaseController;
+use Mp\Logic\ArtworkCategoryLogic;
+use Mp\Logic\ArtworkColorLogic;
+use Mp\Logic\ArtworkLikeLogic;
+use Mp\Logic\MessageLogic;
+use Mp\Logic\ArtworkLogic;
+use Mp\Logic\ArtworkTagLogic;
+use Mp\Logic\InviteLogLogic;
+use Mp\Logic\ArtworkUpdateLogic;
+use Mp\Logic\CommentLogic;
+use Mp\Logic\ArtistApplyLogic;
+use Mp\Logic\AssetsLogic;
+use Mp\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Mp\Model\AreaModel;
+use Custom\Helper\Verify;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+/**
+ * 认证艺术家
+ * @author:xugx
+ */
+class AuthArtistController extends ApiBaseController{
+  /**
+   * 第一步，验证邀请码
+   * @return json
+   */
+  /*
+   public function stepOne(){
+    $all = I('post.');
+    //Verify::all($all,['inviteCode' => '!']);
+    $InviteLogLogic = new InviteLogLogic();
+    $ArtistApplyLogic = new ArtistApplyLogic();
+    $yrn = $InviteLogLogic->checkInvite($all['inviteCode']);
+    if($yrn){
+      $result = $ArtistApplyLogic->applyStepOne($all,$this->loginUserId);
+      if($result){
+        Util::jsonReturnSuccess();
+      }else{
+        Util::jsonReturnError('邀请码不存在或已过期');
+      }
+    }else{
+        Util::jsonReturn(null, Code::INVITE_CODE_INVALID,'邀请码不存在或已过期');
+      //Util::jsonReturnError('邀请码不存在或已过期');
+    }
+  }
+  */
+  /**
+   * 第二步，提交个人信息
+   * @return json
+   */
+  public function stepOne(){
+      $this->checkLogin();  //判断用户是否登录
+
+    $all = I('post.');
+    Verify::all($all,[
+      'trueName' => '!',
+      'mobile' => '!%',
+      'province' => '!@',
+      'city' => '!@',
+      'area' => '!@',
+      'school' => '!',
+      'resume' => '!'
+    ]);
+    if(trim($all['inviteCode'])!=''){//有邀请码，就验证,没有就不用验证
+        $InviteLogLogic = new InviteLogLogic();
+        $yrn = $InviteLogLogic->checkInvite($all['inviteCode']);
+        if(!$yrn){
+            Util::jsonReturn(null, Code::INVITE_CODE_INVALID,'邀请码不存在或已过期');
+        }
+    }
+
+    $ArtistApplyLogic = new ArtistApplyLogic();
+    $result = $ArtistApplyLogic->applyStepOne($all,$this->loginUserId);
+    if($result){
+      Util::jsonReturnSuccess();
+    }else{
+      Util::jsonReturnError('服务器异常，请稍后再试');
+    }
+  }
+  /**
+   * 第三步，提交认证图片
+   * @return json
+   */
+  public function stepTwo(){
+      $this->checkLogin();  //判断用户是否登录
+    $all = I('post.');
+    Verify::all($all,[
+      'images' => '!',
+    ]);
+    $ArtistApplyLogic = new ArtistApplyLogic();
+    $result = $ArtistApplyLogic->applyStepTwo($all,$this->loginUserId);
+    if($result){
+      Util::jsonReturnSuccess();
+    }else{
+      Util::jsonReturnError('服务器异常，请稍后再试');
+    }
+  }
+  /**
+   * 获取当前用户的认证信息
+   * @return json
+   */
+  public function getMyApply(){
+      $this->checkLogin();  //判断用户是否登录
+    $ArtistApplyLogic = new ArtistApplyLogic();
+    $AreaModel = new AreaModel();
+    $info = $ArtistApplyLogic->getMyApply($this->loginUserId);
+    if(!empty($info)){
+      $info['provinceName'] = $AreaModel->where(['id' => $info['province']])->getField('aname');
+      $info['cityName'] = $AreaModel->where(['id' => $info['city']])->getField('aname');
+      $info['areaName'] = $AreaModel->where(['id' => $info['area']])->getField('aname');
+      Util::jsonReturnSuccess($info);
+    }else{
+      Util::jsonReturnError('尚未申请认证艺术家');
+    }
+  }
+}

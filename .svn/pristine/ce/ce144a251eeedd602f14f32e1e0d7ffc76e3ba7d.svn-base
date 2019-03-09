@@ -1,0 +1,141 @@
+<extend name="Public:base" />
+<block name="content">
+<form ></form>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                    <div class="panel-heading">
+                                  <a href="art_subject?id={$art['id']}">添加艺术专题</a>
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                  <form class="" action="{:U(Subject/add_pro)}" method="post" enctype="multipart/form-data" >
+                    <div class="row">
+                        <div class="col-md-2">专题名称</div>
+                        <div class="col-md-10">
+                          <input type="text" name="name" value="{$info['sub_name']}">
+                        </div>
+                    </div><br>
+                    <div class="row">
+                        <div class="col-md-2">专题配图</div>
+                        <div class="col-md-10">
+                          <input type="text" name="name" value="">
+                        </div>
+                    </div><br>
+                     <div class="row">
+                        <div class="col-md-2">专题音乐</div>
+                        <div class="col-md-10">
+                          <img src="{$img_info['music']}" width="100px" height="100px" />
+                        </div>
+                    </div><br>
+                    <div class="row">
+                        <div class="col-md-2">专题内容</div>
+                        <div class="col-md-10">
+                          <input type="text" name="name" value="{$img_info['content']}">
+                        </div>
+                    </div><br>
+                     <div class="row">
+                        <div class="col-md-2">浏览数</div>
+                        <div class="col-md-10">
+                          <input type="text" name="name" value="{$info['view_num']}">
+                        </div>
+                    </div><br>
+                     <div class="row">
+                        <div class="col-md-2">喜欢数</div>
+                        <div class="col-md-10">
+                          <input type="text" name="name" value="{$info['like_num']}">
+                        </div>
+                    </div><br>
+                     <div class="row">
+                        <div class="col-md-2">评论数</div>
+                        <div class="col-md-10">
+                          <input type="text" name="name" value="{$info['comment_num']}">
+                        </div>
+                    </div><br> <div class="row">
+                        <div class="col-md-2">参与画作</div>
+                        <div class="col-md-10">
+                          <input type="text" name="name" value="{$count}">
+                        </div>
+                    </div><br> 
+                     <foreach name="data" item="v" key="k" > 
+                    <table border="1px" width="300px">
+                    <tr>
+                    <td>画作名</td>
+                    <td>艺术家</td>
+                    <td>查看画作</td>
+                    </tr>                 
+                    <tr>
+                    <td>{$v['name']}</td>
+                    <td>{$v['artist']}</td>
+                    <td><a href="view_pro?id={$v['id']}">点击查看详情</a></td>
+                    </tr>
+                    
+                    </table>
+                    </foreach>
+                    </br>
+                    
+                    <a href="add?id={$info['id']}">添加画作</a>
+                    </br></br>
+            </form>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+  <script type="text/javascript" src="/Public/Admin/js/html2canvas.min.js"></script>
+  <script type="text/javascript">
+  var one = '';
+  var two = '';
+  var three = '';
+  $(function(){
+    html2canvas(document.getElementById('wrap1')).then(function(canvas) {var url = canvas.toDataURL(); //以下代码为下载此图片功能
+      one = transDataUrl(url);
+    });
+    html2canvas(document.getElementById('wrap2')).then(function(canvas) {var url = canvas.toDataURL(); //以下代码为下载此图片功能
+      two = transDataUrl(url);
+    });
+    html2canvas(document.getElementById('wrap3')).then(function(canvas) {var url = canvas.toDataURL(); //以下代码为下载此图片功能
+      three = transDataUrl(url);
+    });
+  });
+  function transDataUrl(dataurl){
+    var data = dataurl.split(',')[1];
+    data = window.atob(data);
+    var ia = new Uint8Array(data.length);
+    for (var i = 0; i < data.length; i++) {
+        ia[i] = data.charCodeAt(i);
+    }
+    return new Blob([ia],{type:"image/png",endings:'transparent'});
+  }
+  function upload(){
+    var fd=new FormData();
+    fd.append('one',one);
+    fd.append('two',two);
+    fd.append('three',three);
+    fd.append('artist',"{$info['artist']}");
+    $.ajax({
+       url : "{:U('Extension/upload')}",
+       data : fd,
+       type : 'POST',
+       dataType : 'json',
+       asyn : false,
+       processData: false,  // 告诉jQuery不要去处理发送的数据
+       contentType: false,   // 告诉jQuery不要去设置Content-Type请求头
+       success : function(data){
+         $('#one').val(data.one);
+         $('#two').val(data.two);
+         $('#three').val(data.three);
+         alert('上传成功');
+       }
+    });
+    return true;
+  }
+  </script>
+</block>
+
+
+

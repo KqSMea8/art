@@ -1,0 +1,12 @@
+<?php
+return [
+    //url
+    'URL_HTML_SUFFIX'=>'',
+    //session
+    'SESSION_AUTO_START'=>false,
+
+    'ADMIN_FACE' => 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/common/avatar512.png',
+
+    'ADMIN_NAME' => '艺术者平台',
+    'Mall_api_url'=>'https://test-mall.artzhe.com/azapi.php/',
+];

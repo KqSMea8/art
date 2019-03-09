@@ -1,0 +1,23 @@
+<?php
+return [
+    //url
+    'URL_HTML_SUFFIX'=>'',
+    //session
+    'SESSION_AUTO_START'=>true,
+
+    'ADMIN_FACE' => 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/common/avatar512.png',
+
+    'ADMIN_NAME' => '艺术者平台',
+
+    'WECHAT_APPID' => 'wxe73ef5d0e06b9d7c',
+
+    'WECHAT_SECRET' => 'b1660d8b4ceb1d7c09e46c863cfd9f51',
+
+    'WECHAT_OAUTH_CALLBACK' => 'https://test-m.artzhe.com/test.php',
+
+    'ACTIVITY_URL' => 'https://test-m.artzhe.com/activity/shenmei',
+
+    'SERVER_URL' =>'https://test-api.artzhe.com/',
+
+    'ACTIVITY_RESULT' => 'https://test-m.artzhe.com/activity/result',
+];

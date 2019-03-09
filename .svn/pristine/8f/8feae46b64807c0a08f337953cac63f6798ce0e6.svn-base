@@ -1,0 +1,402 @@
+<extend name="Public:base"/>
+<block name="content">
+    <style type="text/css">
+        .navbar-static-top {
+            z-index: 998;
+        }
+    </style>
+    <link href="/Public/Admin/js/thickbox/thickbox.css" rel="stylesheet">
+    <link href="/Public/Admin/js/jquery-impromptu/jquery-impromptu.css" rel="stylesheet">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    版画列表
+                </div>
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-12">
+
+                        </div><!-- /.col-lg-6 -->
+                    </div><!-- /.row -->
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <form id="post_from" name="post_from" method="post" action="" onsubmit="return add_prints();">
+                        <table width="100%" class="table table-striped table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th width="100"></th>
+                                <th width="419">&nbsp;</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tr>
+                                <td>艺术家名称</td>
+                                <td><input name="artist_name" type="text" id="artist_name"
+                                           value="<?php echo $userinfo['name'] ?>" size="40"/>
+                                <input name="artist" type="hidden" id="artist" value="<?php echo $userinfo['id'] ?>" /></td>
+                            </tr>
+                            <tr>
+                                <td>画作名称</td>
+                                <td><input name="art_name" type="text" id="art_name"
+                                           value="<?php echo $artworkinfo['name'] ?>" size="40"/>
+                                <input name="artwork_id" type="hidden" id="artwork_id" value="<?php echo $artworkinfo['id'] ?>" /></td>
+                            </tr>
+                            <tr>
+                              <td>形状</td>
+                              <td><label><input name="shape" type="radio" id="radio" onclick="return change_shape()" value="1" checked="checked"/>
+                              方形</label>
+                              <label>
+                              &nbsp;&nbsp;<input type="radio" name="shape" id="radio2" value="2" onclick="return change_shape()"/>                             
+                              圆形</label>
+                              </td>
+                            </tr>
+                            <tr id="fangxing" style="display:none">
+                              <td>长宽</td>
+                              <td>长
+                              <input name="length" type="text" id="length" value="" size="8" />
+                              cm &nbsp;&nbsp;×
+                              宽
+                              <input name="width" type="text" id="width" value="" size="8" />
+                              cm</td>
+                            </tr>
+                            <tr id="yuanxing" style="display:none">
+                              <td>直径</td>
+                              <td><input name="diameter" type="text" id="diameter" value="" size="8" />
+                                cm</td>
+                            </tr>
+                            <tr>
+                                <td>印刷年份</td>
+                                <td><select name="print_year" id="print_year">
+                                        <option value="0">请选择</option>
+                                        <?php for ($i = 2016; $i <= date('Y'); $i++) {
+                                            echo '<option value="' . $i . '">' . $i . '</option>';
+                                        } ?>
+                                    </select></td>
+                            </tr>
+                            <tr>
+                                <td>印刷版次</td>
+                                <td><input name="print_version" type="text" id="print_version" size="5"/></td>
+                            </tr>
+                            <tr>
+                                <td>印刷版本数量</td>
+                                <td><input name="print_total" type="text" id="print_total" size="5"/></td>
+                            </tr>
+                            <tr>
+                                <td>生成编号范围</td>
+                                <td><input name="number_from" type="text" id="number_from" size="5"/>
+                                    ---
+                                    <input name="number_end" type="text" id="number_end" size="5"/></td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td><input type="submit" name="button" id="button" value="生成版画编号"/>
+                                <div id="ajax_loading"></div>
+                                </td>
+                            </tr>
+                        </table>
+              </form>
+                    <!-- /.table-responsive -->
+                    {$nav}
+                    <!-- TODO:page -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+    <script language="javascript" type="text/javascript" src="/Public/Admin/js/thickbox/thickbox.js"></script>
+    <script language="javascript" type="text/javascript"
+            src="/Public/Admin/js/jquery-impromptu/jquery-impromptu.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            $('#az-id-date-selector').datetimepicker({
+                format: 'yyyy-mm-dd',
+                language: 'zh-CN',
+                weekStart: 1,
+                todayBtn: 1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                minView: 2,
+                forceParse: 0
+            });
+            $('#az-id-date-selector2').datetimepicker({
+                format: 'yyyy-mm-dd',
+                language: 'zh-CN',
+                weekStart: 1,
+                todayBtn: 1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                minView: 2,
+                forceParse: 0
+            })
+
+
+        });
+    </script>
+    <script type="text/javascript">
+        function delete_comment(id, obj) {
+            if (confirm("确定删除么?")) {
+                $(obj).after("<img id='loading" + id + "' src='/Public/Admin/image/loading.gif' /> ");
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo U('Article/dele');?>',
+                    data: "id=" + id,
+                    cache: false,
+                    dataType: 'json',
+                    error: function (data) {
+                        alert("error");
+                    },
+                    success: function (data) {
+
+                        if (data.error == 0) {
+                            $("#loading" + id).remove();
+                            $(obj).parent().parent().remove();
+                        }
+
+                    }
+                });
+            }
+            return false;
+        }
+        function check_all() {
+
+            $('input[name="id[]"]').prop("checked", true);
+            return false;
+        }
+
+        function dis_check_all() {
+            $('input[name="id[]"]').prop("checked", false);
+            return false;
+        }
+
+        function check_fan() {
+            $('input[name="id[]"]').each(function () {
+                $(this).prop("checked", function (index, attr) {
+                    return !attr;
+                });
+            });
+            return false;
+        }
+        function dele_select(obj) {
+
+            if (confirm("确定删除么?")) {
+                $(obj).after("<img id='loading_select' src='/Public/Admin/image/loading.gif' /> ");
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo U('Article/dele');?>',
+                    data: $("#commentsform").serialize(),
+                    cache: false,
+                    dataType: 'json',
+                    error: function (data) {
+
+                        alert("");
+                    },
+                    success: function (data) {
+                        //alert(data);
+                        if (data.error == 0) {
+                            $("#loading_select").remove();
+
+                            $('input[name="id[]"]').each(function () {
+                                if ($(this).prop("checked") == true) {
+                                    $(this).parent().parent().remove();
+                                }
+                            });
+                        }
+
+                    }
+                });
+            }
+            return false;
+        }
+
+
+        function add_prints() {
+            var artist_name = $("#artist_name").val();
+            var art_name = $("#art_name").val();
+			
+			var shape = $("input[name='shape']:checked").val();
+			var length = $("#length").val();
+			var width = $("#width").val();
+			var diameter = $("#diameter").val();
+			
+            var print_year = $("#print_year").val();
+            var print_version = $("#print_version").val();
+            var print_total = $("#print_total").val();
+            var number_from = $("#number_from").val();
+            var number_end = $("#number_end").val();
+			
+			
+		
+            var check = true;
+            var message = "";
+            if ($.trim(artist_name) == '') {
+                check = false;
+                message = message + "<li>艺术家名称不能为空</li>";
+            }
+            if ($.trim(art_name) == '') {
+                check = false;
+                message = message + "<li>画作名称不能为空</li>";
+            }
+			
+			if (shape!=1&&shape!=2) {
+                check = false;
+                message = message + "<li>请选择形状 </li>";
+            }else{
+				if(shape==1){
+					if (isNaN(length) || length <= 0) {
+                check = false;
+                message = message + "<li>请输入长度,或者格式不对</li>";
+            }
+			
+			if (isNaN(width) || width <= 0) {
+                check = false;
+                message = message + "<li>请输入宽度,或者格式不对</li>";
+            }
+					
+					}
+					
+					if(shape==2){
+					
+					if (isNaN(diameter) || diameter <= 0) {
+                check = false;
+                message = message + "<li>请输入直径,或者格式不对</li>";
+            }
+					}
+				
+				}
+
+            if (print_year == 0) {
+                check = false;
+                message = message + "<li>请选择印刷年份 </li>";
+            }
+
+            if (is_int(print_version) || print_version <= 0) {
+                check = false;
+                message = message + "<li>请输入印刷版次,或者格式不对</li>";
+            }
+            if (is_int(print_total) || print_total <= 0) {
+                check = false;
+                message = message + "<li>请输入印刷版本数量,或者格式不对</li>";
+            }
+            if (is_int(number_from) || number_from <= 0) {
+                check = false;
+                message = message + "<li>请输入生成编号范围1,或者格式不对</li>";
+            }
+            if (is_int(number_end) || number_end <= 0) {
+                check = false;
+                message = message + "<li>请输入生成编号范围2,或者格式不对</li>";
+            }
+
+
+            if (parseInt(number_end) <= parseInt(number_from)) {
+                check = false;
+                message = message + "<li>编号范围不对</li>";
+            }
+			
+			if (parseInt(number_end)-parseInt(number_from)+1 >print_total ) {
+                check = false;
+                message = message + "<li>编号范围超出印刷数量</li>";
+            }
+
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+
+                $.prompt("确定生成编号么？", {
+                    title: "Are you Ready?",
+                    buttons: {"确定": true, "取消": false},
+                    submit: function (e, v, m, f) {
+
+                        if (v == true) {
+
+                            $("#ajax_loading").html("<img id='loading_select' src='/Public/Admin/image/loading.gif' /> ");
+                            $.ajax({
+                                type: 'post',
+                                url: '<?php echo U('ArtworkPrints/add');?>',
+                                data: $("#post_from").serialize(),
+                                cache: false,
+                                dataType: 'json',
+                                error: function (data) {
+
+                                    alert("error2");
+                                },
+                                success: function (data) {
+									 $("#ajax_loading").html("");
+                                    //alert(data);
+                                    if (data.error == 0) {
+										
+										
+										$.prompt("编号生成完成！", {
+                    title: "提示",
+                    buttons: {"确定": true},
+                    submit: function (e, v, m, f) {
+
+                        if (v == true) {
+							window.location.href="{:U('ArtworkPrints/index')}"; 
+						}
+						}
+						});
+										
+										}else{
+										
+								$.prompt("<span style=\" color:#F00\">"+data.message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+											}
+
+                                }
+                            });
+
+
+                        }
+
+                    }
+                });
+
+                return false;
+            }
+        }
+
+
+        function is_int(str) {
+            var ex = /^\d+$/;
+            if (!ex.test(str)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+		
+		function change_shape(){
+			var shape=$("input[name='shape']:checked").val();
+			if(shape==1){
+				$("#fangxing").show();
+				$("#yuanxing").hide();
+				}else{
+					$("#yuanxing").show();
+				$("#fangxing").hide();
+					}
+			}
+		
+		
+		 $('input[name="shape"]').each(function(){
+                $(this).prop("checked",false);
+            });
+    </script>
+
+
+</block>

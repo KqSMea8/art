@@ -1,0 +1,53 @@
+<?php
+
+namespace V60\Logic;
+
+use V60\Base\BaseLogic;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+
+class ArticleCommentLikeLogic extends BaseLogic
+{
+    public function like($data)
+    {
+
+
+       $likeinfo = $this->where(['comment_id' => $data['comment_id'], 'liker' => $data['liker']])->find();
+
+        if (!$likeinfo) {
+
+            $id = $this->add($data);
+            if ($id) {
+                $ArticleCommentLogic = new ArticleCommentLogic();
+                $ArticleCommentLogic->where(['id' => $data['comment_id']])->setInc('like_total', 1);
+            }
+            return $id;
+        } else {
+            return 0;
+        }
+    }
+
+    public function unlike($data)
+    {
+
+        $likeinfo = $this->where(['comment_id' => $data['comment_id'], 'liker' => $data['liker']])->find();
+
+        if($likeinfo) {
+            $ArticleCommentLogic = new ArticleCommentLogic();
+            $ArticleCommentinfo = $ArticleCommentLogic->where(['id' => $data['comment_id'], 'status' =>1])->find();
+
+            if ($ArticleCommentinfo) {
+                $like_count = $ArticleCommentinfo['like_total'];
+                if ($like_count > 1) {
+                    $ArticleCommentLogic->where(['id' => $data['comment_id']])->setDec('like_total', 1);
+                } else {
+                    $ArticleCommentLogic->where(['id' => $data['comment_id']])->setField('like_total', 0);
+                }
+
+            }
+            return $this->where(['comment_id' => $data['comment_id'], 'liker' => $data['liker'], 'is_deleted' => 'N'])->delete();
+        }else{
+            return 0;
+        }
+    }
+}

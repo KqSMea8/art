@@ -1,0 +1,59 @@
+<?php
+
+namespace V31\Controller;
+
+use Think\Controller;
+use Custom\Helper\Push;
+
+
+class ArtzheRunBackgroundController extends Controller
+{
+    private function lock($redis, $key, $expire = 60)
+    {
+        $thistime = time();
+        $lock = $redis->setnx($key, $thistime + $expire);
+        // 不能获取锁
+        if (!$lock) {
+            // 判断锁是否过期
+            $lock_time = $redis->get($key);
+            // 锁已过期，删除锁，重新获取
+            if ($thistime > $lock_time) {
+                $redis->del($key);
+                $lock = $redis->setnx($key, $thistime + $expire);
+            }
+        }
+        return $lock ? true : false;
+    }
+
+    public function pushMessage()
+    {
+        $pass = I('get.thename');
+        if ($pass == 'artzhe201744gkfd567gg') {
+            //redis lock
+            $expire = 300; //有效期360秒
+            $key = 'artzhe_RunBackground_pushMessage_lock'; //key
+            $redis = new \Redis();
+            $redis->connect(C('REDIS_HOST'), C('REDIS_PORT'), 1);
+            $redis->auth(C('REDIS_PASSWD'));
+
+            if ($this->lock($redis, $key, $expire)) {//加锁成功就入库
+                set_time_limit($expire );
+                ignore_user_abort(true);
+                $Push_background = M('push_background');
+                $list = $Push_background->where('status=2')->select();
+                foreach ($list as $value) {
+                    Push::pushByAlias($value['to'], $value['title'], $value['content'], $value['description'], $value['params']);
+                    $Push_background->where('id=' . $value['id'])->save(['status' => 1]);
+                    usleep(20000);
+                }
+                $redis->del($key);//执行完，redis解锁
+            } else {
+                echo 'error';
+            }
+
+
+        } else {
+            echo 'welcome';
+        }
+    }
+}

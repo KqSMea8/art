@@ -1,0 +1,612 @@
+<extend name="Public:base" />
+<block name="content">
+<link href="/Public/Admin/js/thickbox/thickbox.css" rel="stylesheet">
+<!-- 2018.05.21 -->
+<link href="/Public/Admin/js/lib/element/index.css" rel="stylesheet">
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/Public/Admin/js/laravel-ueditor/ueditor_article.config.js"></script>
+
+    <script src="/Public/Admin/js/laravel-ueditor/ueditor.all.js?v=2.0.1"></script>
+    <script src="/Public/Admin/js/laravel-ueditor/lang/zh-cn/zh-cn.js"></script>
+    <script src="/Public/Admin/js/laravel-ueditor/ueditor.plugins.dumpimage.js?v=1.0.2"></script>
+    <script src="/Public/Admin/js/laravel-ueditor/addButton.js?v=1.0.0"></script>
+<link href="/Public/Admin/css/artistCircle/upload/edit.css?v=2.2.5" rel="stylesheet">
+<style media="screen">
+  .yulanbox{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    left: 0;
+    top: 0;
+    background: rgba(0,0,0,.7);
+  }
+  .yulanphonediv{
+    position: fixed;
+    z-index: 10002;
+    padding: 82px 21px 82px 21px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-60%);
+    width: 337px;
+    height: 683px;
+    background: url('/Public/Admin/image/phone.png') no-repeat;
+  }
+  .yulanfram{
+    width: 100%;
+    height: 100%;
+  }
+  .closeyulan{
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    margin-left: -27px;
+  }
+</style>
+<!-- 2018.05.21 -->
+    <!-- <script language="javascript" type="text/javascript" src="/Public/Admin/js/tinymce/tinymce.min.js"></script> -->
+    <script type="text/javascript">
+        var ue = UE.getEditor('contenttext', {
+          toolbars: [
+            ['undo', 'redo', '|', 'fontsize', '|', 'blockquote', 'horizontal', '|', 'removeformat', 'formatmatch', 'link'],
+            ['bold', 'italic', 'underline', 'forecolor', 'backcolor', '|', 'indent', 'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|',
+            'rowspacingtop', 'rowspacingbottom', 'lineheight', '|', 'insertorderedlist', 'insertunorderedlist', '|', 'insertimage', 'imagenone', 'imageleft', 'imageright',
+             'imagecenter'],
+            ['|', 'insertimg', 'insertart']
+          ],
+          labelMap: {
+            'insertart': '插入艺术者相关',
+            'insertimg': '插入图片',
+          },
+          // initialFrameWidth:714,
+          // autoHeightEnabled:false,
+          enableContextMenu: false,
+          elementPathEnabled: false,
+          wordCount: false,
+          enableAutoSave: true,
+          imagePopup:true,
+          // autoFloatEnabled:false,
+          allowDivTransToP:false,
+          filterRules: function () {
+            // autoFloatEnabled:false,
+          // topOffset:30,
+            return{
+              span:{ $: {'style':1,'class':1}},
+              p: { $: {'style':1,'contenteditable':1,'class':1}},
+              div: { $: {'style':1,'class':1, 'id': 1, 'contenteditable':1}},
+              //$:{}表示不保留任何属性
+              br: { $: {}},
+              a:{ $: {'style':1, 'href':1, 'target':1, 'contenteditable':1, 'class':1, 'data-artzhe-typeDetail':1, 'data-artzhe-id':1, 'data-artzhe-params':1, 'data-artzhe-type':1}},
+              ol:{ $: {'style':1}},
+              ul: { $: {'style':1}},
+              img: { $: {'style':1, 'src':1,'class':1, 'contenteditable':1}},
+              dl:{ $: {'style':1}},
+              dt:{ $: {'style':1}},
+              dd:{ $: {'style':1}},
+              li:{ $: {'style':1}},
+              blockquote: { $: {'style':1,'class':1,'id':1}},
+              quote: { $: {'style':1}},
+              video: { $: {'src':1, 'poster':1, 'controls':1, 'preload':1}},
+              audio: { $: {'src':1, 'autoplay':1, 'controls':1, 'loop':1,'preload':1,'style':1,'class':1}},
+              source: { $: {'type':1, 'src':1}},
+              article: { $: {'style':1}},
+              section:{ $: {'style':1, 'class':1, 'contenteditable':1,'id':1}},
+              table: function (node) {
+                  UE.utils.each(node.getNodesByTagName('table'), function (t) {
+                      UE.utils.each(t.getNodesByTagName('tr'), function (tr) {
+                          var p = UE.uNode.createElement('p'), child, html = [];
+                          while (child = tr.firstChild()) {
+                              html.push(child.innerHTML());
+                              tr.removeChild(child);
+                          }
+                          p.innerHTML(html.join('&nbsp;&nbsp;'));
+                          t.parentNode.insertBefore(p, t);
+                      })
+                      t.parentNode.removeChild(t)
+                  });
+                  var val = node.getAttr('width');
+                  node.setAttr();
+                  if (val) {
+                      node.setAttr('width', val);
+                  }
+              },
+              tbody: { $: {}},
+              caption: { $: {}},
+              th: { $: {}},
+              td: { $: {valign: 1, align: 1,rowspan:1,colspan:1,width:1,height:1}},
+              tr: { $: {}},
+              h1: { $: {'style':1}},
+              h2: { $: {'style':1}},
+              h3: { $: {'style':1}},
+              h4: { $: {'contenteditable':1, 'style':1, 'class':1}},
+              h5: { $: {'style':1, 'class':1, 'contenteditable':1}},
+              h6: { $: {'style':1}},
+              strong: { $: {'style':1,'class':1}},
+              i: { $: {'style':1}},
+              b: { $: {'style':1}},
+              //黑名单，以下标签及其子节点都会被过滤掉
+              '-': 'script style meta iframe embed object'
+            }
+          }()
+        });
+
+        ue.ready(function() {
+            //因为Laravel有防csrf防伪造攻击的处理所以加上此行
+            var _token = $('meta[name="csrf-token"]').attr('content');
+            ue.execCommand('serverparam', '_token', _token);
+            ue.commands['insertimg'] = { //ueditor自定义事件初始化，触发
+                execCommand: function() {
+                    $('.ivbox').show()
+                    ///Admin/Attachment/uploadPicForm
+                    $('#imageuploadfram').attr('src','/Admin/Attachment/uploadPicForm');
+                }
+            };
+        })
+
+        function uploaddd(){
+            $('.mce-btn.mce-open').parent().find('.mce-textbox').before('<div style="height: 30px;">上传中...</div>');
+            $('#my_form').submit();this.value='';
+
+        }
+        function uploaddd2(){
+            $('.mce-btn.mce-open').parent().find('.mce-textbox').before('<div style="height: 30px;">上传中...</div>');
+            $('#my_form_video').submit();this.value='';
+
+        }
+    </script>
+    <script language="javascript" type="text/javascript">
+        // var ed =new tinymce.Editor('contenttext',{
+        //     // selector: 'textarea#contenttext',
+        //     'extended_valid_elements': '*[*]',
+        //     'valid_elements': '*[*]',
+        //     element_format:'html',
+        //     height:380,
+        //     width:'100%',
+        //     plugins: [
+        //         'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+        //         'searchreplace wordcount visualblocks visualchars code fullscreen',
+        //         'insertdatetime media nonbreaking save table contextmenu directionality',
+        //         'emoticons template paste textcolor colorpicker textpattern imagetools codesample toc help'
+        //     ],
+        //     toolbar1: 'undo redo | insert | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+        //     toolbar2: 'print preview  | forecolor backcolor  | codesample | mybutton help',
+        //     image_advtab: true,
+        //     language:'zh_CN',
+        //     style_formats:[{
+        //       title:'插入',
+        //       inline:'span',
+        //       classes:'mybtn'
+        //     }],
+        //     content_css:'/Public/Admin/css/selfcss_tinyMCE.css',
+        //     file_browser_callback: function(field_name, url, type, win) {
+        //         console.log(type)
+        //         if(type=='image'){
+
+        //             $('#my_form input').click();
+        //         }
+        //         if (type == 'media') {
+        //             $('#my_form_video input').click();
+        //             //callback('movie.mp4', {source2: 'alt.ogg', poster: 'image.jpg'});
+        //         }
+        //     },
+        //     // setup:function(editor){
+        //     //   editor.addButton('mybutton',{
+        //     //     text:'插入',
+        //     //     icon:false,
+        //     //     // classes:'mybtn'
+        //     //   })
+        //     // }
+
+        // },tinymce.EditorManager);
+        // ed.render();
+        // function uploaddd(){
+        //     $('.mce-btn.mce-open').parent().find('.mce-textbox').before('<div style="height: 30px;">上传中...</div>');
+        //     $('#my_form').submit();this.value='';
+
+        // }
+        // function uploaddd2(){
+        //     $('.mce-btn.mce-open').parent().find('.mce-textbox').before('<div style="height: 30px;">上传中...</div>');
+        //     $('#my_form_video').submit();this.value='';
+
+        // }
+    </script>
+    <div class="row" id="edit">
+      <!-- 搜索艺术者内容弹窗 2018.05.21-->
+        <insert-artzhe-box></insert-artzhe-box>
+        <!-- 搜索艺术者内容弹窗 end 2018.05.21-->
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    编辑艺术号文章
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" @submit.prevent="uploadform">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">标题</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="title" name="title" class="form-control" placeholder="标题" value="{$data['title']}" maxlength="150">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"></label>
+                        <div class="col-sm-8">
+                                作者：{$data['import_author']}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公众号 / SITE：{$data['wechat_account']}
+                               </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">用户ID</label>
+                        <div class="col-sm-8">
+                                <input type="text" id="artist" name="artist" class="form-control" placeholder="用户ID" value="{$data['artist']}" maxlength="50" style="width:100px; float:left">
+                               &nbsp;&nbsp;<a href="{:U('User/SelectUserId')}?keepThis=true&TB_iframe=true&height=600&width=980" title="选择用户" class="thickbox" style="font-size:18px">选择</a></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">封面</label>
+                            <div class="col-sm-8">
+                              <input name="cover" type="text" id="cover" value="{$data['cover']}" class="form-control" onfocus="$('#cover_preview').attr('src',this.value);$('#cover_preview').show();" onblur="$('#cover_preview').attr('src',this.value);$('#cover_preview').show();"/><br />
+
+                              <img src="{$data['cover']}" style="max-height:288px;" id="cover_preview" <?php if(trim($data['cover'])=='')echo 'style="display:none"';?>/>
+                            <!--<a href="/Admin/PicCropper/Cropper?pic_url={$data['cover']}&default_Ratio=1.24444444&upload2tagId=cover"  id="artzhe_pop_link" artzhe_pop_data="artzhepop=link&artzhePopWidth=1000&artzhePopheight=720" style="color:#F0F; font-size:18px;" class="btn btn-default">上传或者裁剪图片</a>-->
+                            <a href="#" style="color:#F0F; font-size:18px;" class="btn btn-default"  id="PicCropper_button_article">上传&amp;裁剪图片</a>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">内容标签</label>
+                            <div class="col-sm-8">
+                              <el-select v-model="selectdTarget" class="sel-target" multiple :multiple-limit="5" @change="checknull" placeholder="请选择内容标签">
+                                <el-option
+                                  v-for="item in contentTarget"
+                                  :label="item"
+                                  :value="item">
+                                </el-option>
+                              </el-select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">简介</label>
+                        <div class="col-sm-8">
+                                <textarea name="excerpt" cols="80" rows="8" style="border:1px solid #ccc" id="excerpt"><?php if(trim($data['excerpt'])==''){echo html_content_cut(str_replace('&nbsp;', ' ', html_entity_decode($data['content'],ENT_QUOTES)), 85);}else{ echo trim($data['excerpt']);}?></textarea>
+                          </div>
+                        </div>
+
+                        <div id="content" class="form-group">
+                            <label class="col-sm-2 control-label">内容</label>
+                            <div class="col-sm-10">
+                                <textarea id="contenttext"  name="content" type="text/plain" style="width:100%;height:523px;"><?php echo html_entity_decode($data['content'],ENT_QUOTES);?></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">创建时间</label>
+                            <div class="col-sm-3">
+                                <input disabled="disabled" type="text" id="createTime" name="createTime" class="form-control" value="{$data['create_time']|date='Y-m-d H:i:s',###}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">发布时间</label>
+                            <div class="col-sm-3">
+                                <input type="date" id="publish_time" name="publish_time" class="form-control" value="<?php if($data['publish_time']==0){ echo date('Y-m-d');}else{ echo date('Y-m-d',$data['publish_time']);}?>" min="2017-01-01" max="{:date('Y-m-d',strtotime('+10 year'))}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">审核状态</label>
+                            <div class="col-sm-2">
+                                <select class="form-control" id="status" name="status">
+                                    <option value="0" <?php if( $data['status']==0) echo 'selected="selected"';?>>删除</option>
+                                    <option value="1" <?php if( $data['status']==1) echo 'selected="selected"';?>>发布</option>
+                                    <option value="2" <?php if( $data['status']==2) echo 'selected="selected"';?>>草稿</option>
+                                </select>
+                            </div>
+                        </div>
+                        <?php
+                        if($data['is_collect']==1&&$data['status']==2){
+						?>
+                  <div class="form-group">
+                            <label class="col-sm-2 control-label">采集来的文章状态</label>
+                            <div class="col-sm-1">
+                                <select class="form-control" id="collect_wait_publish" name="collect_wait_publish">
+                                    <option value="0" <?php if( $data['collect_wait_publish']==0) echo 'selected="selected"';?>>非待发布</option>
+                                    <option value="1" <?php if( $data['collect_wait_publish']==1) echo 'selected="selected"';?>>待发布</option>
+                                </select>
+                            </div>
+                        </div>
+                        <?php }?>
+                        <div class="form-group">
+                            <input type="hidden" name="id" value="{$data['id']}">
+
+                        </div>
+                        <input type="hidden" id="tagele" name="tag" value="{$tag_names}" data-value="{$tag_names}">
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <a id="yulanbtn" class="btn btn-info" href="javascript:;" role="button">预览</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <button type="submit" class="btn btn-success">确定</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="{:U('Article/index')}" class="btn btn-default">返回</a>
+                            </div>
+                        </div>
+
+                    </form>
+                    <div id="imageup" class="ivbox" style="display:none">
+                        <iframe id="imageuploadfram" class="imgvideo" name="imageupload" src="" height="500px" width="500px"></iframe>
+                    </div>
+                    <iframe id="form_target" name="form_target" style="display:none"></iframe>
+
+                   <!--  <form id="my_form" action="{:U('Article/uploadpic')}" target="form_target" method="post" enctype="multipart/form-data" style="width:0px;height:0;overflow:hidden">
+                        <input name="image" type="file" accept="image/x-png,image/gif,image/jpeg" onchange="return uploaddd()">
+                    </form>
+                    <form id="my_form_video" action="{:U('Article/uploadvideo')}"  target="form_target"  method="post" enctype="multipart/form-data" style="width:0px;height:0;overflow:hidden">
+                        <input name="image" type="file" accept="video/mp4" onchange="return uploaddd2()">
+
+                    </form> -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 预览 -->
+    <div class="yulanbox" style="display:none;">
+      <div class="yulanphonediv">
+        <iframe src="" scrolling="no" frameborder="0" width="" height="" class="yulanfram"></iframe>
+        <button type="button" class="btn btn-info closeyulan">关闭</button>
+      </div>
+    </div>
+</block>
+<block name="customJs">
+<script>
+    $(document).ready(function () {
+
+       /* $('#publish_time').datetimepicker({
+            format: 'yyyy-mm-dd',
+            language: 'zh-CN',
+            weekStart: 1,
+            todayBtn: 1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 2,
+            forceParse: 0
+        });*/
+
+        $('.ivbox').click(function(){
+            $('.ivbox').hide();
+        })
+        $('.yulanbox').click(function(){
+          $(this).hide();
+          $('.yulanfram').attr('src','')
+        });
+        $('.closeyulan').click(function(){
+          $('.yulanbox').hide();
+          $('.yulanfram').attr('src','')
+        });
+        $('#yulanbtn').click(function(){
+          $('.yulanbox').show();
+          $('.yulanfram').attr('src','/Admin/Attachment/previewmobile')
+        });
+    });
+</script>
+<script language="javascript" type="text/javascript" src="/Public/Admin/js/thickbox/thickbox.js"></script>
+<!-- 2018.05.21 -->
+<script type="text/javascript" src="/Public/Admin/js/lib/vue.min.js"></script>
+<script type="text/javascript" src="/Public/Admin/js/lib/element/index.js"></script>
+<script src="/Public/Admin/js/service/agent.js?v=2.1.8"></script>
+<script src="/Public/Admin/js/common.js?v=3.9.4"></script>
+<script src="//cdn.bootcss.com/blueimp-md5/1.1.0/js/md5.min.js"></script>
+<!-- 2018.05.21 -->
+
+    <script>
+        $(document).ready(function(){
+            var status = <?php echo $data['status']?>;
+            var select = $("#status");
+            if(0 == status) {
+                select.find("option").eq(0).attr("selected","selected");
+            }else  if(1 == status) {
+                select.find("option").eq(1).attr("selected","selected");
+            }else  if(2 == status) {
+                select.find("option").eq(2).attr("selected","selected");
+            }
+        });
+
+        function edit() {
+            var title = $("#title").val();
+            var artist = $("#artist").val();
+            var cover = $("#cover").val();
+            // var tinymcetext= tinymce.get('contenttext').getContent();
+            // $("#contenttext").val(tinymcetext);
+
+            var check = true;
+            var message = "";
+            if ($.trim(title) == '') {
+                check = false;
+                message = message + "<li>标题不能为空</li>";
+            }
+            /*if ($.trim(cover) == '') {
+                check = false;
+                message = message + "<li>封面不能为空</li>";
+            }*/
+            // if ($.trim(tinymcetext) == '') {
+            //     check = false;
+            //     message = message + "<li>内容不能为空</li>";
+            // }
+            if ($.trim(artist) == '') {
+                check = false;
+                message = message + "<li>用户ID不能为空</li>";
+            }
+
+
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo U('Article/edit');?>',
+                    data: $(".form-horizontal").serialize(),
+                    cache: false,
+                    dataType: 'json',
+                    error: function (data) {
+                        alert("error");
+                    },
+                    success: function (data) {
+                        //alert(data);
+                        if (data.error == 0) {
+                            $.prompt("修改成功！", {
+                                title: "提示",
+                                buttons: {"确定": true},
+                                submit: function (e, v, m, f) {
+                                    if (v == true) {
+                                        window.location.href="{:U('Article/index')}";
+                                    }
+                                }
+                            });
+
+                        }else{
+                            $.prompt("<span style=\" color:#F00\">"+data.message+"</span>", {
+                                title: "提示",
+                                buttons: {"确定": false}
+                            });
+                        }
+
+                    }
+                });
+                return false;
+            }
+        }
+    </script>
+    <script type="text/javascript">
+      var vmEdit = new Vue({
+        el: '#edit',
+        data:{
+          maskseen: false, //预览显示开关
+          alertseen: false, //弹出框提示开关
+          loading: true, //加载动画是否显示
+          contentTarget:[], //内容标签
+          selectdTarget:[], //内容标签选中的项
+
+        },
+        created: function(){
+          this.getcontentTarget();
+          // this.selectdTarget
+
+          this.selectdTarget = $('#tagele').attr('data-value').split(",")!='' ? $('#tagele').attr('data-value').split(",") : [];
+        },
+        mounted: function(){
+            ue.commands['insertart'] = { //ueditor自定义事件初始化，触发
+              execCommand: function() {
+                 eventBus.$emit('showSearch');// 同级组件传参
+              },
+            };
+        },
+        methods:{
+          closemaskSeen: function() { //关闭预览蒙层
+            this.maskseen = false;
+            this.alertseen = false;
+          },
+          alertSeen: function() { //弹框显示
+            this.alertseen = true;
+          },
+          getcontentTarget: function(){
+            var self = this;
+            var obj = {};
+            artzheAgent.callAdmin('Article/getTags', obj, function(response){
+              if (response.code == 30000 && response.data.status == 1000) {
+
+                self.contentTarget = response.data.info.tag;
+                console.log(self.contentTarget)
+              }
+            })
+          },
+          checknull: function(){
+            // var self = this;
+            if(this.selectdTarget.length==0){
+              console.log('不能为空')
+              this.$message({
+                message: '内容标签不能为空',
+                type: 'error'
+              });
+            }
+          },
+          uploadform: function(){
+            var self = this;
+
+            var title = $("#title").val();
+            var artist = $("#artist").val();
+            var cover = $("#cover").val();
+            // var tinymcetext= tinymce.get('contenttext').getContent();
+            // $("#contenttext").val(tinymcetext);
+
+            var check = true;
+            var message = "";
+            if ($.trim(title) == '') {
+                check = false;
+                message = message + "<li>标题不能为空</li>";
+            }
+           /* if ($.trim(cover) == '') {
+                check = false;
+                message = message + "<li>封面不能为空</li>";
+            }*/
+            // if ($.trim(tinymcetext) == '') {
+            //     check = false;
+            //     message = message + "<li>内容不能为空</li>";
+            // }
+            if ($.trim(artist) == '') {
+                check = false;
+                message = message + "<li>用户ID不能为空</li>";
+            }
+            if(this.selectdTarget.length==0){
+              check = false;
+              message = message + "<li>内容标签不能为空</li>";
+            }
+
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+
+                $('#tagele').val(self.selectdTarget.toString()) //将选中的tag标签转给后台
+                var formData = new FormData($(".form-horizontal")[0]);
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo U('Article/edit');?>',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    dataType: 'json',
+                    error: function (data) {
+                        alert("error");
+                    },
+                    success: function (data) {
+                        //alert(data);
+                        if (data.error == 0) {
+                            $.prompt("修改成功！", {
+                                title: "提示",
+                                buttons: {"确定": true},
+                                submit: function (e, v, m, f) {
+                                    if (v == true) {
+                                        window.location.href="{:U('Article/index')}";
+                                    }
+                                }
+                            });
+
+                        }else{
+                            $.prompt("<span style=\" color:#F00\">"+data.message+"</span>", {
+                                title: "提示",
+                                buttons: {"确定": false}
+                            });
+                        }
+
+                    }
+                });
+                return false;
+            }
+          },
+        }
+      })
+    </script>
+    <script type="text/javascript" src="/Public/Admin/js/artzhe_pop/artzhe_pop.js"></script>
+<link rel="stylesheet" type="text/css" href="/Public/Admin/js/artzhe_pop/artzhe_pop.css" />
+<script type="text/javascript" src="/Public/Admin/js/public.js"></script>
+</block>

@@ -1,0 +1,35 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: gsy
+ * Date: 2018/9/21
+ * Time: 14:05
+ */
+
+namespace Admin\Logic;
+use Admin\Base\BaseLogic;
+
+class UserLogic extends BaseLogic
+{
+    public function getAgencyTypeList_byUids(array $userids)
+    {
+        if (count($userids) == 0) {
+            return [];
+        } else {
+            $arr_length=count($userids);
+            for ($i = 0; $i <$arr_length ; $i++) {
+                $userids[$i] = intval($userids[$i]);
+            }
+            $AgencyList = M('Agency')->field('uid,type')->where("uid in(".implode(',',$userids).") and status=2")->select();
+            if(!$AgencyList){
+                return [];
+            }else{
+                $AgencyTypeList=[];
+                foreach($AgencyList as $value){
+                    $AgencyTypeList[$value['uid']]=(int)$value['type'];
+                }
+                return $AgencyTypeList;
+            }
+        }
+    }
+}

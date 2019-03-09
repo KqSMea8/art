@@ -1,0 +1,10 @@
+<?php
+
+namespace Admin\Model;
+
+use Common\Base\BaseModel;
+
+class ArticleModel extends BaseModel
+{
+    protected $tableName = 'article';
+}

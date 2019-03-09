@@ -1,0 +1,213 @@
+/*login-layout*/
+html,body {
+  height: 100%;
+}
+body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: url(../image/login/login-bg.png) no-repeat;
+  background-size: 10rem 100%;
+  color: #161616;
+}
+
+body::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .3);
+}
+.frame-box {
+  position: absolute;
+  top: 2.4rem;
+  left: 50%;
+  margin-left: -3.32rem;
+  width: 6.64rem;
+  height: 9.14667rem;
+  padding: 0 0.76rem;
+  color: #333;
+  background: url(../image/login/frame-bg.png) no-repeat;
+  background-size: 6.64rem 9.14667rem;
+  box-shadow: 0.26667rem 0.26667rem 0.16rem rgba(0, 0, 0, .5);
+}
+/*login-layout end*/
+
+/*login-content*/
+.userinfo {
+  position: absolute;
+  top: 1.44rem;
+  left: 50%;
+  margin-left: -5.0rem;
+  width: 10.0rem;
+  text-align: center;
+}
+
+.userinfo-avatar {
+  display: block;
+  width: 1.62667rem;
+  height: 1.62667rem;
+  margin: 0 auto 0.24rem;
+  border-radius: 50%;
+}
+
+.userinfo-nickname {
+  font-size: 0.34667rem;
+}
+.forget {
+  margin-top: 0.21333rem;
+  text-align: right;
+}
+.forget a {
+  display: inline-block;
+  font-size: 0.32rem;
+}
+.forget a:link,
+.forget a:visited {
+  color: #6ea7c4;
+}
+
+/* 通用form-item样式 */
+.form-item {
+  position: relative;
+  margin: 0 auto;
+  width: 5.12rem;
+  height: 0.66667rem;
+  border-bottom: 1px solid #cacaca;
+}
+.form-item .icons {
+  margin-right: 0.06rem;
+  width: 0.48rem;
+  height: 0.48rem;
+  vertical-align: middle;
+}
+input {
+  border: none;
+  height: 0.64rem;
+  line-height: 0.64rem;
+  font-size: 0.4rem;
+  vertical-align: middle;
+  background-color: transparent;
+}
+/* 通用form-item样式 end */
+.btn {
+  width: 5.12rem;
+}
+
+.btn.btn-login {
+  position: absolute;
+  bottom: 1.65333rem;
+  left: 50%;
+  margin-left: -2.56rem;
+}
+/*login-content end*/
+
+
+.frame-box .logo {
+  position: absolute;
+  top: 1.84rem;
+  left: 50%;
+  margin-left: -1.12rem;
+  width: 2.24rem;
+  height: 1.52rem;
+  background: url(../image/login/logo.png) no-repeat;
+  background-size: 2.24rem 1.52rem;
+}
+/* wx-login */
+.frame-box .line {
+  position: absolute;
+  bottom: 3.84rem;
+  left: 50%;
+  margin-left: -0.70667rem;
+  width: 1.41333rem;
+  height: 2px;
+  background-color: #eaab32;
+}
+.btn.wx-login-btn {
+/*  margin-top: 1.2rem;*/
+  color: #333;
+  position: absolute;
+  bottom: 1.73333rem;
+  left: 50%;
+  margin-left: -2.56rem;
+}
+.icons.icon-wx {
+  width: 0.72rem;
+  height: 0.6rem;
+  margin-right: 0.12rem;
+  background-position: -2.16rem -4.2rem;
+}
+/* wx-login end */
+
+/* login-mobile */
+.form-item.mobile-item {
+  margin-top: 4.6rem;
+}
+.form-item .input-mobile {
+  width: 4.0rem;
+}
+.form-item .icons.icon-mobile {
+  background-position: -5.28rem -4.28rem;
+}
+
+.btn.btn-next {
+  position: absolute;
+  bottom: 1.65333rem;
+  left: 50%;
+  margin-left: -2.56rem;
+}
+/* login-mobile end */
+
+/* login-pass */
+.form-item.pass-item {
+  margin-top: 4.6rem;
+}
+.form-item .input-pass {
+  width: 4.0rem;
+}
+.form-item .icons.icon-pass {
+  background-position: -3.28rem -4.26667rem;
+}
+/* login-pass end */
+
+/* login-reg */
+.form-item.verify-item {
+  margin-top: 4.4rem;
+}
+.form-item .input-verify {
+  width: 2.53333rem;
+}
+.form-item .icons.icon-verify {
+  background-position: -4.26667rem -4.26667rem;
+}
+.form-item.setpass-item {
+  margin-top: 0.50667rem;
+}
+.btn-sm {
+  display: inline-block;
+  width: 1.73333rem;
+  height: 0.56rem;
+  line-height: 0.56rem;
+  font-size: 0.29333rem;
+  text-align: center;
+  background: #eaab32;
+  color: #333;
+  border-radius: 0.10667rem;
+  vertical-align: middle;
+}
+.btn-sm.btn-verify {
+  position: absolute;
+  right: 0;
+}
+.btn-sm.btn-verify.clicked {
+  background-color: #999;
+  color: #fff;
+}
+
+.btn.btn-reg{
+  margin-top: 0.66667rem;
+}
+/* login-reg end */

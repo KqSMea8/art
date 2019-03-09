@@ -1,0 +1,186 @@
+<?php
+
+namespace Admin\Controller;
+
+use Admin\Logic\AdminLogic;
+use Common\Base\AdminBaseController;
+use Common\Logic\ArtistApplyLogic;
+use Common\Logic\AssetsLogic;
+use Common\Logic\GalleryLogic;
+use Common\Logic\MessageLogic;
+use Common\Logic\UserLogic;
+use Common\Logic\InviteLogLogic;
+use Common\Model\AgencyModel;
+use Custom\Helper\Nav;
+use Custom\Helper\Util;
+use Common\Logic\AgencyLogic;
+
+
+class AgencyController extends AdminBaseController
+{
+    //后台认证管理-机构管理列表
+    public function index()
+    {
+        $page = I('get.page', 1);
+        $perPageCount = I('get.perPageCount', 10);
+        $status = I('get.verifyState',null);
+        $date = I('get.date',null);
+
+        $agencyLogic = new AgencyLogic();
+        $listInfo = $agencyLogic->getList($status, $date, $page, $perPageCount);
+        foreach ($listInfo['list'] as &$apply) {
+            $apply['addtime'] = date('Y-m-d H:i:s', $apply['addtime']);
+            $apply['status'] = AgencyModel::VERIFY_STATE_CN_LIST[$apply['status']];
+            $apply['type'] = AgencyModel::AGENCY_TYPE_LIST[$apply['type']];
+        }
+        $queryParams = [
+            'page'=>$page,
+            'perPageCount'=>$perPageCount,
+            'status'=>$status,
+            'date'=>$date
+        ];
+        $totalCount = $listInfo['total'];
+        $nav = Nav::render(U('Admin/Agency/index'), ['status'=>$status,'date'=>$date], $page, $perPageCount, $totalCount);
+        $this->assign('applyList', $listInfo['list']);
+        $this->assign('nav', $nav);
+        $this->assign('queryParams', $queryParams);
+        $this->display('index');
+    }
+
+    //证管理-机构管理列表-机构详情
+    public function getAgencyDetail(){
+
+        $id = I('get.id');  //获取传过来的机构id
+        $agencyLogic = new AgencyLogic();  //实例化机构模型
+        $detail = $agencyLogic->getDetail($id);  //根据机构id获取详情
+
+        //处理身份证照片
+        $assetsLogic = new AssetsLogic();
+        $certImageIdList = empty($detail['admin_images'])?[]:explode(',', $detail['admin_images']);
+        $certImageUrlList = $assetsLogic->getUrlList($certImageIdList);
+        $process = 'image/resize,m_lfit,h_100,w_100';
+        foreach ($certImageUrlList as $certImageUrl) {
+            $certImageUrlMini = AssetsLogic::processImage($certImageUrl, $process);
+            $detail['certImageUrlListPair'][] = ['raw'=>$certImageUrl, 'mini'=>$certImageUrlMini];
+        }
+
+        //处理营业执照
+        $licenseImageIdList = empty($detail['license'])?[]:explode(',', $detail['license']);
+        $licenseImageUrlList = $assetsLogic->getUrlList($licenseImageIdList);
+        foreach ($licenseImageUrlList as $licenseImageUrl){
+            $licenseUrlMini = AssetsLogic::processImage($licenseImageUrl, $process);
+            $detail['licenseImageUrlListPair'][] = ['raw'=>$licenseImageUrl, 'mini'=>$licenseUrlMini];
+        }
+
+        //审核状态
+        $detail['verifyState'] = AgencyModel::VERIFY_STATE_CN_LIST[$detail['status']];
+        $detail['type'] = AgencyModel::AGENCY_TYPE_LIST[$detail['type']];
+
+        $agency_artists = M('agency_artist_relation')
+            ->join('az_user on az_user.id=az_agency_artist_relation.artist_user_id','left')
+            ->join('az_artist_apply on az_artist_apply.user_id=az_agency_artist_relation.artist_user_id','left')
+            ->join('az_artwork on az_artwork.artist=az_agency_artist_relation.artist_user_id','left')
+            ->where(['az_agency_artist_relation.agency_user_id'=>$detail['uid'],'az_agency_artist_relation.status'=>1])
+            ->field('az_artist_apply.verify_state,az_artist_apply.name as truename,az_artist_apply.province,az_artist_apply.city,az_artist_apply.area,az_user.id,az_user.nickname,az_user.face,az_user.mobile,az_user.gender,az_user.last_login_time,az_user.art_total')
+            ->group('az_agency_artist_relation.artist_user_id')
+            ->order('az_agency_artist_relation.create_time')
+            ->select();
+
+
+        $genderType = ['1' => '男', '2' => '女'];
+        $verifyState = ['-1' => '审核不通过', '0' => '未提交审核', '1' => '未审核', '2' => '审核通过'];//-1审核不通过1未审核2审核通过
+        foreach ($agency_artists as $key => $value) {
+            $agency_artists[$key]['show_gender'] = $genderType[$value['gender']];
+            $agency_artists[$key]['last_login_time'] = empty($value['last_login_time'])?'':date('Y-m-d H:i', $value['last_login_time']);
+            $address=$value['province'].','.$value['city'].','.$value['area'];
+            $address =M('area')->field('aname')->where(['id'=>['in',$address]])->select();
+            $agency_artists[$key]['address'] = implode('',array_column($address,'aname'));
+            $agency_artists[$key]['verify_state'] = empty($verifyState[$value['verify_state']])?'未提交审核':$verifyState[$value['verify_state']];
+            //$lists[$key]['mobile'] = strlen($value['mobile'])==11?substr($value['mobile'],0,3).'-<br/>'.substr($value['mobile'],3,4).'-<br/>'.substr($value['mobile'],7,4):$value['mobile'];
+            unset($agency_artists[$key]['province']);
+            unset($agency_artists[$key]['city']);
+            unset($agency_artists[$key]['area']);
+        }
+
+
+        $this->assign('detail', $detail);
+        $this->assign('agency_artists', $agency_artists);
+        $this->display('detail');
+
+    }
+
+    public function update(){
+        $id = I('post.id',0);
+        $status = I('post.status',1);
+        if(empty($id)){
+            Util::jsonReturn([], 3000, '缺失参数');
+        }
+        $agencyLogic = new AgencyLogic();
+        $result = $agencyLogic->updateData($status,$id);
+        Util::jsonReturn($result, 2000, 'ok');
+    }
+
+    //审核功能
+    public function verify(){
+        if (!IS_POST) {
+            $this->error('错误的访问方式！');
+        }
+        $id = I('post.id');
+        if (!preg_match('/^\d+$/',$id)) {
+            $this->error("id参数不正确！");
+        }
+
+        //2 pass -1 not pass
+        $verifyState = I('post.verifyState');
+        $verifyMemo = I('post.verifyMemo');
+
+
+        if ($verifyState != -1 && $verifyState != 2) {
+            $this->error('审核状态没有变更！');
+        }
+
+        //获取机构详情
+        $agencyLogic = new AgencyLogic();
+        $agencyInfo = $agencyLogic->getDetail($id);
+        $messageLogic = new MessageLogic();
+        if (empty($agencyInfo)) {
+            $this->error("审核信息不存在！");
+        }
+
+        //判断提交的审核状态
+        if ($verifyState == -1) {
+            //改变审核信息
+            $agencyUpdateInfo = ['status'=>-1, 'memo'=>$verifyMemo, 'checktime'=>$_SERVER['REQUEST_TIME']];
+            $updateResult = $agencyLogic->update($agencyInfo['id'], $agencyUpdateInfo);
+            //$messageLogic->authFailed($agencyInfo['uid']);
+            $messageLogic->AgencyAuthFailed($agencyInfo['uid']);
+            $this->redirect('Admin/Agency/getAgencyDetail',['id'=>$id], 3, '跳转中，请稍后');
+        }else if($verifyState == 2){
+            //改变审核信息
+            $agencyUpdateInfo = ['status'=>2, 'memo'=>$verifyMemo, 'checktime'=>$_SERVER['REQUEST_TIME']];
+            $updateResult = $agencyLogic->update($agencyInfo['id'], $agencyUpdateInfo);
+
+
+            $userLogic = new UserLogic();
+            $the_user_info=$userLogic->where(['id'=>$agencyInfo['uid']])->find();
+            //$role=$the_user_info['role'];
+            $role=role_str_add($the_user_info['role'],'agency');//添加agency角色
+            $updateUserInfo = [
+                'role'=>$role,
+            ];
+            $userUpdateResult =$userLogic->update($agencyInfo['uid'], $updateUserInfo);
+
+
+
+            //$messageLogic->authSuccess($agencyInfo['uid']);
+            $messageLogic->AgencyauthSuccess($agencyInfo['uid']);
+            $this->redirect('Admin/Agency/getAgencyDetail',['id'=>$id], 3, '跳转中，请稍后');
+        }else{
+            $this->error('!');
+        }
+    }
+
+
+
+
+}

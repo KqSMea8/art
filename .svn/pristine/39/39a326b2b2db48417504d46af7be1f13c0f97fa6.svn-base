@@ -1,0 +1,11 @@
+<?php
+
+namespace V20\Model;
+
+
+use V20\Base\BaseModel;
+
+class ArtworkUpdateModel extends BaseModel
+{
+    protected $tableName = 'artwork_update';
+}

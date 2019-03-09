@@ -1,0 +1,285 @@
+<extend name="Public:base" />
+<block name="content">
+    <link href="/Public/Admin/js/thickbox/thickbox.css" rel="stylesheet">
+    <style type="text/css">
+        .label-td{
+            border: 1px solid #ddd;
+            background-color: #9a9a9a1c;
+            width: 135px;
+            text-align:right;
+            vertical-align: middle;
+            padding: 10px 10px;
+        }
+
+        .table-div,.table-div a{
+            width: 250px;
+            padding: 10px 10px;
+            word-wrap: break-word;
+        }
+
+
+        .div-td{
+            width: 250px;
+            border: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+        .custom-table1{
+            width: 1200px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .table-div-image a img{
+            padding: 5px;
+        }
+
+    </style>
+    <div class="row" style="min-width: 1300px">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    画作详情
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div style="padding: 10px 0px">基本信息</div>
+                    <table class="custom-table1">
+                        <tr>
+                            <td rowspan="8" colspan="2" style="text-align: center;">
+                                <!-- <img src="{$detail['cover']}" style="width:400px;padding: 5px;">-->
+                                <div class="az-cls-popup-group">
+                                    <a href="{$detail['cover']}" ><img src="{$detail['cover_small']}"></a>
+                                </div>
+                            </td>
+                            <td class="label-td">
+                                <label>ID</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div"><a href="{$detail['link']}" target="_blank">{$detail['id']}</a></div>
+                            </td>
+                            <td class="label-td">
+                                <label>用户名</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div"><a href="{:U('Admin/User/showDetail',['id'=>$detail['artist']])}">{$detail['nickname']}</a></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>画作名称</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['name']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>创作年份</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['artwork_date']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>属性百分比</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['percent']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>更新次数</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['update_times']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <if condition="$detail['shape'] eq 1">
+                                <td class="label-td">
+                                    <label>长</label>
+                                </td>
+                                <td class="div-td">
+                                    <div class="table-div">{$detail['length']}</div>
+                                </td>
+                                <td class="label-td">
+                                    <label>宽</label>
+                                </td>
+                                <td class="div-td">
+                                    <div class="table-div">{$detail['width']}</div>
+                                </td>
+                                <else />
+                                <td class="label-td">
+                                    <label>直径</label>
+                                </td>
+                                <td class="div-td" colspan="3">
+                                    <div class="table-div">{$detail['diameter']}</div>
+                                </td>
+                            </if>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>画作类别</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['categoryName']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>标签</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['tag_ids']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>色调</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['color_ids']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>浏览数</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['view_total']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>喜欢数</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['like_total']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>评论数</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['comment_total']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>创建时间</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['create_time']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>最近更新时间</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['last_update_time']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>全景图</label>
+                            </td>
+                            <td class="div-td" colspan="5">
+                                <div class="table-div-image az-cls-popup-group">
+                                   <!-- <foreach name="detail['panorama_ids']" item="data" key="k">
+                                        <a style="margin-left: 20px" href="{:U('User/bigImage')}?src={$data}&keepThis=true&TB_iframe=true&height=600&width=600" title="全景图" class="thickbox">
+                                            <img src="{$detail['panorama_ids_small'][$k]}" style="width:100px;height: 100px;padding: 5px 5px 5px 5px;">
+                                        </a>
+                                    </foreach>-->
+
+                                    <foreach name="detail['panorama_ids']" item="groupPhotoUrlPair">
+                                        <a href="{$groupPhotoUrlPair['raw']}" ><img src="{$groupPhotoUrlPair['mini']}"></a>
+                                    </foreach>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>局部图</label>
+                            </td>
+                            <td class="div-td" colspan="5">
+                                <div class="table-div-image az-cls-popup-group">
+                                    <!-- <foreach name="detail['topography_ids']" item="data" key="k">
+                                    <a style="margin-left: 20px" href="{:U('User/bigImage')}?src={$data}&keepThis=true&TB_iframe=true&height=600&width=600" title="局部图" class="thickbox">
+                                        <img src="{$detail['topography_ids_small'][$k]}" style="width:100px;height: 100px;padding: 5px 5px 5px 5px;">
+                                    </a>
+                                </foreach>-->
+
+                                    <foreach name="detail['topography_ids']" item="groupPhotoUrlPair">
+                                        <a href="{$groupPhotoUrlPair['raw']}" ><img src="{$groupPhotoUrlPair['mini']}"></a>
+                                    </foreach>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>画作描述</label>
+                            </td>
+                            <td class="div-td" colspan="5">
+                                <div class="table-div">{$detail['story']}</div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="padding: 10px 0px">画作花絮(共计{$updateList|count}篇)</div>
+                    <table style="width: 760px;" border="1" align="center" cellpadding="0" cellspacing="0" class="table table-striped table-bordered table-hover">
+                        <tr style="font-weight:bold">
+                            <td style="width: 120px;">创建时间</td>
+                            <td style="width: 120px;">花絮类型</td>
+                            <td style="width: 300px;">花絮标题</td>
+                            <td style="width: 120px;">花絮编号</td>
+                            <td style="width: 100px;">操作</td>
+                        </tr>
+                        <foreach name="updateList" item="data" key="k">
+                            <tr>
+                                <td>{$data['create_time']}</td>
+                                <td>
+                                    <if condition="$data['showType'] == 1 ">创作花絮
+                                        <else /> 艺术圈花絮
+                                    </if>
+                                </td>
+                                <td>
+                                    <if condition="$data['showType'] == 1 ">{$data['title']}
+                                        <else /> /
+                                    </if>
+                                </td>
+                                <td>
+                                    <if condition="$data['showType'] == 1 ">{$data['number']}
+                                        <else /> /
+                                    </if>
+                                </td>
+                                <td>
+                                    <if condition="$data['showType'] == 1  ">
+                                        <a href="{:U('Art/artUpdateDetail')}?id={$data['id']}">查看详情</a>
+                                        <else />
+                                        <a href="{:U('Art/artCircleDetailTable')}?id={$data['id']}">查看详情</a>
+                                    </if>
+
+                                </td>
+                            </tr>
+                        </foreach>
+                    </table>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+    <script language="javascript" type="text/javascript" src="/Public/Admin/js/thickbox/thickbox.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.az-cls-popup-group').magnificPopup({
+                delegate: 'a',
+                type: 'image',
+                tLoading: 'Loading image #%curr%...',
+                mainClass: 'mfp-img-mobile',
+                gallery: {
+                    enabled: true,
+                    navigateByImgClick: true,
+                    preload: [0,1] // Will preload 0 - before current, and 1 after the current image
+                },
+
+            });
+        });
+
+    </script>
+</block>

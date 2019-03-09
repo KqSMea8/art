@@ -1,0 +1,148 @@
+
+.tab-nav {
+  position: relative;
+  padding: 0 26px;
+  border-bottom: 1px solid #f4f4f4;
+}
+.tab-nav li {
+  position: relative;
+  float: left;
+  margin-top: 5px;
+  padding: 0 10px;
+  height: 50px;
+  font-size: 16px;
+  line-height: 50px;
+  text-align: center;
+  color: #989898;
+  cursor: pointer;
+}
+.tab-nav li:hover {
+  color: #f4ad23;
+}
+.tab-nav li.active {
+  color: #1a1a1a;
+  border-bottom: 2px solid #f4ad23;
+}
+
+.order-holder {
+  margin-top: 40px;
+  text-align: center;
+}
+.order-holder .order-holder-img {
+  width: 220px;
+  height: 139px;
+}
+.order-holder .order-holder-txt {
+  height: 50px;
+  line-height: 50px;
+  font-size: 14px;
+  color: #989898;
+}
+
+.orderlist-wrap {
+  position: relative;
+  margin: 0 26px;
+  padding-bottom: 15px;
+}
+.orderlist {
+
+}
+.orderitem {
+  margin-top: 19px;
+  border: 1px solid #e7e8eb;
+}
+.orderitem .base-wrap {
+  padding: 0 20px;
+  height: 44px;
+  line-height: 44px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background-color: #f1f1f1;
+}
+.orderitem .base-wrap .order-num {
+  margin-left: 25px;
+}
+.orderitem .main-wrap {
+  position: relative;
+  padding: 20px 22px 20px 26px;
+  border-bottom: 1px solid #e7e8eb;
+}
+.orderitem .main-wrap .order-content {
+  position: relative;
+  height: 80px;
+  box-sizing: content-box;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #e7e8eb;
+  margin-bottom: 5px;
+}
+.orderitem .main-wrap .order-content:last-of-type {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+.orderitem .main-wrap .cover {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+}
+.orderitem .main-wrap .order-con {
+  margin-left: 100px;
+  
+}
+.orderitem .order-con .title {
+  width: 350px;
+  line-height: 26px;
+  font-size: 16px;
+}
+.orderitem .order-con .update-time {
+  width: 350px;
+  line-height: 24px;
+  font-size: 14px;
+  color: #989898;
+}
+.orderitem .price-wrap {
+  position: absolute;
+  right: 22px;
+  top: 20px;
+  line-height: 24px;
+  font-size: 14px;
+}
+.orderitem .price-wrap .col1 {
+  display: inline-block;
+  width: 100px;
+  text-align: right;
+}
+.orderitem .price-wrap .need .col2 {
+  color: #ff4a3a;
+}
+.orderitem .pay-wrap {
+  padding: 0 22px 0 26px;
+  height: 52px;
+  line-height: 52px;
+}
+.pay-wrap .btn-wrap [class^="btn-"] {
+  display: inline-block;
+  width: 120px;
+  height: 32px;
+  vertical-align: middle;
+  line-height: 30px;
+  text-align: center;
+  color: #ebac1a;
+  background-color: #fff;
+  border: 1px solid #ebac1a;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.pay-wrap .btn-wrap [class^="btn-"]:hover {
+  transition: background-position 0.1s linear 0s;
+  box-shadow: 0 1px 2px 0 #ebac1a;
+}
+
+.upload-page {
+  margin: 15px 0 0 100px;
+  text-align: right;
+}
+.upload-jump.is-plain{height: 28px;line-height: 28px; padding:0 6px;vertical-align: bottom;border-color: #b7b7b7;}
+.el-pagination__editor2{border-color: #b7b7b7;}
+.upload-page .btn-prev,.upload-page .btn-next{width: 30px;height: 30px;border-radius: 50%;border:1px solid #a9a9a9; background-color: transparent;}
+span.upload-num{font-size: 16px;color: #7b7b7b;text-align: center}

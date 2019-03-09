@@ -1,0 +1,46 @@
+<extend name="Public:base" />
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    首页SEO设置
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                  <form class="" action="{:U(Seo/index)}" method="post">
+                    <div class="row">
+                        <div class="col-md-2" >title：</div>
+                        <div class="col-md-10">
+                          <input type="text" name="title" value="{$info['title']}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">keyword：</div>
+                        <div class="col-md-10">
+                          <textarea name="keyword" rows="8" cols="80">{$info['keyword']}</textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">description：</div>
+                        <div class="col-md-10">
+                          <textarea name="desc" rows="8" cols="80">{$info['desc']}</textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-10">
+                            <button type="submit" name="button" class="btn btn-success btn-sm">提交</button>
+                        </div>
+                    </div>
+                  </form>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+</block>

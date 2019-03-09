@@ -1,0 +1,159 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: gsy
+ * Date: 2018/8/7
+ * Time: 15:13
+ */
+
+namespace Admin\Controller;
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Nav;
+
+class SignatureImageController extends AdminBaseController
+{
+
+    public function index()
+    {
+
+        $date_start = I('get.date_start');
+        $date_end = I('get.date_end');
+
+        $page = I('get.page', '1');
+        $perPageCount = 10;
+
+        $signature_image = M('signature_image');
+        $where['status'] = 1;
+        if (trim($date_start) != '') {
+            $where['date'] = ['EGT', $date_start];
+        }
+        if (trim($date_end) != '') {
+            $where['date'] = ['elt', $date_end];
+        }
+        if (trim($date_start) != '' && trim($date_end) != '') {
+            $where['date'] = [['egt', $date_start], ['elt', $date_end]];
+        }
+        $signature_image_list = $signature_image->where($where)->page($page, $perPageCount)->order('date desc')->select();
+        $totalCount = $signature_image->where($where)->count();
+
+        $condition = [
+            'date_start' => I('get.date_start'),
+            'date_end' => I('get.date_end'),
+        ];
+        $nav = Nav::render(U('Admin/SignatureImage/index'), $condition, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+
+
+        $this->assign('lists', $signature_image_list);
+        $this->display();
+    }
+
+    public function add()
+    {
+        if (IS_POST) {
+            //$date = I('post.date');
+            $url = I('post.url');
+            if(empty($url)){
+                $response = ['error' => 1, 'message' => '参数错误'];
+                echo json_encode($response);
+                exit;
+            }
+            $date_arr=[];
+            $url_arr = explode(',',$url);
+            $signature_image = M('signature_image');
+            foreach($url_arr as $key=>$value){
+                $temp=[];
+                $temp['url'] = $value;
+                $name = array_pop(explode('/',$value));
+                if(preg_match('/^[0-9a-zA-Z]+_\d{4}-\d{1,2}-\d{1,2}(_[0-9]+)*\.(jpg|gif|png|bmp|jpeg)$/',$name)){
+                    $name = explode('_',$name);
+                    $name = explode('.',$name[1]);
+                    if(strtotime($name[0])){
+                        $where['status'] = 1;
+                        $where['date'] = $name[0];
+                        $signature_image_info=$signature_image->where($where)->find();
+                        if($signature_image_info){
+                            break;
+                        }
+                        $temp['date']= $name[0];
+                    }else{
+                        $response = ['error' => 1, 'message' => '上传的图片名字不规则'];
+                        echo json_encode($response);
+                        exit;
+                    }
+
+                }else{
+                    $response = ['error' => 1, 'message' => '上传的图片名字不规则'];
+                    echo json_encode($response);
+                    exit;
+                }
+                $temp['status']=1;
+                $temp['create_time']=time();
+                $date_arr[]= $temp;
+            }
+
+            if($date_arr){
+                $signature_image->addAll($date_arr);
+                $response = ['error' => 0, 'message' => '添加完成'];
+                echo json_encode($response);
+                exit;
+            }else{
+                $response = ['error' => 1, 'message' => '上传了重复日期的艺签'];
+                echo json_encode($response);
+            }
+
+        } else {
+            $this->display();
+        }
+    }
+
+    public function edit()
+    {
+        if (IS_POST) {
+            $id = I('post.id');
+            $date = I('post.date');
+            $url = I('post.url');
+
+            $signature_image = M('signature_image');
+            $where['status'] = 1;
+            $where['id'] = $id;
+            $signature_image_info=$signature_image->where($where)->find();
+            if($signature_image_info){
+
+                $data=[
+                    'date'=>$date,
+                    'url'=>$url,
+
+                ];
+                $signature_image->where($where)->save($data);
+                $response = ['error' => 0, 'message' => '完成'];
+                echo json_encode($response);
+                exit;
+            }
+
+        } else {
+            $id=I('get.id');
+            $signature_image = M('signature_image');
+            $where['status'] = 1;
+            $where['id'] = $id;
+            $signature_image_info=$signature_image->where($where)->find();
+            $this->assign('signature_image_info', $signature_image_info);
+            $this->display();
+        }
+    }
+    public function del()
+    {
+        $id=I('get.id');
+        $signature_image = M('signature_image');
+        $data=[
+            'status'=>0,
+        ];
+        $where['status'] = 1;
+        $where['id'] = $id;
+        $signature_image->where($where)->save($data);
+        $this->success('删除完成',$_SERVER['HTTP_REFERER']);
+
+    }
+
+}

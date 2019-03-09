@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>晴日阳光</title>
+
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <script src="/Public/H5/js/lib/vue.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <script src="/Public/H5/js/lib/zepto.js"></script>
+    <script src="/Public/H5/js/util.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/Public/H5/js/plugins/swiper-3.4.1.min.css">
+    <script src="/Public/H5/js/plugins/swiper-3.4.1.jquery.min.js"></script>
+
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/paintingdetail.css">
+
+<!--     <script src="/mobile/Js/zepto.js"></script>
+    <script src="/mobile/Js/zepto.touch.min.js"></script> -->
+<!--     <script type="text/javascript" src="/mobile/Js/countdown.js"></script>
+    <script type="text/javascript" src="/mobile/Js/tipshow.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script> -->
+</head>
+<body>
+  <div id="header">
+    <div class="painting-new">
+      <div class="swiper-container">
+        <div class="swiper-wrapper">
+          <img class="swiper-slide" src="/Public/H5/image/paintingdetail/painting.png" alt="">
+          <img class="swiper-slide" src="/Public/H5/image/paintingdetail/painting.png" alt="">
+          <img class="swiper-slide" src="/Public/H5/image/paintingdetail/painting.png" alt="">
+        </div>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
+      </div>
+      <div class="detail">
+        <div class="title">
+          <h3>油画/80cm*120cm</h3>
+          <a class="heart" href="#">
+            <i class="icon icon-heart-grey"></i>
+            <span class="label">1026</span>
+          </a>
+          <a class="eye" href="#">
+            <i class="icon icon-eye-grey"></i>
+            <span class="label">4602</span>
+          </a>
+        </div>
+        <div class="flag">
+          <i class="icon icon-flag"></i>
+          <span class="label">阳光</span>
+          <span class="label">清晨</span>
+          <span class="label">色彩</span>
+          <span class="label">生活</span>
+        </div>
+      </div>
+      <div class="painter">
+        <div class="desc">我是一个喜欢真实的人，所以，我才决定通过绘画触及生死问题，尽管这个命题在我这个年龄阶段显得有可疑。</div>
+        <div class="info">
+          <img class="avatar" src="/Public/H5/image/paintingdetail/avatar.png"></img>
+          <div class="det">
+            <h3 class="name">白素</h3>
+            <span>作品12</span>
+            <span>粉丝639</span>
+          </div>
+          <a class="follow" href="#">
+            <i class="icon icon-follow"></i>
+            <span class="label">加关注</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="records-tab">
+    <ul class="records-tab-list fix">
+      <li class="active">创作过程</li>
+      <li>留言板(369)</li>
+    </ul>
+    <div class="records-tab-content">
+      <div class="content-item active">
+        <div class="update">
+          <div class="info">
+            <div class="date">2016-08-23</div>
+            <div class="update-num">
+              <span class="label">更新</span>
+              <i class="icon icon-update-num"></i>
+            </div>
+          </div>
+          <a href="./"></a>
+        </div>
+      </div>
+      <div class="content-item"></div>
+    </div>
+    
+  </div>
+
+
+  <!-- <script type="text/javascript" src="/Public/H5/js/paintingdetail.js"></script> -->
+  <script type="text/javascript">
+    
+    var swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        paginationClickable: true
+    });
+  </script>
+</body>
+</html>

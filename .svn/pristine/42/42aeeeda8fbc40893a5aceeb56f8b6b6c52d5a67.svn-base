@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术,美术,美术圈,艺术者,美学,artzhe,art,美术史,青年艺术家,艺术品,美院,arts,美术生,画展,画廊,美术馆,艺术品收藏,艺术电商网,故宫博物院,艺术电商,艺术品鉴,展览,艺术收藏,艺术品电商,博物馆,故宫展览,艺术展,艺术新闻,艺术生活,油画,插画,国画,水粉,水彩,素描,工笔,版画,漆画,丙烯,艺术云图,阿波罗,artand,艺术头条,artsy,雅昌,artpollo,意外艺术,艺术狗,在艺,雅昌兜藏,画家圈,Vart,芭莎艺术,空艺术,藏客,寺库艺术,中国美术馆,掌拍艺术,优家,艺典中国,艺堆,久久视频,在艺,艺厘米,艺堆 - 发现艺术,artstack,葫芦里,VICE MEDIA,imuseum,798,artstack limited,古玩鉴定,雅昌云图,雅昌艺术云图,人物,风景,静物,动物,植物,萌化,宗教,具象,抽象,古典,观念,表现,当代艺术,当代,原始艺术,古典艺术,现代艺术">
+    <meta name="description" content="艺术者-遇见你的品味。这里有温度的艺术家，有故事的艺术作品，有品味的社交圈。专注手绘艺术创作，打造青年艺术家品牌。由艺术家记录艺术创作全过程，建立以艺术家、艺术作品为核心的社交网络，帮助艺术家轻松经营粉丝，建立个性互动的长期收藏，完善艺术作品流通。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>画作详情页</title>
+    <link rel="shortcut icon" href="/Public/favicon.ico?v=1.0.1" type="image/x-icon"/>
+    <link href="/Public/js/plugin/swiper-3.4.1.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/Public/js/lib/element/index.css">
+    <link rel="stylesheet" type="text/css" href="/Public/css/global.css?v=1.2.0">
+    <link rel="stylesheet" type="text/css" href="/Public/css/artworkdetail.css?v=1.1.1">
+  </head>
+  <body>
+    <div v-cloak id="app">
+      <ysz-header></ysz-header>
+      <div id="main">
+        <div class="content clearfix">
+          <div class="w clearfix">
+            <div class="con-wrap">
+              <div class="pc-slide">
+                <div class="view">
+                  <div class="swiper-container">
+                    <div class="swiper-wrapper">
+                      <div v-for="item in info.coverThumbList" class="swiper-slide" id="imgfter">
+                        <img @click="showimgBox" v-lazy="item" class="swiperimg">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="num-wrap">
+                    <span class="num1">{{activeIndex}}/</span>
+                    <span class="num2">{{info.coverThumbList.length}}</span>
+                  </div>
+                </div>
+                <div class="preview">
+                  <a class="arrow-left" href="javascript:;"><i class="icon icon-left">&lt;</i></a>
+                  <a class="arrow-right" href="javascript:;"><i class="icon icon-right">&gt;</i></a>
+                  <div class="swiper-container">
+                    <div class="swiper-wrapper">
+                      <div v-for="item in info.coverThumbList" :class="['swiper-slide']">
+                        <img v-lazy="item + compress.S">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="view-total"><i class="icons icon-eye"></i>{{info.view_total}}次浏览</div>
+              <div class="like-wrap clearfix">
+                <i @click="toggleLike" :class="[info.is_like=='Y'?'icon-liked':'icon-like', 'icons']"></i>
+                <p class="like-num">{{info.like_total}}次喜欢    |</p>
+                <ul class="like-list">
+                  <li v-for="item in info.like_images"><img v-lazy="item + compress.face"></li>
+                  <li v-if="info.like_total > 14" class="like-more"><i class="icons icon-more"></i></li>
+                </ul>
+              </div>
+              <div class="update-wrap">
+                <h3><span>创作·花絮</span></h3>
+                <ul class="update-list">
+                  <li v-for="item in info.updateList" class="update-item">
+                    <i class="icon-num"></i>
+                    <p class="date">{{item.title}}  {{item.create_date}}</p>
+                    <div class="img-wrap">
+                      <img v-for="imgItem in item.imageUrl" class="img-item" v-lazy="imgItem + compress.S">
+                    </div>
+                    <p class="summary">{{item.summary}}<a :href="'/artwork/update/' + item.id" class="view-all">查看全文</a></p>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="side-wrap">
+              <div class="artinfo-wrap">
+                <div class="base-box">
+                  <h3>{{info.name}}</h3>
+                  <p class="category">{{info.category_name}}</p>
+                  <ul v-if="info.tags.length > 0" class="tags">
+                    <i class="icons icon-tag"></i>
+                    <li v-for="item in info.tags">{{item}}</li>
+                  </ul>
+                </div>
+                <div class="artist-info">
+                  <a :href="'/gallery/detail/' + info.publisher.id">
+                    <img :src="info.publisher.face + compress.S" class="avatar">
+                    <h3 class="line1 name">{{info.publisher.name}} <i class="icons icon-artist"></i></h3>
+                  </a>
+                  <p class="category">{{info.publisher.category_name}}</p>
+                  <div class="btn-group">
+                    <div @mouseover="overFollowText" @mouseout="outFollowText" @click="toggleFollow(info.publisher.id)" :class="[info.publisher.isFollow=='Y'? 'followed': '', 'btn-s']">{{info.publisher.btnText}}</div>
+                  </div>
+                </div>
+                <p class="summary">{{info.story}}</p>
+              </div>
+              <div class="download-wrap">
+                <p class="num">
+                  你将是第{{parseInt(info.comment_total)+1}}个<br>
+                  给这个艺术故事留言的
+                </p>
+                <img class="download-code" src="//artzhe.oss-cn-shenzhen.aliyuncs.com/static/pc/APP.png" alt="下载APP二维码">
+                <p class="mark">赶快下载艺术者APP留言吧</p>
+              </div>
+              <auth-box></auth-box>
+            </div>
+          </div>
+          <div class="w">
+            <div class="other-wrap">
+              <h3>推荐艺术故事</h3>
+              <div class="swiper-wrap">
+                <a :class="['arrow-left', otherActive == 1 ? 'noclick': '']" href="javascript:;">&lt;</a>
+                <a class="arrow-right" href="javascript:;">&gt;</a>
+                <div class="swiper-container other-thumbs">
+                  <ul class="swiper-wrapper other-list">
+                    <li v-for="item in relateInfo.data" class="swiper-slide"><a :href="'/artwork/detail/' + item.id"><img v-lazy="item.cover + compress.S"></a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-show="boxIsShow" class="layerbox">
+        <div @click="hideBox" class="layershade"></div>
+        <div class="layer-wrap">
+          <div v-show="imgboxIsShow" class="anim-scale img-box">
+            <div class="img-in">
+              <em @click="hideBox" title="关闭">×</em>
+              <img :src="info.coverThumbList[activeIndex-1]">
+            </div>
+          </div>
+        </div>
+      </div>
+      <like-box></like-box>
+      <set-user-box></set-user-box>
+      <login-box></login-box>
+      <ysz-footer></ysz-footer>
+    </div>
+    <div class="share-wrap">
+      <div class="bdsharebuttonbox">
+        <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+        <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+        <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+        <a href="javascript:;" id="to-top" class="to-top" title="返回顶部"></a>
+      </div>
+    </div>
+    <script src="/Public/js/lib/vue.min.js"></script>
+    <script src="/Public/js/lib/element/index.js"></script>
+    <script src="/Public/js/plugin/vue-lazyload.js"></script>
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/Public/js/plugin/swiper.jquery.min.js"></script>
+    <script src="/Public/js/common.js?v=1.2.0"></script>
+    <script src="/Public/js/artwork/detail.js?v=1.0.1"></script>
+  </body>
+</html>

@@ -1,0 +1,205 @@
+<?php
+
+namespace V51\Controller;
+
+use V51\Base\ApiBaseController;
+use V51\Logic\ArticleLogic;
+use V51\Logic\ArticleLikeLogic;
+use V51\Logic\UserLogic;
+use V51\Logic\AssetsLogic;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use Custom\Manager\Token;
+use Custom\Helper\Verify;
+use Custom\Helper\Checker;
+use V51\Logic\UserFollowerLogic;
+use V51\Logic\ArticleCommentLogic;
+use V51\Logic\ArticleCommentLikeLogic;
+use V51\Logic\ArtworkLogic;
+use Custom\Define\Image;
+
+class ArticleCommentController extends ApiBaseController
+{
+
+    public function add()
+    {
+        $this->checkLogin();
+        $ArticleId = I('post.ArticleId', '', 'number_int');
+        $commenter = $this->loginUserId;
+        $content = I('post.content', '');
+
+        $ArticleLogic = new ArticleLogic();
+        $Articleinfo = $ArticleLogic->where(['id' => $ArticleId, 'status' => ['in',[1,3,4]]])->find();
+        if (!$Articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+        $comment_to = $Articleinfo['artist'];
+        $ArticleCommentLogic = new ArticleCommentLogic();
+        $commentInfo = $ArticleCommentLogic->addcomment($ArticleId, $commenter, $content, $comment_to);
+        if (!empty($commentInfo)) {
+            $ArticleLogic->where(['id' => $ArticleId])->setInc('comment_count', 1);
+            Util::jsonReturn(['status' => Code::SUCCESS, 'commentInfo' => $commentInfo]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '评论失败');
+        }
+
+    }
+
+    public function repay()
+    {
+        $this->checkLogin();
+        $commentId = I('post.commentId', '', 'number_int');
+        $repayer = $this->loginUserId;
+        $content = I('post.content', '');
+
+        $ArticleCommentLogic = new ArticleCommentLogic();
+        $Articleinfo = $ArticleCommentLogic->where("id=" . intval($commentId) . " and parent_id=0 and comment_to=" . $this->loginUserId . " and status=1")->find();
+        if (!$Articleinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+        $ArticleCommentLogic = new ArticleCommentLogic();
+        $repayInfo = $ArticleCommentLogic->repay($commentId, $repayer, $content);
+        if (!empty($repayInfo)) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'repayInfo' => $repayInfo]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '回复失败');
+        }
+
+    }
+
+    public function getlist()
+    {
+        $id = I('post.id', '', 'number_int');
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $ArticleLogic = new ArticleLogic();
+        $articleinfo = $ArticleLogic->where("id=" . intval($id) . " and status in (1,3,4)")->find();
+
+        $ArticleCommentLogic = new ArticleCommentLogic();
+        $where = 'topic_id=' . intval($id) . ' and az_article_comment.status=1 and parent_id=0';
+        $total = $ArticleCommentLogic->where($where)->count();
+
+        $list = $ArticleCommentLogic
+            ->field('az_article_comment.id,az_article_comment.like_total,az_article_comment.commenter,az_article_comment.content,az_user.face,az_user.nickname,az_user.gender,az_article_comment.create_time')
+            ->join('az_user on az_article_comment.commenter=az_user.id', 'left')
+            ->where($where)
+            ->order('az_article_comment.id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        $comments = [];
+        foreach ($list as $value) {
+            $repayinfo = M('ArticleComment')
+                ->field('az_article_comment.id,az_article_comment.like_total,az_article_comment.commenter as artist,az_user.face,az_user.nickname,az_user.gender
+            ,az_article_comment.create_time,az_article_comment.content,az_article_comment.like_total')
+                ->join('az_user on az_article_comment.commenter=az_user.id')
+                ->where(" az_article_comment.parent_id=" . $value['id'] . " and az_article_comment.status=1")
+                ->find();
+
+            if ($repayinfo) {
+                $value['repayer'] = $repayinfo['nickname'];
+                $value['repayContent'] = $repayinfo['content'];
+                $value['repayTime'] = $repayinfo['create_time'];
+            }
+
+            $ArticleLike = M('ArticleCommentLike')->where("comment_id=" . intval($value['id']) . " and liker=" . intval($this->loginUserId) . " ")->find();
+            $data = [
+                'commentId' => $value['id'],
+                'artist' => $value['commenter'],
+                'faceUrl' => $value['face'],
+                'nickname' => $value['nickname'],
+                'gender' => $value['gender'],
+                'time' => Util::simpleTimeShow($value['create_time']),
+                'content' => $value['content'],
+                'repayer' => trim($value['repayer']) == '' ? '' : $value['repayer'],
+                'repayContent' => trim($value['repayContent']) == '' ? '' : $value['repayContent'],
+                'repayTime' => $value['repayTime'] ? date('Y-m-d', $value['repayTime']) : '',
+                "isLike" => $ArticleLike ? 'Y' : 'N',
+                "likes" => $value['like_total'],
+            ];
+            $comments[] = $data;
+        }
+
+
+        $maxpage = intval($total / $pagesize) + 1;
+        $info = [
+            "is_repay" => $articleinfo['artist'] == $this->loginUserId ? 'Y' : 'N',
+            'list' => $comments,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    public function zan()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+
+        $id = I('post.commentId','','number_int');
+
+        $ArticleCommentLogic = new ArticleCommentLogic();
+        $Commentinfo = $ArticleCommentLogic->where(['id' => intval($id), 'status' => ['in',[1,3,4]]])->find();
+        if (!$Commentinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+
+
+        $ArticleCommentLikeLogic = new ArticleCommentLikeLogic();
+        $likeData = [
+            'comment_id' => $id,
+            'liker' => $this->loginUserId,
+            'create_time' => time(),
+            'is_deleted' => 'N',
+
+        ];
+
+        $likeId = $ArticleCommentLikeLogic->like($likeData);
+        if ($likeId) {
+            Util::jsonReturn(['status'=>Code::SUCCESS]);
+        } else {
+            //Util::jsonReturn(['status'=>Code::SUCCESS]);
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经喜欢了');
+            //Util::jsonReturn(['status'=>1000, 'faceUrl'=>$faceUrl]);
+        }
+    }
+
+    public function unzan()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $id = I('post.commentId','','number_int');
+
+        $ArticleCommentLogic = new ArticleCommentLogic();
+        $Commentinfo = $ArticleCommentLogic->where(['id' => intval($id), 'status' => ['in',[1,3,4]]])->find();
+        if (!$Commentinfo) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在');
+        }
+
+
+        $ArticleCommentLikeLogic = new ArticleCommentLikeLogic();
+        $likeData = [
+            'comment_id' => $id,
+            'liker' => $this->loginUserId,
+            'create_time' => time(),
+            'is_deleted' => 'N',
+        ];
+
+        $likeId = $ArticleCommentLikeLogic->unlike($likeData);
+        if ($likeId) {
+            Util::jsonReturn(['status'=>Code::SUCCESS]);
+        } else {
+            //Util::jsonReturn(['status'=>Code::SUCCESS]);
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经喜欢了');
+            //Util::jsonReturn(['status'=>1000, 'faceUrl'=>$faceUrl]);
+        }
+    }
+}

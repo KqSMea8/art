@@ -1,0 +1,128 @@
+<extend name="Public:base" />
+<block name="content">
+<link href="/Public/Admin/js/thickbox/thickbox.css" rel="stylesheet">
+<style media="screen">
+  .androidBox {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    left: 0;
+    top: 0;
+    background: rgba(0,0,0,.7);
+  }
+  .androidFrame {
+    width: 600px;
+    height: 400px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin-left: -300px;
+    margin-top: -200px;
+    z-index: 99999;
+    background: #fff;
+}
+</style>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                版本列表
+  </div>
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-12">
+           <form action="{:U('AppUpgrade/AppList')}" class="form-inline">
+                               
+                                 <div class="form-group">
+                                  	系统
+                                   <select name="flag" id="flag">
+                                   <option value="0" >选择</option>
+                                     <option value="1" >IOS</option>
+                                     <option value="2" >Android</option>
+                                     
+                                   </select>
+                               </div>
+
+                                <button class="btn btn-default form-control" type="submit">查看</button>
+                            </form>
+                      </div><!-- /.col-lg-6 -->
+                    </div><!-- /.row -->
+                </div>
+                <!-- /.panel-heading -->
+
+                <div class="panel-body">
+                <a href="{:U('AppUpgrade/appAdd')}" style="color:#F0F; font-size:18px;" class="btn btn-default">点击新增</a>《《《《<br />
+<br />
+ 
+               
+<table width="100%" class="table table-striped table-bordered table-hover" >
+      <thead>
+                        <tr>
+                          <th width="7%">系统</th>
+                            <th width="8%">版本号</th>
+                            <th width="11%">appname</th>
+                            <th width="27%">版本描述</th>
+                            <th width="16%">大小</th>
+                            <th width="10%">是否强制升级</th>
+                            <th width="11%">发布时间</th>
+                            <th width="10%">&nbsp;</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        <form name="commentsform" id="commentsform" action="" class="form-inline">
+                        <foreach name="lists" item="softinfo" key="k" >
+                            <tr>
+                              <td><?php
+                                if($softinfo['flag']==1){
+									echo 'IOS';
+									}elseif($softinfo['flag']==2){
+									echo 'Android';
+									}
+								?></td>
+                                <td>{$softinfo['version']}</td>
+                                <td>{$softinfo['appname']}</td>
+                                <td><pre><?php echo $softinfo['content']?></pre><br />
+下载地址：{$softinfo['appurl']}</td>
+                                <td><?php echo round($softinfo[filesize]/1024/1024,2).'M';?></td>
+                                <td>
+                                <?php
+                                if($softinfo['forced_update']==1){
+									echo '<span style="color:#F00">是</span>';
+									}else{
+									echo '否';
+									}
+								?>
+                                </td>
+                                <td><?php echo $softinfo['publish_date']?></td>
+                                <td><a href="{:U('AppUpgrade/appEdit')}?id=<?php echo $softinfo['id']?>">修改</a> <a href="{:U('AppUpgrade/appDel')}?id=<?php echo $softinfo['id']?>" onclick="return del_Record_from_link_confirm('确定删除吗？')">删除</a></td>
+                            </tr>
+                        </foreach>
+                        <tr>
+                            <th colspan="8"></th>
+
+
+                        </tr>
+                        </form>
+                        <tr>
+                          <td>                          
+                        </tbody>
+                    </table>
+                    <!-- /.table-responsive -->
+                    {$nav}
+                    <!-- TODO:page -->
+</div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    
+</block>
+
+<block name="customJs">
+<script language="javascript" type="text/javascript" src="/Public/Admin/js/public.js"></script>
+   
+</block>

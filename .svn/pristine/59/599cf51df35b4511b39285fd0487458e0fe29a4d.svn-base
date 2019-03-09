@@ -1,0 +1,8 @@
+<?php
+namespace V41\Model;
+
+use V41\Base\BaseModel;
+
+class UserStatisticsModel extends BaseModel{
+  protected $tableName = 'user_statistics';
+}

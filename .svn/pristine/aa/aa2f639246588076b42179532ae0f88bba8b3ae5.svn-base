@@ -1,0 +1,322 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2018/3/5
+ * Time: 15:34
+ */
+
+namespace Admin\Controller;
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Nav;
+use Custom\Helper\Util;
+
+class ShopActivityController extends AdminBaseController
+{
+    public $pagesize = 10;  //每页显示条数
+
+    public function index()
+    {
+
+
+        $nickname = I('get.nickname');
+        $content = I('get.content');
+        $title = I('get.title');
+        $sdate = I('get.sdate');  //注册开始时间
+        $edate = I('get.edate');  //注册结束时间
+        $collect_status = I('get.collect_status');
+        $page = I('get.page', '1');  //页码
+        $ShopActivityM = M('ShopActivity');
+
+        $where = "status!=0";
+        if (trim($nickname) != '') {
+            $where = $where . " and az_user.nickname like '%" . addslashes(trim($nickname)) . "%'";
+        }
+        if (trim($title) != '') {
+            $where = $where . " and az_article.title like '%" . addslashes(trim($title)) . "%'";
+        }
+        if (trim($content) != '') {
+            $where = $where . " and az_article.content like '%" . addslashes(trim($content)) . "%'";
+        }
+        if (checkDateFormat($sdate)) {
+            if(strtotime($sdate)){
+                $where = $where . " and az_article.create_time>=" . strtotime($sdate);
+            }
+        }
+        if (checkDateFormat($edate)) {
+            if(strtotime($edate)){
+                $edate_time = strtotime($edate) + 86400;
+                $where = $where . " and az_article.create_time<=" . $edate_time;
+            }
+        }
+
+        if ($collect_status == 1) {
+            $where = $where . " and az_article.is_collect=1 ";
+        }
+
+        if ($collect_status == 2) {
+            $where = $where . " and az_article.is_collect=1 and az_article.collect_wait_publish=1 and az_article.status=2 ";
+        }
+
+        $Total = $ShopActivityM
+            ->where($where)->count();
+//echo $ArticleLogic->getLastSql();
+        $lists = $ShopActivityM
+            ->where($where)
+            ->order('activity_id DESC')
+            ->page($page, $this->pagesize)
+            ->select();
+
+        $nav = Nav::render(U('Admin/ShopActivity/index'), ['nickname' => $nickname, 'title' => $title, 'content' => $content, 'sdate' => $sdate, 'edate' => $edate, 'collect_status' => $collect_status], $page, $this->pagesize, $Total);
+
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+
+        $this->display();
+    }
+
+    public function accessLogPv(){
+        $activity_id = (int)I('get.activity_id');
+        $sdate = I('get.sdate');
+        $page = I('get.page', '1');  //页码
+
+        $ShopActivityAccessM = M('ShopActivityAccess');
+
+        $ShopActivityM = M('ShopActivity');
+
+
+        $ShopActivity_info=$ShopActivityM->where(['activity_id'=>$activity_id])->find();
+
+
+        if (checkDateFormat($sdate)) {
+            $where['create_date']=$sdate;
+        }
+
+        $where['activity_id']=$activity_id;
+        $Total = $ShopActivityAccessM
+            ->where($where)->count('distinct create_date');
+
+//        print_r($ShopActivityAccessM->getLastSql());
+
+        $lists = $ShopActivityAccessM
+            ->field('count(distinct ip) as counts,create_date')
+            ->where($where)
+            ->order('create_date DESC')
+            ->group('create_date')
+            ->page($page, $this->pagesize)
+            ->select();
+
+        $nav = Nav::render(U('Admin/ShopActivity/accessLogPv'), ['activity_id' => $activity_id, 'title' => $title, 'content' => $content, 'sdate' => $sdate, 'edate' => $edate, 'collect_status' => $collect_status], $page, $this->pagesize, $Total);
+
+        $this->assign('ShopActivity_info', $ShopActivity_info);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+
+        $this->display();
+
+
+
+    }
+
+
+    public function accessLog(){
+        $activity_id = (int)I('get.activity_id');
+        $sdate = I('get.sdate');
+        $page = I('get.page', '1');  //页码
+
+        $ShopActivityAccessM = M('ShopActivityAccess');
+
+
+        $ShopActivityM = M('ShopActivity');
+
+
+        $ShopActivity_info=$ShopActivityM->where(['activity_id'=>$activity_id])->find();
+
+
+        if (checkDateFormat($sdate)) {
+            $where['create_date']=$sdate;
+        }
+
+        $where['activity_id']=$activity_id;
+        $Total = $ShopActivityAccessM
+            ->where($where)->count('distinct create_date');
+
+//        print_r($ShopActivityAccessM->getLastSql());
+
+        $lists = $ShopActivityAccessM
+            ->field('count(id) as counts,create_date')
+            ->where($where)
+            ->order('create_date DESC')
+            ->group('create_date')
+            ->page($page, $this->pagesize)
+            ->select();
+
+        $nav = Nav::render(U('Admin/ShopActivity/accessLog'), ['activity_id' => $activity_id, 'title' => $title, 'content' => $content, 'sdate' => $sdate, 'edate' => $edate, 'collect_status' => $collect_status], $page, $this->pagesize, $Total);
+
+        $this->assign('ShopActivity_info', $ShopActivity_info);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+
+        $this->display();
+
+
+
+    }
+
+    public function Detail()
+    {
+
+        $activity_id = (int)I('get.activity_id');
+
+        $ShopActivityM = M('ShopActivity');
+        $ShopActivityAccessM = M('ShopActivityAccess');
+        $ShopActivitySaleM = M('ShopActivitySale');
+        $ShopActivityShareM = M('ShopActivityShare');
+        $ShopActivityBargainM = M('ShopActivityBargain');
+        $ShopActivity_info=$ShopActivityM->where(['activity_id'=>$activity_id])->find();
+        if(!$ShopActivity_info){
+            $this->error('操作失败','/Admin/ShopActivity/index',1);
+        }
+
+        $Model = new \Think\Model();
+
+
+        $all_pv=$ShopActivityAccessM->where(['activity_id'=>$activity_id])->count();
+        $all_uv=$ShopActivityAccessM->where(['activity_id'=>$activity_id])->count('distinct(ip)');
+
+        $data=$Model->query("select count(*) as counts from az_third where  bind_time>".$ShopActivity_info['time_from']." and bind_time<".$ShopActivity_info['time_end']." and bind_user_id>0 and union_id in ( select distinct union_id from az_shop_activity_bargain where activity_id=".$activity_id.") ");
+        $reg_users=$data[0]['counts'];
+
+        $sales=$ShopActivitySaleM->where(['activity_id'=>$activity_id])->count();
+
+        $shares=$ShopActivityShareM->where(['activity_id'=>$activity_id])->count('distinct(union_id)');
+
+        $bargains=$ShopActivityBargainM->where(['activity_id'=>$activity_id])->count('distinct(union_id)');
+
+
+
+//        $map['referer_fix']=array('like','%张%');
+        $map['host_module_controller_action']='Activity/ShopActivityGoods/goods';
+        $map['activity_id']=$activity_id;
+        $goto_share_users_pv=$ShopActivityAccessM->where($map)->count();
+        $goto_share_users_uv=$ShopActivityAccessM->where($map)->count('distinct(ip)');
+
+        $app_index_users_pv=$ShopActivityAccessM->where(['activity_id'=>$activity_id,'host_module_controller_action'=>'Activity/ShopActivityGoods/goods','is_app'=>1])->count();
+        $app_index_users_uv=$ShopActivityAccessM->where(['activity_id'=>$activity_id,'host_module_controller_action'=>'Activity/ShopActivityGoods/goods','is_app'=>1])->count('distinct(ip)');
+
+
+
+        $this->assign('ShopActivity_info', $ShopActivity_info);
+
+        $this->assign('all_pv', $all_pv);
+        $this->assign('all_uv', $all_uv);
+        $this->assign('reg_users', $reg_users);
+        $this->assign('sales', $sales);
+        $this->assign('shares', $shares);
+        $this->assign('bargains', $bargains);
+        $this->assign('goto_share_users_pv', $goto_share_users_pv);
+        $this->assign('goto_share_users_uv', $goto_share_users_uv);
+        $this->assign('app_index_users_pv', $app_index_users_pv);
+        $this->assign('app_index_users_uv', $app_index_users_uv);
+
+        $this->display();
+
+    }
+
+    public function Edit()
+    {
+        $id = I('get.id');
+//        echo $id;exit;
+        $ShopActivityM = M('ShopActivity');
+        if (IS_POST) {
+            $referer_url = I('post.referer_url');
+            $activity_name = trim(I('post.activity_name'));
+            $content = trim(I('post.content'));
+            $time_from = I('post.time_from');
+            $time_end = I('post.time_end');
+            $template_name = trim(I('post.template_name'));
+            $status = intval(I('post.status'));
+            $data = [
+                'activity_name' => $activity_name,
+                'content' => $content,
+                'time_from' => strtotime($time_from),
+                'time_end' => strtotime($time_end),
+                'template_name' => $template_name,
+                'status' => $status,
+            ];
+
+            $ShopActivityM->where(['activity_id' => $id])->save($data);  //更新记录
+            $this->success('修改成功', $referer_url, '', 1);
+            exit();
+        }
+        $ShopActivity_info = $ShopActivityM->where(['activity_id' => $id])->find();
+        $this->assign('data', $ShopActivity_info);
+        $this->display();
+    }
+
+    public function add()
+    {
+
+        $ShopActivityM = M('ShopActivity');
+        if (IS_POST) {
+            $referer_url = I('post.referer_url');
+            $activity_name = trim(I('post.activity_name'));
+            $content = trim(I('post.content'));
+            $time_from = I('post.time_from');
+            $time_end = I('post.time_end');
+            $template_name = trim(I('post.template_name'));
+            $status = intval(I('post.status'));
+            $data = [
+                'activity_name' => $activity_name,
+                'content' => $content,
+                'time_from' => strtotime($time_from),
+                'time_end' => strtotime($time_end),
+                'template_name' => $template_name,
+                'status' => $status,
+                'create_time' => time(),
+            ];
+            $ShopActivityM->add($data);
+
+            $this->success('添加成功', $referer_url, '', 1);
+            exit();
+        }
+
+        $this->display();
+    }
+
+    public function delete()
+    {
+        $id = I('get.id');
+//        echo $id;exit;
+        $ShopActivityM = M('ShopActivity');
+
+        $referer_url = I('get.referer_url');
+//echo $referer_url;exit;
+        $data = [
+            'status' => 0,
+        ];
+
+        $ShopActivityM->where(['activity_id' => $id])->save($data);  //更新记录
+        $this->success('成功', $referer_url, '', 1);
+        exit();
+
+    }
+
+    public function test()
+    {
+        $url = 'http://test-mall.artzhe.com/mobile/index.php?m=category&a=products&id=0&brand=0&intro=&price_min=0&price_max=0&filter_attr=&sort=goods_id&order=desc&keyword=&isself=0&hasgoods=0&promotion=0&region_id=1&area_id=4&ext=&cou_id=0';
+        $postStr = Util::des_encode(json_encode(['goodsIdStr' => $ids, 'from' => 1]));
+        $post_data = ['param' => $postStr];
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        echo $output;
+        $goods = json_decode($output, true);
+    }
+
+}

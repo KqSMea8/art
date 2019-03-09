@@ -1,0 +1,341 @@
+@media only screen and (max-width: 310px) and (min-width:300px) {
+  html {
+    font-size: 9px
+  }
+}
+
+@media only screen and (max-width: 320px) and (min-width:310px) {
+  html {
+    font-size: 9px
+  }
+}
+
+@media only screen and (max-width: 360px) and (min-width:320px) {
+  html {
+    font-size: 9px
+  }
+  .filter-menu-list ul li i {
+    margin-top: -.1rem
+  }
+  .filter-menu-list ul li em {
+    margin-top: -.4rem
+  }
+}
+
+@media only screen and (max-width: 360px) and (min-width:350px) {
+  html {
+    font-size: 10px
+  }
+}
+
+@media only screen and (max-width: 480px) and (min-width:360px) {
+  html {
+    font-size: 10px
+  }
+  .filter-menu-list ul li i {
+    margin-top: -.1rem
+  }
+  .filter-menu-list ul li em {
+    margin-top: 0
+  }
+}
+
+@media only screen and (max-width: 480px) and (min-width:470px) {
+  html {
+    font-size: 13.33333px
+  }
+}
+
+@media only screen and (max-width: 560px) and (min-width:480px) {
+  html {
+    font-size: 13.33333px
+  }
+}
+
+@media only screen and (max-width: 570px) and (min-width:560px) {
+  html {
+    font-size: 15.83333px
+  }
+}
+
+@media only screen and (max-width: 640px) and (min-width:570px) {
+  html {
+    font-size: 15.83333px
+  }
+}
+
+@media only screen and (max-width: 640px) and (min-width:630px) {
+  html {
+    font-size: 17.77778px
+  }
+}
+
+@media only screen and (max-width: 710px) and (min-width:640px) {
+  html {
+    font-size: 17.77778px
+  }
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  /*font-family: 100%/1.5 'FZLanTingHei SC', 'PingFang SC Bold', 'PingFang SC Medium','Heiti SC', 'Microsoft YaHei', 'Helvetica', 'HelveticaNeue', 'Droidsansfallback', "Droid Sans", 'Dengxian', 'Segoe', sans-serif;
+  padding-bottom: 2rem; */
+  background: #f2f2f2;
+  position: relative;
+}
+
+#refBox {
+  background: #f2f2f2;
+  padding-top: 4.4rem;
+  max-width: 64rem;
+  margin: 0 auto;
+  overflow-x: hidden;
+  position: fixed;
+  top: 0;
+  bottom: 0 ;
+  height: auto;
+}
+
+.container {
+  background: #f2f2f2;
+  width: 100%;
+  /* height: 100%; */
+  max-width: 64rem;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+.appBanner {
+  /* padding-top: 5.2rem; */
+}
+
+/*瀑布流*/
+
+/* 列表 s*/
+
+.hui-water-items {
+  background: #FFFFFF;
+  padding: none;
+  margin-bottom: 1rem;
+}
+
+.hui-water-items a {
+  display: block;
+  width: 100%;
+}
+
+.hui-water-items-img img {
+  width: 100%;
+}
+
+.hui-wrap {
+  padding: 0 1.2rem;
+  padding-top: 1.2rem;
+}
+#hui-water-fall-left {
+  width: 50%;
+  float: left;
+  padding-right: 0.6rem;
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+}
+
+#hui-water-fall-right {
+  width: 50%;
+  float: right;
+  padding-left: 0.6rem;
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+}
+.grid-item .section-p {
+  background: white;
+  padding-top: 1rem;
+  padding-left: 1rem;
+}
+
+.grid-item .item-img {
+  width: 100%;
+  display: block;
+}
+
+.item .title-p {
+  color: #333333;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+    margin-right: 0.4rem;
+  /* line-height: 1.5rem; */
+  float: left;
+  font-weight: 100;
+}
+
+.item .zhekou {
+  float: left;
+  display: inline-block;
+  width: 3.6rem;
+  height: 1.5rem;
+  color: #E9AB32;
+  text-align: center;
+  /* line-height: 1.5rem; */
+  font-size: 1rem;
+  border: 1px solid #E9AB32;
+
+  margin-bottom: 0.5rem;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.clearfix {
+  clear: both;
+  overflow: hidden;
+}
+
+.item .price-p {
+  color: #FF2A2A;
+  font-size: 1.7rem;
+}
+
+.item .price-p .moneyfuhao {
+  color: #FF2A2A;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.item .price-p .moneynum {
+  color: #FF2A2A;
+  font-size: 1.6rem;
+}
+
+.oldpricebox {
+  padding-bottom: 1.5rem;
+  color: #999999;
+}
+
+.oldpricebox .oldprice {
+  font-size: 1.2rem;
+  color: #999999;
+  display: none;
+}
+
+.oldpricebox .xiaoliang>* {
+  padding-left: 0.4rem;
+  font-size: 1.2rem;
+  color: #999999;
+}
+.xiaoliang:nth-child(1){
+  padding-left: 0;
+}
+/* 列表 end*/
+
+/* tab */
+
+.appTab {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4.4rem;
+  max-width: 64rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  background: #fff;
+  z-index: 100;
+  border-bottom:1px solid #F7F7F7;
+}
+
+.appTab .yuanzuo, .appTab .banhua {
+  font-size: 1.7rem;
+  /* font-weight: bold; */
+  vertical-align: middle;
+  text-align: center;
+  -ms-flex-item-align: center;
+  align-self: center;
+  height: 4.4rem;
+  line-height: 4.4rem;
+  color: #666666;
+  /* padding-left: 1rem;
+  padding-right: 1rem; */
+  margin: 0 1rem;
+}
+
+.appTab .appActive {
+  color: #f5b230;
+  font-size: 1.8rem;
+  /*商城tab需要*/
+  /* border-bottom: 0.2rem solid #F5B230; */
+}
+
+/* tab end */
+
+/* banner */
+
+#swiper1 {
+  width: 100%;
+  height: 15rem;
+}
+
+
+.slidebox .swiper-slide {
+  width: 100%;
+  max-width: 64rem;
+}
+
+.swiper-slide img {
+  width: 100vw;
+  height: 15rem;
+}
+
+.swiper-slide .bgdiv {
+  width: 100%;
+  height: 15rem;
+  background-size: cover;
+}
+.swiper-pagination-bullet {
+    width: 0.6rem;
+    height: 0.6rem;
+    display: inline-block;
+    border-radius: 100%;
+    background: #000;
+    opacity: .2;
+}
+
+
+.swiper-container-horizontal>.swiper-pagination-bullets .swiper-pagination-bullet {
+    margin: 0 0.4rem;
+}
+.swiper-pagination-bullet-active {
+    opacity: 0.6;
+    background: #fff;
+}
+/* banner end */
+
+.overflow2line {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.appMain1 {
+  height: 100%;
+}
+
+
+
+.ishidden {
+  display: none;
+}

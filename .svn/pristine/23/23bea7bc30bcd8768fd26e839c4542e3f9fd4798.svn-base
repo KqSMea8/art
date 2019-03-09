@@ -1,0 +1,168 @@
+<extend name="Public:base" />
+<block name="content">
+    <link href="/Public/Admin/js/thickbox/thickbox.css" rel="stylesheet">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    编辑
+                </div>
+              <div class="panel-body">
+                    <form class="form-horizontal" action="{:U('ShopActivity/edit',['id'=>$data['activity_id']])}" method="post" enctype="multipart/form-data" onsubmit="return editImage();">
+                        
+                        <div class="form-group">
+                          <label class="col-sm-2 control-label">活动名称</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="activity_name" name="activity_name" class="form-control" placeholder="活动名称" value="{$data['activity_name']}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">活动描述</label>
+                            <div class="col-sm-6">
+                              <textarea name="content" class="form-control" id="content" placeholder="活动描述">{$data['content']}</textarea>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">上线时间</label>
+                            <div class="col-sm-2">
+                                <input type="text" id="time_from" name="time_from" class="form-control" value="{$data['time_from']|date='Y-m-d H:i:s',###}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">下线时间</label>
+                            <div class="col-sm-2">
+                                <input type="text" id="time_end" name="time_end" class="form-control" value="{$data['time_end']|date='Y-m-d H:i:s',###}" >
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">模板类型</label>
+                        <div class="col-sm-2">
+                          <select name="template_name" id="template_name" class="form-control">
+                            <option value="-1">请选择</option>
+                            <?php foreach(C('ShopActivity') as $key=>$value){
+								?>
+                            <option value="<?php echo $key?>" <?php if($data['template_name']==$key)echo 'selected="selected"';?>><?php echo $value?></option>
+                           <?php }?>
+                          </select>
+                          </div>
+                        </div>
+                        
+                        
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">状态</label>
+                        <div class="col-sm-2">
+                          <select name="status" id="status" class="form-control">
+                            <option value="-1">请选择</option>
+                            <option value="1" <?php if($data['status']==1)echo 'selected="selected"';?>>上线</option>
+                            <option value="2" <?php if($data['status']==2)echo 'selected="selected"';?>>草稿</option>
+                          </select>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success">确定</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="<?php echo $_SERVER['HTTP_REFERER']?>" class="btn btn-default">返回</a>
+                            <input name="referer_url" type="hidden" id="referer_url" value="<?php echo $_SERVER['HTTP_REFERER']?>" /></div>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="customJs">
+    <script language="javascript" type="text/javascript" src="/Public/Admin/js/thickbox/thickbox.js"></script>
+    <script>
+        initLoading();
+        $(document).ready(function() {
+            //动态时间选择器
+            $("#time_from").datetimepicker({
+                autoclose: true,
+                language: 'zh-CN',
+                pickerPosition: 'bottom-right',
+                startView: 2,
+                todayHighlight: true,
+            });
+            $("#time_end").datetimepicker({
+                autoclose: true,
+                language: 'zh-CN',
+                pickerPosition: 'bottom-right',
+
+                startView: 2,
+                todayHighlight: true,
+            });
+
+            
+        });
+
+      
+
+        function editImage() {
+            
+            var activity_name = $("#activity_name").val();
+            var time_from = $("#time_from").val();
+            var time_end = $("#time_end").val();
+			var template_name = $("#template_name").val();
+			var status = $("#status").val();
+
+
+            var check = true;
+            var message = "";
+            if ($.trim(activity_name) == '') {
+                check = false;
+                message = message + "<li>活动名称不能为空</li>";
+            }
+            if (time_end<=time_from) {
+                check = false;
+                message = message + "<li>上线时间不正确</li>";
+            }
+			if (template_name==-1) {
+                check = false;
+                message = message + "<li>请选择模板类型</li>";
+            }
+			if (status==-1) {
+                check = false;
+                message = message + "<li>请选择状态</li>";
+            }
+
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+				return true;
+                
+            }
+        }
+
+        function initLoading(){
+            $("body").append("<!-- loading -->" +
+                "<div class='modal fade' id='loading' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' data-backdrop='static'>" +
+                "<div class='modal-dialog' role='document' style='width:220px'>" +
+                "<div class='modal-content'>" +
+                    /*  "<div class='modal-header'>" +
+                     "<h4 class='modal-title' id='myModalLabel'>提示</h4>" +
+                     "</div>" +*/
+                "<div class='modal-body'>" +
+                "<img id='loading' src='/Public/Admin/image/loading.gif' />&nbsp;" +
+                "<span id='loadingText'>处理中，请稍候。。。</span>" +
+                "</div>" +
+                "</div>" +
+                "</div>" +
+                "</div>"
+            );
+        }
+        function showLoading(text){
+            $("#loadingText").html(text);
+            $("#loading").modal("show");
+        }
+        function hideLoading(){
+            $("#loading").modal("hide");
+        }
+
+    </script>
+</block>

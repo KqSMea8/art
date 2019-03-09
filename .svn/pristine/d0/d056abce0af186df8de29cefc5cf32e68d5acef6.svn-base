@@ -1,0 +1,72 @@
+<?php
+
+namespace V50\Logic;
+
+use V50\Base\BaseLogic;
+use Custom\Helper\Util;
+
+class ArtCircleShareLogic extends BaseLogic
+{
+
+    public function share_link_list_indexArtCircleId(array $art_circle_id)
+    {
+
+        if (count($art_circle_id) == 0) {
+            return [];
+        }
+        $arr_length = count($art_circle_id);
+        for ($i = 0; $i < $arr_length; $i++) {
+            $art_circle_id[$i] = intval($art_circle_id[$i]);
+        }
+        $art_circle_share_list =$this->where("art_circle_id in(".implode(',',$art_circle_id).") ")->select();
+
+        if(!$art_circle_share_list){
+            return [];
+        }else{
+            //topic_discuss 类型查询
+            $topic_discuss_type_list=[];
+            $topic_discuss_ids=[];
+            foreach($art_circle_share_list as $value){
+                if($value['type']=='topic_discuss') array_push($topic_discuss_ids,$value['share_id']);
+            }
+            if(count($topic_discuss_ids)>0){
+                $topic_discuss_M=M('topic_discuss');
+                $topic_discuss_where['id']=['in',$topic_discuss_ids];
+                $topic_discuss_list=$topic_discuss_M->field('id,type')->where($topic_discuss_where)->select();
+                $topic_discuss_type_list=array_column($topic_discuss_list,'type','id');
+            }
+            //topic_discuss 类型查询 end
+
+            $art_circle_share_list_new=[];
+            foreach($art_circle_share_list as $value){
+                $shareone=[];
+                $shareone['type']=$value['type'];
+                if($value['type']=='topic_discuss') {
+                    $shareone['topic_discuss_type']=intval($topic_discuss_type_list[$value['share_id']]);
+                }
+                $shareone['id']=$value['share_id'];
+                $shareone['title']=$value['title'];
+                //$shareone['content']=html_deconvert_content_cut(html_entity_decode($value['content'],ENT_QUOTES), 45);
+                $shareone['content']=html_content_cut($value['content'], 45);
+                $image_url_arr=trim($value['image_url'])==''?[]:explode(',',trim($value['image_url']));
+                if($value['type']=='artwork'){
+                    $shareone['thumbnail'] = Util::getImageResize_oldProportion($image_url_arr[0], 700);
+                }else {
+                    $shareone['thumbnail'] = Util::getImageResize($image_url_arr[0], 300, 300);
+                }
+                $shareone['image_url']=Util::imageWater(trim($image_url_arr[0]));
+
+                $shareone['thumbnails'] = Util::getImageResizes($image_url_arr, 300, 300);
+                $shareone['image_urls']=Util::imageWaters($image_url_arr);
+                $shareone['video_poster']=$value['video_poster'];
+                $shareone['video_url']=$value['video_url'];
+                //$art_circle_share_list_new[$value['art_circle_id']][]=$shareone;//循环
+                $art_circle_share_list_new[$value['art_circle_id']]=$shareone;//单个
+            }
+            return $art_circle_share_list_new;
+        }
+
+
+    }
+
+}

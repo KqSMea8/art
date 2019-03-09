@@ -1,0 +1,140 @@
+<extend name="Public:base" />
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                用户统计
+              </div>
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <form action="{:U('Statistics/index')}" class="form-inline" onsubmit="return checkDate();">
+                                <div class="form-group">
+                                  <label for="">时间</label>
+                                  <input type="date" name="sTime" id="sTime" class="form-control" value="{$queryParam['sTime']|date='Y-m-d',###}" min="2017-01-01" max="{:date('Y-m-d')}">
+                                  --
+                                  <input type="date" name="eTime" id="eTime" class="form-control" value="{$queryParam['eTime']|date='Y-m-d',###}" min="2017-01-01" max="{:date('Y-m-d')}">
+                                </div>
+                               <!-- <button class="btn btn-default form-control" type="submit">查看</button>-->
+                                <button class="btn btn-default form-control" type="submit" id="statistics">统计</button>
+                            </form>
+                        </div><!-- /.col-lg-6 -->
+                    </div><!-- /.row -->
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <table width="100%" class="table table-striped table-bordered table-hover" >
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>日期</th>
+                            <th>用户总数</th>
+                            <th>欣赏者总数</th>
+                            <th>创作者总数</th>
+                            <th>新增用户</th>
+                            <th>新增欣赏者</th>
+                            <th>新增创作者</th>
+                            <th>登录用户数</th>
+                            <th>申请艺术家用户数</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <foreach name="lists" item="s" key="k" >
+                            <tr>
+                                <td>{$s['id']}</td>
+                                <td>{:date('Y-m-d',$s['time'])}</td>
+                                <td>{$s['total']}</td>
+                                <td>{$s['enjoy']}</td>
+                                <td>{$s['creator']}</td>
+                                <td>{$s['new_total']}</td>
+                                <td>{$s['new_enjoy']}</td>
+                                <td>{$s['new_creator']}</td>
+                                <td>{$s['logins']}</td>
+                                <td>{$s['applys']}</td>
+                            </tr>
+                        </foreach>
+                        </tbody>
+                    </table>
+                    <!-- /.table-responsive -->
+                    <!-- TODO:page -->
+                    {$nav}
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+    <script>
+        $(document).ready(function(){
+
+
+           /* $("#statistics").click(function(){
+                var sTime  = $("#sTime").val();
+                var eTime  = $("#eTime").val();
+                var message = "";
+                if(sTime!='' && eTime!='' && sTime>eTime){
+                    var check = false;
+                    message = message + "<li>开始时间不能晚于结束时间!</li>";
+                }
+                if (check == false) {
+                    $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                        title: "提示",
+                        buttons: {"确定": false}
+                    });
+                }else{
+                    $.ajax({
+                        type: "POST",
+                        url: '/Admin/Statistics/add', //发送手机验证码
+                        data: {
+                            'sTime': sTime,
+                            'eTime': eTime
+                        },
+                        success: function(res) {
+                            //window.location.reload();
+                            window.location.href = "../Statistics/index?sTime="+sTime+"&eTime="+eTime;
+                        }
+                    });
+                }
+
+            });*/
+        });
+
+        function checkDate(){
+            var sTime  = $("#sTime").val();
+            var eTime  = $("#eTime").val();
+            check = true;
+            var message = "";
+            if(sTime!='' && eTime!='' && sTime>eTime){
+                var check = false;
+                message = message + "<li>开始时间不能晚于结束时间!</li>";
+            }
+
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: '/Admin/Statistics/add', //发送手机验证码
+                    data: {
+                        'sTime': sTime,
+                        'eTime': eTime
+                    },
+                    success: function(res) {
+                        //window.location.reload();
+                        window.location.href = "../Statistics/index?sTime="+sTime+"&eTime="+eTime;
+                    }
+                });
+                return false;
+            }
+            return false;
+        }
+    </script>
+</block>

@@ -1,0 +1,9 @@
+<?php
+namespace Mp\Base;
+
+use Think\Model;
+
+class BaseModel extends Model
+{
+
+}

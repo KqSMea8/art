@@ -1,0 +1,19 @@
+<?php
+return [
+    'ADMIN_FACE' => 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/common/avatar512.png',
+
+    'ADMIN_NAME' => '艺术者平台',
+
+    //艺术圈个人默认banner
+    'ARTCIRCLE_BANNER' => 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/static/app/art-article-bg.png',
+
+    //商城的ip
+    'MALL_IP' => '120.79.0.132',
+    'Artzhe_mall_api' => [
+        'Artwork_List_status' => 'http://test-mall.artzhe.com/azapi.php/Index/goodsInfo',
+        'Artist_Join_status' => 'http://test-mall.artzhe.com/azapi.php/Index/merchantApplyState',
+        'Artist_Join_mall' => 'http://test-mall.artzhe.com/azapi.php/Index/merchantApply',
+        'Add_To_Mall' => 'http://test-mall.artzhe.com/seller/goods_simple.php',
+    ],
+];
+

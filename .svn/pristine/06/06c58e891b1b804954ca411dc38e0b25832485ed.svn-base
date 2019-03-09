@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>推荐</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/Public/H5/js/plugins/progressjs.css">
+    <script src="/Public/H5/js/plugins/progress.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <link rel="stylesheet" type="text/css" href="/Public/H5/js/plugins/dropload.css">
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/recommend.css">
+
+
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    
+</head>
+<body>
+  <div id="header">
+    <div class="logo">
+      <img src="/Public/H5/image/recommend/logo.png" alt="artzhe" title="艺术者">
+    </div>
+    <i class="add icons icon-add"></i>
+  </div>
+  <div id="main">
+    <ol class="print-list" id="print-list">
+      <li class="print-item"  data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神</h3>
+            <i class="icons icon-update icon-update-1"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-2"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-3"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-4"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-5"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-6"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-7"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-8"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-9"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-10"></i>
+          </div>
+        </a>
+      </li>
+      <li class="print-item" data-id="print-id">
+        <a href="#id">
+          <img class="print-url" src="/Public/H5/image/recommend/painting.png">
+          <div class="print-title">
+            <h3 class="print-name ellipsis">眼神眼神眼神眼神眼神眼神眼神眼神</h3>
+            <i class="icons icon-update icon-update-0"></i>
+          </div>
+        </a>
+      </li>
+    </ol>
+  </div>
+  <div id="tab-bar">
+    <nav class="tab-bar-list">
+      <a class="tab-bar-item active" href="/H5/Index/index">
+        <i class="icons icon-recommend"></i>
+        <span class="tab-label">推荐</span>
+      </a>
+      <a class="tab-bar-item" href="/H5/Gallery/index">
+        <i class="icons icon-gallery"></i>
+        <span class="tab-label">画廊</span>
+      </a>
+      <a class="tab-bar-item" href="/H5/User/index">
+        <i class="icons icon-user"></i>
+        <span class="tab-label">我</span>
+      </a>
+    </nav>
+  </div>
+  <script src="/Public/H5/js/lib/vue.js"></script>
+  <script src="/Public/H5/js/lib/zepto.js"></script>
+  <script src="/Public/H5/js/util.js"></script>
+  <script src="/Public/H5/js/plugins/dropload.min.js"></script>
+  <script type="text/javascript" src="/Public/H5/js/recommend/recommend.js"></script>
+</body>
+</html>

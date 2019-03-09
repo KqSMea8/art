@@ -1,0 +1,262 @@
+<?php
+
+namespace V60\Logic;
+
+use V60\Logic\ArtworkLogic;
+use V60\Base\BaseLogic;
+use V60\Logic\ArtCircleLogic;
+use V60\Logic\MessageLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+//话题
+class TopicLogic extends BaseLogic
+{
+    //3小时循环
+    public function getHottest($limit=1){
+        $hottest_cache=S('topic_hottest_list_'.$limit);
+        if(is_array($hottest_cache)) {
+            $ids = implode(',', array_column($hottest_cache, 'id'));
+            $idsInfo = $this->model
+                ->field('view_num+follow_num+discuss_num*2+share_num as count,id,title')
+                ->where(['id' => ['in', $ids], 'status' => ['neq', 0]])
+                ->select();
+            if (count($idsInfo) == count($hottest_cache)) {
+                return $hottest_cache;
+            }
+        }
+
+        $hottest = [];
+        $time = time();
+        while (count($hottest) < $limit) {
+            $count = $limit - count($hottest);
+            $list = $this->model
+                ->field('view_num+follow_num+discuss_num*2+share_num as count,id,title')
+                ->where(['create_time' => [['gt', $time - 10800], ['lt', $time]], 'status' => ['neq',0]])
+                ->order('count desc')
+                ->limit($count)
+                ->select();
+            $hottest = array_merge($hottest, $list);
+            $time = $time - 10800;
+        }
+        S('topic_hottest_list_' . $limit, $hottest, 600);
+        return $hottest;
+
+    }
+
+    //更新话题用户关联表
+    public function ActivateUserRelationships($topic_id,$user_id){
+        if($topic_id>0&&$user_id>0) {
+            $thistime = time();
+            $topic_user_relationships_M = M('topic_user_relationships');
+            $where['topic_id'] = $topic_id;
+            $where['user_id'] = $user_id;
+            $topic_user_relationships_info = $topic_user_relationships_M->where($where)->find();
+            if ($topic_user_relationships_info) {
+                $data['update_time'] = $thistime;
+                $data['is_read'] = 0;
+                $topic_user_relationships_M->where($where)->save($data);
+            } else {
+                $data['topic_id'] = $topic_id;
+                $data['user_id'] = $user_id;
+                $data['update_time'] = $thistime;
+                $data['creat_time'] = $thistime;
+                $topic_user_relationships_M->add($data);
+            }
+        }
+    }
+
+    //艺术圈关联话题同步话题讨论（短文）
+    public function synTopicDiscuss($data=[])
+    {
+        $userId=intval($data['user_id']);
+        $artcircleId = intval($data['artcircle_id']); //同步到艺术圈的id
+        $topicId = intval($data['topic_id']); //话题ID
+        $type = intval($data['type']); //讨论类型  1--短文（类似艺术圈）  2--文章（类似艺术号）
+        $title = trim($data['title']);//文章标题
+        $content = trim($data['content']);//文章内容
+        $desc = trim($data['desc']);//短文内容
+        $images_url = trim($data['images_url']);//短文图片
+        $video_poster = trim($data['video_poster']);//短文视频封面
+        $video_url = trim($data['video_url']);//短文视频URL
+
+        if (empty($userId) || empty($topicId)) {
+            return false;
+        }
+
+        $topicInfo=$this->model->where(['id'=>$topicId])->find();
+        if (empty($topicInfo)) {
+            return false;
+        }
+
+        if ($type == 1) {//短文（类似艺术圈）
+            if ($desc != '' && $images_url == '' && $video_poster == '') {
+                $type = 1;
+            } elseif ($images_url != '' && $video_poster == '') {
+                $type = 2;
+            } else {
+                $type = 3;
+            }
+            if ($desc == '' && $images_url == '') {
+                if ($video_poster == '' || $video_url == '') {
+                    return false;
+                }
+            } else {
+                if ($images_url != '' && ($video_poster != '' || $video_url != '')) {
+                    return false;
+                }
+                if (($desc != '' && $video_poster == '' && $video_url != '') || $desc != '' && $video_poster != '' && $video_url == '') {
+                    return false;
+                }
+            }
+        }else{
+            $type = 4;
+            if (empty($title) || empty($content) ) {
+                return false;
+            }
+        }
+
+        $topicDiscussLogic = new TopicDiscussLogic();
+        //敏感词判断
+        $sensitiveWord1=Util::sensitive_words_match($title);
+        $sensitiveWord2=Util::sensitive_words_match($content);
+        $sensitiveWord3=Util::sensitive_words_match($desc);
+        if (!empty($sensitiveWord1) || !empty($sensitiveWord2) || !empty($sensitiveWord3)) {
+            return false;
+        }
+
+        $data = [
+            'user_id' => $userId,
+            'topic_id' => $topicId,
+            'artcircle_id' => $artcircleId,
+            'type' => $type,
+            'title' => $title,
+            'content' => $content,
+            'desc' => $desc,
+            'images_url' => $images_url,
+            'video_poster' => $video_poster,
+            'video_url' => $video_url,
+            'create_time' => time(),
+            'status'=>1,
+        ];
+
+        $insertId = $topicDiscussLogic->add($data);
+        if ($insertId) {
+            $this->model->where(['id'=>$topicId])->setInc('discuss_num',1);
+            $topicUserinfoLogic= new TopicUserinfoLogic();
+            $topicUserinfo=$topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$topicId])->find();
+            if($topicUserinfo){//保存用户发表话题讨论的数量
+                $topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$topicId])->setInc('publish_discuss_num',1);
+            }else{
+                $topicUserinfoLogic->add(['user_id'=>$userId,'topic_id'=>$topicId,'publish_discuss_num'=>1]);
+            }
+            $this->ActivateUserRelationships($topicId,$userId);
+            return $insertId;
+        } else {
+            return false;
+        }
+
+    }
+
+    //艺术圈删除话题/话题讨论同步删除发表的话题/话发表的题讨论/从画作同步的讨论
+    public function deleteTopic($data=[])
+    {
+        $userId=intval($data['user_id']);
+        $id=intval($data['id']);//艺术圈id
+        $type = intval($data['type']); //1--话题  2--讨论 3--同步的画作的话题讨论
+        if (empty($userId) || empty($type)) {
+            return false;
+        }
+
+        if($type==1){//话题
+            /*
+             * 删除话题，
+             * 1.如果话题下没有讨论，删除status==0
+             * 2.如果话题下有讨论，删除status==2
+             */
+            $info = $this->model->where(['artcircle_id'=>$id])->find();
+            if($info && $info['user_id']==$userId){
+                $topicDiscussLogic = new TopicDiscussLogic();
+                $otherDiscuss = $topicDiscussLogic->where(['topic_id'=>$info['id'],'status'=>1])->find();
+                if(!$otherDiscuss){//没有讨论
+                    $this->model->where(['artcircle_id'=>$id])->save(['status'=>0]);
+                    $hottest = $this->getHottest(5);
+                    $hotids = array_column($hottest,'id');
+                    if(in_array($info['id'],$hotids)){//如果话题是最热话题，清楚缓存
+                        S('topic_hottest_list_1',NULL);
+                        S('topic_hottest_list_5',NULL);
+                    }
+                }else{//有讨论
+                    $this->model->where(['artcircle_id'=>$id])->save(['status'=>2]);
+                }
+                return true;
+            }else{
+                return false;
+            }
+
+        }elseif($type==2){//讨论
+            /*
+            * 删除讨论，
+            * 1.如果话题被删除过（话题status==2）且话题下没有其他讨论，则同时删除话题status==0，讨论status==0
+            * 2.如果话题下未删除过（话题status==2），则只删除讨论status==0
+            */
+            $topicDiscussLogic = new TopicDiscussLogic();
+            $info = $topicDiscussLogic->where(['artcircle_id'=>$id])->find();
+            if($info && $info['user_id']==$userId){
+                $topicDiscussLogic->where([['artcircle_id'=>$id]])->save(['status'=>0]);
+                $topic = $this->model->where(['id'=>$info['topic_id']])->find();
+                if($topic['status']==2){//被删除过
+                    $otherDiscuss = $topicDiscussLogic->where(['topic_id'=>$info['topic_id'],'status'=>1])->find();
+                    if($otherDiscuss){//话题下有其他讨论
+                        $this->model->where(['id'=>$info['topic_id']])->setDec('discuss_num',1);
+                    }else{//话题下没有其他讨论
+                        $this->model->where(['id'=>$info['topic_id']])->setField('discuss_num',0);
+                        $this->model->where(['id'=>$info['topic_id']])->save(['status'=>0]);
+                        $hottest = $this->getHottest(5);
+                        $hotids = array_column($hottest,'id');
+                        if(in_array($info['id'],$hotids)){//如果话题是最热话题，清楚缓存
+                            S('topic_hottest_list_1',NULL);
+                            S('topic_hottest_list_5',NULL);
+                        }
+                    }
+                }else{//未被删除过
+                    $this->model->where(['id'=>$info['topic_id']])->setDec('discuss_num',1);
+                }
+                return true;
+            }else{
+                return false;
+            }
+
+        }elseif($type==3){//从画作同步的讨论
+            /*
+            * 删除讨论，
+            * 如果被同步的画作是不可见的，则删除该画作同步的所有话题讨论
+            *
+            */
+            $artworkLogic = new ArtworkLogic();
+            $topicDiscussLogic = new TopicDiscussLogic();
+            $artcircle = M('art_circle_share')->field('share_id')->where(['art_circle_id'=>$id,'type'=>'artwork'])->find();
+            $info = $artworkLogic->where(['id'=>$artcircle['share_id']])->find();
+            if($info && $info['state']==2){
+                $existDiscuss = M('topic_discuss_relation')->field('topic_discuss_id')->where(['type'=>'artwork','relation_id'=>$artcircle['share_id'],'status'=>1])->select();
+                $existDiscussIds = array_column($existDiscuss,'topic_discuss_id');
+                $topicDiscussLogic->where(['id'=>['in',implode(',',$existDiscussIds)],'user_id'=>$userId])->save(['status'=>0]);
+                $discussInfo = $topicDiscussLogic->field('id,topic_id')->where(['id'=>['in',implode(',',$existDiscussIds)],'user_id'=>$userId])->select();
+                $topicIds = array_column($discussInfo,'topic_id');
+                $topicDiscussIds = array_column($discussInfo,'topic_id');
+                $this->model->where(['id'=>['in',implode(',',$topicIds)]])->setDec('discuss_num',1);
+                M('topic_discuss_relation')->where(['topic_discuss_id'=>['in',implode(',',$topicDiscussIds)],'type'=>'artwork','relation_id'=>$artcircle['share_id'],'status'=>1])->save(['status'=>0]);
+
+                return true;
+            }else{
+                return false;
+            }
+
+        }
+
+
+    }
+
+
+}

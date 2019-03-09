@@ -1,0 +1,10 @@
+<?php
+
+namespace V60\Model;
+
+use V60\Base\BaseModel;
+
+class SubjectCommentModel extends BaseModel
+{
+    protected $tableName = 'subject_comment';
+}

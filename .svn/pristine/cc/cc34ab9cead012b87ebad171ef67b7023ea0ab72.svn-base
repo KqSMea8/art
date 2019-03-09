@@ -1,0 +1,20 @@
+function del_Record_from_link_confirm(msg){
+	return confirm(msg);
+	}
+
+
+$(document).ready(function(){
+	
+	$("#PicCropper_button_article").click(function(){//艺术号上传裁剪图片
+	    var pic_url=$("#cover").val();
+		  $.artzhePopIframe("/Admin/PicCropper/Cropper?default_Ratio=1.24444444&upload2tagId=cover&pic_url="+pic_url,1030,720);
+		  return false;
+	});
+	
+	$("#PicCropper_button_subject").click(function(){//专题上传裁剪图片
+	    var pic_url=$("#cover").val();
+		  $.artzhePopIframe("/Admin/PicCropper/Cropper?default_Ratio=1.9736842&upload2tagId=cover&pic_url="+pic_url,1030,720);
+		  return false;
+	});
+
+});

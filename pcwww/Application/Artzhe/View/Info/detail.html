@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术,美术,美术圈,艺术者,美学,artzhe,art,美术史,青年艺术家,艺术品,美院,arts,美术生,画展,画廊,美术馆,艺术品收藏,艺术电商网,故宫博物院,艺术电商,艺术品鉴,展览,艺术收藏,艺术品电商,博物馆,故宫展览,艺术展,艺术新闻,艺术生活,油画,插画,国画,水粉,水彩,素描,工笔,版画,漆画,丙烯,艺术云图,阿波罗,artand,艺术头条,artsy,雅昌,artpollo,意外艺术,艺术狗,在艺,雅昌兜藏,画家圈,Vart,芭莎艺术,空艺术,藏客,寺库艺术,中国美术馆,掌拍艺术,优家,艺典中国,艺堆,久久视频,在艺,艺厘米,艺堆 - 发现艺术,artstack,葫芦里,VICE MEDIA,imuseum,798,artstack limited,古玩鉴定,雅昌云图,雅昌艺术云图,人物,风景,静物,动物,植物,萌化,宗教,具象,抽象,古典,观念,表现,当代艺术,当代,原始艺术,古典艺术,现代艺术">
+    <meta name="description" content="艺术者-遇见你的品味。这里有温度的艺术家，有故事的艺术作品，有品味的社交圈。专注手绘艺术创作，打造青年艺术家品牌。由艺术家记录艺术创作全过程，建立以艺术家、艺术作品为核心的社交网络，帮助艺术家轻松经营粉丝，建立个性互动的长期收藏，完善艺术作品流通。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>{$data['title']}</title>
+    <link rel="shortcut icon" href="/Public/favicon.ico?v=1.0.1" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="/Public/js/lib/element/index.css">
+    <link href="/Public/js/plugin/swiper-3.4.1.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/Public/css/richwap.css?v=0.0.2">
+    <link rel="stylesheet" type="text/css" href="/Public/css/global.css?v=1.2.0">
+    <link rel="stylesheet" type="text/css" href="/Public/css/seodetail.css?v=0.0.1">
+  </head>
+  <body>
+    <div v-cloak id="app">
+      <ysz-header></ysz-header>
+      <div id="main">
+        <div class="w">
+          <div class="article-info clearfix">
+            <h2>{$data['title']}</h2>
+            <div class="base-info">
+              <p class="time">{$data['source_time']}</p>
+              <p class="from">{$data['source_site']}</p>
+            </div>
+           <!-- <div v-html="{$data['content']}" class="view"></div>-->
+            <div class="view">{$data['content']}</div>
+            <div class="view-total">
+              <i class="icons icon-eye"></i>{$data['view_total'] + 1}次浏览
+            </div>
+          </div>
+          <div class="other-wrap w">
+            <h3>推荐艺术故事</h3>
+            <div class="swiper-wrap">
+              <a :class="['arrow-left', otherActive == 1 ? 'noclick': '']" href="javascript:;">&lt;</a>
+              <a class="arrow-right" href="javascript:;">&gt;</a>
+              <div class="swiper-container other-thumbs">
+                <ul class="swiper-wrapper other-list">
+                  <li v-for="item in relateInfo.data" class="swiper-slide"><a :href="'/artwork/detail/' + item.id"><img v-lazy="item.cover + compress.S"></a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <set-user-box></set-user-box>
+      <login-box></login-box>
+      <ysz-footer></ysz-footer>
+    </div>
+    <div class="share-wrap">
+      <div class="bdsharebuttonbox bdshare-button-style2-32">
+        <a href="javascript:;" id="to-top" class="to-top" title="返回顶部"></a>
+      </div>
+    </div>
+    <script src="/Public/js/lib/vue.min.js"></script>
+    <script src="/Public/js/lib/element/index.js"></script>
+    <script src="/Public/js/plugin/vue-lazyload.js"></script>
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/Public/js/plugin/swiper.jquery.min.js"></script>
+    <script src="/Public/js/common.js?v=1.2.0"></script>
+    <script src="/Public/js/seo/detail.js?v=0.0.1"></script>
+  </body>
+</html>

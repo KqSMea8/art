@@ -1,0 +1,125 @@
+html, body {
+  height: 100%;
+}
+body {
+  background: #f4f4f4;
+}
+
+/*侧边栏*/
+.upload-left {
+  position: relative;
+  float: left;
+  width: 252px;
+  padding-bottom: 2000px;
+  margin-bottom: -2000px;
+  text-align: center;
+  background-color: #ededed;
+  font-size: 18px;
+  color: #999;
+}
+.upload-left > li {
+  position: relative;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 5px;
+  background-color: #fff;
+}
+.upload-left a {
+  display: block;
+  height: 48px;
+  line-height: 48px;
+  font-size: 16px;
+  color: #333;
+}
+.upload-left a:hover, .upload-left a.cur {
+  background-color: #e9ab32
+}
+.upload-left span {
+  position: relative;
+  display: block;
+  height: 50px;
+  line-height: 50px;
+  padding-left: 50px;
+  text-align: left;
+}
+.upload-left .icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50px;
+  height: 50px;
+}
+.icons.icon-manage {
+  background-position: 0 -80px;
+}
+.icons.icon-promote {
+  background-position: -50px -80px;
+}
+.icons.icon-invite {
+  background-position: -100px -80px;
+}
+
+/*侧边栏 end*/
+
+/*右侧主内容区*/
+.con-wrap {
+  margin-left: 252px;
+  height: 1180px;
+  background-color: #f4f4f4;
+}
+.con-wrap .tit {
+  height: 87px;
+  padding-left: 20px;
+  line-height: 87px;
+  font-size: 22px;
+  color: #444;
+  border-bottom: 1px solid #e1e1e1;
+  border-top: 1px solid #f0f0f0;
+  background-color: #fff;
+}
+.con-wrap .sum {
+  background-color: #fff;
+}
+.con-wrap .sum .info {
+  height: 136px;
+  padding-left: 48px;
+  font-size: 16px;
+  line-height: 1;
+  color: #444;
+}
+.sum .info h3 {
+  padding: 42px 0 18px;
+  font-weight: 700;
+}
+
+.detail {
+  font-size: 14px;
+  line-height: 1;
+  color: #444;
+}
+.detail .invite-code {
+  text-align: center;
+}
+.detail .invite-code p {
+  margin-top: 60px;
+  font-size: 20px;
+}
+.detail .invite-code p span {
+  color: #999;
+}
+.detail .invite-code .code {
+  margin: 42px auto 0;
+  width: 250px;
+  height: 48px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 48px;
+  color: #1f1f1f;
+  border: 1px solid #666;
+}
+.detail .info {
+  margin: 140px 46px 0;
+  font-size: 14px;
+  line-height: 26px;
+}
+
+/*右侧主内容区 end*/

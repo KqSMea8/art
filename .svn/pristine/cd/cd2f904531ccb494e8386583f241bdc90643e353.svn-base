@@ -1,0 +1,10 @@
+<?php
+
+namespace V20\Model;
+
+use V20\Base\BaseModel;
+
+class SubjectModel extends BaseModel
+{
+    protected $tableName = 'subject';
+}

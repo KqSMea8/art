@@ -1,0 +1,56 @@
+<extend name="Public:base" />
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    画作更新详情
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">画作ID</div><div class="col-md-10">{$detail['artwork_id']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">画作名称</div><div class="col-md-10">{$detail['name']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">更新第几次</div><div class="col-md-10">{$detail['number']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">创作时间</div><div class="col-md-10">{$detail['create_time']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">更新内容</div><div class="col-md-10">{$detail['wit']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">封面图片</div>
+                        <div class="col-md-10">
+                               <a href="{$detail['cover']}" class="az-image-popup"><img src="{$detail['cover']}" style="width:200px;"></a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">更新介绍</div><div class="col-md-10">{$detail['summary']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">浏览数</div><div class="col-md-10">{$detail['view_total']}</div>
+                    </div>
+                    <div class="row" hidden>
+                        <div class="col-md-2">分享数</div><div class="col-md-10">{$detail['share_total']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">喜欢数</div><div class="col-md-10">{$detail['like_total']}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">评论数</div><div class="col-md-10">{$detail['comment_total']}</div>
+                    </div>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+</block>

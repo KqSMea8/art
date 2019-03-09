@@ -1,0 +1,78 @@
+<?php
+
+namespace Admin\Logic;
+
+use Common\Base\AdminBaseLogic;
+use Custom\Helper\Util;
+
+class ArticleLogic extends AdminBaseLogic
+{
+
+
+    //通过tag_names返回tag_ids(两者都是逗号相隔)
+    public  function get_tag_ids($tag_str){
+        $tag_str=trim($tag_str);
+        if($tag_str==''){
+            return '';
+        }
+        #中英文空格 中文逗号 替换
+        $tag_str=str_replace(' ',',',$tag_str);
+        $tag_str=str_replace('，',',',$tag_str);
+        $tag_str=str_replace('　',',',$tag_str);
+        
+        $article_tag=M('article_tag');
+        
+        $where['cn_name']=array('in',array_filter(explode(",",$tag_str)));#array_filter去空元素
+        $list=$article_tag->field('id')->where($where)->select();
+//         print_r($article_tag->getLastSql());
+        if(count($list)==0){
+            return '';
+        }else{
+            $return_str='';
+            foreach ($list as $value){
+                $return_str=$return_str==''?$value['id']:$return_str.','.$value['id'];
+            }
+            return $return_str;
+        }
+        
+    }
+    
+    //通过tag_ids返回tag_names(两者都是逗号相隔)
+    public  function get_tag_names($tag_ids,$type=0){
+        $tag_ids=trim($tag_ids);
+        if($tag_ids==''){
+            return '';
+        }
+
+        $article_tag=M('article_tag');
+
+        if($type){
+            $where['type']=$type;
+        }
+        $where['id']=array('in',array_filter(explode(",",$tag_ids)));#array_filter去空元素
+        $list=$article_tag->field('cn_name')->where($where)->select();
+        //         print_r($article_tag->getLastSql());
+        if(count($list)==0){
+            return '';
+        }else{
+            $return_str='';
+            foreach ($list as $value){
+                $return_str=$return_str==''?$value['cn_name']:$return_str.','.$value['cn_name'];
+            }
+            return $return_str;
+        }
+        
+    }
+    
+    public  function get_article_tag_list_all(){
+        $article_tag=M('article_tag');
+        $where['type']=1;
+        $list=$article_tag->field('cn_name')->where($where)->order('sort desc,id asc')->select();
+        $return_arr=[];
+        foreach ($list as $value){
+            $return_arr[]=$value['cn_name'];
+        }
+        return $return_arr;
+    }
+    
+}

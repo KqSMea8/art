@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+   <!-- Bootstrap Core CSS -->
+    <link href="/Public/Admin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="/Public/Admin/vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+    <link href="/Public/Admin/vendor/Magnific-Popup/magnific-popup.css" rel="stylesheet">
+    <link href="/Public/Admin/vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/Public/Admin/dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/Public/Admin/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<style type="text/css">
+body {
+	margin-left: 8px;
+	margin-top: 0px;
+	margin-right: 8px;
+	margin-bottom: 0px;
+	font-size:13px;
+	line-height:25px;
+}
+td {
+	padding:3px;
+}
+</style>
+<script src="/Public/Admin/vendor/jquery/jquery.min.js"></script>
+</head>
+
+<body>
+
+<table width="850" border="1" align="center" cellpadding="0" cellspacing="0" class="table table-striped table-bordered table-hover">
+  <tr>
+    <td colspan="5" style="text-align:center; color:#00F; font-size:16px; font-weight:bold;">&nbsp;</td>
+  </tr>
+  <form id="form1" name="form1" method="get" action="{:U('ArtworkPrints/ArtistSelect')}">
+  </form>
+  <tr style="font-weight:bold">
+    <td width="75">id</td>
+    <td width="75">画作名称</td>
+    <td width="75">艺术家</td>
+    <td width="75">时间</td>
+    <td width="75">操作</td>
+  </tr>
+  <?php
+  if(count($artworklist)==0){
+  ?>
+    <tr>
+    <td colspan="5" style=" color:#F00">该艺术家还没有上传画作</td>
+    </tr>
+  
+  <?php
+  }
+  ?>
+ 
+<foreach name="artworklist" item="artwork" key="k">
+ <tr>
+    <td><?php echo $artwork['artwork_id'];?></td>
+    <td><?php echo htmlspecialchars($artwork['name']);?></td>
+    <td><?php echo $artwork['artist_name'];?></td>
+    <td><?php echo date('Y-m-d H:i:s',$artwork['create_time']);?></td>
+    <td><a href="{:U('ArtworkPrints/add')}?artist=<?php echo $artwork['artist'];?>&artwork_id=<?php echo $artwork['artwork_id'];?>" onclick="return select_artist(this);">选择添加版画</a></td>
+    </tr>
+  </foreach>
+  
+  <tr>
+    <td colspan="5">&nbsp;</td>
+    </tr>
+    <tr>
+    <td colspan="4">&nbsp;</td>
+    <td><a href="{:U('ArtworkPrints/add')}?artist=<?php echo $artist;?>&artwork_id=0" onclick="return select_artist(this);" style="color:#C63">不选择画作，直接添加版画</a></td>
+    </tr>
+  <tr>
+    <td colspan="5">{$nav}</td>
+  </tr>
+  
+</table>
+
+</body>
+</html>
+<script type="text/javascript">
+function select_artist(obj){
+//	alert(obj.href);
+self.parent.tb_remove();
+//self.parent.location.reload();
+parent.location.href=obj.href;
+	}
+</script>

@@ -1,0 +1,410 @@
+<?php
+/**
+ * 后端定时执行
+ */
+
+namespace Admin\Controller;
+
+use Think\Controller;
+use Custom\Helper\Oss;
+
+class BackgroundRunController extends Controller
+{
+    private $key_value = 'JHf354dsk543gh';
+
+    //把微信头像上传到阿里云
+    public function WxFace2Artzhe()
+    {
+        set_time_limit(3600);
+        if (I('get.key') != $this->key_value) {
+            header("HTTP/1.0 404 Not Found");
+            echo 'error';
+            exit();
+        }
+
+        //文件锁
+        $file = RUNTIME_PATH.'BackgroundRun_lock_' . CONTROLLER_NAME . '_' . ACTION_NAME . '.txt';
+        $fp = fopen($file, 'a');
+        if (flock($fp, LOCK_EX | LOCK_NB)) { // 取得独占锁
+
+
+            //耗时代码 start
+            $user_m = M('user');
+            $wx_face_url = 'wx.qlogo.cn';
+            $where_user['face'] = array('like', '%' . $wx_face_url . '%');
+            $user_list = $user_m->field('id,face')->where($where_user)->limit(200)->select();
+
+            foreach ($user_list as $user) {
+                $size_info = getimagesize($user['face']);
+                if ($size_info[0] > 0 && $size_info[1] > 0 && $size_info[0] != 120 && $size_info[1] != 120) {//图片存在（微信找不到图时，返回默认提示图片120*120）
+                    $content = file_get_contents($user['face']);
+                    //上传oss
+                    $save_url = 'face/' . date('Y') . '/' . date('m') . '/' . date('d') . '/' . date('H') . '/' . md5(time() . rand(1000, 9999)) . '.jpg';
+                    $result = Oss::uploadWithUrl($content, $save_url);
+                    $file_url = 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/' . $save_url;
+                    if ($result) {
+                        $where_update['id'] = $user['id'];
+                        $where_update['face'] = array('like', '%' . $wx_face_url . '%');
+                        $user_m->where($where_update)->save(['face' => $file_url]);
+
+                    }
+
+                } else { //图片不存在，修改为艺术者默认图片
+                    $where_update['id'] = $user['id'];
+                    $where_update['face'] = array('like', '%' . $wx_face_url . '%');
+                    $user_m->where($where_update)->save(['face' => C('ADMIN_FACE')]);
+
+                }
+
+                sleep(1);
+            }
+            //耗时代码 end
+
+
+            flock($fp, LOCK_UN); // 解锁
+        } else {
+            echo '已经在执行了，失败';
+        }
+        fclose($fp);
+    }
+
+
+    //凌晨三点 零界点
+    public function Recommendation()
+    {
+        ignore_user_abort(true);
+        set_time_limit(3600);
+        if (I('get.key') != $this->key_value) {
+            header("HTTP/1.0 404 Not Found");
+            echo 'error';
+            exit();
+        }
+
+        //文件锁
+        $file = RUNTIME_PATH.'BackgroundRun_lock_' . CONTROLLER_NAME . '_' . ACTION_NAME . '.txt';
+        $fp = fopen($file, 'a');
+        if (flock($fp, LOCK_EX | LOCK_NB)) { // 取得独占锁
+
+            //耗时代码 start
+            $Model = new \Think\Model();
+            $thistime = time();
+            $thisdate = date('Y-m-d', $thistime);
+
+
+            //艺术号 start
+            $num = 40;//插入数量
+            $sql = "select * from az_recommendation_article  order by id desc limit 1";
+            $result = $Model->query($sql);
+            $latest_time = $result[0]['create_time'];
+            if ($thisdate != date('Y-m-d', $latest_time)) {//判断今天是否执行过
+                $yesterday_start = strtotime($thisdate) - 3600 * 24;
+                $yesterday_end=strtotime($thisdate);
+//                $yesterday_start=0;//测试
+                $sql = "insert into az_recommendation_article(recommended_id,create_time,recommended_date) SELECT  az_article.id,'" . $thistime . "','" . $thisdate . "' from az_article left join az_recommendation_article on az_article.id=az_recommendation_article.recommended_id  where az_article.status=1 and az_article.artist in(112026,	112034,	112038,	112044,	112045,	112046,	112053,	112055,	112059,	112246,	112353,	112543,	112580,	112804) and az_article.publish_time>=" . $yesterday_start . " and az_article.publish_time<".$yesterday_end." and az_recommendation_article.id is null and az_article.cover!='' order by az_article.id desc limit " . $num;
+//                echo $sql;
+                $Model->execute($sql);
+            }
+            //艺术号 end
+
+
+            //早期作品 start
+            $num = 5;//插入数量
+            $sql = "select * from az_recommendation_artwork_best  order by id desc limit 1";
+            $result = $Model->query($sql);
+            $latest_time = $result[0]['create_time'];
+            if ($thisdate != date('Y-m-d', $latest_time)) {//判断今天是否执行过
+                $cycle = (int)$result[0]['cycle'];
+                $cycle = $cycle == 0 ? 1 : $cycle;
+                $sql = "select count(*) as counts from az_artwork left join az_recommendation_artwork_best on az_artwork.id=az_recommendation_artwork_best.recommended_id  and az_recommendation_artwork_best.cycle=" . $cycle . " where  az_recommendation_artwork_best.id is null  and  az_artwork.state=1 and az_artwork.is_deleted='N' and az_artwork.like_total>50 and az_artwork.view_total>100 and az_artwork.cover!='' ";
+                //echo $sql;
+                $result = $Model->query($sql);
+                $counts = (int)$result[0]['counts'];
+                if ($counts <= 0) {//1周期里面的作品循环完了，重新开始一个周期，周期+1
+                    $cycle = $cycle + 1;
+                }
+
+                $sql = "insert into az_recommendation_artwork_best(recommended_id,create_time,recommended_date,cycle) SELECT  az_artwork.id," . $thistime . ",'" . $thisdate . "'," . $cycle . " from az_artwork left join az_recommendation_artwork_best on az_artwork.id=az_recommendation_artwork_best.recommended_id  and az_recommendation_artwork_best.cycle=" . $cycle . " where  az_recommendation_artwork_best.id is null  and  az_artwork.state=1 and az_artwork.is_deleted='N' and az_artwork.like_total>50 and az_artwork.view_total>100 and az_artwork.cover!='' limit " . $num;
+//                echo $sql;
+                $Model->execute($sql);
+
+            }
+
+            //早期作品 end
+
+
+            //最新作品 start
+            $num = 1;//插入数量
+            $sql = "select * from az_recommendation_artwork_latest  order by id desc limit 1";
+            $result = $Model->query($sql);
+            $latest_time = $result[0]['create_time'];
+
+            if ($thisdate != date('Y-m-d', $latest_time)) {//判断今天是否执行过
+                $time_start = strtotime($thisdate) - 3600 * 24 * 7;
+                //$time_start = 0;//测试
+
+                $sql = "select count(*) as counts from az_artwork left join az_recommendation_artwork_latest on az_artwork.id=az_recommendation_artwork_latest.recommended_id   where  az_recommendation_artwork_latest.id is null  and  az_artwork.state=1 and az_artwork.is_deleted='N'  and az_artwork.cover!='' and az_artwork.create_time>" . $time_start;
+                //echo $sql;
+                $result = $Model->query($sql);
+                $counts = (int)$result[0]['counts'];
+                if ($counts < 10) {//一周作品数不足10幅，把上上周也算上
+                    $time_start = $time_start - 3600 * 24 * 7;
+                }
+
+                $sql = "insert into az_recommendation_artwork_latest(recommended_id,create_time,recommended_date,sort_weight) SELECT az_artwork.id," . $thistime . ",'" . $thisdate . "', az_artwork.view_total+az_artwork.like_total*10+comment_total*20 as sort_weight  from az_artwork left join az_recommendation_artwork_latest on az_artwork.id=az_recommendation_artwork_latest.recommended_id   where  az_recommendation_artwork_latest.id is null  and  az_artwork.state=1 and az_artwork.is_deleted='N'  and az_artwork.cover!='' and az_artwork.create_time>" . $time_start . " order by sort_weight desc limit " . $num;
+//                echo $sql;
+                $Model->execute($sql);
+
+
+            }
+
+            //最新作品 end
+
+
+
+            //插入推荐表
+            $this->import_recommendation();
+
+            //插入广告
+            $this->Ad1();
+            $this->Ad3();
+            $this->Ad4();
+
+
+            //耗时代码 end
+
+
+            flock($fp, LOCK_UN); // 解锁
+        } else {
+            echo '已经在执行了，失败';
+        }
+        fclose($fp);
+    }
+
+   private function import_recommendation()
+    {
+        $Model = new \Think\Model();
+        $thistime = time();
+        $thisdate = date('Y-m-d', $thistime);
+
+        $sql = "select * from az_recommendation  order by id desc limit 1";
+        $result = $Model->query($sql);
+        $latest_time = $result[0]['create_time'];
+
+        if ($thisdate != date('Y-m-d', $latest_time)) {//判断今天是否执行过
+
+
+            $article_list = [];
+            $artwork_best_list = [];
+            $artwork_latest_list = [];
+
+            $sql = "select * from az_recommendation_article where recommended_date='" . $thisdate . "' order by rand() ";
+            $result = $Model->query($sql);
+            for ($i = 0; $i < count($result); $i++) {
+                array_push($article_list, $result[$i]['recommended_id']);
+            }
+
+            $sql = "select * from az_recommendation_artwork_best where recommended_date='" . $thisdate . "'";
+            $result = $Model->query($sql);
+            for ($i = 0; $i < count($result); $i++) {
+                array_push($artwork_best_list, $result[$i]['recommended_id']);
+            }
+
+            $sql = "select * from az_recommendation_artwork_latest where recommended_date='" . $thisdate . "'";
+            $result = $Model->query($sql);
+            for ($i = 0; $i < count($result); $i++) {
+                array_push($artwork_latest_list, $result[$i]['recommended_id']);
+            }
+
+
+            //倒序，排后面的先插入数据库
+            $article_list = array_reverse($article_list);
+            $artwork_best_list = array_reverse($artwork_best_list);
+            $artwork_latest_list = array_reverse($artwork_latest_list);
+
+            $article_list_fix = [];
+            for ($i = 0; $i < count($article_list); $i++) {
+                array_push($article_list_fix, 'article');
+            }
+
+            $artwork_best_list_fix = [];
+            for ($i = 0; $i < count($artwork_best_list); $i++) {
+                array_push($artwork_best_list_fix, 'artwork_best');
+            }
+
+            $artwork_latest_list_fix = [];
+            for ($i = 0; $i < count($artwork_latest_list); $i++) {
+                array_push($artwork_latest_list_fix, 'artwork_latest');
+            }
+
+            //合并数组，打乱顺序
+            $arr_all = array_merge($article_list_fix, $artwork_best_list_fix, $artwork_latest_list_fix);
+            shuffle($arr_all);
+
+            //合并后顺序打乱，但相同分类的不打乱顺序
+            foreach ($arr_all as $key => $item) {
+                switch ($item) {
+                    case 'article':
+                        $arr_all[$key] = ['action' => 'article', 'type' => 'article', 'recommended_id' => array_shift($article_list)];
+                        break;
+                    case 'artwork_best':
+                        $arr_all[$key] = ['action' => 'artwork_best', 'type' => 'artwork', 'recommended_id' => array_shift($artwork_best_list)];
+                        break;
+                    case 'artwork_latest':
+                        $arr_all[$key] = ['action' => 'artwork_latest', 'type' => 'artwork', 'recommended_id' => array_shift($artwork_latest_list)];
+                        break;
+                    default:
+                        ;
+                }
+            }
+
+            $thistime = time();
+            $sql = "";
+            foreach ($arr_all as $key => $item) {
+                $sql = $sql . " insert into az_recommendation(type,action,recommended_id,create_time) values('" . $item['type'] . "','" . $item['action'] . "','" . $item['recommended_id'] . "'," . $thistime . ");\r\n";
+            }
+            if(trim($sql)!=''){
+                $Model->execute($sql);
+            }
+
+
+        }
+    }
+
+    //广告位3
+    //每天展示两篇画展+一篇专访
+    private function Ad3(){
+
+        $Model = new \Think\Model();
+        $thistime = time();
+        $thisdate = date('Y-m-d', $thistime);
+
+        $time_6_months_ago=strtotime('-6 months');
+        $time_3_months_ago=strtotime('-3 months');
+
+        $sql = "select * from az_recommendation_ad_subject  order by id desc limit 1";
+        $result = $Model->query($sql);
+        $latest_time = $result[0]['create_time'];
+        if ($thisdate != date('Y-m-d', $latest_time)) {//判断今天是否执行过
+
+
+
+
+            //两篇画展2条
+            $sql = "select * from az_recommendation_ad_subject where type=1  order by id desc limit 1";
+            $result = $Model->query($sql);
+            $cycle = (int)$result[0]['cycle'];
+            $cycle = $cycle == 0 ? 1 : $cycle;
+            $sql = "select count(*) as counts from az_subject LEFT  JOIN az_user on az_subject.artist=az_user.id left join az_recommendation_ad_subject on az_subject.id=az_recommendation_ad_subject.recommended_id and az_recommendation_ad_subject.cycle=" . $cycle . "  where az_subject.status=0 and az_subject.start_time<" . $thistime . " and az_subject.end_time>" . $thistime . " and az_user.create_time<" . $time_6_months_ago . "  and az_user.last_add_artupdate_time>" . $time_3_months_ago . " and az_subject.type in(1,3) and az_recommendation_ad_subject.recommended_id is null order by az_subject.view_num desc limit 2";
+            $result = $Model->query($sql);
+            $counts = (int)$result[0]['counts'];
+            if ($counts <= 0) {//1周期里面的循环完了，重新开始一个周期，周期+1
+                $cycle = $cycle + 1;
+            }
+            $sql = "insert into az_recommendation_ad_subject(recommended_id,create_time,recommended_date,cycle,type) SELECT  az_subject.id," . $thistime . ",'" . $thisdate . "'," . $cycle . ",'1' from az_subject LEFT  JOIN az_user on az_subject.artist=az_user.id left join az_recommendation_ad_subject on az_subject.id=az_recommendation_ad_subject.recommended_id and az_recommendation_ad_subject.cycle=" . $cycle . "   where az_subject.status=0 and az_subject.start_time<" . $thistime . " and az_subject.end_time>" . $thistime . " and az_user.create_time<" . $time_6_months_ago . "  and az_user.last_add_artupdate_time>" . $time_3_months_ago . " and az_subject.type in(1,3) and az_recommendation_ad_subject.recommended_id is null order by az_subject.view_num desc limit 2";
+            $Model->execute($sql);
+
+
+            //一篇专访1条
+            $sql = "select * from az_recommendation_ad_subject where type=2  order by id desc limit 1";
+            $result = $Model->query($sql);
+            $cycle = (int)$result[0]['cycle'];
+            $cycle = $cycle == 0 ? 1 : $cycle;
+            $sql = "select count(*) as counts from az_subject LEFT  JOIN az_user on az_subject.artist=az_user.id left join az_recommendation_ad_subject on az_subject.id=az_recommendation_ad_subject.recommended_id and az_recommendation_ad_subject.cycle=" . $cycle . "  where az_subject.status=0 and az_subject.start_time<" . $thistime . " and az_subject.end_time>" . $thistime . " and az_user.create_time<" . $time_6_months_ago . "  and az_user.last_add_artupdate_time>" . $time_3_months_ago . " and az_subject.type in(2) and az_recommendation_ad_subject.recommended_id is null order by az_subject.view_num desc limit 2";
+            $result = $Model->query($sql);
+            $counts = (int)$result[0]['counts'];
+            if ($counts <= 0) {//1周期里面的循环完了，重新开始一个周期，周期+1
+                $cycle = $cycle + 1;
+            }
+            $sql = "insert into az_recommendation_ad_subject(recommended_id,create_time,recommended_date,cycle,type) SELECT  az_subject.id," . $thistime . ",'" . $thisdate . "'," . $cycle . ",'2' from az_subject LEFT  JOIN az_user on az_subject.artist=az_user.id left join az_recommendation_ad_subject on az_subject.id=az_recommendation_ad_subject.recommended_id and az_recommendation_ad_subject.cycle=" . $cycle . "   where az_subject.status=0 and az_subject.start_time<" . $thistime . " and az_subject.end_time>" . $thistime . " and az_user.create_time<" . $time_6_months_ago . "  and az_user.last_add_artupdate_time>" . $time_3_months_ago . " and az_subject.type in(2) and az_recommendation_ad_subject.recommended_id is null order by az_subject.view_num desc limit 1";
+            $Model->execute($sql);
+
+
+
+        }
+
+    }
+
+    //广告位1
+    private function  Ad1(){
+        $Model = new \Think\Model();
+        $time_start=strtotime(date('Y-m-d'));
+        $time_one_months=strtotime('+1 months',strtotime(date('Y-m-d')));
+        $time_two_weeks=strtotime('+2 weeks',strtotime(date('Y-m-d')));
+
+        $time_one_weeks_ago=strtotime('-1 weeks',strtotime(date('Y-m-d')));
+        $time_one_months_ago=strtotime('-1 months',strtotime(date('Y-m-d')));
+
+        $thistime = time();
+        $thisdate = date('Y-m-d', $thistime);
+
+        //一周内认证成功且满足按照要求上传3幅作品及花絮的艺术家
+        $sql = "select * from az_recommendation_ad_first where type='artist'  order by id desc limit 1";
+        $result = $Model->query($sql);
+        $latest_time = $result[0]['create_time'];
+        if ($thisdate != date('Y-m-d', $latest_time)) {//判断今天是否执行过
+            $sql = "insert into az_recommendation_ad_first(recommended_id,type,recommended_time_start,recommended_time_end,create_time) select distinct az_user.id ,'artist'," . $time_start . ",'" . $time_two_weeks . "'," . $thistime . "  from az_artist_apply left join az_user on az_artist_apply.user_id=az_user.id left join az_recommendation_ad_first on az_user.id=az_recommendation_ad_first.recommended_id and az_recommendation_ad_first.type='artist'   left join az_artwork on az_user.id=az_artwork.artist left join az_gallery on az_user.id=az_gallery.artist  where az_artwork.state=1 and az_artist_apply.verify_state=2  and az_artist_apply.verify_time>".$time_one_weeks_ago." and az_user.art_total>3 and az_recommendation_ad_first.recommended_id is null  and az_gallery.cover!='' ";
+            $Model->execute($sql);
+//            echo $sql;
+        }
+
+        //最近更新的专访或微画展。
+        $sql = "select * from az_recommendation_ad_first where type='subject'  order by id desc limit 1";
+        $result = $Model->query($sql);
+        $latest_time = $result[0]['create_time'];
+        if ($thisdate != date('Y-m-d', $latest_time)) {//判断今天是否执行过
+            $sql = "insert into az_recommendation_ad_first(recommended_id,type,recommended_time_start,recommended_time_end,create_time) select  az_subject.id ,'subject'," . $time_start . ",'" . $time_one_months . "'," . $thistime . "   from az_subject left join az_recommendation_ad_first on az_subject.id= az_recommendation_ad_first.recommended_id and az_recommendation_ad_first.type='subject' where az_subject.status=0 and az_subject.start_time<" . $thistime . " and az_subject.end_time>" . $thistime . " and az_subject.type in(1,2)  and az_subject.start_time>" . $time_one_months_ago . " and az_recommendation_ad_first.recommended_id is null ";
+            $Model->execute($sql);
+//            echo $sql;
+
+            //展讯
+            $sql = "insert into az_recommendation_ad_first(recommended_id,type,recommended_time_start,recommended_time_end,create_time) select  az_subject.id ,'subject'," . $time_start . ",az_subject.recommend_time_end," . $thistime . "   from az_subject left join az_recommendation_ad_first on az_subject.id= az_recommendation_ad_first.recommended_id and az_recommendation_ad_first.type='subject' where az_subject.status=0 and az_subject.start_time<" . $thistime . " and az_subject.end_time>" . $thistime . " and az_subject.type in(4)  and az_subject.start_time>" . $time_one_months_ago . " and az_subject.recommend_time_end>".$thistime." and az_recommendation_ad_first.recommended_id is null ";
+            $Model->execute($sql);
+//            echo $sql;
+        }
+
+        //最近更新的一周推荐。
+        $article_time_start=strtotime('-7 day');
+        $article_time_end=time();
+        $sql = "select * from az_recommendation_ad_first where type='article'  order by id desc limit 1";
+        $result = $Model->query($sql);
+        $latest_time = $result[0]['create_time'];
+        if ($thisdate != date('Y-m-d', $latest_time)) {//判断今天是否执行过
+            $sql = "insert into az_recommendation_ad_first(recommended_id,type,recommended_time_start,recommended_time_end,create_time) select  az_article.id ,'article'," . $time_start . ",'" . $time_one_months . "'," . $thistime . "   FROM `az_article` left join az_recommendation_ad_first on az_article.id=az_recommendation_ad_first.recommended_id and az_recommendation_ad_first.type='article'  where  az_article.status=1 and az_article.artist=100001 and az_recommendation_ad_first.recommended_id is null and az_article.title like '%一周推荐%' and az_article.publish_time>=".$article_time_start." and az_article.publish_time<".$article_time_end."  order by az_article.publish_time desc limit 2 ";
+            $Model->execute($sql);
+//            echo $sql;
+        }
+
+
+    }
+
+
+
+    private  function Ad4(){
+        $Model = new \Think\Model();
+        $thistime = time();
+        $thisdate = date('Y-m-d', $thistime);
+
+        $year_weekth=date('Y-W',$thistime);
+
+        //视频花絮
+        $sql = "insert into az_recommendation_ad_fourth(recommended_id,create_time,recommended_date,type) SELECT  az_artwork_update.id," . $thistime . ",'" . $thisdate . "','artwork_update'  FROM `az_artwork_update` left join az_recommendation_ad_fourth on az_artwork_update.id=az_recommendation_ad_fourth.recommended_id and az_recommendation_ad_fourth.type='artwork_update' left join az_artwork on az_artwork.id=az_artwork_update.artwork_id  where wit like '%poster=&quot;%' and az_recommendation_ad_fourth.recommended_id is null and az_artwork.state=1";
+        $Model->execute($sql);
+
+
+
+        $sql = "select * from az_recommendation_ad_fourth where type='article'  order by id desc limit 1";
+        $result = $Model->query($sql);
+        $latest_year_weekth = $result[0]['year_weekth'];
+        if ($year_weekth != $latest_year_weekth) {//判断本周是否执行过
+            $time_start=strtotime('Monday last week');
+            $time_end=strtotime('Sunday last week')+3600;
+
+            $sql = "insert into az_recommendation_ad_fourth(recommended_id,create_time,year_weekth,type,recommended_date) SELECT  az_article.id," . $thistime . ",'" . $year_weekth . "','article','".$thisdate."'  FROM `az_article` left join az_recommendation_ad_fourth on az_article.id=az_recommendation_ad_fourth.recommended_id and az_recommendation_ad_fourth.type='article'  where  az_article.status=1 and az_article.artist=100001 and az_recommendation_ad_fourth.recommended_id is null and az_article.title like '%一周推荐%' and az_article.publish_time>=".$time_start." and az_article.publish_time<".$time_end."  order by az_article.publish_time desc limit 2";
+//            echo $sql;
+            $Model->execute($sql);
+        }
+
+    }
+
+
+}

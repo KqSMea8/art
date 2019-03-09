@@ -1,0 +1,9 @@
+var vmUserLike = new Vue({
+  el: '#user-like',
+  data: {
+    
+  },
+  methods: {
+    
+  }
+});

@@ -1,0 +1,11 @@
+<?php
+
+namespace V47\Model;
+
+
+use V47\Base\BaseModel;
+
+class InviteLogModel extends BaseModel
+{
+    protected $tableName = 'invite_log';
+}

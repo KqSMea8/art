@@ -1,0 +1,55 @@
+<?php
+namespace H5\Controller;
+
+use Common\Logic\ThirdLogic;
+use Custom\Helper\Util;
+use Think\Controller;
+use EasyWeChat\Foundation\Application;
+
+//登陆模块
+class WechatController extends Controller {
+	protected static $app ;
+	public function __construct(){
+
+		self::$app = new Application(C('WECHAT'));
+	}
+
+	//登陆
+	public function login(){
+		
+		$response = self::$app->oauth->scopes(['snsapi_userinfo'])
+                          ->redirect();
+        $response->send();
+	}
+
+	//微信回调
+	public function callback(){
+		//获取用户数据
+		$user = self::$app->oauth->user();
+		$data = $user->getOriginal();
+		\Think\Log::record(date('Y-m-d H:i:s',time()).'当前用户信息:'.var_export($data,true));
+		//判断用户是否存在
+		$ThirdLogic = new ThirdLogic();
+		$openid = $user->getId();
+		$flag = $ThirdLogic->isUserBindMobile(1,$openid);
+		if(!$flag){
+			//存入数据库
+			$temp= array (
+ 		   'openid' => 'omTDl03UbyeH5Sv9il8Fv4DkVTgQ',
+ 		   'nickname' => 'lichv',
+ 		   'sex' => 1,
+ 		   'language' => 'zh_CN',
+ 		   'city' => '深圳',
+ 		   'province' => '广东',
+ 		   'country' => '中国',
+ 		   'headimgurl' => 'https://wx.qlogo.cn/mmopen/FafduS6GAfMlXbXSpMebGiciciaYZpFiaOicfeOXndk8V2ibsfmX5xNXibxXRl5IEqM2WF4ibteHXqVnLrjkZKjDwIm    eBJV8UFQxSHyj/0',
+ 		   );
+
+
+			$this->redirect('/h5/passport/bind');
+		}
+
+		//跳转
+		$this->redirect('/h5/index/index');
+	}
+}

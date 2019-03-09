@@ -1,0 +1,47 @@
+<?php
+
+namespace V51\Logic;
+
+use V51\Base\BaseLogic;
+
+
+class ArticleLikeLogic extends BaseLogic
+{
+    public function like($data)
+    {
+
+        $likeinfo = $this->where(['article_id' => $data['article_id'], 'like_user_id' => $data['like_user_id'], 'is_like' => 1])->find();
+        if (!$likeinfo) {
+            $id = $this->add($data);
+            if ($id) {
+                $ArticleLogic = new ArticleLogic();
+                $ArticleLogic->where(['id' => $data['article_id']])->setInc('like_count', 1);
+            }
+            return $id;
+        } else {
+            return 0;
+        }
+    }
+
+    public function unlike($data)
+    {
+
+        $likeinfo = $this->where(['article_id' => $data['article_id'], 'like_user_id' => $data['like_user_id'], 'is_like' => 1])->find();
+       if($likeinfo) {
+           $ArticleLogic = new ArticleLogic();
+           $Articleinfo = $ArticleLogic->where(['id' => $data['article_id'], 'status' =>['in',[1,3,4]]])->find();
+           if ($Articleinfo) {
+               $like_count = $Articleinfo['like_count'];
+               if ($like_count > 1) {
+                   $ArticleLogic->where(['id' => $data['article_id']])->setDec('like_count', 1);
+               } else {
+                   $ArticleLogic->where(['id' => $data['article_id']])->setField('like_count', 0);
+               }
+
+           }
+           return $this->where(['article_id' => $data['article_id'], 'like_user_id' => $data['like_user_id'], 'is_like' => 1])->delete();
+       }else{
+           return 0;
+       }
+    }
+}

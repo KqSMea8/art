@@ -1,0 +1,10 @@
+<?php
+
+namespace V60\Logic;
+
+use V60\Base\BaseLogic;
+use Custom\Define\Image;
+
+class SeoLogic extends BaseLogic{
+  	
+}

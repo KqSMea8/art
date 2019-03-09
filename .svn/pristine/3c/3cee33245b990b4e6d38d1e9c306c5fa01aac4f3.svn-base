@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+   <!-- Bootstrap Core CSS -->
+    <link href="/Public/Admin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="/Public/Admin/vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+    <link href="/Public/Admin/vendor/Magnific-Popup/magnific-popup.css" rel="stylesheet">
+    <link href="/Public/Admin/vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/Public/Admin/dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/Public/Admin/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<style type="text/css">
+body {
+	margin-left: 8px;
+	margin-top: 0px;
+	margin-right: 8px;
+	margin-bottom: 0px;
+	font-size:13px;
+	line-height:25px;
+}
+td {
+	padding:3px;
+}
+</style>
+<script src="/Public/Admin/vendor/jquery/jquery.min.js"></script>
+</head>
+
+<body>
+
+<table width="850" border="1" align="center" cellpadding="0" cellspacing="0" class="table table-striped table-bordered table-hover">
+  <tr>
+    <td colspan="5" >
+    <form action="{:U('User/SelectUserId')}" class="form-inline">
+                                <div class="form-group">
+                                  <label for="">用户ID</label>
+                                  <input type="text" name="uid" class="form-control" value="{:I('uid')}">
+                                </div>
+                                <div class="form-group">
+                                  <label for="">昵称</label>
+                                  <input type="text" name="nickname" class="form-control" value="{:I('nickname')}">
+                                </div>
+                                <div class="form-group">
+                                  <label for="">用户类型</label>
+                                  
+                                  <select name="role_type" id="role_type">
+                                    <option>请选择</option>
+                                    <option value="artist" <?php if(I('role_type')=='artist')echo 'selected="selected"';?>>艺术家</option>
+                                    <option value="agency" <?php if(I('role_type')=='agency')echo 'selected="selected"';?>>机构</option>
+                                    <option value="planner" <?php if(I('role_type')=='planner')echo 'selected="selected"';?>>策展人</option>
+                                  </select>
+                                </div>
+                                <div class="form-group"></div>
+                                <div class="form-group"></div>
+                                <div class="form-group"></div>
+                                <div class="form-group"></div>
+                                <button class="btn btn-default form-control" type="submit">查找</button>
+      </form>
+    </td>
+  </tr>
+  <form id="form1" name="form1" method="get" action="{:U('ArtworkPrints/ArtistSelect')}">
+  </form>
+  <tr style="font-weight:bold">
+    <td width="75">id</td>
+    <td width="75">昵称</td>
+    <td width="75">身份</td>
+    <td width="75">时间</td>
+    <td width="75">操作</td>
+  </tr>
+  <?php
+  if(count($lists)==0){
+  ?>
+    <tr>
+    <td colspan="5" style=" color:#F00">没有记录</td>
+    </tr>
+  
+  <?php
+  }
+  ?>
+ 
+<foreach name="lists" item="user" key="k">
+ <tr>
+    <td><?php echo $user['id'];?></td>
+    <td><?php echo htmlspecialchars($user['nickname']);?></td>
+    <td><?php echo role_get_str($user['role']);?></td>
+    <td><?php echo date('Y-m-d H:i:s',$user['create_time']);?></td>
+    <td><a href="#" onclick="return select_artist(<?php echo $user['id']?>);">选择</a>&nbsp;<?php echo htmlspecialchars($user['nickname']);?></td>
+    </tr>
+  </foreach>
+  
+  <tr>
+    <td colspan="5">&nbsp;</td>
+    </tr>
+  <tr>
+    <td colspan="5">{$nav}</td>
+  </tr>
+  
+</table>
+
+</body>
+</html>
+<script type="text/javascript">
+function select_artist(uid){
+//	alert(obj.href);
+$("#artist",window.parent.document).val(uid);
+self.parent.tb_remove();
+//self.parent.location.reload();
+//parent.location.href=obj.href;
+
+	}
+</script>

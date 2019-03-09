@@ -1,0 +1,21 @@
+var vmAuth = new Vue({
+  el: '#auth',
+  data: {
+    isAgree: true,
+    ruleShow: false,
+  },
+  methods: {
+    agreeToggle: function () {
+      this.isAgree = !this.isAgree;
+    },
+    goToFirst: function () {
+      console.log(this.isAgree);
+      if (this.isAgree) {
+        console.log('tongyi');
+        this.ruleShow = false;
+      } else {
+        console.log('butongyi');
+      }
+    }
+  }
+});

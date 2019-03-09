@@ -1,0 +1,136 @@
+<extend name="Public:base" />
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                艺术家推广审核
+              </div>
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-6">
+
+                        </div><!-- /.col-lg-6 -->
+                        <div class="col-lg-6">
+                            <form method="get" action="{:U('Admin/Extension/index')}" class="form-inline pull-right">
+                                <select id="rightType" name="showType" class="form-control">
+                                    <option value="0" <?php if ($queryParams['showType'] == 0) {
+                                        echo 'selected';
+                                    } ?>>全部
+                                    </option>
+                                    <option value="1" <?php if ($queryParams['showType'] == 1) {
+                                        echo 'selected';
+                                    } ?>>审核中
+                                    </option>
+                                    <option value="2" <?php if ($queryParams['showType'] == 2) {
+                                        echo 'selected';
+                                    } ?>>审核失败
+                                    </option>
+                                    <option value="3" <?php if ($queryParams['showType'] == 3) {
+                                        echo 'selected';
+                                    } ?>>审核成功
+                                    </option>
+                                    <option value="4" <?php if ($queryParams['showType'] == 4) {
+                                        echo 'selected';
+                                    } ?>>用户终止推广
+                                    </option>
+                                    <option value="5" <?php if ($queryParams['showType'] == 5) {
+                                        echo 'selected';
+                                    } ?>>已过期
+                                    </option>
+                                </select>
+                                <!-- <input type="hidden" name="page" class="inline form-control" value="1">
+                                <input type="hidden" name="perPageCount" class="inline form-control"
+                                       value="<?php /*if (!empty($queryParams['perPageCount'])) {
+                                           echo $queryParams['perPageCount'];
+                                       } else {
+                                           echo 10;
+                                       } */?>">-->
+                                <button class="btn btn-default form-control" type="submit">查看</button>
+                            </form>
+                        </div>
+                    </div><!-- /.row -->
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <table width="100%" class="table table-striped table-bordered table-hover" >
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>艺术家</th>
+                            <th>简介</th>
+                            <th>申请封面</th>
+                            <th>时间</th>
+                            <th>状态</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <foreach name="lists" item="ext" key="k" >
+                            <tr>
+                                <td>{$ext['id']}</td>
+                                <td>{$ext['artistName']}</td>
+                                <td>{$ext['desc']}</td>
+                                <td>
+                                  <img src="{$ext['img']}" style="width:100px;" alt="">
+                                </td>
+                                <td>{:date('Y-m-d H:i',$ext['time'])}</td>
+                                <td>{$ext['statusName']}</td>
+                                <td>{$ext['reason']}</td>
+                                <td>
+                                    <switch name="ext.status">
+                                        <case value="1">
+                                            <a href="{:U('Extension/verifySuccess',['id'=>$ext['id'],'showType'=>$queryParams['showType']])}">审核</a>
+                                          <!--  <a href="{:U('Extension/verifyFailed',['id'=>$ext['id'],'showType'=>$queryParams['showType']])}">审核失败</a>-->
+
+                                        </case>
+                                        <case value="2">
+                                            -
+                                        </case>
+                                        <case value="3">
+                                            <!--<a href="{:U('Extension/verifyFailed',['id'=>$ext['id'],'showType'=>$queryParams['showType']])}">下线</a>|-->
+                                            <a href="{:U('Extension/detail',['id'=>$ext['id'],'showType'=>$queryParams['showType']])}">详情</a>
+                                        </case>
+                                        <case value="4">
+                                            <a href="{:U('Extension/detail',['id'=>$ext['id'],'showType'=>$queryParams['showType']])}">详情</a>
+                                        </case>
+                                        <case value="5">
+                                            <a href="{:U('Extension/detail',['id'=>$ext['id'],'showType'=>$queryParams['showType']])}">详情</a>
+                                        </case>
+                                        <default />-
+                                    </switch>
+
+                                </td>
+                            </tr>
+                        </foreach>
+                        </tbody>
+                    </table>
+                    <!-- /.table-responsive -->
+                    <!-- TODO:page -->
+                    {$nav}
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+    <script>
+        // $(document).ready(function(){
+        //     $('#az-id-date-selector').datetimepicker({
+        //         format:'yyyy-mm-dd',
+        //         language:  'zh-CN',
+        //         weekStart: 1,
+        //         todayBtn:  1,
+        //         autoclose: 1,
+        //         todayHighlight: 1,
+        //         startView: 2,
+        //         minView: 2,
+        //         forceParse: 0
+        //     })
+        // });
+    </script>
+</block>

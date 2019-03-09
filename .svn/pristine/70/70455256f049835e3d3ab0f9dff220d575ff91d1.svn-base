@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<style>
+p{
+  font-size: 26px;
+}
+</style>
+<body>
+  <p><a href="itms-services://?action=download-manifest&url=https://dev-artzhe.gaosouyi.com/download/test/ios/manifest.plist">Install App-test</a></p>
+
+  <p><a href="itms-services://?action=download-manifest&url=https://dev-artzhe.gaosouyi.com/download/online/ios/manifest.plist">Install App-online</a></p>
+
+</body>
+</html>

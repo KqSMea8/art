@@ -1,0 +1,19 @@
+<?php
+
+namespace V44\Base;
+
+//todo useless
+class BaseService
+{
+    protected $logic = null;
+    public function __construct()
+    {
+        $logicFullName = $this->getLogicFullName();
+        $this->logic = new $logicFullName();
+    }
+    protected function getLogicFullName()
+    {
+        $exp = explode('\\',__CLASS__);
+        return 'V44\\Logic\\'.substr(end($exp), 0, -1*strlen('Service')).'Logic';
+    }
+}

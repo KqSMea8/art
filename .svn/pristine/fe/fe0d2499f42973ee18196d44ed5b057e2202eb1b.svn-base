@@ -1,0 +1,168 @@
+<?php
+
+namespace V43\Controller;
+
+include_once STS_ROOT_PATH."aliyun-php-sdk-core/Config.php";
+
+use V43\Logic\AssetsLogic;
+use Custom\Define\Code;
+use Custom\Define\Status;
+use Custom\Helper\Oss;
+use OSS\OssClient;
+use Sts\Request\V20150401 as Sts;
+use Custom\Define\Image;
+use V43\Base\ApiBaseController;
+use Custom\Helper\Util;
+use Think\Exception;
+use Think\Log;
+class OssController extends ApiBaseController
+{
+    //上传回调
+    public function uploadCallback()
+    {
+        try {
+        // 1.获取OSS的签名header和公钥url header
+        $authorizationBase64 = "";
+        $pubKeyUrlBase64 = "";
+        /*
+          注意：如果要使用HTTP_AUTHORIZATION头，你需要先在apache或者nginx中设置rewrite，以apache为例，修改
+          配置文件/etc/httpd/conf/httpd.conf(以你的apache安装路径为准)，在DirectoryIndex index.php这行下面增加以下两行
+            RewriteEngine On
+            RewriteRule .* - [env=HTTP_AUTHORIZATION:%{HTTP:Authorization},last]
+         */
+        if (isset($_SERVER['HTTP_AUTHORIZATION']))
+        {
+            $authorizationBase64 = $_SERVER['HTTP_AUTHORIZATION'];
+        }
+        if (isset($_SERVER['HTTP_X_OSS_PUB_KEY_URL']))
+        {
+            $pubKeyUrlBase64 = $_SERVER['HTTP_X_OSS_PUB_KEY_URL'];
+        }
+        if ($authorizationBase64 == '' || $pubKeyUrlBase64 == '')
+        {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'Parameter is error!(1001)');
+        }
+        // 2.获取OSS的签名
+        $authorization = base64_decode($authorizationBase64);
+        // 3.获取公钥
+        $pubKeyUrl = base64_decode($pubKeyUrlBase64);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $pubKeyUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        $pubKey = curl_exec($ch);
+        if ($pubKey == "")
+        {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'Public key is error!(1002)');
+        }
+        // 4.获取回调body
+        $body = file_get_contents('php://input');
+        Log::record($body);
+        // 5.拼接待签名字符串
+        $path = $_SERVER['REQUEST_URI'];
+        $pos = strpos($path, '?');
+        if ($pos === false)
+        {
+            $authStr = urldecode($path)."\n".$body;
+        }
+        else
+        {
+            $authStr = urldecode(substr($path, 0, $pos)).substr($path, $pos, strlen($path) - $pos)."\n".$body;
+        }
+        // 6.验证签名
+        $ok = openssl_verify($authStr, $authorization, $pubKey, OPENSSL_ALGO_MD5);
+        if ($ok == 1)
+        {
+            header("Content-Type: application/json");
+            parse_str($body, $bodyArray);
+            $assetsData = [
+                'bucket' => $bodyArray['bucket'],
+                'object' => $bodyArray['object'],
+                'etag' => $bodyArray['etag'],
+                'size' => $bodyArray['size'],
+                'mime' => $bodyArray['mimeType'],
+                'image_height' => $bodyArray['imageInfo_height'],
+                'image_width' => $bodyArray['imageInfo_width'],
+                'image_format' => $bodyArray['imageInfo_format'],
+                'create_time'=>$_SERVER['REQUEST_TIME']
+            ];
+            $assetsLogic = new AssetsLogic();
+            $assetsId = $assetsLogic->addOne($assetsData);
+            $assetsUrl = $assetsLogic->getUrl($assetsId);
+            Util::jsonReturn(["status"=>Status::OK, 'assetsId'=>$assetsId, 'assetsUrl'=>$assetsUrl]);
+        } else {
+            Util::jsonReturn(null, Code::PARAM_ERR, 'Signature is error!(1003)');
+        }
+        } catch (Exception $e)
+        {
+            Log::record($e->getTraceAsString().$e->getMessage());
+        }
+
+    }
+    public function uploadTestBackup()
+    {
+        $bucket = 'artzhe';
+        $endPoint = 'oss-cn-shenzhen.aliyuncs.com';
+        $keyId = 'LTAInAXrJLv2fTgV';
+        $keySecret = 'Yud4u8mGXcY6sOHVJCYBit0jxX4K1T';
+        $options[OssClient::OSS_CALLBACK] = '
+                {"callbackUrl":"artzhe.shukaiming.com/Api/Oss/uploadCallback",
+                "callbackHost":"oss-cn-shenzhen.aliyuncs.com",
+                "callbackBody":"bucket=${bucket}&object=${object}&etag=${etag}&size=${size}&mimeType=${mimeType}&imageInfo.height=${imageInfo.height}&imageInfo.width=${imageInfo.width}&imageInfo.format=${imageInfo.format}&aToken=${x:aToken}",
+                "callbackBodyType":"application/x-www-form-urlencoded"}
+            ';
+        $options[OssClient::OSS_CALLBACK_VAR] = json_encode(['x:aToken'=>$this->token]);
+        $ossClient = new OssClient($keyId, $keySecret,$endPoint, false);
+        //$filePrefix = "user/".Util::generateUid()."png";
+        var_export( $ossClient->uploadFile($bucket, 'test1.png', __DIR__.'/app.png', $options));
+    }
+    public function uploadTest()
+    {
+        $url = 'https://wx.qlogo.cn/mmopen/9ueQbEiaO3eoiblC3iaQV4G4P8X8GonVJwkTwSv1zsp1TRjd2nLqxKvlEWic90CicHMefWia9ESjzEXEH3wSmM9So6Rq0r70rJrSV2/0';
+        var_export(Oss::uploadFaceUrl($url));
+    }
+    //客户端获取临时上传凭证信息
+    public function getTempAcsToken()
+    {
+        //todo 用户必须登录
+        $content = file_get_contents(STS_ROOT_PATH.'config.json');
+        $contentArray = json_decode($content);
+
+        $accessKeyID = $contentArray->AccessKeyID;
+        $accessKeySecret = $contentArray->AccessKeySecret;
+        $roleArn = $contentArray->RoleArn;
+        $tokenExpire = $contentArray->TokenExpireTime;
+        $policy = file_get_contents(STS_ROOT_PATH.$contentArray->PolicyFile);
+
+        $iClientProfile = \DefaultProfile::getProfile("cn-hangzhou", $accessKeyID, $accessKeySecret);
+        $client = new \DefaultAcsClient($iClientProfile);
+
+        $request = new Sts\AssumeRoleRequest();
+        $request->setRoleSessionName("client_name");
+        $request->setRoleArn($roleArn);
+        $request->setPolicy($policy);
+        $request->setDurationSeconds($tokenExpire);
+        $response = $client->doAction($request);
+
+        $rows = [];
+        $body = $response->getBody();
+        $content = json_decode($body);
+        $rows['status'] = $response->getStatus();
+        if ($response->getStatus() == 200)
+        {
+            $rows['AccessKeyId'] = $content->Credentials->AccessKeyId;
+            $rows['AccessKeySecret'] = $content->Credentials->AccessKeySecret;
+            $rows['Expiration'] = $content->Credentials->Expiration;
+            $rows['SecurityToken'] = $content->Credentials->SecurityToken;
+            Util::jsonReturn(['status'=>Status::OK, 'tokenInfo'=>$rows]);
+        }
+        else
+        {
+            $rows['AccessKeyId'] = "";
+            $rows['AccessKeySecret'] = "";
+            $rows['Expiration'] = "";
+            $rows['SecurityToken'] = "";
+            Util::jsonReturn(['status'=>Status::OK, 'tokenInfo'=>$rows], Code::SYS_ERR, 'System error!');
+        }
+    }
+}

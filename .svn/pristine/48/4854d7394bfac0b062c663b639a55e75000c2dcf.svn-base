@@ -1,0 +1,29 @@
+<?php
+
+namespace V40\Controller;
+use V40\Base\ApiBaseController;
+use Custom\Define\Code;
+use Custom\Helper\Util;
+
+class AuthController extends ApiBaseController{
+
+    public function getApplyState(){
+
+        //获取用户id
+        $uid = $this->loginUserId;
+        $artistInfo = M('ArtistApply')->field('verify_state,verify_memo')->where(['user_id'=>$uid])->find();
+        $agencyInfo = M('Agency')->field('status,memo')->where(['uid'=>$uid])->find();
+        $plannerInfo = M('Planner')->field('status,memo')->where(['uid'=>$uid])->find();
+
+        $data = [
+            'artistState' => empty($artistInfo['verify_state']) ? 0:$artistInfo['verify_state'],
+            'artistMemo' => empty($artistInfo['verify_memo']) ? '':$artistInfo['verify_memo'],
+            'agencyState' => empty($agencyInfo['status']) ? 0:$agencyInfo['status'],
+            'agencyMemo' => empty($agencyInfo['memo']) ? '':$agencyInfo['memo'],
+            'plannerState' => empty($plannerInfo['status']) ? 0:$plannerInfo['status'],
+            'plannerMemo' => empty($plannerInfo['memo']) ? '':$plannerInfo['memo']
+        ];
+
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$data]);
+    }
+}

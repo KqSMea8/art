@@ -1,0 +1,1080 @@
+<?php
+
+namespace V47\Controller;
+
+use Custom\Define\Image;
+use V47\Base\ApiBaseController;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use V47\Logic\ArtworkLogic;
+use V47\Logic\ArtCircleLogic;
+use Think\Model;
+use V47\Logic\UserLogic;
+use V47\Logic\ArtCircleShareLogic;
+use V47\Logic\AgencyLogic;
+use V47\Logic\AssetsLogic;
+use V47\Logic\MessageLogic;
+use V47\Logic\PlannerLogic;
+use V47\Logic\ArtCircleLikeLogic;
+use V47\Logic\ArtCircleCommentLogic;
+use V47\Model\ArtCircleBannerModel;
+use Custom\Define\Cache;
+use Custom\Helper\Checker;
+use Custom\Manager\Token;
+
+
+class ArtCircleController extends ApiBaseController
+{
+    private function lock($redis, $key, $expire = 5)
+    {
+        $thistime = time();
+        $lock = $redis->setnx($key, $thistime + $expire);
+        // 不能获取锁
+        if (!$lock) {
+            // 判断锁是否过期
+            $lock_time = $redis->get($key);
+            // 锁已过期，删除锁，重新获取
+            if ($thistime > $lock_time) {
+                $redis->del($key);
+                $lock = $redis->setnx($key, $thistime + $expire);
+            }
+        }
+        return $lock ? true : false;
+    }
+
+    //艺术圈列表页
+    public function GetList()
+    {
+        $ArtCircleLogic = new ArtCircleLogic();
+        $userLogic = new UserLogic();
+        $page = intval(I('post.page', ''));
+        $pagesize = intval(I('post.pagesize', ''));
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 || $pagesize > 200 ? 20 : $pagesize;
+
+        $isAllowDelete = 0;//不可删除
+        $userId='';
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+            $userId = $tokenInfo['userInfo']['id'];
+        }
+
+        $where = 'type not in (16,17,101,102,201) and status=1 and create_time<='.time();
+        $total = $ArtCircleLogic->where($where)->count();
+
+        $ArtCirclelist = $ArtCircleLogic
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        //作者ids
+        $artist_list = [];
+        foreach ($ArtCirclelist as $value) {
+            array_push($artist_list, $value['user_id']);
+        }
+
+        //机构列表
+        $AgencyTypeList = $userLogic->getAgencyTypeList_byUids($artist_list);
+
+        //用户列表
+        $userlist = [];
+        if (count($artist_list)) {
+            $user_list = $userLogic->field('id,nickname,face,role,gender')->where("id in(" . implode(',', $artist_list) . ") ")->select();
+            foreach ($user_list as $user) {
+                $user['gender'] = (int)$user['gender'];
+                $user['faceUrl'] = Util::getImageResize($user['face'], Image::faceWidth, Image::faceHeight);
+                $user['is_artist'] = strpos(',' . $user['role'] . ',', ',artist,') !== false ? 1 : 0;
+                $user['is_agency'] = $AgencyTypeList[$user['id']] > 0 ? 1 : 0;
+                $user['AgencyType'] = (int)$AgencyTypeList[$user['id']];
+                $user['is_planner'] = strpos(',' . $user['role'] . ',', ',planner,') !== false ? 1 : 0;
+                unset($user['role']);
+                unset($user['face']);
+                $userlist[$user['id']] = $user;
+            }
+        }
+
+        //分享列表
+        $art_circle_share_list = [];
+        $art_circle_ids = [];
+        foreach ($ArtCirclelist as $value) {
+            // if ($value['type'] == 2)
+            array_push($art_circle_ids, $value['id']);
+        }
+        if (count($art_circle_ids)) {
+            $ArtCircleShareLogic = new ArtCircleShareLogic();
+            $art_circle_share_list = $ArtCircleShareLogic->share_link_list_indexArtCircleId($art_circle_ids);
+        }
+
+        //点赞列表
+        $like_list=[];
+        if (count($art_circle_ids)) {
+            $ArtCircleLikeLogic = new ArtCircleLikeLogic();
+            $like_list = $ArtCircleLikeLogic->UserIsLikeList($art_circle_ids,$this->loginUserId);
+
+        }
+
+
+        $data = [];
+        foreach ($ArtCirclelist as $value) {
+            $ArtCircle = [];
+            $ArtCircle['id'] = (int)$value['id'];
+            $ArtCircle['type'] = (int)$value['type'];
+            $ArtCircle['address'] = empty($value['address'])?'':$value['address'];
+            $ArtCircle['content'] = html_entity_decode($value['content']);
+
+            $images_url_arr = explode(',', trim($value['images_url']));
+            if(count($images_url_arr)==1){
+                $ArtCircle['thumbnails'] = trim($value['images_url']) == '' ? [] : Util::getImageResizes_oldProportion($images_url_arr, 300);
+            }else {
+                $ArtCircle['thumbnails'] = trim($value['images_url']) == '' ? [] : Util::getImageResizes($images_url_arr, 300, 300);
+            }
+            $ArtCircle['images_url'] = trim($value['images_url']) == '' ? [] : Util::imageWaters($images_url_arr);
+            $ArtCircle['video_poster'] = $value['video_poster'];
+            $ArtCircle['video_url'] = $value['video_url'];
+            $ArtCircle['datetime'] = Util::simpleTimeShow($value['create_time']);
+            $ArtCircle['like_count'] = (int)$value['like_count'];
+            $ArtCircle['isLike'] = (int)($like_list[$value['id']]);
+            $ArtCircle['comment_count'] = (int)$value['comment_count'];
+            if($userId == $value['user_id']){//登录用户发表的动态
+                $isAllowDelete = 1;//可删除
+            }else{
+                $isAllowDelete = 0;//不可删除
+            }
+            $ArtCircle['isAllowDelete'] = $isAllowDelete;
+            $ArtCircle['userinfo'] = is_array($userlist[$value['user_id']]) ? $userlist[$value['user_id']] : [];
+            $ArtCircle['share_link'] = is_array($art_circle_share_list[$value['id']]) ? $art_circle_share_list[$value['id']] : (object)null;
+
+
+            //$face_list = $ArtCircleLogic->recent_favorite_face($value['id'], 10);
+            //$ArtCircle['like_face'] = Util::getFillImages($face_list, Image::faceWidth, Image::faceHeight);
+
+            $nickname_list = $ArtCircleLogic->recent_favorite_nickname($value['id'], 10);
+            $ArtCircle['like_nickname'] = $nickname_list;
+
+            $recent_comment = $ArtCircleLogic->recent_comment($value['id'], 10);
+            $ArtCircle['comment_list'] = $recent_comment;
+
+            //获取关联作品信息
+            if(empty($value['artwork_id'])){
+                $artworkInfo=[
+                    'artworkId'=>'',
+                    'artworkName'=>'',
+                ];
+                $ArtCircle['artworkInfo']=$artworkInfo;
+            }else{
+                $artworkLogic = new ArtworkLogic();
+                $artwork=$artworkLogic->field('name')->find($value['artwork_id']);
+                $artworkInfo=[
+                    'artworkId'=>$value['artwork_id'],
+                    'artworkName'=>$artwork['name'],
+                ];
+                $ArtCircle['artworkInfo']=$artworkInfo;
+            }
+
+            $data[] = $ArtCircle;
+        }
+
+
+        $maxpage = intval($total / $pagesize) + 1;
+        $info = [
+            'data' => $data,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+    }
+
+    //个人艺术圈列表页
+    public function userCirlelist()
+    {
+        $ArtCircleLogic = new ArtCircleLogic();
+        $userLogic = new UserLogic();
+
+        $user_id = intval(I('post.user_id'));
+        $page = intval(I('post.page', ''));
+        $pagesize = intval(I('post.pagesize', ''));
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 || $pagesize > 200 ? 20 : $pagesize;
+
+        if ($user_id <= 0) {
+            Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '参数错误']);
+        }
+        $isAllowDelete = 0;//不可删除
+        $userId='';
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+            $userId = $tokenInfo['userInfo']['id'];
+        }
+
+        if($user_id == $userId){//登录用户的个人艺术圈
+            $isAllowDelete = 1;//可删除
+        }
+
+        $where = [
+            'user_id' => $user_id,
+            'status' => 1,
+        ];
+        $total = $ArtCircleLogic->where($where)->count();
+
+        $ArtCirclelist = $ArtCircleLogic
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+        //作者ids
+        $artist_list = [];
+        foreach ($ArtCirclelist as $value) {
+            array_push($artist_list, $value['user_id']);
+        }
+
+        //机构列表
+        $AgencyTypeList = $userLogic->getAgencyTypeList_byUids($artist_list);
+
+        //用户列表
+        $userlist = [];
+        if (count($artist_list)) {
+            $user_list = $userLogic->field('id,nickname,face,role,gender')->where("id in(" . implode(',', $artist_list) . ") ")->select();
+            foreach ($user_list as $user) {
+                $user['gender'] = (int)$user['gender'];
+                $user['faceUrl'] = Util::getImageResize($user['face'], Image::faceWidth, Image::faceHeight);
+                $user['is_artist'] = strpos(',' . $user['role'] . ',', ',artist,') !== false ? 1 : 0;
+                $user['is_agency'] = $AgencyTypeList[$user['id']] > 0 ? 1 : 0;
+                $user['AgencyType'] = (int)$AgencyTypeList[$user['id']];
+                $user['is_planner'] = strpos(',' . $user['role'] . ',', ',planner,') !== false ? 1 : 0;
+                unset($user['role']);
+                unset($user['face']);
+                $userlist[$user['id']] = $user;
+            }
+        }
+
+        //分享列表
+        $art_circle_share_list = [];
+        $art_circle_ids = [];
+        foreach ($ArtCirclelist as $value) {
+            //if ($value['type'] == 2)
+            array_push($art_circle_ids, $value['id']);
+        }
+        if (count($art_circle_ids)) {
+            $ArtCircleShareLogic = new ArtCircleShareLogic();
+            $art_circle_share_list = $ArtCircleShareLogic->share_link_list_indexArtCircleId($art_circle_ids);
+        }
+
+        //点赞列表
+        $like_list=[];
+        if (count($art_circle_ids)) {
+            $ArtCircleLikeLogic = new ArtCircleLikeLogic();
+            $like_list = $ArtCircleLikeLogic->UserIsLikeList($art_circle_ids,$this->loginUserId);
+
+        }
+
+
+        $data = [];
+        foreach ($ArtCirclelist as $value) {
+            $ArtCircle = [];
+            $ArtCircle['id'] = (int)$value['id'];
+            $ArtCircle['type'] = (int)$value['type'];
+            $ArtCircle['address'] = empty($value['address'])?'':$value['address'];
+            $ArtCircle['content'] = html_entity_decode($value['content']);
+
+            $images_url_arr = explode(',', trim($value['images_url']));
+            if(count($images_url_arr)==1){
+                $ArtCircle['thumbnails'] = trim($value['images_url']) == '' ? [] : Util::getImageResizes_oldProportion($images_url_arr, 300);
+            }else {
+                $ArtCircle['thumbnails'] = trim($value['images_url']) == '' ? [] : Util::getImageResizes($images_url_arr, 300, 300);
+            }
+            $ArtCircle['images_url'] = trim($value['images_url']) == '' ? [] : Util::imageWaters($images_url_arr);
+            $ArtCircle['video_poster'] = $value['video_poster'];
+            $ArtCircle['video_url'] = $value['video_url'];
+            $ArtCircle['datetime'] = Util::simpleTimeShow($value['create_time']);
+            $ArtCircle['like_count'] = (int)$value['like_count'];
+            $ArtCircle['isLike'] = (int)($like_list[$value['id']]);
+            $ArtCircle['comment_count'] = (int)$value['comment_count'];
+            $ArtCircle['isAllowDelete'] = $isAllowDelete;
+            $ArtCircle['userinfo'] = is_array($userlist[$value['user_id']]) ? $userlist[$value['user_id']] : [];
+            $ArtCircle['share_link'] = is_array($art_circle_share_list[$value['id']]) ? $art_circle_share_list[$value['id']] : (object)null;
+
+
+            // $face_list = $ArtCircleLogic->recent_favorite_face($value['id'], 10);
+            // $ArtCircle['like_face'] = Util::getFillImages($face_list, Image::faceWidth, Image::faceHeight);
+
+            $nickname_list = $ArtCircleLogic->recent_favorite_nickname($value['id'], 10);
+            $ArtCircle['like_nickname'] = $nickname_list;
+
+            $recent_comment = $ArtCircleLogic->recent_comment($value['id'], 10);
+            $ArtCircle['comment_list'] = $recent_comment;
+
+            //获取关联作品信息
+            if(empty($value['artwork_id'])){
+                $artworkInfo=[
+                    'artworkId'=>'',
+                    'artworkName'=>'',
+                ];
+                $ArtCircle['artworkInfo']=$artworkInfo;
+            }else{
+                $artworkLogic = new ArtworkLogic();
+                $artwork=$artworkLogic->field('name')->find($value['artwork_id']);
+                $artworkInfo=[
+                    'artworkId'=>$value['artwork_id'],
+                    'artworkName'=>$artwork['name'],
+                ];
+                $ArtCircle['artworkInfo']=$artworkInfo;
+            }
+
+            $data[] = $ArtCircle;
+        }
+
+
+        $maxpage = intval($total / $pagesize) + 1;
+        $info = [
+            'data' => $data,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+
+    }
+
+    //动态详情
+    public function Detail()
+    {
+        $artId = (int)I('post.id', '');
+        $ArtCircleLogic = new ArtCircleLogic();
+        $userLogic = new UserLogic();
+
+        $ArtCircleinfo = $ArtCircleLogic
+            ->where(['id' => $artId])
+            ->find();
+        if (!$ArtCircleinfo) {
+            Util::jsonReturn(['status' => Code::NOT_FOUND, 'info' => '记录不存在']);
+        }
+
+
+        //机构
+        $Agencyinfo = M('Agency')->field('type')->where(['uid' => $ArtCircleinfo['user_id'], 'status' => 2])->find();;
+
+
+        $usernfo = $userLogic->field('id,nickname,face,role,gender')->where(['id' => intval($ArtCircleinfo['user_id'])])->find();
+        $usernfo['gender'] = (int)$usernfo['gender'];
+        $usernfo['faceUrl'] = Util::getImageResize($usernfo['face'], Image::faceWidth, Image::faceHeight);
+        $usernfo['is_artist'] = strpos(',' . $usernfo['role'] . ',', ',artist,') !== false ? 1 : 0;
+        $usernfo['is_agency'] = $Agencyinfo['type'] > 0 ? 1 : 0;
+        $usernfo['AgencyType'] = (int)$Agencyinfo['type'];
+        $usernfo['is_planner'] = strpos(',' . $usernfo['role'] . ',', ',planner,') !== false ? 1 : 0;
+        unset($usernfo['role']);
+        unset($usernfo['face']);
+
+        //分享列表
+        $art_circle_share_list = [];
+        $art_circle_ids = [];
+        // if ($ArtCircleinfo['type'] == 2)
+        array_push($art_circle_ids, $ArtCircleinfo['id']);
+
+        if (count($art_circle_ids)) {
+            $ArtCircleShareLogic = new ArtCircleShareLogic();
+            $art_circle_share_list = $ArtCircleShareLogic->share_link_list_indexArtCircleId($art_circle_ids);
+        }
+
+        //点赞
+        $ArtCircleLikeLogic = new ArtCircleLikeLogic();
+        $isLike= $ArtCircleLikeLogic->UserIsLike($ArtCircleinfo['id'],$this->loginUserId);
+
+
+        $ArtCircle = [];
+        $ArtCircle['id'] = (int)$ArtCircleinfo['id'];
+        $ArtCircle['type'] = (int)$ArtCircleinfo['type'];
+        $ArtCircle['address'] = empty($ArtCircleinfo['address'])?'':$ArtCircleinfo['address'];
+        $ArtCircle['content'] = html_entity_decode($ArtCircleinfo['content'],ENT_QUOTES);
+
+        $images_url_arr = explode(',', trim($ArtCircleinfo['images_url']));
+        if(count($images_url_arr)==1){
+            $ArtCircle['thumbnails'] = trim($ArtCircleinfo['images_url']) == '' ? [] : Util::getImageResizes_oldProportion($images_url_arr, 300);
+        }else {
+            $ArtCircle['thumbnails'] = trim($ArtCircleinfo['images_url']) == '' ? [] : Util::getImageResizes($images_url_arr, 300, 300);
+        }
+        $ArtCircle['images_url'] = trim($ArtCircleinfo['images_url']) == '' ? [] : Util::imageWaters($images_url_arr);
+        $ArtCircle['video_poster'] = $ArtCircleinfo['video_poster'];
+        $ArtCircle['video_url'] = $ArtCircleinfo['video_url'];
+        $ArtCircle['datetime'] = Util::simpleTimeShow($ArtCircleinfo['create_time']);
+        $ArtCircle['like_count'] = (int)$ArtCircleinfo['like_count'];
+        $ArtCircle['isLike'] = $isLike;
+        $ArtCircle['comment_count'] = (int)$ArtCircleinfo['comment_count'];
+
+        $ArtCircle['userinfo'] = $usernfo;
+        $ArtCircle['share_link'] = is_array($art_circle_share_list[$ArtCircleinfo['id']]) ? $art_circle_share_list[$ArtCircleinfo['id']] : (object)null;
+
+        //动态点赞的人的头像
+        $face_list = $ArtCircleLogic->recent_favorite_face($ArtCircleinfo['id'], 10);
+        $ArtCircle['like_face'] = Util::getImageResizes($face_list, Image::faceWidth, Image::faceHeight);
+        //动态点赞的人的昵称
+        $nickname_list = $ArtCircleLogic->recent_favorite_nickname($ArtCircleinfo['id'], 10);
+        $ArtCircle['like_nickname'] = $nickname_list;
+
+        //$nickname_list = $ArtCircleLogic->recent_favorite_nickname($ArtCircleinfo['id'], 10);
+        //$ArtCircle['like_nickname']=$nickname_list;
+
+        $recent_comment = $ArtCircleLogic->recent_comment($ArtCircleinfo['id'], 10);
+        $ArtCircle['comment_list'] = $recent_comment;
+
+        //获取关联作品信息
+        if(empty($ArtCircleinfo['artwork_id'])){
+            $artworkInfo=[
+                'artworkId'=>'',
+                'artworkName'=>'',
+            ];
+            $ArtCircle['artworkInfo']=$artworkInfo;
+        }else{
+            $artworkLogic = new ArtworkLogic();
+            $artwork=$artworkLogic->field('name')->find($ArtCircleinfo['artwork_id']);
+            $artworkInfo=[
+                'artworkId'=>$ArtCircleinfo['artwork_id'],
+                'artworkName'=>$artwork['name'],
+            ];
+            $ArtCircle['artworkInfo']=$artworkInfo;
+        }
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $ArtCircle]);
+
+    }
+
+    //添加艺术圈
+    public function add()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        $ArtCircleLogic = new ArtCircleLogic();
+
+        $address = trim(I('post.address'));
+        $content = trim(I('post.content'));
+        $images_url = trim(I('post.images_url'));
+        $video_poster = trim(I('post.video_poster'));
+        $video_url = trim(I('post.video_url'));
+        $share_type = trim(I('post.share_type'));
+        $share_id = intval(I('post.share_id'));
+        $artworkId = intval(I('post.artworkId'));
+
+
+        if ($share_type == '') {
+            if ($content != '' && $images_url == '' && $video_poster == '') {
+                $type = 1;
+            } elseif ($images_url != '' && $video_poster == '') {
+                $type = 2;
+            } else {
+                $type = 3;
+            }
+        } else {
+            if ($share_type == 'artwork') {
+                $type = 11;
+            } elseif ($share_type == 'artwork_update') {
+                $type = 12;
+            } elseif ($share_type == 'art_article') {
+                $type = 13;
+            }elseif ($share_type == 'gallery') {
+                $type = 14;
+            }elseif ($share_type == 'subject') {
+                $type = 15;
+            }
+
+        }
+
+        $expire = 10; //有效期10秒
+        $key = 'artzhe_add_artcircle_lock' . intval($userId); //key
+        $redis = new \Redis();
+        $redis->connect(C('REDIS_HOST'), C('REDIS_PORT'), 1);
+        $redis->auth(C('REDIS_PASSWD'));
+        if ($this->lock($redis, $key, $expire)) {
+            //加锁成功就入库
+
+            if ($share_type == '') {//不是分享
+                //判断该作品单次更新的最新的一个wit内容是否相同，不同就添加，避免多次提交
+                $lastArtCircle = $ArtCircleLogic->where('user_id=' . intval($this->loginUserId) . ' and type=' . intval($type))->order('id desc')->find();
+                switch($lastArtCircle['type']){
+                    case 1://文本
+                        if (trim($lastArtCircle['content']) == trim($content)) {
+                            $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                            Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                        }
+                        break;
+                    case 2://图片
+                        if (trim($lastArtCircle['images_url']) == trim($images_url)) {
+                            $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                            Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                        }
+                        break;
+                    case 3://视频
+                        if (trim($lastArtCircle['video_poster']) == trim($video_poster)) {
+                            $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                            Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                        }
+                        break;
+                }
+
+                if ($content == '' && $images_url == '') {
+                    if ($video_poster == '' || $video_url == '') {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '参数错误']);
+                    }
+                } else {
+                    if ($images_url != '' && ($video_poster != '' || $video_url != '')) {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '视频不能和图片一起，参数错误']);
+                    }
+                    if (($content != '' && $video_poster == '' && $video_url != '') || $content != '' && $video_poster != '' && $video_url == '') {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '内容与视频，视频参数错误']);
+                    }
+                }
+
+
+                $data = [
+                    'type' => intval($type),
+                    'address' => $address,
+                    'content' => $content,
+                    'images_url' => $images_url,
+                    'video_poster' => $video_poster,
+                    'video_url' => $video_url,
+                    'user_id' => $this->loginUserId,
+                    'create_time' => time(),
+                ];
+                if(!empty($artworkId)){
+                    $data['artwork_id'] = $artworkId;
+                }
+                $insertId = $ArtCircleLogic->add($data);
+
+
+                $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                if ($insertId) {
+                    Util::jsonReturn(['status' => Code::SUCCESS]);
+                } else {
+                    Util::jsonReturn(null, Code::SYS_ERR);
+                }
+
+
+            } else {//有内容分享
+                if ($share_id <= 0) {
+                    $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                    Util::jsonReturn(['status' => Code::PARAM_ERR, 'info' => '参数错误']);
+                }
+                $share_info = $ArtCircleLogic->getShareInfo($share_type, $share_id);
+                if ($share_info === false) {
+                    $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                    Util::jsonReturn(['status' => Code::NOT_FOUND, 'info' => '分享的记录不存在']);
+                }
+
+                $data = [
+                    'type' => intval($type),
+                    'address' => $address,
+                    'content' => $content,
+                    'images_url' => '',
+                    'video_poster' => '',
+                    'video_url' => '',
+                    'user_id' => $this->loginUserId,
+                    'create_time' => time(),
+                ];
+                $ArtCircle_insertId = $ArtCircleLogic->add($data);
+                $ArtCircleShareLogic = new ArtCircleShareLogic();
+                $share_info['art_circle_id'] = $ArtCircle_insertId;
+                $share_insertId = $ArtCircleShareLogic->add($share_info);
+
+                $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                if ($ArtCircle_insertId && $share_insertId) {
+                    Util::jsonReturn(['status' => Code::SUCCESS]);
+                } else {
+                    Util::jsonReturn(null, Code::SYS_ERR);
+                }
+
+            }
+        }else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'redis error');
+        }
+
+    }
+
+    //删除艺术圈动态
+    public function delete()
+    {
+        $id = intval(I('post.id'));//动态id
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $userId = $tokenInfo['userInfo']['id'];
+        $ArtCircleLogic = new ArtCircleLogic();
+        $data = $ArtCircleLogic->where(['id'=>$id])->find();
+        if(empty($data)){
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误!');
+        }
+        if($data['user_id'] == $userId){
+            $ArtCircleLogic->where(['id'=>$id])->save(['status'=>0]);
+            Util::jsonReturn(['status' => Code::SUCCESS, 'id' => $id]);
+        }else{
+            Util::jsonReturn(null, Code::SYS_ERR, '没有权限进行操作!');
+        }
+    }
+
+    //艺术圈头部信息
+    public function getHeader()
+    {
+        $uid = I('post.uid', '', 'number_int');
+        $userLogic = new UserLogic();
+        $artCircleBannerModel = new ArtCircleBannerModel();
+        $isShowGallery = 0;//不可以进入画廊
+        if(empty($uid)){//艺术圈列表
+            $bannerInfo = $artCircleBannerModel->getBanner();
+            $banner = empty($bannerInfo)?'':$bannerInfo['image'];
+            $bannerType = empty($bannerInfo)?0:$bannerInfo['type'];
+            $bannerLink = empty($bannerInfo)?'':$bannerInfo['link'];
+            $isLogin = $this->isLogin();
+            if(!$isLogin){//没有登录
+                $info['banner'] = empty($banner)?'':$banner;
+                $info['bannerType'] = empty($bannerType)?0:$bannerType;
+                $info['bannerLink'] = empty($bannerLink)?'':$bannerLink;
+                Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+            }else{
+                $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+                if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+                    Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+                }
+                $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+            }
+        }else{//个人艺术圈列表
+            $userInfo = $userLogic->getUserInfoById($uid); //根据用户id获取用户信息
+            if (empty($userInfo)) {
+                Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+            }
+
+            /*
+             * 1.如果有个人封面，则显示个人封面
+             * 2.如果没有个人封面：
+             *      （1）是本人，有画廊封面显示画廊封面，显示默认的图片C('ARTCIRCLE_BANNER')
+             *      （2）不是，有画廊封面显示画廊封面，显示艺术圈列表的banner（后台设置的）,
+             */
+            if(empty($userInfo['artcircle_cover'])){//没有个人封面
+                if(empty($userInfo['cover'])){//没有画廊封面
+                    $isLogin = $this->isLogin();
+                    if($isLogin){//登录
+                        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+                        if (!empty($tokenInfo) && !empty($tokenInfo['userInfo'])) {
+                            if($tokenInfo['userInfo']['id'] == $uid){//是本人
+                                $banner = C('ARTCIRCLE_BANNER');
+                            }else{
+                                $banner = $artCircleBannerModel->getImage();
+                            }
+                        }else{
+                            $banner = $artCircleBannerModel->getImage();
+                        }
+
+                    }else{//没有登录
+                        $banner = $artCircleBannerModel->getImage();
+                    }
+                }else{//有画廊封面
+                    $banner = $userInfo['cover'];
+                }
+            }else{//有个人封面
+                $banner = $userInfo['artcircle_cover'];
+            }
+
+            //判断是否可以进入画廊
+            if($userInfo['type'] == 3 && $userInfo['is_deleted'] == 'N'){
+                $artworkLogic = new ArtworkLogic();
+                $where['artist'] = $uid;
+                $where['is_deleted'] = 'N';
+                $where['update_times'] = ['gt',0];
+                $where['state'] = 1;
+                $count = $artworkLogic->where($where)->count();
+                if($count>0){
+                    $isShowGallery = 1;//可以进入画廊
+                }
+            }
+
+        }
+
+        $messageLogic = new MessageLogic();
+        //获取用户未读信息数
+        $unreadMessageTotal = $messageLogic->getMessageTotal(['type[in]' => '14,15,16', 'is_deleted' => 'N', 'is_read' => 'N', 'to_user_id' => $userInfo['id']]);
+
+        $assetsLogic = new AssetsLogic(); //获取用户头像
+        $faceUrl = $assetsLogic->getUrl($userInfo['face']);
+
+        $agencyLogic = new AgencyLogic(); //获取用户艺术机构信息
+        $plannerLogic = new PlannerLogic(); //策展人认证模块
+
+        if ($userInfo['type'] == 3 || $userInfo['type'] == 7) {
+            $isArtist = 1;
+        } else {
+            $isArtist = 0;
+        }
+
+        //申请认证机构认证信息
+        $agencyInfo = $agencyLogic->field('memo,status,type')->where(['uid' => $userInfo['id']])->find();
+        //申请策展人认证信息
+        $plannerInfo = $plannerLogic->field('memo,status')->where(['uid' => $userInfo['id']])->find();
+
+        $info = [
+            'uid' => $userInfo['id'], //用户id
+            'name' => $userInfo['nickname'], //用户昵称
+            'gender' => $userInfo['gender'], //用户性别1男2女3未知
+            'faceUrl' => empty($faceUrl) ? '' : Util::getImageResize($faceUrl, Image::faceWidth, Image::faceHeight), //用户头像
+            'isArtist' => $isArtist, //是否艺术家
+            'isAgency' => $agencyInfo['status'] == 2 ? 1 : 0,
+            'agencyType' => $agencyInfo['status'] == 2 ? (int)$agencyInfo['type'] : 0,
+            'isPlanner' => $plannerInfo['status'] == 2 ? 1 : 0,
+            'banner' => empty($banner) ? '' : $banner,
+            'bannerType' => empty($bannerType) ? 0 : $bannerType,
+            'bannerLink' => empty($bannerLink) ? '' : $bannerLink,
+            'unreadMessageTotal' => $unreadMessageTotal,
+            'isShowGallery' => $isShowGallery,
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //艺术圈消息列表
+    public function getMyMessageList()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $userId = $tokenInfo['userInfo']['id'];
+        $page = I('post.page', 1, 'int');
+        $pagesize = I('post.pagesize', 10, 'int');
+        if ($pagesize > 50) {
+            $pagesize = 10;
+        }
+
+        $messageLogic = new MessageLogic();
+        $messageList = $messageLogic->getMessageListByPage($this->loginUserId, '14,15,16', $page, $pagesize);
+        $total = $messageLogic->getMessageTotal(['to_user_id' => $userId, 'type[in]' => '14,15,16']);
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+
+        $retList = [];
+        if (!empty($messageList)) {
+            //获取评论者信息
+            $userLogic = new UserLogic();
+            $fromUserIdList = array_column($messageList, 'from_user_id');
+            $fromUserInfoList = $userLogic->getUserInfoListByIds($fromUserIdList);
+            //add id key
+            $fromUserInfoListWithIdKey = [];
+            foreach ($fromUserInfoList as $fromUserInfo) {
+                $fromUserInfoListWithIdKey[$fromUserInfo['id']] = $fromUserInfo;
+            }
+
+            foreach ($messageList as $message) {
+                // print_r($message);
+                if ($message['from_user_id'] == '-1') {
+                    $faceUrl = C('ADMIN_FACE');
+                    $name = C('ADMIN_NAME');
+                    $gender = '3';
+                    $isArtist = 0;
+                    $isAgency = 0;
+                    $isPlanner = 0;
+                    $agencyType = 0;
+                } else {
+                    $userinfo = $fromUserInfoListWithIdKey[$message['from_user_id']];
+                    $faceUrl = $userinfo['face'];
+                    $name = $userinfo['nickname'];
+                    $gender = $userinfo['gender'];
+                    if ($userinfo['type'] == 3 || $userinfo['type'] == 7) {
+                        $isArtist = 1;
+                    } else {
+                        $isArtist = 0;
+                    }
+                    $agencyLogic = new AgencyLogic(); //获取用户艺术机构信息
+                    $plannerLogic = new PlannerLogic(); //策展人认证模块
+                    //申请认证机构认证信息
+                    $agencyInfo = $agencyLogic->field('status,type')->where(['uid' => $message['from_user_id']])->find();
+                    //申请策展人认证信息
+                    $plannerInfo = $plannerLogic->field('status')->where(['uid' => $message['from_user_id']])->find();
+                    $isAgency = $agencyInfo['status'] == 2 ? 1 : 0;
+                    $isPlanner = $plannerInfo['status'] == 2 ? 1 : 0;
+                    $agencyType = $agencyInfo['status'] == 2 ? (int)$agencyInfo['type'] : 0;
+                }
+
+                $artCircle = new ArtCircleLogic();
+                $artCircleinfo = $artCircle->where(['id' => $message['topic_id']])->find();
+                //动态显示类型 1纯文字2有图片3链接4视频
+                $dynamicType = '';
+                //动态显示内容
+                $dynamicContent = '';
+                if (!empty($artCircleinfo)) {
+                    switch($artCircleinfo['type']){
+                        case 1://文本
+                            $dynamicType = 1;
+                            $dynamicContent = $artCircleinfo['content'];
+                            break;
+                        case 2://图片
+                            $dynamicType = 2;
+                            $images_url_arr = explode(',', trim($artCircleinfo['images_url']));
+                            $dynamicContent = Util::getImageResize($images_url_arr[0], 180, 180);
+                            break;
+                        case 3://视频
+                            $dynamicType = 4;
+                            $dynamicContent = Util::getImageResize($artCircleinfo['video_poster'], 180, 180);
+                            break;
+                        case 11://分享作品
+
+                        case 12://分享创作记录
+
+                        case 13://分享艺术号文章
+
+                        case 14://分享画廊
+
+                        case 15://分享专题
+                            $dynamicType = 3;
+                            $ArtCircleShareLogic = new ArtCircleShareLogic();
+                            $shareData = $ArtCircleShareLogic->field('title')->where(['art_circle_id' => $message['topic_id']])->find();
+                            if (!empty($shareData) && !empty($shareData['title'])) {
+                                $dynamicContent = $shareData['title'];
+                            }
+                            break;
+
+                    }
+                    $isShow = $artCircleinfo['status']== 1?1:0;
+                }else{
+                    $dynamicType=1;
+                    $dynamicContent = '';
+                    $isShow = 0;
+                }
+                $retList[] = [
+                    'id' =>$message['id'],
+                    'actionId' => $message['comment_id'],
+                    'isRead' => $message['is_read'],
+                    'createTime' => Util::simpleTimeShow($message['create_time']),
+                    'topicId' => $message['topic_id'],
+                    'type' => $message['type'],//message type
+                    'content' => $message['content'],
+                    'userInfo' => [
+                        'uid' => $message['from_user_id'],
+                        'name' => empty($name) ? C('ADMIN_NAME') : $name,
+                        'faceUrl' => empty($faceUrl) ? Util::getImageResize(C('ADMIN_FACE'), Image::faceWidth, Image::faceHeight) : Util::getImageResize($faceUrl, Image::faceWidth, Image::faceHeight),
+                        'gender' => $gender,
+                        'isArtist' => $isArtist, //是否艺术家
+                        'isAgency' => $isAgency,
+                        'agencyType' => $agencyType,
+                        'isPlanner' => $isPlanner,
+                    ],
+                    'dynamic' => [
+                        'type' => $dynamicType,//1纯文字2有图片3链接4视频
+                        'id' => $message['topic_id'],
+                        'content' => $dynamicContent,
+                        'isShow' => $isShow,//动态是否正常1-正常，0-删除
+                    ],
+                ];
+            }
+            $messageLogic->where(['is_deleted' => 'N', 'is_read' => 'N', 'to_user_id' => $this->loginUserId, 'type[in]' => '14,15,16'])->save(['is_read' => 'Y']);
+        }
+
+        $info = [
+            'status' => Code::SUCCESS,
+            'info' => empty($retList) ? [] : $retList,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+        Util::jsonReturn($info);
+    }
+
+    //喜欢动态
+    public function like()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $userLogic = new UserLogic(); //实例化用户模块
+        $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+        $faceUrl = empty($userInfo['face']) ? '' : Util::getImageResize($userInfo['face'], Image::faceWidth, Image::faceHeight);
+
+        $id = I('post.id', '', 'number_int');//动态id
+        $artCircleLikeLogic = new ArtCircleLikeLogic();
+        $likeData = [
+            'art_circle_id' => $id,//动态id
+            'like_user_id' => $this->loginUserId,
+            'create_time' => time(),
+            'status' => 1,
+        ];
+        $likeId = $artCircleLikeLogic->like($likeData);
+        if ($likeId) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'faceUrl' => $faceUrl, 'name' => $userInfo['nickname']]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经喜欢了');
+        }
+    }
+
+    //取消喜欢动态
+    public function unlike()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $userLogic = new UserLogic(); //实例化用户模块
+        $userInfo = $userLogic->getUserInfoById($tokenInfo['userInfo']['id']); //根据用户id获取用户信息
+        $faceUrl = empty($userInfo['face']) ? '' : Util::getImageResize($userInfo['face'], Image::faceWidth, Image::faceHeight);
+
+        $id = I('post.id', '', 'number_int');//动态id
+
+        $artCircleLikeLogic = new ArtCircleLikeLogic();
+        $likeData = [
+            'art_circle_id' => $id,//动态id
+            'like_user_id' => $this->loginUserId,
+        ];
+        $likeResult = $artCircleLikeLogic->unlike($likeData);
+        if ($likeResult) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'faceUrl' => $faceUrl, 'name' => $userInfo['nickname']]);
+        } else if ($likeResult == false) {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经取消喜欢了');
+        }
+    }
+
+    //评论动态
+    public function comment()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $userId = $tokenInfo['userInfo']['id'];
+        $id = I('post.id', '', 'number_int');//动态id
+        $content = I('post.content', '');//评论内容
+
+        $artCircle = new ArtCircleLogic();
+        $artCircleinfo = $artCircle->where(['id' => $id, 'status' => 1])->find();
+        if (empty($artCircleinfo)) {//艺术圈动态不存在
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $commentTo = $artCircleinfo['user_id'];
+        $commentInfo = [
+            'art_circle_id' => $id,
+            'commenter' => $userId,
+            'comment_to' => '',
+            'content' => $content,
+            'create_time' => $_SERVER['REQUEST_TIME'],
+            'status' => 1,
+        ];
+        $artCircleCommentLogic = new ArtCircleCommentLogic();
+        $commentData = $artCircleCommentLogic->comment($commentInfo);
+        if (!empty($commentData)) {
+            $userLogic = new UserLogic(); //实例化用户模块
+            $commenterName = $userLogic->field('nickname')->where(['id' => $commentData['commenter']])->find(); //根据用户id获取用户信息
+            $info = [
+                'id' => $commentData['id'],
+                'commenter' => $commenterName['nickname'],
+                'commenter_user_id' => $commentData['commenter'],
+                'comment_to' => '',
+                'content' => $commentData['content'],
+                'datetime' => date('Y-m-d H:i:s', $commentData['create_time']),
+            ];
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '评论失败');
+        }
+    }
+
+    //回复评论
+    public function replyComment()
+    {
+        $this->checkLogin();
+        $commentId = I('post.commentId', '', 'number_int');
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];//评论id
+        $content = I('post.content', '');//回复内容
+        $artCircleCommentLogic = new ArtCircleCommentLogic();
+        $Commentinfo = $artCircleCommentLogic->getCommentInfo($commentId);
+        if (empty($Commentinfo)) {//评论不存在
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        if ($Commentinfo['commenter'] == $userId) {//自己回复自己
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $commentInfo = [
+            'art_circle_id' => $Commentinfo['art_circle_id'],
+            'comment_parent_id' => $commentId,
+            'commenter' => $userId,
+            'comment_to' => $Commentinfo['commenter'],
+            'content' => $content,
+            'create_time' => $_SERVER['REQUEST_TIME'],
+            'status' => 1,
+        ];
+        $replyInfo = $artCircleCommentLogic->replyComment($commentInfo);
+        if ($replyInfo) {
+            $userLogic = new UserLogic(); //实例化用户模块
+            $commenterName = $userLogic->field('nickname')->where(['id' => $replyInfo['commenter']])->find(); //根据用户id获取用户信息
+            $commenterToName = $userLogic->field('nickname')->where(['id' => $replyInfo['comment_to']])->find(); //根据用户id获取用户信息
+            $info = [
+                'id' => $replyInfo['id'],
+                'commenter' => $commenterName['nickname'],
+                'commenter_user_id' => $replyInfo['commenter'],
+                'comment_to' => $commenterToName['nickname'],
+                'content' => $replyInfo['content'],
+                'datetime' => date('Y-m-d H:i:s', $replyInfo['create_time']),
+            ];
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '回复失败');
+        }
+    }
+
+    //删除评论
+    public function deleteComment()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $id = I('post.id', '', 'number_int');//评论id
+
+        $artCircleCommentLogic = new ArtCircleCommentLogic();
+        $Commentinfo = $artCircleCommentLogic->getCommentInfo($id);
+        if (empty($Commentinfo)) {//评论不存在
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+
+       if ($userId != $Commentinfo['commenter']) {//用户不是要删除的评论的评论者
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+
+        $commentId = $artCircleCommentLogic->deleteComment($Commentinfo);
+        if (!empty($commentId)) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'commentId' => $id]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, '记录不存在，或者已经删除了');
+        }
+    }
+
+    //设置艺术圈个人封面
+    public function setCover()
+    {
+        $cover = I('post.cover','');//个人封面url
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $userId = $tokenInfo['userInfo']['id'];
+        $userLogic = new UserLogic();
+        $data = $userLogic->where(['id'=>$userId])->find();
+        if(empty($data)){
+            Util::jsonReturn(null, Code::SYS_ERR, '用户不存在!');
+        }
+        $userLogic->where(['id'=>$userId])->save(['artcircle_cover'=>$cover]);
+        Util::jsonReturn(['status' => Code::SUCCESS, 'CoverUrl' => $cover]);
+    }
+
+
+}

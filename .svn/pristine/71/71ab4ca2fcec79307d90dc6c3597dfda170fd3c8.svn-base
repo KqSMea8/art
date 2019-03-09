@@ -1,0 +1,64 @@
+<?php
+namespace V50\Controller;
+
+use Custom\Helper\Util;
+use Custom\Helper\Checker;
+use Custom\Helper\Oss;
+use Custom\Helper\Http;
+use Think\Controller;
+use V50\Logic\UserLogic;
+use V50\Logic\RecommendLogic;
+use Custom\Define\Image;
+use Custom\Helper\Push;
+use V50\Logic\MessageLogic;
+use V50\Model\ArtworkModel;
+use V50\Model\UserFollowerModel;
+use V50\Model\ArtworkLikeModel;
+
+class TestController extends Controller {
+  public function index(){
+    $model = I('model');
+    $action = I('action');
+    $getall = I('getparam');
+    $postall = I('postparam');
+    $headersall = I('headersparam');
+    $url = "https://test-api.artzhe.com/Api/{$model}/{$action}?".http_build_query($this->parse($getall));
+    $result = Http::post($url,$this->parse($postall),$this->parse($headersall));
+    echo $result;
+  }
+  private function parse($data){
+    $return = [];
+    $data = explode('@',$data);
+    foreach ($data as $key => $value) {
+      list($k,$v) = explode('|',$value);
+      $return[$k] = $v;
+    }
+    return $return;
+  }
+  public function load(){
+    ini_set('max_execution_time', '0');
+    set_time_limit(0);
+    $artworkModel = new ArtworkModel();
+    $userFollowerModel = new UserFollowerModel();
+    $artworkLikeModel = new ArtworkLikeModel();
+    $recommendLogic = new RecommendLogic();
+    $artList = $artworkModel->select();
+    foreach ($artList as $key => $value) {
+      $recommendLogic->addArtwork($value['id']);
+      for ($i=0; $i < $value['view_total']; $i++) {
+        $recommendLogic->toArtworkview($value['id']);
+      }
+    }
+    $likeList = $artworkLikeModel->where(['type' => 1,'is_like' => 'Y'])->select();
+    foreach ($likeList as $key => $value) {
+      $recommendLogic->toArtworklike($value['artwork_id'],$value['like_user_id']);
+    }
+    $followList = $userFollowerModel->where(['is_follow' => 'Y'])->select();
+    foreach ($followList as $key => $value) {
+      $recommendLogic->follow($value['user_id'],$value['follower']);
+    }
+
+    echo 'EOF';
+
+  }
+}

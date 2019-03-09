@@ -1,0 +1,10 @@
+<?php
+
+namespace M\Logic;
+
+use M\Base\BaseLogic;
+use Custom\Define\Image;
+
+class ImageLogic extends BaseLogic
+{
+}

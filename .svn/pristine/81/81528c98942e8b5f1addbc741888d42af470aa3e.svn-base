@@ -1,0 +1,149 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Util;
+use Custom\Helper\Oss;
+use Custom\Helper\Nav;
+
+
+//艺术家-推荐花絮
+class RecommendRecordController extends AdminBaseController
+{
+
+    //推荐花絮列表
+    public function index()
+    {
+        $artistName = trim(I('get.artistName'));  //艺术家名称
+        $artName = trim(I('get.artName'));  //作品名称
+        $recordTitle = trim(I('get.recordTitle'));  //花絮标题
+        $page = I('get.page', '1');
+        $perPageCount = I('get.perPageCount', '10');
+        //获取推荐的10位艺术家
+        $where['az_artwork.state'] = 1;
+        $where['az_artwork.is_deleted'] = 'N';
+        $where['az_artwork_update.is_deleted'] = 'N';
+        if(empty($artistName) && empty($artName) && empty($recordTitle)){//显示推荐花絮
+            $type = 1;//推荐
+            $where['az_artwork_update.is_recommend'] = 'Y';
+        }else{//搜索花絮
+            $type = 0;//没有推荐
+            $where['az_artwork_update.is_recommend'] = 'N';
+            if(!empty($artistName)){
+                $where['az_user.nickname'] =['like','%'.$artistName.'%'];
+            }
+            if(!empty($artName)){
+                $where['az_artwork.name'] = ['like','%'.$artName.'%'];
+            }
+            if(!empty($recordTitle)){
+                $where['az_artwork_update.title'] = ['like','%'.$recordTitle.'%'];
+            }
+        }
+        $list = M('artwork_update')->field("az_artwork.name as artname,az_user.nickname as artistname,az_artwork_update.id as id,az_artwork_update.title")
+            ->join('JOIN az_artwork ON az_artwork.id = az_artwork_update.artwork_id')
+            ->join('JOIN az_user ON az_artwork.artist = az_user.id')
+            ->where($where)
+            ->page($page, $perPageCount)
+            ->order('id DESC')
+            ->select();
+
+        $totalCount = M('artwork_update')
+            ->join('JOIN az_artwork ON az_artwork.id = az_artwork_update.artwork_id')
+            ->join('JOIN az_user ON az_artwork.artist = az_user.id')
+            ->where($where)
+            ->count();
+
+        $queryParam=[
+            'artistName'=>$artistName,
+            'artName'=>$artName,
+            'recordTitle'=>$recordTitle,
+        ];
+        $condition=[
+            'artistName'=>$artistName,
+            'artName'=>$artName,
+            'recordTitle'=>$recordTitle,
+        ];
+        $nav = Nav::render(U('Admin/RecommendRecord/index'), $condition, $page, $perPageCount, $totalCount);
+        $this->assign('type', $type);
+        $this->assign('nav', $nav);
+        $this->assign('queryParam', $queryParam);
+        $this->assign('lists', $list);
+        $this->display('index');
+    }
+
+    //花絮详情
+    public function detail()
+    {
+        $id = intval(I('get.id'));  //id
+        $where['az_artwork_update.id'] = $id;
+        $data = M('artwork_update')
+            ->field('az_artwork_update.id,az_artwork_update.title,az_artwork_update.wit,az_artwork_update.create_time,az_artwork_update.is_recommend,az_artwork.name as artname')
+            ->join('JOIN az_artwork ON az_artwork.id = az_artwork_update.artwork_id')
+            ->where($where)->find();
+        $data['is_recommend'] = $data['is_recommend']=='Y'?1:0;
+        $data['title'] = empty($data['title'])?$data['artname'].' 花絮':$data['title'];
+        $this->assign('data', $data);
+        $this->display('detail');
+
+    }
+
+    //推荐花絮
+    public function recommend()
+    {
+        $id = intval(trim(I('post.id')));  //id
+        $where['id'] = $id;
+        $record = M('artwork_update')->where($where)->find();
+        if(empty($record)){
+            $response = ['error' => 0, 'message' => '参数错误'];
+            echo json_encode($response);
+        }else{
+            $data['is_recommend'] = 'Y';
+            $num = M('artwork_update')->where($where)->save($data);
+            if ($num) {
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '推荐失败或艺术家已经推荐'];
+                echo json_encode($response);
+            }
+        }
+
+    }
+
+    //取消推荐花絮
+    public function cancelRecommend()
+    {
+        $ids = I('post.id');
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+
+        $where['id'] = array('in',$ids);
+        $record = M('artwork_update')->where($where)->select();
+        if(empty($record)){
+            $response = ['error' => 0, 'message' => '参数错误'];
+            echo json_encode($response);
+        }else{
+            $data['is_recommend'] = 'N';
+            $num = M('artwork_update')->where($where)->save($data);
+            if ($num) {
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '操作失败或艺术家已经取消推荐'];
+                echo json_encode($response);
+            }
+        }
+
+    }
+
+
+
+}

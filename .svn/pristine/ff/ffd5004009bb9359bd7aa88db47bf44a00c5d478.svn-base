@@ -1,0 +1,207 @@
+<?php
+
+namespace Admin\Controller;
+
+use Think\Controller;
+use Custom\Helper\Oss;
+use Admin\Logic\ArticleLogic;
+
+class CollectController extends Controller
+{
+    private $secret_key = 're42gfd;543gfd42KJH54';
+    private $secret_key_auto = 're42gfgfdgfd54354353';
+
+
+    private function content_remove_htmlTag($str)
+    { // html清除标签留内容
+        $str = html_entity_decode($str, ENT_QUOTES);
+        $str = strip_tags($str);
+        $str = str_replace("\r\n", "", $str);
+        $str = str_replace("\r", "", $str);
+        $str = str_replace("\n", "", $str);
+        return trim($str);
+    }
+//     public function test()
+//     {
+//         $ArticleLogic=new ArticleLogic();
+//         $tags=$ArticleLogic->get_tag_names('3,5,6');
+//         $tag_list=explode(',', $tags);
+//         print_r($tag_list);
+
+//     }
+
+    //自动发布艺术号文章
+    public function AutoPublish()
+    {
+        if (I('get.secret_key_auto') != $this->secret_key_auto) {
+            header("HTTP/1.0 404 Not Found");
+            echo 'error';
+            exit();
+        }
+        $Model = M();
+        $article = M('article');
+        $publish_time = time();
+
+        for ($i = 0; $i < 3; $i++) {
+            $update_result = 0;
+            $publish_time++;
+            $last_publish_info = $article->field("artist")
+                ->where(['status' => 1])
+                ->order("publish_time desc")
+                ->limit(1)
+                ->find();
+            $last_publish_artist = $last_publish_info['artist'];
+
+            //发布最新的，不包括上一条同一用户发布的
+            $sql = "select id,cover,content,publish_time from az_article  where  artist!=" . intval($last_publish_artist) . " and is_collect=1 and collect_wait_publish=1 and status=2 and artist>0 and cover like 'https://artzhe.oss%' ORDER BY RAND() limit 1";
+            $article_info = $Model->query($sql);
+            if ($article_info) {
+                $cover = $article_info[0]['cover'];
+                $id = $article_info[0]['id'];
+                $publish_time_fix = $article_info[0]['publish_time'] > 0 ? $article_info[0]['publish_time'] : $publish_time;
+
+                $content = $article_info[0]['content'];
+                $content = $this->content_remove_htmlTag($content);
+
+                $content_oss = file_get_contents($cover . '?x-oss-process=image/info');
+                $pos = strpos($content_oss, 'FileSize');
+                if ($pos > 0 && strlen($content) > 300) {
+                    $views = rand(50, 300);
+                    $sql = "update az_article set status=1,views=" . $views . ",publish_time=" . $publish_time_fix . " where id=" . intval($id) . " ";
+                    $update_result = $Model->execute($sql);
+                } else {
+                    $sql = "update az_article set status=0 where id=" . intval($id) . " ";
+                    $update_result = $Model->execute($sql);
+                }
+            }
+
+            //发布记录为0，则发布最新的，包括上一条同一用户发布的
+            if (!$update_result) {
+
+                $sql = "select id,cover,content,publish_time from az_article  where   is_collect=1 and collect_wait_publish=1 and status=2 and artist>0 and cover like 'https://artzhe.oss%' limit 1";
+                $article_info = $Model->query($sql);
+                if ($article_info) {
+                    $cover = $article_info[0]['cover'];
+                    $id = $article_info[0]['id'];
+
+                    $publish_time_fix = $article_info[0]['publish_time'] > 0 ? $article_info[0]['publish_time'] : $publish_time;
+
+                    $content = $article_info[0]['content'];
+                    $content = $this->content_remove_htmlTag($content);
+
+                    $content_oss = file_get_contents($cover . '?x-oss-process=image/info');
+                    $pos = strpos($content_oss, 'FileSize');
+                    if ($pos > 0 && strlen($content) > 300) {
+                        $views = rand(50, 300);
+                        $sql = "update az_article set status=1,views=" . $views . ",publish_time=" . $publish_time_fix . " where id=" . intval($id) . " ";
+                        $update_result = $Model->execute($sql);
+                    } else {
+                        $sql = "update az_article set status=0 where id=" . intval($id) . " ";
+                        $update_result = $Model->execute($sql);
+                    }
+                }
+
+
+            }
+
+
+        }
+
+
+    }
+
+    public function ImportImg()
+    {
+
+        if (I('post.secret_key') != $this->secret_key) {
+            header("HTTP/1.0 404 Not Found");
+            echo 'error';
+            exit();
+        }
+
+        if (!$_FILES['image']) {
+            $response = ['error' => 1, 'msg' => 'no pic'];
+            echo json_encode($response);
+            exit;
+        } else {
+            $attachments_collect = M('attachments_collect');
+
+            $imgbuff = file_get_contents($_FILES['image']['tmp_name']);
+            $save_url = 'article/other_all/' . date('Y') . '/' . date('m') . '/' . date('d') . '/' . date('H') . '/' . md5(time() . rand(100, 999)) . '.jpg';
+            $result = Oss::uploadWithUrl($imgbuff, $save_url);
+            $file_url = 'https://artzhe.oss-cn-shenzhen.aliyuncs.com/' . $save_url;
+
+            $insertid = $attachments_collect->add([
+                'file_url' => $file_url,
+                'mimetype' => $_FILES['image']['type'],
+                'filesize' => $_FILES['image']['size'],
+                'filetime' => time(),
+
+            ]);
+
+            $response = ['error' => 0, 'msg' => 'ok', 'file_url' => $file_url];
+            echo json_encode($response);
+            exit;
+        }
+    }
+
+    public function ImportContent()
+    {
+        if (I('post.secret_key') != $this->secret_key) {
+            header("HTTP/1.0 404 Not Found");
+            echo 'error';
+            exit();
+        }
+
+        $title = trim(I('post.title'));
+        $tag = trim(I('post.tag'));
+        $author = trim(I('post.author'));
+        $excerpt = trim(I('post.excerpt'));
+        $content = trim(I('post.content'));
+        $site_name = trim(I('post.site_name'));
+        $import_uniqid = trim(I('post.import_uniqid'));
+        $cover = trim(I('post.cover'));
+        $userid = (int)trim(I('post.userid'));
+        $collect_from = (int)trim(I('post.collect_from'));
+        $publish_time = (int)trim(I('post.publish_time'));
+
+        $article = M('article');
+
+        $ArticleLogic = new ArticleLogic();
+        $tag_ids = $ArticleLogic->get_tag_ids($tag);
+
+        $time = time();
+        if ($title != '' && $content != '' && $site_name != '') {
+            $result = $article->where(['import_uniqid' => $import_uniqid])->find();
+            if (!$result) {
+                $insertid = $article->add([
+                    'artist' => 0,
+                    'title' => $title,
+                    'content' => $content,
+                    'excerpt' => $excerpt,
+                    'import_author' => $author,
+                    'wechat_account' => $site_name,
+                    'create_time' => $time,
+                    'modified_time' => $time,
+                    'import_from' => $site_name,
+                    'import_uniqid' => $import_uniqid,
+                    'cover' => $cover,
+                    'tag' => $tag_ids,
+                    'artist' => $userid,
+                    'collect_from' => $collect_from,
+                    'publish_time' => $publish_time,
+                    'is_collect' => 1,
+                    'collect_wait_publish' => 1,
+                    'status' => 2,
+                ]);
+
+                $response = ['error' => 0, 'msg' => 'ok'];
+                echo json_encode($response);
+                exit;
+
+            }
+        }
+
+
+    }
+}

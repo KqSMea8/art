@@ -1,0 +1,15 @@
+<?php
+
+namespace V44\Model;
+
+use V44\Base\BaseModel;
+
+class UserFollowerModel extends BaseModel
+{
+    protected $tableName = 'user_follower';
+
+    public function isFollow($artistId,$userId){
+      $id = $this->where(['follower' => $userId,'user_id' => $artistId,'is_follow' => 'Y'])->getField('id');
+      return $id ? 'Y' : 'N';
+    }
+}

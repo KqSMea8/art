@@ -1,0 +1,149 @@
+<?php
+
+namespace Mp\Controller;
+
+use Mp\Base\ApiBaseController;
+use Mp\Logic\ThirdLogic;
+use Mp\Logic\UserLogic;
+use Mp\Model\ThirdModel;
+use Mp\Model\UserModel;
+use Custom\Define\Cache;
+use Custom\Define\Image;
+use Custom\Define\Time;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Helper\WeChat;
+
+class WeChatController extends ApiBaseController
+{
+    protected $weChatConfig = null;
+    protected $weChatInstance = null;
+    protected $userLogic = null;
+    public function __construct()
+    {
+        parent::__construct();
+
+        $weChatConfig = C('WECHAT_CONFIG');
+        $this->weChatInstance = WeChat::getInstance($weChatConfig);
+        $this->weChatConfig = $weChatConfig;
+
+        $this->userLogic = new UserLogic();
+    }
+
+    private function getState()
+    {
+        $state = I('get.state', null);
+        return parse_url($state, PHP_URL_QUERY);
+    }
+    private function redirectTo($scope)
+    {
+        if (APP_DEBUG){
+            $hostUrl = C('HOST_URL_TEST');
+        } else {
+            $hostUrl = C('HOST_URL');
+        }
+        $this->weChatInstance
+            ->redirectUri($this->weChatConfig['appId'], $hostUrl.U('Api/WeChat/login'), $scope, $this->token);
+    }
+    private function getAccessTokenAndOpenId($code, $forceUpdateCache = false)
+    {
+        if ($forceUpdateCache) {
+            $accessTokenInfo = $this->weChatInstance->getAccessTokenInfo($this->weChatConfig['appid'], $code);
+            if (is_array($accessTokenInfo) && !empty($accessTokenInfo['access_token'])) {
+                $cacheData = [
+                    'access_token'=> $accessTokenInfo['access_token'],
+                    'openid'=> $accessTokenInfo['openid']
+                ];
+                S(Cache::WECHAT_ACCESS_TOKEN_PREFIX.$this->weChatConfig['appid'], $cacheData, Time::WECHAT_ACCESS_TOKEN_EXPIRE_7000_SEC);
+                return $cacheData;
+            } else {
+                throw new \Exception('Unknown error!'.var_export($accessTokenInfo, true), 30001);
+            }
+        } else {
+            $cacheResult = S(Cache::WECHAT_ACCESS_TOKEN_PREFIX.$this->weChatConfig['appid']);
+            if (is_array($cacheResult) && !empty($cacheResult['access_token'])) {
+                return $cacheResult;
+            } else {
+                return $this->getAccessTokenAndOpenId($code, true);
+            }
+        }
+    }
+    public function bindMobile()
+    {
+        $mobile = Checker::mobile();
+        $password = Checker::password();
+        $partnerCode = Checker::partnerCode();
+        //['userInfo'=>['az_user表数据'], 'thirdInfo'=>['az_third表数据'], 'weChatUserInfo'=>['weChat返回的snsapi_userinfo级别用户信息']]
+        $tokenInfo = S(Cache::TOKEN_PREFIX.$this->token);
+        /**
+         * @see https://mp.weixin.qq.com/wiki?action=doc&id=mp1421140842&t=0.10663996034963885
+         */
+        $thirdInfo = [
+            'partnerCode'=>$partnerCode,
+            'openId'=>$tokenInfo['weChatUserInfo']['openid'],
+            'unionId'=>$tokenInfo['weChatUserInfo']['unionid'],
+            'nickname'=>$tokenInfo['weChatUserInfo']['nickname'],
+            'gender'=> ThirdLogic::weChatSex2Gender($tokenInfo['weChatUserInfo']['gender']),
+            'faceUrl'=>$tokenInfo['weChatUserInfo']['headimgurl'],//可能会失效，应该缓存一份到阿里云OSS上
+        ];
+        $params = [
+            'mobile'=>$mobile,
+            'thirdInfo' => $thirdInfo,
+            'thirdInfoJson'=>$tokenInfo['weChatUserInfo'],
+            'nickname'=>$tokenInfo['weChatUserInfo']['nickname'],
+            'password'=>$password,
+            'gender'=>$thirdInfo['gender'],
+            'inviteCode'=>'',
+            'deviceInfoJson'=>'{}',
+        ];
+        $this->userLogic->bindMobile($this->token, $params);
+    }
+    public function login()
+    {
+        $code = I('get.code', null);
+        if (!empty($code) ) {
+            //['from'=>'','scope'=>'','token'=>'']
+            $stateArray = $this->getState();
+            if ($stateArray['token'] === $this->token)
+            {
+                //先静默登录拿到用户openid，查询用户是否已经注册过，如果注册过则直接登录，如果没有则跳转到scope为snsapi_userinfo的授权模式
+                $userLogic = new UserLogic();
+                $accessTokenAndOpenId = $this->getAccessTokenAndOpenId($code);
+                if ($stateArray['scope'] === WeChat::$scopeList['base']) {
+                    //检查用户是否已经写入第三方登录信息并绑定了手机号码
+                    if ($thirdId = $userLogic->hasBindMobile(ThirdModel::TYPE_LIST_REVERSE['WECHAT'],
+                        $accessTokenAndOpenId['openid']) ) {
+                        //把用户信息保存到token对应的缓存中
+                        $thirdModel = new ThirdModel();
+                        $userModel = new UserModel();
+                        $thirdInfo =  $thirdModel->find($thirdId)->data();
+                        $userInfo = $userModel->find($thirdInfo['bind_user_id'])->data();
+                        $tokenInfo = S(Cache::TOKEN_PREFIX.$this->token);
+                        $newTokenInfo = array_merge($tokenInfo, ['userInfo'=>$userInfo, 'thirdInfo'=>$thirdInfo]);
+                        //更新过期时间，客户端和H5暂时没有分开
+                        S(Cache::TOKEN_PREFIX.$this->token, $newTokenInfo, ['expire'=> Time::TOKEN_EXPIRE_1_DAY]);
+                        Util::jsonReturn();
+                    } else {
+                        $this->redirectTo(WeChat::$scopeList['userinfo']);
+                        exit;
+                    }
+                } elseif ($stateArray['scope'] === WeChat::$scopeList['userinfo']) {
+                    $weChatUserInfo = $this->weChatInstance
+                        ->getUserInfo($accessTokenAndOpenId['access_token'], $accessTokenAndOpenId['openid']);
+                    //保存用户信息到token对应的缓存中
+                    $tokenInfo = S(Cache::TOKEN_PREFIX.$this->token);
+                    $newTokenInfo = array_merge($tokenInfo, ['weChatUserInfo'=>$weChatUserInfo]);
+                    S(Cache::TOKEN_PREFIX.$this->token, $newTokenInfo, ['expire'=> Time::TOKEN_EXPIRE_1_DAY]);
+                    exit;
+                } else {
+                    Util::jsonReturn(null, 30002, 'error!', var_export($stateArray, true));
+                }
+            } else {
+                Util::jsonReturn(null, 30003, 'error!', var_export($stateArray, true));
+            }
+        } else {
+            $this->redirectTo(WeChat::$scopeList['base']);
+            exit;
+        }
+    }
+}

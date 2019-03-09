@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者免费注册">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>认证艺术家</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/authenticatemsg.css">
+  </head>
+  <body>
+    <header>
+      <h1>信息填写</h1>
+      <p>以下信息必须真实可信</p>
+    </header>
+    <fieldset>
+      <form action="" method="">
+        <ul class="form-list">
+          <li>
+            <p class="update">
+              <span>+</span><span>个人个性照，个人画廊封面</span>
+            </p>
+            <div class="pic-list">
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+            </div>
+          </li>
+          <li>
+            <p class="update">
+              <span>+</span><span>请上传您手持身份证的照片</span>
+            </p>
+            <div class="pic-list">
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+            </div>
+          </li>
+          <li>
+            <p class="update">
+              <span>+</span><span>上传荣誉证书或奖杯的图片</span>
+              <span class="num">（至少3张）</span>
+            </p>
+            <div class="pic-list">
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+            </div>
+          </li>
+          <li>
+            <p class="update">
+              <span>+</span><span>上传您与创作作品合影</span>
+              <span class="num">（至少3张）</span>
+            </p>
+            <div class="pic-list">
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+              <img class="pic-item" src="/Public/H5/image/user/avatar.png" >
+            </div>
+          </li>
+          <li class="finish">
+            <input type="submit" value="下一步">
+          </li>
+        </ul>
+      </form>
+    </fieldset>
+  </body>
+  <script src="/Public/H5/js/lib/vue.js"></script>
+  <script src="/Public/H5/js/lib/zepto.js"></script>
+</html>

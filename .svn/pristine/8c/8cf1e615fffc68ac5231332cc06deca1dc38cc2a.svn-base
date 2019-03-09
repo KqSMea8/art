@@ -1,0 +1,108 @@
+<?php
+
+namespace Lichv\UEditor\Uploader;
+
+use OSS\OssClient;
+use OSS\Core\OssException;
+
+/**
+ *
+ *
+ * trait UploadAlioss
+ *
+ * 阿里OSS 上传 类
+ *
+ * @package Lichv\UEditor\Uploader
+ */
+trait UploadAlioss
+{
+    /**
+     * 获取文件路径
+     * @return string
+     */
+
+    public function UploadAlioss______($key, $content)
+    {
+        $ossClient = new OssClient(config('UEditorUpload.core.alioss.appId'), config('UEditorUpload.core.alioss.appKey'), config('UEditorUpload.core.alioss.host'));
+        $filename = 'uploads/' . date("Y/m/d/", time()) . $key;
+        $result = $ossClient->uploadFile(config('UEditorUpload.core.alioss.bucket'), $filename, $content);
+        $host = config('UEditorUpload.core.alioss.host');
+        // $imghost = empty(config('UEditorUpload.core.alioss.imghost'))?$host:config('UEditorUpload.core.alioss.imghost');
+        // if (!in_array($this->fileType, [".png", ".jpg", ".jpeg", ".gif", ".bmp"]) ){
+        $this->fullName = $url = '//' . config('UEditorUpload.core.alioss.bucket') . '.' . $host . '/' . $filename;
+        // }else{
+        // $this->fullName = $url = 'http://'.config('UEditorUpload.core.alioss.bucket').'.'.$imghost.'/'.$filename;
+        // }
+        $this->stateInfo = $this->stateMap[0];
+        return true;
+    }
+
+
+    //oss临时授权上传
+    public function UploadAlioss($key, $file_path)
+    {
+        $str = file_get_contents(config('UEditorUpload.core.alioss_sts.OssStsService').'?token='.$_COOKIE['web_token']);
+        $str_obj = json_decode($str);
+
+        $accessKeyId = $str_obj->AccessKeyId;
+        $accessKeySecret = $str_obj->AccessKeySecret;
+        $securityToken = $str_obj->SecurityToken;
+        $user_dir=$str_obj->user_dir;
+        $endpoint = "http://".config('UEditorUpload.core.alioss_sts.host');
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, $securityToken);
+
+
+        $callback_body = '{"callbackUrl":"'.config('UEditorUpload.core.alioss_sts.callbackUrl').'","callbackHost":"'.config('UEditorUpload.core.alioss_sts.callbackHost').'","callbackBody":"client_info=web&is_test='.intval(config('UEditorUpload.core.alioss_sts.is_test')).'&bucket=${bucket}&filename=${object}&size=${size}&mimeType=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}","callbackBodyType":"application/x-www-form-urlencoded"}';
+//$base64_callback_body = base64_encode($callback_body);
+        $callback['x-oss-callback'] = $callback_body;
+
+
+        $object = $user_dir.'/'.date("Y/m/d/", time()) . $key;
+
+        try{
+            $result= $ossClient->uploadFile('artzhe', $object, $file_path,$callback);
+            $this->fullName = $url = '//' . config('UEditorUpload.core.alioss_sts.bucket') . '.' . config('UEditorUpload.core.alioss_sts.host') . '/' . $object;
+            $this->stateInfo = $this->stateMap[0];
+            return true;
+        } catch(OssException $e) {
+            printf(__FUNCTION__ . ": FAILED\n");
+            printf($e->getMessage() . "\n");
+            return false;
+        }
+
+    }
+
+    //oss临时授权上传 文件流
+    public function UploadAlioss_stream($key, $content)
+    {
+        $str = file_get_contents(config('UEditorUpload.core.alioss_sts.OssStsService').'?token='.$_COOKIE['web_token']);
+        $str_obj = json_decode($str);
+
+        $accessKeyId = $str_obj->AccessKeyId;
+        $accessKeySecret = $str_obj->AccessKeySecret;
+        $securityToken = $str_obj->SecurityToken;
+        $user_dir=$str_obj->user_dir;
+        $endpoint = "http://".config('UEditorUpload.core.alioss_sts.host');
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint, false, $securityToken);
+
+
+        $callback_body = '{"callbackUrl":"'.config('UEditorUpload.core.alioss_sts.callbackUrl').'","callbackHost":"'.config('UEditorUpload.core.alioss_sts.callbackHost').'","callbackBody":"client_info=web&is_test='.intval(config('UEditorUpload.core.alioss_sts.is_test')).'&bucket=${bucket}&filename=${object}&size=${size}&mimeType=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}","callbackBodyType":"application/x-www-form-urlencoded"}';
+//$base64_callback_body = base64_encode($callback_body);
+        $callback['x-oss-callback'] = $callback_body;
+
+
+        $object = $user_dir.'/'.date("Y/m/d/", time()) . $key;
+
+        try{
+            $result= $ossClient->putObject('artzhe', $object, $content,$callback);
+            $this->fullName = $url = 'https://' . config('UEditorUpload.core.alioss_sts.bucket') . '.' . config('UEditorUpload.core.alioss_sts.host') . '/' . $object;
+            $this->stateInfo = $this->stateMap[0];
+            return true;
+        } catch(OssException $e) {
+            printf(__FUNCTION__ . ": FAILED\n");
+            printf($e->getMessage() . "\n");
+            return false;
+        }
+
+    }
+}

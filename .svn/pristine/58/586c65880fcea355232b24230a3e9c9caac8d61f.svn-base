@@ -1,0 +1,341 @@
+<extend name="Public:base" />
+<block name="content">
+    <link href="/Public/Admin/js/thickbox/thickbox.css" rel="stylesheet">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    编辑
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" action="{:U('HomeBanner/edit')}" method="post" enctype="multipart/form-data" onsubmit="return editImage();">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">序号</label>
+                            <div class="col-sm-2">
+                                <input type="number" id="sort" name="sort" class="form-control number" value="{$data['sort']}" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">图片</label>
+                            <div class="col-sm-10">
+                                <img src="{$data['image']}" width="193" height="168" border="0" />
+                                <input type="file" id="picture" name="picture" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">链接类型</label>
+                            <div class="col-sm-2">
+                                <select name="type" class="form-control" onchange="changeLink(this.value)">
+                                    <option value="1" <?php if($data['type'] == 1) {echo 'selected';}?> >外部链接(token)</option>
+                                    <option value="2" <?php if($data['type'] == 2) {echo 'selected';}?>>外部链接</option>
+                                    <option value="3" <?php if($data['type'] == 3) {echo 'selected';}?>>画廊详情</option>
+                                    <option value="4" <?php if($data['type'] == 4) {echo 'selected';}?>>画作详情</option>
+                                    <option value="5" <?php if($data['type'] == 5) {echo 'selected';}?>>花絮详情</option>
+                                    <option value="6" <?php if ($data['type'] == 6) {echo 'selected';} ?>>艺术专题详情</option>
+                                    <option value="7" <?php if ($data['type'] == 7) {echo 'selected';} ?>>艺术号详情</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="gallery" class="form-group" hidden>
+                            <label class="col-sm-2 control-label">画廊链接</label>
+                            <div class="col-sm-6">
+                                <a href="{:U('HomeBanner/gallerySelect')}?show_type=1&id={$data['id']}&keepThis=true&TB_iframe=true&height=600&width=980" title="选择画廊" class="thickbox btn btn-default">
+                                    选择艺术家画廊</a>
+                            </div>
+                        </div>
+                        <div id="artwork" class="form-group" hidden>
+                            <label class="col-sm-2 control-label">画作链接</label>
+                            <div class="col-sm-6">
+                                <a href="{:U('HomeBanner/artworkSelect')}?show_type=1&id={$data['id']}&keepThis=true&TB_iframe=true&height=600&width=980" title="选择画作" class="thickbox btn btn-default">
+                                    选择画作</a>
+                            </div>
+                        </div>
+                        <div id="record" class="form-group" hidden>
+                            <label class="col-sm-2 control-label">花絮链接</label>
+                            <div class="col-sm-6">
+                                <a href="{:U('HomeBanner/recordSelect')}?show_type=1&id={$data['id']}&keepThis=true&TB_iframe=true&height=600&width=980" title="选择花絮" class="thickbox btn btn-default">
+                                    选择花絮</a>
+                            </div>
+                        </div>
+                        <div id="subject" class="form-group" hidden>
+                            <label class="col-sm-2 control-label">艺术专题链接</label>
+                            <div class="col-sm-6">
+                                <a href="{:U('HomeBanner/subjectSelect')}?show_type=1&id={$data['id']}&keepThis=true&TB_iframe=true&height=600&width=980"
+                                   title="选择艺术专题" class="thickbox btn btn-default">
+                                    选择艺术专题</a>
+                            </div>
+                        </div>
+                        <div id="article" class="form-group" hidden>
+                            <label class="col-sm-2 control-label">艺术号链接</label>
+                            <div class="col-sm-6">
+                                <a href="{:U('HomeBanner/articleSelect')}?show_type=1&id={$data['id']}&keepThis=true&TB_iframe=true&height=600&width=980"
+                                   title="选择艺术号" class="thickbox btn btn-default">
+                                    选择艺术号</a>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">链接</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="link" name="link" class="form-control" placeholder="链接" value="{$data['link']}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">描述</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="desc" name="desc" class="form-control" placeholder="描述" value="{$data['desc']}" maxlength="150">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">上线时间</label>
+                            <div class="col-sm-2">
+                                <input type="date" id="up_time" name="up_time" class="form-control" value="{$data['up_time']|date='Y-m-d H:i:s',###}" min="2017-01-01" max="{:date('Y-m-d',strtotime('+10 year'))}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">下线时间</label>
+                            <div class="col-sm-2">
+                                <input type="date" id="down_time" name="down_time" class="form-control" value="{$data['down_time']|date='Y-m-d H:i:s',###}" min="2017-01-01" max="{:date('Y-m-d',strtotime('+10 year'))}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" name="id" value="{$data['id']}">
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success">确定</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="{:U('HomeBanner/index')}" class="btn btn-default">返回</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="customJs">
+    <script language="javascript" type="text/javascript" src="/Public/Admin/js/thickbox/thickbox.js"></script>
+    <script>
+        initLoading();
+        $(document).ready(function() {
+            //动态时间选择器
+            /*$("#up_time").datetimepicker({
+                autoclose: true,
+                language: 'zh-CN',
+                pickerPosition: 'bottom-right',
+                startView: 2,
+                todayHighlight: true,
+            });
+            $("#down_time").datetimepicker({
+                autoclose: true,
+                language: 'zh-CN',
+                pickerPosition: 'bottom-right',
+                startView: 2,
+                todayHighlight: true,
+            });*/
+            $('.number').bind('input propertychange', function() {
+                var re = /^0+$/;
+                var re1 = /^[0-9]/;
+                if (re.test($(this).val()) || $(this).val()<0 || !re1.test($(this).val())) {
+                    $(this).val('0');
+                }
+            });
+
+            var type = <?php echo $data['type']?>;
+            switch (type)
+            {
+                case 1:
+                case 2:
+                    $("#gallery").hide();
+                    $("#artwork").hide();
+                    $("#record").hide();
+                    $("#subject").hide();
+                    $("#article").hide();
+                    break;
+                case 3:
+                    $("#gallery").show();
+                    $("#artwork").hide();
+                    $("#record").hide();
+                    $("#subject").hide();
+                    $("#article").hide();
+                    break;
+                case 4:
+                    $("#artwork").show();
+                    $("#gallery").hide();
+                    $("#record").hide();
+                    $("#subject").hide();
+                    $("#article").hide();
+                    break;
+                case 5:
+                    $("#record").show();
+                    $("#gallery").hide();
+                    $("#artwork").hide();
+                    $("#subject").hide();
+                    $("#article").hide();
+                    break;
+                case 6:
+                    $("#subject").show();
+                    $("#gallery").hide();
+                    $("#artwork").hide();
+                    $("#record").hide();
+                    $("#article").hide();
+                    break;
+                case 7:
+                    $("#article").show();
+                    $("#gallery").hide();
+                    $("#artwork").hide();
+                    $("#record").hide();
+                    $("#subject").hide();
+                    break;
+            }
+        });
+
+        //切换链接类型
+        function changeLink(v){
+            switch (v)
+            {
+                case "1":
+                case "2":
+                    $("#gallery").hide();
+                    $("#artwork").hide();
+                    $("#record").hide();
+                    $("#subject").hide();
+                    $("#article").hide();
+                    break;
+                case "3":
+                    $("#gallery").show();
+                    $("#artwork").hide();
+                    $("#record").hide();
+                    $("#subject").hide();
+                    $("#article").hide();
+                    $("#link").val("");
+                    break;
+                case "4":
+                    $("#artwork").show();
+                    $("#gallery").hide();
+                    $("#record").hide();
+                    $("#subject").hide();
+                    $("#article").hide();
+                    $("#link").val("");
+                    break;
+                case "5":
+                    $("#record").show();
+                    $("#gallery").hide();
+                    $("#artwork").hide();
+                    $("#subject").hide();
+                    $("#article").hide();
+                    $("#link").val("");
+                    break;
+                case "6":
+                    $("#subject").show();
+                    $("#gallery").hide();
+                    $("#artwork").hide();
+                    $("#record").hide();
+                    $("#article").hide();
+                    $("#link").val("");
+                    break;
+                case "7":
+                    $("#article").show();
+                    $("#gallery").hide();
+                    $("#artwork").hide();
+                    $("#record").hide();
+                    $("#subject").hide();
+                    $("#link").val("");
+                    break;
+            }
+        }
+
+        function editImage() {
+            showLoading('处理中，请稍候。。。');
+            var link = $("#link").val();
+            var up_time = $("#up_time").val();
+            var down_time = $("#down_time").val();
+
+            var check = true;
+            var message = "";
+            if ($.trim(link) == '') {
+                check = false;
+                message = message + "<li>链接不能为空</li>";
+            }
+            if (down_time<=up_time) {
+                check = false;
+                message = message + "<li>上线时间不正确</li>";
+            }
+
+            if (check == false) {
+                hideLoading();
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+                var formData = new FormData($(".form-horizontal")[0]);
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo U('HomeBanner/edit');?>',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    dataType: 'json',
+                    error: function (data) {
+                        hideLoading();
+                        $.prompt("<span style=\" color:#F00\">error</span>", {
+                            title: "提示",
+                            buttons: {"确定": false}
+                        });
+                    },
+                    success: function (data) {
+                        if (data.error == 0) {
+                            hideLoading();
+                            $.prompt("修改成功！", {
+                                title: "提示",
+                                buttons: {"确定": true},
+                                submit: function (e, v, m, f) {
+                                    if (v == true) {
+                                        window.location.href="{:U('HomeBanner/index')}";
+                                    }
+                                }
+                            });
+
+                        }else{
+                            hideLoading();
+                            $.prompt("<span style=\" color:#F00\">"+data.message+"</span>", {
+                                title: "提示",
+                                buttons: {"确定": false}
+                            });
+                        }
+
+                    }
+                });
+                return false;
+            }
+        }
+
+        function initLoading(){
+            $("body").append("<!-- loading -->" +
+                "<div class='modal fade' id='loading' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' data-backdrop='static'>" +
+                "<div class='modal-dialog' role='document' style='width:220px'>" +
+                "<div class='modal-content'>" +
+                    /*  "<div class='modal-header'>" +
+                     "<h4 class='modal-title' id='myModalLabel'>提示</h4>" +
+                     "</div>" +*/
+                "<div class='modal-body'>" +
+                "<img id='loading' src='/Public/Admin/image/loading.gif' />&nbsp;" +
+                "<span id='loadingText'>处理中，请稍候。。。</span>" +
+                "</div>" +
+                "</div>" +
+                "</div>" +
+                "</div>"
+            );
+        }
+        function showLoading(text){
+            $("#loadingText").html(text);
+            $("#loading").modal("show");
+        }
+        function hideLoading(){
+            $("#loading").modal("hide");
+        }
+
+    </script>
+</block>

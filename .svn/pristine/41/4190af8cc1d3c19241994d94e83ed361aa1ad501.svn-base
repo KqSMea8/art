@@ -1,0 +1,270 @@
+// var token = getCookie('token');
+
+// if (!token) {
+//   getToken();
+// }
+
+// //避免 CSRF 攻击
+// $.ajaxSetup({
+//   headers: {
+//     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+//   }
+// });
+
+// // getToken 
+// function getToken() {
+//   $.ajax({
+//     headers: {
+//       'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+//     },
+//     type: "POST",
+//     url: "/public/getToken",
+//     async: false, //同步获取
+//     data: {},
+//     success: function(res) {
+//       if (res.code = "30000") {
+//         console.log('getToken.data', res.data);
+//         token = res.data.token;
+//       }
+//     }
+//   });
+// }
+
+var validInfo = {
+  mobile: /^1[34578]{1}\d{9}$/,
+  password: /^\S{6,16}$/,
+  chinese: /^[^\u4e00-\u9fa5]{6,16}$/,
+  verifyCode: /\d{4,6}/,
+  idCardNo: /\d{17}[\d|x]|\d{15}/,
+  notEmply: /\s*\S+/
+};
+
+//替换字符串换行符为br标签
+function n2br(str) {
+  str = str.replace(/\r\n/g, "<br>");
+  str = str.replace(/\n/g, "<br>");
+  return str;
+}
+
+//获取字符串结尾数字
+function getEndNum(str) {
+  var match = str.match(/(\d+$)/g);
+  var num = match[0];
+  return num;
+}
+
+//checkLogin (检查用户是否登录)
+function checkLogin(userId) {
+  if (userId < 1) {
+    window.location.href = "/wechat/login";
+    return false;
+  }
+}
+
+// 从第二个item开始，随着上划，item从下往上动画进入
+function fadeInUp($elList, $elItem, delaySecond) {
+  var $aLi = $($elList).find($elItem);
+  var num = $aLi.length;
+  $aLi.eq(1).css('animation-delay', delaySecond + 's').addClass('animated fadeInUp');
+
+  $(window).scroll(function() {
+    var wHeight = $(window).height();
+    var iHeight = $aLi.eq(0).height();
+    var sTop = $('body').scrollTop();
+    for (var i = 2; i < num; i++) {
+      var gapTop = $aLi.eq(i).offset().top;
+      if (sTop + wHeight + iHeight > gapTop) {
+        $aLi.eq(i).css('animation-delay', delaySecond + 's').addClass('animated fadeInUp');
+      }
+    }
+  });
+}
+// function fadeInUp($elList, $elItem, delaySecond) {
+//   var $aLi = $($elList).find($elItem);
+//   var num = $aLi.length;
+//   $aLi.eq(1).css('animation-delay', delaySecond + 's').addClass('animated fadeInUp');
+
+//   function fade() {
+//     var wHeight = $(window).height();
+//     var iHeight = $aLi.eq(0).height();
+//     // var sTop = $('body').scrollTop();
+//     for (var i = 2; i < num; i++) {
+//       var gapTop = $aLi.eq(i).offset().top;
+//       if (wHeight > gapTop) {
+//         $aLi.eq(i).css('animation-delay', delaySecond + 's').addClass('animated fadeInUp');
+//       }
+//     }
+//   }
+
+
+//   touchEvent.swipeUp(document, function() {
+//     fade();
+//   });
+//   WN.addTranEvent($('._v-content').get(0), function() {
+//     console.log('end');
+//     fade();
+//   }, 1);
+
+// }
+
+
+//导航栏粘贴在顶部
+var StickUp = {
+  init: function(navEl) { //传入导航栏选择器字符串 示例 'nav'
+    this.attachEl(navEl);
+    this.bind();
+  },
+  attachEl: function(navEl) {
+    this.$el = $(navEl);
+    this.$c = $('body');
+    this.elTop = this.$el.offset().top;
+  },
+  bind: function() {
+    var me = this;
+    $(window).on('scroll', function() {
+      me.do();
+    });
+  },
+  do: function() {
+    var scrollTop = this.$c.scrollTop();
+    if (scrollTop > this.elTop - this.$el.height()) {
+      this.stick();
+    } else {
+      this.unstick();
+    }
+  },
+  stick: function() {
+    if (this.$el.hasClass('sticked')) {
+      return;
+    }
+    this.$el.addClass('sticked');
+    this.$el.css('position', 'fixed');
+    var $temp = $('<div class="temp"></div>');
+    $temp.height(this.$el.height());
+    this.$el.before($temp);
+  },
+  unstick: function() {
+    this.$el.removeClass('sticked');
+    this.$el.prev('.temp').remove();
+    this.$el.css('position', 'static');
+  }
+};
+
+//去除字符串首尾空格
+function trimStr(str) {
+  return str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+}
+
+//字符串长度汉字算2个字符
+function zhStrlen(str) {
+  return str.replace(/[^\x00-\xff]/g, "**").length;
+}
+
+//时间转换
+function unixToTime(timestamp) {
+  if (timestamp == 0) {
+    return '保密';
+  } else {
+    var unixTimestamp = new Date(timestamp * 1000);
+    var nowYear = unixTimestamp.getFullYear();
+    var nowMonth = unixTimestamp.getMonth() + 1;
+    var nowDay = unixTimestamp.getDate();
+    var dataStr = nowYear + '年' + nowMonth + '月' + nowDay + '日';
+    return dataStr;
+  }
+}
+
+
+
+var rememberUser = {
+  remember: function(account) {
+    setCookie("yszAccount", account);
+  },
+  getLast: function() {
+    return getCookie("yszAccount");
+  }
+}
+
+//cookie相关：设置、获取、删除
+function setCookie(name, value, expireMinutes) {
+  expireMinutes = expireMinutes || 2592000;
+  var time = new Date();
+  time.setMinutes(time.getMinutes() + expireMinutes);
+  document.cookie = name + "=" + value + ";path=/;expires=" + time.toUTCString();
+}
+
+function getCookie(name) {
+  var cookies = document.cookie.split(';');
+  var total = cookies.length;
+  var i, cookie;
+
+  for (i = 0; i < total; i++) {
+    cookie = cookies[i].split('=');
+
+    if (cookie[0][0] == ' ') {
+      cookie[0] = cookie[0].substring(1, cookie[0].length);
+    }
+
+    if (name == decodeURIComponent(cookie[0])) {
+      return (cookie.length > 1) ? decodeURIComponent(cookie.splice(1, cookie.length).join('=')) : true;
+    }
+  }
+
+  return '';
+}
+
+function deleteCookie(name) {
+  if (getCookie(name) === true) {
+    return setCookie(name, undefined, 0);
+  }
+
+  return setCookie(name, '', 0);
+}
+
+function formatTime(timespan) {
+
+  timespan = timespan * 1000;
+  var dateTime = new Date(timespan);
+  var year = dateTime.getFullYear();
+  var month = dateTime.getMonth() + 1;
+  var day = dateTime.getDate();
+  var hour = dateTime.getHours();
+  var minute = dateTime.getMinutes();
+  var second = dateTime.getSeconds();
+  var now = new Date();
+  var now_new = now.getTime(); //js毫秒数
+
+  var milliseconds = 0;
+  var timeSpanStr;
+
+  milliseconds = now_new - timespan;
+
+  if (milliseconds <= 1000 * 60 * 1) {
+    timeSpanStr = '刚刚';
+  } else if (milliseconds <= 1000 * 60 * 60) {
+    timeSpanStr = Math.round((milliseconds / (1000 * 60))) + '分钟前';
+  } else if (1000 * 60 * 60 * 1 < milliseconds && milliseconds <= 1000 * 60 * 60 * 24) {
+    timeSpanStr = Math.round(milliseconds / (1000 * 60 * 60)) + '小时前';
+  } else if (1000 * 60 * 60 * 24 < milliseconds && milliseconds <= 1000 * 60 * 60 * 24 * 3) {
+    timeSpanStr = Math.round(milliseconds / (1000 * 60 * 60 * 24)) + '天前';
+  } else {
+    timeSpanStr = year + '-' + month + '-' + day;
+  }
+  return timeSpanStr;
+}
+
+// 谷歌统计代码
+(function(i, s, o, g, r, a, m) {
+  i['GoogleAnalyticsObject'] = r;
+  i[r] = i[r] || function() {
+    (i[r].q = i[r].q || []).push(arguments)
+  }, i[r].l = 1 * new Date();
+  a = s.createElement(o),
+    m = s.getElementsByTagName(o)[0];
+  a.async = 1;
+  a.src = g;
+  m.parentNode.insertBefore(a, m)
+})(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+ga('create', 'UA-96560910-1', 'auto');
+ga('send', 'pageview');

@@ -1,0 +1,10 @@
+<?php
+
+namespace Mp\Model;
+
+use Mp\Base\BaseModel;
+
+class GalleryModel extends BaseModel
+{
+    protected $tableName = 'gallery';
+}

@@ -1,0 +1,204 @@
+<?php
+
+
+namespace Admin\Controller;
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Nav;
+use Admin\Logic\ArticleLogic;
+class RecommendationAdFirstController extends AdminBaseController
+{
+    public $pagesize = 12;  //每页显示条数
+
+    public function index()
+    {
+
+        $page = I('get.page', '1');  //页码
+
+        $recommendation_ad_first_page1_M = M('recommendation_ad_first_page1');
+
+        $where['status'] = 1;
+        $Total = $recommendation_ad_first_page1_M
+            ->where($where)->count();
+
+        $lists = $recommendation_ad_first_page1_M
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $this->pagesize)
+            ->select();
+
+        $article_ids=[];
+        $subject_ids=[];
+        $article_list=[];
+        $subject_list=[];
+        $ArticleLogic = new ArticleLogic();
+        $subject_M = M('subject');
+        foreach ($lists as $value){
+            if($value['type']=='article'){
+                array_push($article_ids,$value['recommended_id']);
+            }
+            if($value['type']=='subject'){
+                array_push($subject_ids,$value['recommended_id']);
+            }
+        }
+        if(count($article_ids)){
+
+            $article_where['id'] = ['in',$article_ids];
+            $article=$ArticleLogic->field('id,title')->where($article_where)->select();
+            $article_list=array_column($article,'title','id');
+        }
+        if(count($subject_ids)){
+
+            $subject_where['id'] = ['in',$subject_ids];
+            $subject=$subject_M->field('id,sub_name,sub_title')->where($subject_where)->select();
+            foreach ($subject as $value){
+                $subject_list[$value['id']]=$value['sub_name'].' | '.$value['sub_title'];
+            }
+        }
+
+        $thisday_time_start=strtotime(date('Y-m-d'));
+        $recommendation_ad_first_page1_where['recommended_time_end'] = ['EGT', $thisday_time_start];
+        $recommendation_ad_first_page1_where['status'] = 1;
+        $recommendation_ad_first = $recommendation_ad_first_page1_M->field('id,type,recommended_id')->where($recommendation_ad_first_page1_where)->order('id desc')->find();
+
+
+            if ($recommendation_ad_first['type'] == 'article') {
+                $article_info = $ArticleLogic->field('id,title')->where(['id'=>$recommendation_ad_first['recommended_id']])->find();
+                $current_recommendation_title=$article_info['title'];
+            }elseif ($recommendation_ad_first['type'] == 'subject') {
+                $subject = $subject_M->field('id,sub_title,sub_name')->where(['id'=>$recommendation_ad_first['recommended_id']])->find();
+                $current_recommendation_title=$subject['sub_name'].' | '.$subject['sub_title'];;
+            }
+
+
+
+
+
+
+        $nav = Nav::render(U('Admin/RecommendationAdFirst/index'), ['nickname' => $nickname], $page, $this->pagesize,$Total);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+        $this->assign('article_list', $article_list);
+        $this->assign('subject_list', $subject_list);
+        $this->assign('current_recommendation_title', $current_recommendation_title);
+
+        $this->display();
+    }
+
+    public function  del(){
+
+        $recommendation_ad_first_page1_M = M('recommendation_ad_first_page1');
+        $id = (int)I('get.id');
+
+        $where['id']=$id;
+
+        $data['status'] = 0;
+        $recommendation_ad_first_page1_M->where($where)->save($data);
+
+        $this->success('删除成功');
+    }
+
+    public function SelectArticle(){
+
+        $pagesize=8;
+        $page = I('get.page', '1');  //页码
+        $title = I('get.title');
+
+        $Article_M = M('Article');
+
+        $where['status'] = 1;
+        if(trim($title)!='') {
+            $where['title'] = ['like', '%' . $title . '%'];
+        }
+        $Total = $Article_M
+            ->where($where)->count();
+
+        $lists = $Article_M
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+
+        $nav = Nav::render(U('Admin/RecommendationAdFirst/SelectArticle'), ['title' => $title], $page,$pagesize,$Total);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+
+        $this->display();
+    }
+
+
+
+    public function SelectSubject(){
+
+        $pagesize=8;
+        $page = I('get.page', '1');  //页码
+        $title = I('get.title');
+
+        $Subject_M = M('Subject');
+
+        $where['status'] = 0;
+        if(trim($title)!='') {
+            $where_title1['sub_name'] = ['like', '%' . $title . '%'];
+            $where_title2['sub_title'] = ['like', '%' . $title . '%'];
+
+            $where['_complex'] = array(
+                $where_title1,
+                $where_title2,
+                '_logic' => 'or'
+            );
+        }
+        $Total = $Subject_M
+            ->where($where)->count();
+
+//        echo $Subject_M->getLastSql();exit;
+
+        $lists = $Subject_M
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+
+        $nav = Nav::render(U('Admin/RecommendationAdFirst/SelectSubject'), ['title' => $title], $page,$pagesize,$Total);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+
+        $this->display();
+    }
+
+
+    public function Ad1AddStep1(){
+        $this->display();
+    }
+    public function Ad1Add(){
+        $type= I('post.type');
+        if($type!='subject'&&$type!='article'){
+            $this->error('type错误');
+        }
+        $recommended_id = (int)I('post.recommended_id');
+        $recommended_time_end= strtotime(I('post.recommended_time_end'));
+
+
+        $recommendation_ad_first_page1_M = M('recommendation_ad_first_page1');
+
+        $recommendation_ad_first_page1_where['status']=1;
+        $recommendation_ad_first_page1_where['type']=$type;
+        $recommendation_ad_first_page1_where['recommended_id']=$recommended_id;
+        $info=$recommendation_ad_first_page1_M->where($recommendation_ad_first_page1_where)->find();
+        if(!$info) {
+
+            $data['type'] = $type;
+            $data['recommended_id'] = $recommended_id;
+            $data['recommended_time_end'] = $recommended_time_end;
+            $data['create_time'] = time();
+
+            $recommendation_ad_first_page1_M->data($data)->add();
+            $this->success('添加成功', U('RecommendationAdFirst/index'));
+        }else{
+            $this->error('重复，不能添加');
+        }
+
+    }
+
+}

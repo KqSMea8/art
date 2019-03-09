@@ -1,0 +1,12 @@
+<?php
+
+namespace Admin\Logic;
+
+use Common\Base\AdminBaseLogic;
+use Custom\Helper\Util;
+
+class ArtworkPrintsLogic extends AdminBaseLogic
+{
+
+
+}

@@ -1,0 +1,14 @@
+<?php
+
+namespace Admin\Controller;
+
+use Custom\Helper\Util;
+use Common\Base\AdminBaseController;
+
+class IndexController extends AdminBaseController
+{
+    public function index()
+    {
+    	Util::jsonReturn([], 2000, 'ok');
+    }
+}

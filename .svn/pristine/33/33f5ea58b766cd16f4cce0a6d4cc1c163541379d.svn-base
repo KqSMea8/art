@@ -1,0 +1,411 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Common\Base\AdminBaseController;
+use Custom\Helper\Util;
+use Custom\Helper\Oss;
+use Custom\Helper\Nav;
+use Common\Logic\SubjectLogic;
+
+
+//主页-推荐 banner
+class HomeBannerController extends AdminBaseController
+{
+    public $pagesize = 10;  //每页显示条数
+
+    //推荐banner列表
+    public function index()
+    {
+        $page = I('get.page', '1');
+        $showType = intval(I('get.showType',1));
+        $time = time();
+        $where='';
+        switch($showType) {
+            case 1://全部
+                break;
+            case 2://上线
+                $where['up_time'] = ['elt', $time];
+                $where['down_time'] = ['gt', $time];
+                break;
+            case 3://下线
+                $where['down_time'] = ['elt', $time];
+                break;
+        }
+
+        $total = M('home_banner')->where($where)->count();
+
+        $images = M('home_banner')->where($where)->order("sort asc")->page($page, $this->pagesize)->select();
+        foreach ($images as &$data) {
+            //1-外部链接，需要token  2-外部链接，不需要token  3-内部链接，画廊详情  4-内部链接，画作详情  5-花絮详情  6-艺术专题详情  7-艺术号详情
+            switch($data['type']){
+                case 1:
+                    $data['type'] = '外部链接(token)';break;
+                case 2:
+                    $data['type'] = '外部链接';break;
+                case 3:
+                    $data['type'] = '画廊详情';break;
+                case 4:
+                    $data['type'] = '画作详情';break;
+                case 5:
+                    $data['type'] = '花絮详情';break;
+                case 6:
+                    $data['type'] = '艺术专题详情';break;
+                case 7:
+                    $data['type'] = '艺术号详情';break;
+            }
+        }
+        $queryParams = [
+            /*  'page'=>$page,
+              'perPageCount'=>$perPageCount,*/
+            'showType'=>$showType,
+        ];
+
+        $nav = Nav::render(U('Admin/HomeBanner/index'), $queryParams, $page, $this->pagesize, $total);
+        $this->assign('nav', $nav);
+        $this->assign('queryParams', $queryParams);
+        $this->assign('lists', $images);
+        $this->display('index');
+    }
+
+    //选择画廊
+    public function gallerySelect(){
+        $page = I('get.page', '1');  //页码
+        $size = I('get.pageSize', '10');
+        $artistName = trim(I('get.name',''));
+        $bannerId = I('get.id','');//banner图id
+        $showType = intval(I('get.show_type')); //1--编辑页进入   2--添加页进入
+
+        $where = "  az_user.type = 3 AND az_user.is_deleted = 'N' AND az_user.banned_to = -1
+        and az_artwork.is_deleted='N' and az_artwork.update_times>0 and az_artwork.state=1  ";
+        if(!empty($artistName)){
+            $where=$where."and az_user.nickname like '%{$artistName}%'";
+        }
+
+        $total = M('user')
+            ->join('az_artwork on az_artwork.id=az_user.last_add_artupdate_artid')
+            ->where($where)->count();
+
+        $list = M('user')
+            ->field('az_user.id ,az_user.nickname as name')
+            ->join('az_artwork on az_artwork.id=az_user.last_add_artupdate_artid')
+            ->where($where)
+            ->order('az_user.id DESC')
+            ->page($page, $size)
+            ->select();
+
+        $nav = Nav::render(U('Admin/HomeBanner/gallerySelect'), ['name' => $artistName,'show_type' => $showType,'id' => $bannerId], $page, $size, $total);
+
+        $this->assign('nav', $nav);
+        $this->assign('list', $list);
+        $this->assign('id', $bannerId);
+        $this->assign('show_type', $showType);
+        $this->display();
+    }
+
+    //选择画作
+    public function artworkSelect(){
+        $page = I('get.page', '1');  //页码
+        $size = I('get.pageSize', '10');  //页码
+        $artworkName = trim(I('get.name',''));
+        $bannerId = I('get.id','');//banner图id
+        $showType = intval(I('get.show_type'));//1--编辑页进入   2--添加页进入
+
+        $where = "az_artwork.state=1 and az_artwork.is_deleted='N'";
+        if(!empty($artworkName)){
+            $where=$where."and az_artwork.name like '%{$artworkName}%'";
+        }
+
+        $total = M('artwork')->where($where)->count();
+        $list = M('artwork')
+            ->field('az_artwork.id,az_artwork.name')
+            ->where($where)
+            ->order('az_artwork.id DESC')
+            ->page($page, $size)
+            ->select();
+
+
+        $nav = Nav::render(U('Admin/HomeBanner/artworkSelect'), ['name' => $artworkName,'show_type' => $showType,'id' => $bannerId], $page, $size, $total);
+
+        $this->assign('nav', $nav);
+        $this->assign('id', $bannerId);
+        $this->assign('show_type', $showType);
+        $this->assign('list', $list);
+        $this->display();
+    }
+
+    //选择花絮
+    public function recordSelect(){
+        $page = I('get.page', '1');  //页码
+        $size = I('get.pageSize', '10');  //页码
+        $artworkName = trim(I('get.name',''));
+        $title = trim(I('get.title',''));
+        $bannerId = I('get.id','');//banner图id
+        $showType = intval(I('get.show_type'));//1--编辑页进入   2--添加页进入
+
+        $where = "az_artwork.state=1 and az_artwork.is_deleted='N' and az_artwork_update.is_deleted='N'";
+        if(!empty($title)){
+            $where=$where."and az_artwork_update.title like '%{$title}%'";
+        }
+        if(!empty($artworkName)){
+            $where=$where."and az_artwork.name like '%{$artworkName}%'";
+        }
+
+        $total = M('artwork_update')
+            ->join('az_artwork on az_artwork.id=az_artwork_update.artwork_id')
+            ->where($where)->count();
+
+        $list = M('artwork_update')
+            ->field('az_artwork_update.id,az_artwork_update.title,az_artwork.name')
+            ->join('az_artwork on az_artwork.id=az_artwork_update.artwork_id')
+            ->where($where)
+            ->order('az_artwork_update.id DESC')
+            ->page($page, $size)
+            ->select();
+
+
+        $nav = Nav::render(U('Admin/HomeBanner/recordSelect'), ['name' => $artworkName,'title' => $title,'show_type' => $showType,'id' => $bannerId], $page, $size, $total);
+
+        $this->assign('nav', $nav);
+        $this->assign('id', $bannerId);
+        $this->assign('show_type', $showType);
+        $this->assign('list', $list);
+        $this->display();
+    }
+
+    //选择艺术专题
+    public function subjectSelect(){
+        $page = I('get.page', '1');  //页码
+        $size = I('get.pageSize', '10');
+        $title = trim(I('get.title',''));//专题简述（副标题）
+        $bannerId = I('get.id','');//banner图的id
+        $showType = intval(I('get.show_type'));//1--编辑页进入   2--添加页进入
+
+        $where= "";
+        if(!empty($title)){
+            $where="sub_title like '%{$title}%'";
+        }
+        $total = M('subject')->where($where)->count();
+        $list = M('subject')
+            ->field('id ,sub_name, sub_title, start_time, end_time')
+            ->where($where)
+            ->order('id DESC')
+            ->page($page, $size)
+            ->select();
+        $nav = Nav::render(U('Admin/HomeBanner/subjectSelect'), ['title' => $title,'show_type' => $showType,'id' => $bannerId], $page, $size, $total);
+
+        $this->assign('nav', $nav);
+        $this->assign('list', $list);
+        $this->assign('id', $bannerId);
+        $this->assign('show_type', $showType);
+        $this->display();
+    }
+
+    //选择艺术号
+    public function articleSelect(){
+        $page = I('get.page', '1');  //页码
+        $size = I('get.pageSize', '10');
+        $title = trim(I('get.title',''));
+        $bannerId = I('get.id','');//banner图id
+        $showType = intval(I('get.show_type'));//1--编辑页进入   2--添加页进入
+
+        $where = "az_article.status=1";
+        if(!empty($title)){
+            $where=$where." and az_article.title like '%{$title}%'";
+        }
+
+        $total = M('article')->where($where)->count();
+        $list = M('article')
+            ->field('az_article.id ,az_user.nickname as uname, az_article.title')
+            ->join('az_user on az_article.artist=az_user.id')
+            ->where($where)
+            ->order('az_article.id DESC')
+            ->page($page, $size)
+            ->select();
+
+        $nav = Nav::render(U('Admin/HomeBanner/articleSelect'), ['title' => $title,'show_type' => $showType,'id' => $bannerId], $page, $size, $total);
+
+        $this->assign('nav', $nav);
+        $this->assign('list', $list);
+        $this->assign('id', $bannerId);
+        $this->assign('show_type', $showType);
+        $this->display();
+    }
+
+    //网添加页面展示
+    public function showAdd()
+    {
+        $linkId = intval(I('get.link_id'));//选择的链接类型对应的id
+        $type = intval(I('get.type'));//选择的链接类型
+        $data=[
+            'type'=>1,
+            'link'=>'',
+        ];
+        if(!empty($linkId)){
+            $data['link'] = $linkId;
+        }
+        if(!empty($type)){
+            $data['type'] = $type;
+        }
+
+        $this->assign('data', $data);
+        $this->display('add');
+    }
+
+    //添加图片操作
+    public function add()
+    {
+        $sort = intval(trim(I('post.sort')));  //链接
+        $type = intval(trim(I('post.type')));  //链接类型
+        $link = addslashes(trim(I('post.link')));  //链接
+        $desc = addslashes(trim(I('post.desc')));  //描述
+        $upTime = addslashes(trim(I('post.up_time')));  //上线时间
+        $upTime=empty($upTime) ? time() : strtotime($upTime);
+        $downTime = addslashes(trim(I('post.down_time')));  //下线时间
+        $downTime=empty($downTime) ? time() : strtotime($downTime);
+        if ($_FILES['picture']['error'] == 4) {
+            $response = ['error' => 2, 'message' => '没有上传图片'];
+            echo json_encode($response);
+        } else {
+            //处理上传图片
+            $imgbuff = file_get_contents($_FILES['picture']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'png');
+            $picture = $result['info']['url'];
+            $data = [
+                'sort' => $sort,
+                'image' => $picture,
+                'type' => $type,
+                'link' => $link,
+                'desc' => $desc,
+                'up_time' => $upTime,
+                'down_time' => $downTime,
+            ];
+            //插入数据，返回插入后的id
+            $insert_id = M('home_banner')->add($data);
+            if ($insert_id) {
+                $response = ['error' => 0, 'message' => 'OK'];
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '添加失败，请重试'];
+                echo json_encode($response);
+            }
+        }
+    }
+
+    //删除图片操作
+    public function delete()
+    {
+        $ids = I('post.id');
+        if(!is_array($ids)){//单个id转化成数组
+            $ids=[intval($ids)];
+        }else{
+            foreach($ids as $key => $value)
+            {
+                $ids[$key]=intval($value);
+            }
+        }
+
+        $where['id'] = array('in',$ids);
+        $num = M('home_banner')->where($where)->delete();
+        $return=['error'=>0,'delete_num'=>$num];
+        echo json_encode($return);
+    }
+
+    //修改序号
+    public function updateSort(){
+        $id = intval(trim(I('post.id')));  //id
+        $sort = intval(trim(I('post.sort')));  //序号
+        $where['id'] = $id;
+        $data['sort'] = $sort;
+        $insertId = M('home_banner')->where(['id'=>$id])->save($data);
+        if ($insertId) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+
+    }
+
+    //编辑页面显示
+    public function showEdit()
+    {
+        $id = intval(I('get.id'));
+        $linkId = intval(I('get.link_id'));//选择的链接类型对应的id
+        $type = intval(I('get.type'));//选择的链接类型
+        $data = M('home_banner')->find($id);
+        if(!empty($linkId)){
+            $data['link'] = $linkId;
+        }
+        if(!empty($type)){
+            $data['type'] = $type;
+        }
+
+        $this->assign('data', $data);
+        $this->display('edit');
+    }
+
+    //编辑图片操作
+    public function edit()
+    {
+        $id = intval(I('post.id'));  //ID
+        $sort = intval(trim(I('post.sort')));  //链接
+        $type = addslashes(trim(I('post.type')));  //链接类型
+        $link = addslashes(trim(I('post.link')));  //链接
+        $desc = addslashes(trim(I('post.desc')));  //描述
+        $upTime = addslashes(trim(I('post.up_time')));  //上线时间
+        $upTime=empty($upTime) ? time() : strtotime($upTime);
+        $downTime = addslashes(trim(I('post.down_time')));  //下线时间
+        $downTime=empty($downTime) ? time() : strtotime($downTime);
+        if ($_FILES['picture']['error'] == 4) {
+            $data = [
+                'sort' => $sort,
+                'type' => $type,
+                'link' => $link,
+                'desc' => $desc,
+                'up_time' => $upTime,
+                'down_time' => $downTime,
+            ];
+        } else {
+            $imgbuff = file_get_contents($_FILES['picture']['tmp_name']);
+            $result = Oss::upload($imgbuff, 'png');
+            $picture = $result['info']['url'];
+           $data = [
+                'sort' => $sort,
+                'image' => $picture,
+                'type' => $type,
+                'link' => $link,
+                'desc' => $desc,
+                'up_time' => $upTime,
+                'down_time' => $downTime,
+            ];
+        }
+        $where['id'] = $id;
+        $result = M('home_banner')->where($where)->save($data);  //更新记录
+        if (false !== $result) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '添加失败，请重试'];
+            echo json_encode($response);
+        }
+    }
+
+    //花絮详情
+    public function recordDetail()
+    {
+        $id = intval(I('get.id'));  //id
+        $where['az_artwork_update.id'] = $id;
+        $data = M('artwork_update')
+            ->field('az_artwork_update.id,az_artwork_update.title,az_artwork_update.wit,az_artwork_update.create_time,az_artwork_update.is_recommend,az_artwork.name as artname')
+            ->join('JOIN az_artwork ON az_artwork.id = az_artwork_update.artwork_id')
+            ->where($where)->find();
+        $data['title'] = empty($data['title'])?$data['artname'].' 花絮':$data['title'];
+        $this->assign('data', $data);
+        $this->display();
+
+    }
+
+}

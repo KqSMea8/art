@@ -1,0 +1,20 @@
+<?php
+
+namespace Mp\Model;
+
+
+use Mp\Base\BaseModel;
+//主页-推荐-banner
+class HomeBannerModel extends BaseModel
+{
+    protected $tableName = 'home_banner';
+
+    //获取在线的banner
+    public function getBanner(){
+        $time = time();
+        $where['up_time']=['elt',$time];
+        $where['down_time']=['gt',$time];
+        $images = $this->field('id,sort,image,type,link,desc')->where($where)->order("sort asc")->select();
+        return empty($images) ? [] : $images;
+    }
+}

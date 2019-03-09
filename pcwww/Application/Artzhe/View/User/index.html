@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术,美术,美术圈,艺术者,美学,artzhe,art,美术史,青年艺术家,艺术品,美院,arts,美术生,画展,画廊,美术馆,艺术品收藏,艺术电商网,故宫博物院,艺术电商,艺术品鉴,展览,艺术收藏,艺术品电商,博物馆,故宫展览,艺术展,艺术新闻,艺术生活,油画,插画,国画,水粉,水彩,素描,工笔,版画,漆画,丙烯,艺术云图,阿波罗,artand,艺术头条,artsy,雅昌,artpollo,意外艺术,艺术狗,在艺,雅昌兜藏,画家圈,Vart,芭莎艺术,空艺术,藏客,寺库艺术,中国美术馆,掌拍艺术,优家,艺典中国,艺堆,久久视频,在艺,艺厘米,艺堆 - 发现艺术,artstack,葫芦里,VICE MEDIA,imuseum,798,artstack limited,古玩鉴定,雅昌云图,雅昌艺术云图,人物,风景,静物,动物,植物,萌化,宗教,具象,抽象,古典,观念,表现,当代艺术,当代,原始艺术,古典艺术,现代艺术">
+    <meta name="description" content="艺术者-遇见你的品味。这里有温度的艺术家，有故事的艺术作品，有品味的社交圈。专注手绘艺术创作，打造青年艺术家品牌。由艺术家记录艺术创作全过程，建立以艺术家、艺术作品为核心的社交网络，帮助艺术家轻松经营粉丝，建立个性互动的长期收藏，完善艺术作品流通。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>艺术者</title>
+    <link rel="shortcut icon" href="/Public/favicon.ico?v=1.0.1" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="/Public/js/lib/element/index.css">
+    <link rel="stylesheet" type="text/css" href="/Public/css/global.css?v=1.2.0">
+    <link rel="stylesheet" type="text/css" href="/Public/css/user.css?v=0.0.1">
+    <style type="text/css">
+      .el-form {
+        margin-right: 32px;
+        padding-bottom: 38px;
+      }
+      .el-input__inner,
+      .el-textarea__inner {
+        border-radius: 0;
+      }
+      .el-button {
+        width: 150px;
+        color: #1a1a1a;
+        border-radius: 20px;
+      }
+      .sub {
+        margin-top: 40px;
+      }
+      .sub .el-form-item__content {
+        text-align: center;
+      }
+      .jcrop-holder {
+          direction: ltr;
+          text-align: center;
+          margin: 0 auto;
+          /* IE10 touch compatibility */
+          -ms-touch-action: none;
+      }
+          /* Selection Border */
+      .jcrop-vline,
+      .jcrop-hline {
+          background: #ffffff;
+          font-size: 0;
+          position: absolute;
+      }
+      .jcrop-vline {
+          height: 100%;
+          width: 1px !important;
+      }
+      .jcrop-vline.right {
+          right: 0;
+      }
+      .jcrop-hline {
+          height: 1px !important;
+          width: 100%;
+      }
+      .jcrop-hline.bottom {
+          bottom: 0;
+      }
+          /* Invisible click targets */
+      .jcrop-tracker {
+          height: 100%;
+          width: 100%;
+          /* "turn off" link highlight */
+          -webkit-tap-highlight-color: transparent;
+          /* disable callout, image save panel */
+          -webkit-touch-callout: none;
+          /* disable cut copy paste */
+          -webkit-user-select: none;
+      }
+          /* Selection Handles */
+      .jcrop-handle {
+          background-color: #333333;
+          border: 1px #eeeeee solid;
+          width: 7px;
+          height: 7px;
+          font-size: 1px;
+      }
+      .jcrop-handle.ord-n {
+          left: 50%;
+          margin-left: -4px;
+          margin-top: -4px;
+          top: 0;
+      }
+      .jcrop-handle.ord-s {
+          bottom: 0;
+          left: 50%;
+          margin-bottom: -4px;
+          margin-left: -4px;
+      }
+      .jcrop-handle.ord-e {
+          margin-right: -4px;
+          margin-top: -4px;
+          right: 0;
+          top: 50%;
+      }
+      .jcrop-handle.ord-w {
+          left: 0;
+          margin-left: -4px;
+          margin-top: -4px;
+          top: 50%;
+      }
+      .jcrop-handle.ord-nw {
+          left: 0;
+          margin-left: -4px;
+          margin-top: -4px;
+          top: 0;
+      }
+      .jcrop-handle.ord-ne {
+          margin-right: -4px;
+          margin-top: -4px;
+          right: 0;
+          top: 0;
+      }
+      .jcrop-handle.ord-se {
+          bottom: 0;
+          margin-bottom: -4px;
+          margin-right: -4px;
+          right: 0;
+      }
+      .jcrop-handle.ord-sw {
+          bottom: 0;
+          left: 0;
+          margin-bottom: -4px;
+          margin-left: -4px;
+      }
+          /* Dragbars */
+      .jcrop-dragbar.ord-n,
+      .jcrop-dragbar.ord-s {
+          height: 7px;
+          width: 100%;
+      }
+      .jcrop-dragbar.ord-e,
+      .jcrop-dragbar.ord-w {
+          height: 100%;
+          width: 7px;
+      }
+      .jcrop-dragbar.ord-n {
+          margin-top: -4px;
+      }
+      .jcrop-dragbar.ord-s {
+          bottom: 0;
+          margin-bottom: -4px;
+      }
+      .jcrop-dragbar.ord-e {
+          margin-right: -4px;
+          right: 0;
+      }
+      .jcrop-dragbar.ord-w {
+          margin-left: -4px;
+      }
+          /* The "jcrop-light" class/extension */
+      .jcrop-light .jcrop-vline,
+      .jcrop-light .jcrop-hline {
+          background: #ffffff;
+          filter: alpha(opacity=70) !important;
+          opacity: .70!important;
+      }
+      .jcrop-light .jcrop-handle {
+          -moz-border-radius: 3px;
+          -webkit-border-radius: 3px;
+          background-color: #000000;
+          border-color: #ffffff;
+          border-radius: 3px;
+      }
+          /* The "jcrop-dark" class/extension */
+      .jcrop-dark .jcrop-vline,
+      .jcrop-dark .jcrop-hline {
+          background: #000000;
+          filter: alpha(opacity=70) !important;
+          opacity: 0.7 !important;
+      }
+      .jcrop-dark .jcrop-handle {
+          -moz-border-radius: 3px;
+          -webkit-border-radius: 3px;
+          background-color: #ffffff;
+          border-color: #000000;
+          border-radius: 3px;
+      }
+          /* Simple macro to turn off the antlines */
+      .solid-line .jcrop-vline,
+      .solid-line .jcrop-hline {
+          background: #ffffff;
+      }
+          /* Fix for twitter bootstrap et al. */
+      .jcrop-holder img,
+      img.jcrop-preview {
+          max-width: none;
+      }
+
+      .upload-wrap{
+        width:730px;
+        background-color:#ffffff;
+        height:456px;
+        position:fixed;
+        top:50%;
+        left:50%;
+        margin-top:-228px;
+        margin-left:-365px;
+        overflow:hidden;
+        z-index:9999;
+      }
+      .uploadPics {
+        position: relative;
+        float: left;
+        width: 360px;
+        background-color: #fff;
+        /*border-top: 3px solid #ed2828;  */
+        height: 456px;
+        overflow: hidden;
+      }
+
+      .uploadPics > img {
+        position: absolute;
+        top: 20px;
+        right: 10px;
+        cursor: pointer;
+      }
+
+      .uploadPics .picTil {
+        padding: 20px;
+        font-size: 16px;
+        color: #323232;
+        border-bottom: 1px solid #f3f3f3;
+      }
+
+      .uploadPics .picCont {
+        margin: 20px;
+        padding: 15px;
+        width: 300px;
+        height: 337px;
+        background-color: #f2f2f5;
+      }
+
+      .uploadPics .picCont > p {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+
+      .uploadPics .picFooter {
+        text-align: center;
+      }
+
+      .uploadPics .picFooter .btn {
+        display: inline-block;
+        margin: 20px;
+        width: 130px;
+        height: 35px;
+        font-size: 18px;
+        line-height: 35px;
+        color: #333;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .uploadPics .picFooter .upload {
+        background-color: #aaa;
+      }
+
+      .uploadPics .picFooter .confirm {
+        background-color: #f4ad23;
+      }
+      .thirdLayerIn .img-preview {
+        float: left;
+        width: 350px;
+        padding: 20px 25px 0;
+        text-align: center;
+      }
+      .thirdLayerIn .img-preview h3 {
+        height: 36px;
+        line-height: 36px;
+        font-size: 20px;
+        color: #666;
+        margin-bottom: 15px;
+      }
+      #myCan{
+        margin-left: 25px;
+         transform: scale(0.5);
+         transform-origin: 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div v-cloak id="app">
+      <ysz-header></ysz-header>
+      <div id="main">
+        <div class="part banner">
+          <div class="w">
+            <div class="banner-info">
+              <h2>艺术者 · 遇见你的品味</h2>
+            </div>
+          </div>
+        </div>
+        <div class="content clearfix">
+          <div class="w">
+            <left-user-info></left-user-info>
+            <div class="right-wrap">
+              <div class="face-wrap">
+
+                <div @click="showUpload('face')" class="fl img-wrap">
+                  <img :src="form.face + compress.S">
+                  <p class="change">更换头像</p>
+                </div>
+                <p class="fl nick">{{form.nickname}}<i class="icons icon-artist"></i></p>
+                <div class="fr">
+                  <!-- <div class="btn-group">
+                    <div @click="followorno" :class="[info.isFollowed=='Y'? 'followed': '', 'btn-s']">{{btnfollow}}</div>
+                  </div> -->
+                  <p class="num"><span>作品 <strong>{{info.artTotal}}</strong></span>|<span>粉丝 <strong>{{info.followerTotal}}</strong></span></p>
+                </div>
+              </div>
+              <el-tabs v-model="activeName" class="listtabs" @tab-click="getlistTab">
+                <el-tab-pane label="基本资料" name="first" class="">
+                  <el-form ref="form" :model="form" label-width="130px">
+                    <el-form-item v-if="info.isArtist == 1" label="画廊封面">
+                      <div @click="showUpload('cover')" class="cover clearfix">
+                        <div class="img-wrap">
+                          <img :src="form.cover + compress.S">
+                          <p class="change">更换封面</p>
+                        </div>
+                        <a class="change-cover" href="javascript:;">更换</a>
+                      </div>
+                    </el-form-item>
+                    <el-form-item label="昵称">
+                      <el-input v-model="form.nickname" @change="checknic"></el-input>
+                    </el-form-item>
+                    <el-form-item label="性别">
+                      <el-radio-group v-model="form.gender">
+                        <el-radio label="1">男</el-radio>
+                        <el-radio label="2">女</el-radio>
+                        <el-radio label="3">保密</el-radio>
+                      </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="个性签名">
+                      <el-input type="textarea" :rows="3" placeholder="请填写您的个性签名" v-model="form.motto"></el-input>
+                    </el-form-item>
+                    <el-form-item v-if="info.isArtist == 1" label="个人介绍">
+                      <el-input type="textarea" :rows="3" placeholder="请输入您的个人简介以及近5年内的获奖，展览，以及相关荣誉情况" v-model="form.resume"></el-input>
+                    </el-form-item>
+                    <el-form-item v-if="info.isArtist == 1" label="画廊二维码">
+                      <div id="qrcode"></div>
+                    </el-form-item>
+                    <el-form-item class="sub">
+                      <el-button type="primary" @click="onSubmit(form)">保存</el-button>
+                    </el-form-item>
+                  </el-form>
+                </el-tab-pane>
+              <el-tab-pane label="创作·絮" name="second" v-loading="loading">
+                <ul class="update-list">
+                <li v-for="item in flourList" class="update-item clearfix">
+                  <a :href="'/artwork/update/'+ item.artupid">
+                    <div class="detail-wrap">
+                      <h3 class="title">
+                        <strong class="name">{{item.imgname}}</strong>
+                      </h3>
+                      <p class="story">
+                        {{item.summary}}
+                      </p>
+                      <ul class="tags clearfix">
+                        <li><i class="icons icon-eye"></i>{{item.view_total}}</li>
+                        <li><i class="icons icon-comment"></i>{{item.comment_total}}</li>
+                        <li><i class="icons icon-like"></i>{{item.like_total}}</li>
+                      </ul>
+                    </div>
+                    <div class="img-wrap">
+                      <img class="art-pic" v-lazy="item.imgurl">
+                    </div>
+                  </a>
+                </li>
+                <!-- <ysz-loadmore v-show="isshow1" infinite-scroll-disabled="busy" infinite-scroll-distance="10" v-infinite-scroll="flourlist"></ysz-loadmore> -->
+              </ul>
+              <div class="messagepage" v-if='totalpage > 1'>
+                  <div class="upload-page el-pagination">
+                    <button type="button"  :class="[ curpage == 1 ? 'disabled' : '','btn-prev']" @click="pagePrev" ><</button>
+                    <span class="upload-num" >{{curpage}}/{{totalpage}}</span>
+                    <button type="button" :class="[ curpage == totalpage ? 'disabled' : '','btn-next']" @click="pageNext" >></button>
+                    <span class="el-pagination__jump ">
+                      <input type="number" min="1" number="true" v-model='inputpage' class="el-pagination__editor el-pagination__editor2" style="width: 58px;">
+                      <a href="javascript:;" @click="gotopage"  class="el-button el-button--info is-plain upload-jump">
+                        <span>跳转</span>
+                      </a>
+                    </span>
+                  </div>                    
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="作品·集" name="third" v-loading="loading">
+              <ul class="art-list clearfix">
+                <li v-for="(artitem, index) in collectionList" class="fl">
+                  <a :href="'/artwork/detail/' + artitem.id">
+                    <img class="art-pic" v-lazy="artitem.coverUrl">
+                    <h3 class="clearfix">
+                      <span class="fl">《 {{artitem.name}} 》</span>
+                      <p class="fr ritbox clearfix">
+                        <i @click.prevent="" :class="['icons', 'fl', artitem.is_like == 'Y'?'icon-liked': 'icon-like']"></i>
+                        <i class="fl likenum">{{artitem.liketotal}}</i>
+                      </p>
+                    </h3>
+                  </a>
+                </li>
+              </ul>
+              <div class="messagepage" v-if='totalpage2 > 1'>
+                <div class="upload-page el-pagination">
+                  <button type="button"  :class="[ curpage2 == 1 ? 'disabled' : '','btn-prev']" @click="pagePrev2" ><</button>
+                  <span class="upload-num" >{{curpage2}}/{{totalpage2}}</span>
+                  <button type="button" :class="[ curpage2 == totalpage2 ? 'disabled' : '','btn-next']" @click="pageNext2" >></button>
+                  <span class="el-pagination__jump ">
+                    <input type="number" min="1" number="true" v-model='inputpage2' class="el-pagination__editor el-pagination__editor2" style="width: 58px;">
+                    <a href="javascript:;" @click="gotopage2"  class="el-button el-button--info is-plain upload-jump">
+                      <span>跳转</span>
+                    </a>
+                  </span>
+                </div>                    
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 弹窗 -->
+      <div v-cloak v-show="boxIsShow" class="layerbox layermshow" id="j_layerShow">
+        <div @click="hideBox" class="layershade"></div>
+        <div class="layermain">
+          <div v-show="uploadIsShow" class="thirdLayerIn anim-scale clearfix upload-wrap">
+            <div class="uploadPics">
+              <div class="picCont" style="width:300px;height:300px;margin:20px auto 0;padding:0;" >
+                  <div id="imgfield"  style=overflow:hidden;width:100%;height:100% ></div>
+              </div>
+              <div class="picFooter">
+                <input type="file" id="fileimg" name="fileimg" style="display:none" @change="imgchange" />
+                <span class="btn confirm" @click="getimg">选择图片</span>
+                <span class="btn confirm" @click="uploadImg">{{uploadText}}</span>
+
+              </div>
+            </div>
+            <div class="img-preview">
+              <h3>{{preTxet}}</h3>
+              <canvas id="myCan" width="400" height="400"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ysz-footer></ysz-footer>
+    </div>
+  </body>
+  <script src="/Public/js/lib/vue.min.js"></script>
+  <script src="/Public/js/plugin/vue-infinite-scroll.js"></script>
+  <script src="/Public/js/plugin/vue-lazyload.js"></script>
+  <script src="/Public/js/lib/element/index.js"></script>
+  <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+  <script src="/Public/js/plugin/jquery.Jcrop.min.js"></script>
+  <script src="/Public/js/plugin/qrcode.min.js"></script>
+  <script src="/Public/js/common.js?v=1.2.0"></script>
+  <script src="/Public/js/user/index.js?v=0.0.2"></script>
+  <script type="text/javascript">
+  </script>
+</html>

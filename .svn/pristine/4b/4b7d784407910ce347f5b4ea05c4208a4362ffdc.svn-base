@@ -1,0 +1,85 @@
+<?php
+/**
+ * oss sts 临时授权
+ *
+ *
+ */
+namespace V40\Controller;
+include_once STS_ROOT_PATH . "aliyun-php-sdk-core/Config.php";
+use V40\Base\ApiBaseController;
+use Sts\Request\V20150401 as Sts;
+
+
+class OssStsServiceController extends ApiBaseController
+{
+
+    /**
+     * 获取临时凭证
+     */
+    public function GetCertificate()
+    {
+        $this->checkLogin();  //判断用户是否登录
+
+        $userid = intval($this->loginUserId);
+
+
+        $OSS_STS_array = C('OSS_STS');
+
+        $accessKeyID = $OSS_STS_array['AccessKeyID'];
+        $accessKeySecret = $OSS_STS_array['AccessKeySecret'];
+        $roleArn = $OSS_STS_array['RoleArn'];
+        $tokenExpire = $OSS_STS_array['TokenExpireTime'];
+        $BucketName=$OSS_STS_array['BucketName'];
+
+        //$user_dir限制用户上传目录，禁止传文件到其他用户目录,   oss:PutObject只有上传权限
+        $user_dir = oss_user_file_dir($userid);
+        $policy = '{
+  "Version": "1",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "oss:PutObject"
+      ],
+      "Resource": [
+        "acs:oss:*:*:'.$BucketName.'/' . $user_dir . '/*"
+      ]
+      
+    }
+  ]
+}';
+
+        //print_r($policy);exit;
+
+        $iClientProfile = \DefaultProfile::getProfile("cn-shenzhen", $accessKeyID, $accessKeySecret);
+        $client = new \DefaultAcsClient($iClientProfile);
+
+        $request = new Sts\AssumeRoleRequest();
+        $request->setRoleSessionName("client_name");
+        $request->setRoleArn($roleArn);
+        $request->setPolicy($policy);
+        $request->setDurationSeconds($tokenExpire);
+        $response = $client->doAction($request);
+
+        $rows = array();
+        $body = $response->getBody();
+        $content = json_decode($body);
+        if ($response->getStatus() == 200) {
+            $rows['StatusCode'] = 200;
+            $rows['AccessKeyId'] = $content->Credentials->AccessKeyId;
+            $rows['AccessKeySecret'] = $content->Credentials->AccessKeySecret;
+            $rows['Expiration'] = $content->Credentials->Expiration;
+            $rows['SecurityToken'] = $content->Credentials->SecurityToken;
+            $rows['user_dir'] = $user_dir;
+        } else {
+            $rows['StatusCode'] = 500;
+            $rows['ErrorCode'] = $content->Code;
+            $rows['ErrorMessage'] = $content->Message;
+        }
+        echo json_encode($rows);
+        return;
+
+    }
+
+
+}

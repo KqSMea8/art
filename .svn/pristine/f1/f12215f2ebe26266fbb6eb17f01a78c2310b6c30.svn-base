@@ -1,0 +1,211 @@
+<?php
+
+namespace V43\Controller;
+
+use Think\Exception;
+use V43\Logic\CommentLogic;
+use V43\Logic\UserFollowerLogic;
+use V43\Logic\ArtworkLogic;
+use V43\Logic\GalleryLogic;
+use V43\Base\ApiBaseController;
+use V43\Model\CommentModel;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Manager\Token;
+use Custom\Define\Image;
+
+//画廊
+class GalleryController extends ApiBaseController
+{
+    //获取艺术品分类下面的统计信息
+    public function getArtworkCategoryStat()
+    {
+        //todo 区别登录与非登录状态
+        $galleryLogic =  new GalleryLogic();
+        $categoryList1 = $galleryLogic->getArtworkCategoryStat();
+        $categoryList2 = $galleryLogic->getArtworkCategoryStat(1);
+        $categoryList3 = $galleryLogic->getArtworkCategoryStat(2);
+        $total = $galleryLogic->getArtistTotal();
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>[
+          'all' => $categoryList1,
+          'man' => $categoryList2,
+          'women' => $categoryList3,
+          'isShowCategory' => $total > 50 ? 'Y' : 'N'
+          ]]);
+    }
+    //获取艺术品的题材和风格选项配置
+    public function getArtworkSubjectAndStyle()
+    {
+        $galleryLogic =  new GalleryLogic();
+        $galleryLogic->showArtworkSubjectAndStyle(APP_DEBUG);
+    }
+
+    //获取画廊列表页，通过画廊包含的画作类别和画家性别
+    public function getArtworkList()
+    {
+        $gender = I('post.gender','','number_int');
+        $category = I('post.category','','number_int');
+        $page = I('post.page','1','number_int');
+        $pagesize = I('post.pagesize', 5, 'number_int');
+        $galleryLogic =  new GalleryLogic();
+        $data = $galleryLogic->getGalleryList($gender,$category,$page,$pagesize,$this->loginUserId);
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$data]);
+    }
+    //获取画廊详情页信息
+    public function getDetail()
+    {
+        $artistId = I('post.artistId', '');
+        $artistId = Checker::numberId($artistId);
+        $galleryLogic =  new GalleryLogic();
+        $galleryLogic->showDetail($artistId, $this->loginUserId);
+    }
+    //获取艺术品详情列表页
+    public function getArtworkDetailList()
+    {
+        $userid = $this->loginUserId; //用户登录ID
+        $userid = empty($userid)?0:$userid;
+        $artistId = I('post.artistId', '');
+        $artistId = Checker::numberId($artistId);
+        $page = I('post.page', 1, 'int');
+        $perPageNumber = I('post.perPageNumber', 10, 'int');
+
+        $artworkLogic = new ArtworkLogic();
+        $artworkLogic->showArtworkListByPage($artistId, $page, $perPageNumber,$userid);
+    }
+
+    public function getArtworkDetailList2()
+    {
+        $artistId = I('post.artistId', '');
+        $artistId = Checker::numberId($artistId);
+        $page = I('post.page', 1, 'int');
+        $perPageNumber = I('post.perPageNumber', 10, 'int');
+
+        $artworkLogic = new ArtworkLogic();
+        $artworkLogic->showArtworkListByPage2($artistId, $page, $perPageNumber);
+    }
+
+    //获取所有完成的艺术品详情
+    public function getArtFinishedList(){
+        $artistId = $this->loginUserId; //获取艺术者id
+        $artistId = Checker::numberId($artistId);
+
+        $artworkLogic = new ArtworkLogic();
+        $artworkLogic->getFinishedList($artistId);
+    }
+
+    //获取画作评论或画作更新列表，包含已经完成和未完成的画作
+    public function getCommentList()
+    {
+        //$tokenInfo = Token::getTokenInfo($this->token);
+        //$userId = $tokenInfo['userInfo']['id'];
+        $id = I('post.id');//artworkId or artworkUpdateId
+        $type = I('post.type', 'artwork');//artwork or update
+        $page = I('post.page', 1);
+        $perPageCount = I('post.perPageCount', 10);
+
+        $commentLogic = new CommentLogic();
+        if ($type == 'artwork') {
+            $type = CommentModel::TYPE_ARTWORK;
+        } elseif ($type == 'update') {
+            $type = CommentModel::TYPE_ARTWORK_UPDATE;
+        }
+        $list = $commentLogic->getListByPage($id, $page, $perPageCount, $type);
+        $artistReplyList = $commentLogic->getArtistReplyList($commentIdList);
+        $newList = [];
+        foreach ($list as $item){
+            $newItem = [
+
+            ];
+            $newList[] = $newItem;
+        }
+
+        Util::jsonReturn(['status'=>1000, 'info'=>$list]);
+    }
+    //评论画作或更新
+    public function comment()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id'];
+        $id = I('post.id');//artworkId or artworkUpdateId, change with $type
+        $type = I('post.type');//artwork or update
+        $content = I('post.content');
+
+        if ($type === 'artwork') {
+            $type = CommentModel::TYPE_ARTWORK;
+        } elseif ($type === 'update'){
+            $type = CommentModel::TYPE_ARTWORK_UPDATE;
+        }
+
+        if ($type==1) {
+            $Artworkinfo=M('Artwork')->where(['id'=>intval($id),'is_deleted'=>'N'])->find();
+            if(!$Artworkinfo){
+                Util::jsonReturn(null, Code::SYS_ERR);
+            }
+        } elseif ($type==2){
+            $ArtworkUpdateinfo = M('ArtworkUpdate')->where("id=".intval($id)." and is_deleted='N'")->find();
+            if(!$ArtworkUpdateinfo){
+                Util::jsonReturn(null, Code::SYS_ERR);
+            }
+        }else{
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+
+        $artworkLogic = new ArtworkLogic();
+        //$artworkDetail = $artworkLogic->getDetail($id);
+        if ($type==1) {
+            $comment_to=$Artworkinfo['artist'];
+        } elseif ($type==2){
+            $comment_to=$ArtworkUpdateinfo['artist'];
+        }
+
+        $commentInfo = [
+            'commenter'=>$userId,
+            'comment_to'=>$comment_to,
+            'content'=>$content,
+            'topic_id'=>$id,
+            'type'=> $type,
+            'create_time'=>$_SERVER['REQUEST_TIME'],
+        ];
+        $commentLogic = new CommentLogic();
+        //todo 通过memcached add原子性对同一用户进行频率控制
+        $commentId = $commentLogic->addOne($commentInfo);
+        Util::jsonReturn();
+    }
+
+    public function follow()
+    {
+        $this->checkLogin();
+        //todo need to set the login user id.
+        $artistId = I('post.artistId', '');
+        $artistId = Checker::numberId($artistId);
+        $userFollowerLogic = new UserFollowerLogic();
+        $followResult = $userFollowerLogic->addFollower($this->loginUserId, $artistId);
+        if ($followResult) {
+            Util::jsonReturn();
+        }
+        Util::jsonReturn();
+        //Util::jsonReturn(null, Code::SYS_ERR, '您已经关注过!');
+    }
+    //unFollow the gallery.
+    public function unFollow()
+    {
+        $this->checkLogin();
+        //todo need to set the login user id.
+        $artistId = I('post.artistId', '');
+        $artistId = Checker::numberId($artistId);
+        $userFollowerLogic = new UserFollowerLogic();
+        try{//关注不能是负数，执行会出现sql错误，要try
+        $followResult = $userFollowerLogic->unFollow($this->loginUserId, $artistId);
+        }catch (Exception $e){
+            //Util::jsonReturn(null, Code::SYS_ERR, 'Data save error!');
+            Util::jsonReturn();
+        }
+        if ($followResult) {
+            Util::jsonReturn();
+        }
+        Util::jsonReturn();
+        //Util::jsonReturn(null, Code::SYS_ERR, 'Data save error!');
+    }
+}

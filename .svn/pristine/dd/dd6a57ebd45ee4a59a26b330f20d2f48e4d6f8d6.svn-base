@@ -1,0 +1,35 @@
+<?php
+// +----------------------------------------------------------------------
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// +----------------------------------------------------------------------
+// | Copyright (c) 2006-2014 http://thinkphp.cn All rights reserved.
+// +----------------------------------------------------------------------
+// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
+// +----------------------------------------------------------------------
+// | Author: liu21st <liu21st@gmail.com>
+// +----------------------------------------------------------------------
+
+// 应用入口文件
+
+// 开启调试模式 建议开发阶段开启 部署阶段注释或者设为false
+//ini_set('display_errors', '1');
+//error_reporting(E_ALL);
+
+define('APP_DEBUG', true);
+//不需要生成index.html
+define('BUILD_DIR_SECURE',false);
+// 定义应用目录
+define('APP_PATH', __DIR__.'/Apps/');
+define('ROOT_PATH', __DIR__.'/');
+define('STS_ROOT_PATH', __DIR__."/SDK/sts/");
+
+if(isset($_POST['version'])){
+  define('VERSION',floatval($_POST['version']));
+}else{
+  define('VERSION',1.0);
+}
+
+// 引入ThinkPHP入口文件
+include __DIR__.'/vendor/autoload.php';
+require __DIR__.'/ThinkPHP/ThinkPHP.php';
+// 亲^_^ 后面不需要任何代码了 就是如此简单

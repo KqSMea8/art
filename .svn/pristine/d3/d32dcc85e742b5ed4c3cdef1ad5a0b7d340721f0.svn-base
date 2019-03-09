@@ -1,0 +1,11 @@
+<?php
+
+namespace V60\Model;
+
+
+use V60\Base\BaseModel;
+
+class ArtCircleShareModel extends BaseModel
+{
+    protected $tableName = 'art_circle_share';
+}

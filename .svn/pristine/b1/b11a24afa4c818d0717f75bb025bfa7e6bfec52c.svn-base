@@ -1,0 +1,68 @@
+<?php
+
+namespace Admin\Controller;
+
+use Think\Controller;
+
+
+class SeoCollectController extends Controller
+{
+    public function collectImportOnline()
+    {
+
+        $Verification=I('post.VerificationKey');
+        $title = I('post.title');
+        $content = I('post.content');
+        $author = I('post.author');
+        $source_site = I('post.source_site');
+        $source = I('post.source');
+        $source_url = I('post.source_url');
+        $source_time = I('post.source_time');
+        $pic_path = I('post.pic_path');
+        $rules = array(
+            array('title', 'require', 'title必须！', 1),
+            array('content', 'require', 'content必须！', 1),
+            array('source_site', 'require', 'source_site必须！', 1),
+            array('source_url', 'require', 'source_url必须！', 1),
+            array('pic_path', 'require', 'pic_path必须！', 1),
+        );
+        $Checker = M('seo_article');
+        if (!$Checker->validate($rules)->create()) {
+            // 如果创建失败 表示验证没有通过 输出错误提示信息
+            header("HTTP/1.0 404 Not Found");
+            echo 'error';
+            exit();
+        }
+        if($Verification!='arewt4OU423gfd5'){
+            header("HTTP/1.0 404 Not Found");
+            echo 'error';
+            exit();
+        }
+
+
+        $seo_article=M('seo_article');
+        $seo_articleinfo=$seo_article->where(['source_url'=>$source_url])->find();
+
+        if(!$seo_articleinfo) {
+            $data = [
+                'title' => trim($title),
+                'content' => trim($content),
+                'author' => trim($author),
+                'source_site' => trim($source_site),
+                'source' => trim($source),
+                'source_url' => trim($source_url),
+                'source_time' => strtotime($source_time),
+                'pic_path'=>trim($pic_path),
+                'create_time' => time(),
+                'status' => 2,
+            ];
+
+            $seo_article->add($data);
+        }else{
+            header("HTTP/1.0 404 Not Found");
+            echo 'Duplicate record';
+            exit();
+        }
+
+    }
+}

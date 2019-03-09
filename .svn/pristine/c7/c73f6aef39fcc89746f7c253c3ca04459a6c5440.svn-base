@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>我的</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/user.css">
+  </head>
+  <body>
+    <div id="user">
+      <div id="header">
+        <div class="userinfo">
+          <a href="/H5/user/profile">
+            <img class="avatar" src="/Public/H5/image/user/avatar.png">
+            <div class="detail">
+              <span class="nickname">白素</span>
+              <!-- 艺术家标识 -->
+              <div class="artist">
+                <i class="icons icon-artist"></i>
+                <span>艺术家</span>
+              </div>
+              <span class="desc">最享受拿着画笔的感觉</span>
+              <a href="/H5/user/setting">
+                <i class="icons icon-set"></i>
+              </a>
+            </div>
+            <!-- 艺术家邀请码 -->
+            <div class="invite" style="display: none;">
+              <span>邀请码：10036</span>
+              <i class="icons icon-question"></i>
+              <i class="icons icon-arrow"></i>
+            </div>
+            <!-- 欣赏者申请认证 -->
+            <div class="appeal">
+              <a @click="showDownload('如需成为认证艺术家，请在APP中完成认证流程。')" href="javascript:;" class="btn-appeal">申请认证艺术家</a>
+            </div>
+            <!-- 欣赏者喜欢 关注 消息 -->
+            <div class="my-bar-list">
+              <a class="my-bar-item" href="/H5/Collect/index">
+                <i class="icons icon-like"></i>
+                <span class="my-bar-label">我的喜欢</span>
+              </a>
+              <a class="my-bar-item" href="/H5/Follow/myfollows">
+                <i class="icons icon-follow"></i>
+                <span class="my-bar-label">我的关注</span>
+              </a>
+              <a class="my-bar-item" href="/H5/Message/index">
+                <i class="icons icon-msg"></i>
+                <span class="my-bar-label">我的消息</span>
+              </a>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="main">
+        <!-- 欣赏者内容 -->
+        <!-- 无动态欣赏者 -->
+        <div class="go-enjoy">
+          <a href="javascript:;" class="btn btn-go-enjoy">去欣赏作品</a>
+          <div class="go-enjoy-info">你有一双发现美的眼睛，<br>快去为你喜欢的作品点个赞。</div>
+        </div>
+        <!-- 有动态欣赏者 -->
+        <div class="trend" style="display: none;">
+          <ul class="list">
+            <li class="item">
+              <div class="info">
+                <img class="avatar" src="/Public/H5/image/user/avatar.png" alt="">
+                <span class="name">Poon</span>
+                <span class="time">1天前</span>
+              </div>
+              <p class="desc">回复了你对《这一年》的评论“很漂亮”</p>
+            </li>
+            <li class="item">
+              <div class="info">
+                <img class="avatar" src="/Public/H5/image/user/avatar.png" alt="">
+                <span class="name">Poon</span>
+                <span class="time">1天前</span>
+              </div>
+              <p class="desc">回复了你对《这一年》的评论“很漂亮”</p>
+            </li>
+            <li class="item">
+              <div class="info">
+                <img class="avatar" src="/Public/H5/image/user/avatar.png" alt="">
+                <span class="name">Poon</span>
+                <span class="time">1天前</span>
+              </div>
+              <p class="desc">回复了你对《这一年》的评论“很漂亮”</p>
+            </li>
+            <li class="item">
+              <div class="info">
+                <img class="avatar" src="/Public/H5/image/user/avatar.png" alt="">
+                <span class="name">Poon</span>
+                <span class="time">1天前</span>
+              </div>
+              <p class="desc">回复了你对《这一年》的评论“很漂亮”</p>
+            </li>
+          </ul>
+          <div class="more">
+            <a href="/H5/Message/index">
+              <span>查看更多</span>
+              <i class="icons icon-arrow-two"></i>
+            </a>
+          </div>
+        </div>
+        <!-- 艺术家内容 -->
+        <ul class="artist-content" style="display: none;">
+          <li class="item">
+            <a href="/H5/Glalery/detail">
+              <i class="icons icon-gallery"></i>
+              <span class="my">我的画廊</span>
+              <i class="icons icon-arrow"></i>
+              <span class="num">0人浏览</span>
+            </a>
+          </li>
+          <li class="item">
+            <a href="/H5/Invite/index">
+              <i class="icons icon-invite"></i>
+              <span class="my">我的邀请</span>
+              <i class="icons icon-arrow"></i>
+              <span class="num">已邀请0个</span>
+            </a>
+          </li>
+          <li class="item">
+            <a href="/H5/Message/index">
+              <i class="icons icon-msg"></i>
+              <span class="my">我的消息</span>
+              <i class="icons icon-arrow"></i>
+              <span class="num">0个未读</span>
+            </a>
+          </li>
+          <li class="item">
+            <a href="/H5/Collect/index">
+              <i class="icons icon-like"></i>
+              <span class="my">我的喜欢</span>
+              <i class="icons icon-arrow"></i>
+              <span class="num">0幅</span>
+            </a>
+          </li>
+          <li class="item">
+            <a href="/H5/Follow/myfans">
+              <i class="icons icon-fans"></i>
+              <span class="my">我的粉丝</span>
+              <i class="icons icon-arrow"></i>
+              <span class="num">0个</span>
+            </a>
+          </li>
+          <li class="item">
+            <a href="/H5/Follow/myfollows">
+              <i class="icons icon-follow"></i>
+              <span class="my">我的关注</span>
+              <i class="icons icon-arrow"></i>
+              <span class="num">0个</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div id="add" style="display: none;">
+        <div @click="showDownload('为提高艺术创作质量，请在APP中上传作品。')" class="btn-add icons icon-add-l"></div>
+        <!-- 第一次加载显示 -->
+        <div class="publish fadeInAndOut">
+          点击发布你的第一个作品,<br> 艺术圈都在等你更新呢~
+        </div>
+      </div>
+      <!-- 没有上传过作品时显示 -->
+      <div class="upload fadeInAndOut">上传3幅作品后，你将出现在“画廊”栏目</div>
+      <!-- 弹窗 -->
+      <div v-cloak v-show="boxIsShow" class="layerbox layermshow" id="j_layerShow">
+        <div @click="hideBox" class="layershade"></div>
+        <div class="layermain">
+          <div v-show="downloadIsShow" class="thirdLayerIn anim-scale download-box" id="download-app">
+            <h3 class="title">艺术者提示 <i @click="hideBox" class="icons icon-close"></i></h3>
+            <div class="content">
+              {{boxMsg}}
+            </div>
+            <div class="btn-group">
+              <input type="button" class="btn2 btn-down" value="下载艺术者APP">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-bar">
+      <nav class="tab-bar-list">
+        <a class="tab-bar-item" href="/H5/Index/index">
+          <i class="icons icon-recommend"></i>
+          <span class="tab-label">推荐</span>
+        </a>
+        <a class="tab-bar-item" href="/H5/Gallery/index">
+          <i class="icons icon-gallery"></i>
+          <span class="tab-label">画廊</span>
+        </a>
+        <a class="tab-bar-item active" href="/H5/User/index">
+          <i class="icons icon-user"></i>
+          <span class="tab-label">我</span>
+        </a>
+      </nav>
+    </div>
+  </body>
+  <script src="/Public/H5/js/lib/vue.js"></script>
+  <script src="/Public/H5/js/lib/zepto.js"></script>
+  <script src="/Public/H5/js/lib/jweixin-1.0.0.js"></script>
+  <script src="/Public/H5/js/util.js"></script>
+  <script type="text/javascript" src="/Public/H5/js/user/user.js"></script>
+</html>

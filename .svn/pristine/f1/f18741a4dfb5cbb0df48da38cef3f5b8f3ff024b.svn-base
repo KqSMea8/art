@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>画廊详情页</title>
+
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <link rel="stylesheet" type="text/css" href="/Public/H5/js/plugins/swiper-3.4.1.min.css">
+
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/gallerydetail.css">
+
+</head>
+<body>
+  <div class="gallery-detail" id="gallery-detail" style="background-image: url(/Public/H5/image/gallerydetail/bg.jpg);">
+    <div class="swiper-container ani" id="swiper-container-h">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide slide1 resume"> 
+            <div class="intro">
+              <div class="painterinfo">
+                <img class="painterinfo-avatar" src="/Public/H5/image/gallerydetail/avatar.png">
+                <span class="painterinfo-nickname">白素</span>
+                <span class="painterinfo-desc">最享受拿着画笔的感觉</span>
+              </div>
+              <div class="follow-bar-list">
+                <div class="follow-bar-item" href="#">
+                  <i class="icons icon-fans"></i>
+                  <span class="follow-bar-label">336</span>
+                </div>
+                <div class="follow-bar-item" href="#">
+                  <i class="icons icon-like"></i>
+                  <span class="follow-bar-label">1026</span>
+                </div>
+                <div class="follow-bar-item" href="#">
+                  <i class="icons icon-eye"></i>
+                  <span class="follow-bar-label">4602</span>
+                </div>
+              </div>
+            </div>
+            <ul class="record">
+              <li class="record-detail">2015年1月时尚美术馆展出</li>
+              <li class="record-detail">2015年1月《青春志艺术嘉年华》美术馆</li>
+              <li class="record-detail">2014年11月参加北京艺术展</li>
+              <li class="record-detail">2015年6月《国际艺术自由展》美术馆</li>
+              <li class="record-detail">2015年6月《国际艺术自由展》美术馆</li>
+              <li class="record-detail">2015年6月《国际艺术自由展》美术馆</li>
+              <li class="record-detail">2015年6月《国际艺术自由展》美术馆</li>
+              <li class="record-detail">2015年6月《国际艺术自由展》美术馆</li>
+              <li class="record-detail">2015年6月《国际艺术自由展》美术馆</li>
+              <li class="record-detail">2015年6月《国际艺术自由展》美术馆</li>
+            </ul>
+        </div>
+        <div class="swiper-slide slide2 painting">
+          <div class="content">
+            <div class="screenshot">
+              <a href="/H5/gallery/paintingdetail">
+                <img src="/Public/H5/image/gallerydetail/painting.png">
+              </a>
+            </div>
+            <div class="painting-desc">
+              <div class="title">
+                <h3>晴日阳光</h3>
+                <i class="icons icon-update icon-update-grey-0"></i>
+                <div class="icon-r heart">
+                  <i class="icons icon-heart-grey"></i>
+                  <span class="label">1026</span>
+                </div>
+                <div class="icon-r eye">
+                  <i class="icons icon-eye-grey"></i>
+                  <span class="label">4602</span>
+                </div>
+              </div>
+              <div class="desc">
+                我是一个喜欢真实的人，所以，我才决定通过绘画触及生死问题，尽管这个命题在我这个年龄阶段显得有点可疑。
+              </div>
+            </div>
+            <div class="bottom-1"></div>
+            <div class="bottom-2"></div>
+          </div>
+        </div>
+        <div class="swiper-slide slide3 painting">
+          <div class="content">
+            <div class="screenshot">
+              <a href="/H5/gallery/paintingdetail">
+                <img src="/Public/H5/image/gallerydetail/painting.png">
+              </a>
+            </div>
+            <div class="painting-desc">
+              <div class="title">
+                <h3>晴日阳光</h3>
+                <i class="icons icon-update icon-update-grey-2"></i>
+                <div class="icon-r heart">
+                  <i class="icons icon-heart-grey"></i>
+                  <span class="label">1026</span>
+                </div>
+                <div class="icon-r eye">
+                  <i class="icons icon-eye-grey"></i>
+                  <span class="label">4602</span>
+                </div>
+              </div>
+              <div class="desc">
+                我是一个喜欢真实的人，所以，我才决定通过绘画触及生死问题，尽管这个命题在我这个年龄阶段显得有点可疑。
+              </div>
+            </div>
+            <div class="bottom-1"></div>
+            <div class="bottom-2"></div>
+          </div>
+        </div>
+        <div class="swiper-slide slide4 painting">
+          <div class="content">
+            <div class="screenshot">
+              <a href="/H5/gallery/paintingdetail">
+                <img src="/Public/H5/image/gallerydetail/painting.png">
+              </a>
+            </div>
+            <div class="painting-desc">
+              <div class="title">
+                <h3>晴日阳光</h3>
+                <i class="icons icon-update icon-update-grey-3"></i>
+                <div class="icon-r heart">
+                  <i class="icons icon-heart-grey"></i>
+                  <span class="label">1026</span>
+                </div>
+                <div class="icon-r eye">
+                  <i class="icons icon-eye-grey"></i>
+                  <span class="label">4602</span>
+                </div>
+              </div>
+              <div class="desc">
+                我是一个喜欢真实的人，所以，我才决定通过绘画触及生死问题，尽管这个命题在我这个年龄阶段显得有点可疑。
+              </div>
+            </div>
+            <div class="bottom-1"></div>
+            <div class="bottom-2"></div>
+          </div>
+        </div>
+        <div class="swiper-slide slide5 painting">
+          <div class="content">
+            <div class="screenshot">
+              <a href="/H5/gallery/paintingdetail">
+                <img src="/Public/H5/image/gallerydetail/painting.png">
+              </a>
+            </div>
+            <div class="painting-desc">
+              <div class="title">
+                <h3>晴日阳光</h3>
+                <i class="icons icon-update icon-update-grey-4"></i>
+                <div class="icon-r heart">
+                  <i class="icons icon-heart-grey"></i>
+                  <span class="label">1026</span>
+                </div>
+                <div class="icon-r eye">
+                  <i class="icons icon-eye-grey"></i>
+                  <span class="label">4602</span>
+                </div>
+              </div>
+              <div class="desc">
+                我是一个喜欢真实的人，所以，我才决定通过绘画触及生死问题，尽管这个命题在我这个年龄阶段显得有点可疑。
+              </div>
+            </div>
+            <div class="bottom-1"></div>
+            <div class="bottom-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="btn-painting">92幅作品</div>
+    <div id="btn-resume">
+      <i class="icons icon-back"></i>
+    </div>
+    <div id="footer">
+      <nav class="share-bar-list">
+        <div class="share-bar-item followed">
+          <i class="icons icon-follow"></i>
+          <span class="label">加关注</span>
+        </div>
+        <div class="share-bar-item" @click="showShare">
+          <i class="icons icon-share"></i>
+          <span class="label">分享</span>
+        </div>
+      </nav>
+    </div>
+    <!-- 弹窗 -->
+    <div v-cloak v-show="boxIsShow" class="layerbox layermshow" id="j_layerShow">
+      <div @click="hideBox" class="layershade"></div>
+        <div class="layermain">
+          <div @click="hideBox" v-show="shareIsShow" class="share">分享</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/Public/H5/js/lib/vue.js"></script>
+  <script src="/Public/H5/js/lib/zepto.js"></script>
+  <script src="/Public/H5/js/util.js"></script>
+  <script src="/Public/H5/js/plugins/swiper.jquery.min.js"></script>
+
+  <script type="text/javascript" src="/Public/H5/js/gallery/gallerydetail.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var mySwiperH =  new Swiper("#swiper-container-h",{
+          slidesPerView: "auto",
+          centeredSlides: !0,
+          onSlideChangeEnd: function(swiper){
+            if (swiper.activeIndex == 0) {   //切换结束时，告诉我现在是第几个slide
+              $('#btn-resume').css({ 'display': 'none'});
+              $('#btn-painting').css({ 'display': 'block'});
+              $('.intro-wrap').scrollTop(0);
+            } else {
+              $('#btn-resume').css({ 'display': 'block'});
+              $('#btn-painting').css({ 'display': 'none'});
+              $('.intro-wrap').scrollTop(0);
+            }
+          }
+      });
+      $('#btn-painting').on('click',function(){
+        mySwiperH.slideTo(1, 1000, true);
+      });
+      $('#btn-resume').on('click',function(){
+        mySwiperH.slideTo(0, 1000, true);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+/**
+ * tinymce plugin
+ * 2018/06/22
+ */
+tinymce.PluginManager.add('artupload', function (editor) {
+
+    function selectLocalImages() {
+        var dom = editor.dom;
+        var input_f = $('<input type="file" name="thumbnail" accept="image/jpg,image/jpeg,image/png,image/gif" multiple="multiple">');
+        input_f.on('change', function () {
+            var form = $("<form/>",
+                {
+                    action: editor.settings.upload_image_url, //设置上传图片的路由，配置在初始化时
+                    style: 'display:none',
+                    method: 'post',
+                    enctype: 'multipart/form-data'
+                }
+            );
+            form.append(input_f);
+            //ajax提交表单
+            form.ajaxSubmit({
+                beforeSubmit: function () {
+                    return true;
+                },
+                success: function (data) {
+                    if (data && data.file_path) {
+                        editor.focus();
+                        data.file_path.forEach(function (src) {
+                            editor.selection.setContent(dom.createHTML('img', {src: src}));
+                        })
+                    }
+                }
+            });
+        });
+
+        input_f.click();
+    }
+
+    editor.addCommand("mceUploadImageEditor", selectLocalImages);
+
+    editor.addButton('artuploadimage', {
+        icon: 'image',
+        tooltip: '上传图片',
+        onclick: function(){
+          document.getElementById('ztiframe').src = '/Admin/Attachment/uploadPicForm'
+          document.getElementById('ztmaskbox').style.display ='block';
+
+        }
+    });
+
+    editor.addButton('artuploadvideo', {
+        icon: 'media',
+        text: '上传视频',
+        context: 'tools',
+        onclick: function(){
+          document.getElementById('ztiframe').src = '/Admin/Attachment/uploadVideoForm'
+          document.getElementById('ztmaskbox').style.display='block';
+        }
+    });
+});

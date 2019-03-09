@@ -1,0 +1,1857 @@
+<?php
+
+namespace V47\Controller;
+
+use Custom\Define\Image;
+use V47\Base\ApiBaseController;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use V47\Logic\ArtworkUpdateLogic;
+use V47\Model\UserModel;
+use V47\Model\ArtworkModel;
+use V47\Model\HomeBannerModel;
+use V47\Model\ArtworkUpdateModel;
+use V47\Model\ArtworkCategoryModel;
+use V47\Logic\ArtworkCategoryLogic;
+use Think\Model;
+use Custom\Helper\ChineseSpell;
+use V47\Logic\UserLogic;
+use V47\Logic\SubjectLogic;
+
+
+class HomeController extends ApiBaseController
+{
+
+    //app首页-创作记
+    public function Record()
+    {
+
+        $cateid = I('post.category', '', 'number_int'); //作品分类
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 5, 'number_int'); //每页显示条数
+
+        $artworkModel = M('Artwork');
+        $artworkUpdateModel = M('artwork_update');
+        $artworkCategoryModel = new ArtworkCategoryModel();
+        $category = $artworkCategoryModel->field('cn_name')->where(['id'=>$cateid])->find();
+        $categoryName=trim($category['cn_name']);
+        $artworkCateogoryLogic = new ArtworkCategoryLogic();
+
+        $flag = 0; //用于判断显示的是分类创作记数据，还是推荐创作记数据
+        //判断是否选择分类
+        if ($cateid > 0) {
+            if ($cateid == 10) $cateid = -1;//其他分类的
+            $where['_string'] = 'FIND_IN_SET(' . intval($cateid) . ', az_artwork.category)
+            or FIND_IN_SET("' . $categoryName . '", az_artwork_update.tag)';
+            $where['az_artwork.state'] = 1;
+            $where['az_artwork.is_deleted'] = 'N';
+            $where['az_artwork_update.is_deleted'] = 'N';
+
+            $total = $artworkUpdateModel->field('az_artwork_update.id')
+                ->join('JOIN az_artwork ON az_artwork.id = az_artwork_update.artwork_id')
+                ->join('JOIN az_user au ON az_artwork_update.artist = au.id')
+               // ->join('JOIN az_artzhe_custom ON az_artzhe_custom.artworkid = az_artwork_update.artwork_id')
+                ->where($where)
+                ->count('distinct(az_artwork_update.id)');
+
+//echo $artworkModel->getLastSql();exit;
+            if (0 == $total) {
+                //表示没数据
+                $where_new['az_artwork.state'] = 1;
+                $where_new['az_artwork.is_deleted'] = 'N';
+                $where_new['az_artwork_update.is_deleted'] = 'N';
+
+                $thedate = date('Ymd');
+                $artinfo = $artworkUpdateModel->field("(case when FROM_UNIXTIME(az_artwork_update.create_time,'%Y%m%d')= '" . $thedate . "' then 999999999+az_artwork_update.create_time else az_artwork_weight.weight end) as the_order,az_artwork.id as artid,az_artwork_update.id as artupid,az_artwork.name as imgname,az_artwork_update.number,az_artwork.category,au.name as uname,az_artwork_update.cover,az_artwork_update.wit,az_artwork_update.last_update_time,au.face,az_artwork_update.summary,az_artwork_update.like_total,az_artwork_update.title,az_artwork_update.tag,au.id as artistid")
+                    ->join('JOIN az_artwork ON az_artwork.id = az_artwork_update.artwork_id')
+                    ->join('JOIN az_user au ON az_artwork.artist = az_artwork_update.id')
+                    ->join('az_artwork_weight ON az_artwork_update.id = az_artwork_weight.artwork_id', 'left')
+                    ->where($where_new)
+                    ->limit(5)
+                    ->order(" FROM_UNIXTIME(az_artwork_update.create_time,'%Y%m%d') desc,the_order desc,az_artwork_update.create_time desc")
+                    ->select();
+
+//echo $artworkModel->getLastSql();exit;
+                $flag = 2; //2表示显示推荐创作记数据
+                $total = 5; //总记录数
+            } else {
+                $flag = 1; //1表示显示分类创作记数据
+
+                $a['_string'] = 'FIND_IN_SET(' . intval($cateid) . ', az_artwork.category)
+               or FIND_IN_SET("' . $categoryName . '", az_artwork_update.tag)';
+                $a['az_artwork.state'] = 1;
+                $a['az_artwork.is_deleted'] = 'N';
+                $a['az_artwork_update.is_deleted'] = 'N';
+
+                $thedate = date('Ymd');
+
+                $artinfo = $artworkUpdateModel->field("(case when FROM_UNIXTIME(az_artwork_update.create_time,'%Y%m%d')= '" . $thedate . "' then 999999999+az_artwork_update.create_time else az_artwork_weight.weight end) as the_order,az_artwork.id as artid,az_artwork_update.id as artupid,az_artwork.name as imgname,az_artwork_update.number,az_artwork.category,au.name as uname,az_artwork_update.cover,az_artwork_update.wit,az_artwork_update.last_update_time,au.face,az_artwork_update.summary,az_artwork_update.like_total,az_artwork_update.title,az_artwork_update.tag,au.id as artistid")
+                    ->join('JOIN az_artwork ON az_artwork.id = az_artwork_update.artwork_id')
+                    ->join('JOIN az_user au ON az_artwork_update.artist = au.id')
+                    //->join('JOIN az_artzhe_custom ON az_artzhe_custom.artworkid = az_artwork_update.artwork_id')
+                    ->join('az_artwork_weight ON az_artwork_update.id = az_artwork_weight.artwork_id', 'left')
+                    ->where($a)
+                    ->group('artupid')
+                    ->page($page, $pagesize)
+                    ->order(" FROM_UNIXTIME(az_artwork_update.create_time,'%Y%m%d') desc,the_order desc,az_artwork_update.create_time desc")
+                    ->select();
+
+                //echo $artworkModel->getLastSql();exit;
+            }
+
+        } else {
+            $flag = 0;
+            $where['az_artwork.state'] = 1;
+            $where['az_artwork.is_deleted'] = 'N';
+            $where['awu.is_deleted'] = 'N';
+            //获取所有
+            $total = $artworkModel->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.wit,awu.last_update_time')
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('JOIN az_user au ON az_artwork.artist = au.id')
+                ->where($where)
+                ->count();
+
+
+            $thedate = date('Ymd');
+            $artinfo = $artworkModel->field("(case when FROM_UNIXTIME(awu.create_time,'%Y%m%d')= '" . $thedate . "' then 999999999+awu.create_time else az_artwork_weight.weight end) as the_order,az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.cover,awu.wit,awu.last_update_time,au.face,awu.summary,awu.like_total,awu.title,awu.tag,au.id as artistid")
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('JOIN az_user au ON az_artwork.artist = au.id')
+                ->join('az_artwork_weight ON az_artwork.id = az_artwork_weight.artwork_id', 'left')
+                ->where($where)
+                ->page($page, $pagesize)
+                //->order('awu.like_total+awu.view_total DESC')
+                //->order(" FROM_UNIXTIME(awu.create_time,'%Y%m%d') desc,az_artwork_weight.weight desc,awu.create_time desc")
+                ->order(" FROM_UNIXTIME(awu.create_time,'%Y%m%d') desc,the_order desc,awu.create_time desc")
+                ->select();
+//echo $artworkModel->getLastSql();exit;
+        }
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+
+        $data = [];
+        foreach ($artinfo as $k => $v) {
+            $artwork_name=trim($v['imgname']);
+            if(preg_match("/《(.*)》/",$artwork_name)){
+                $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+            }else{
+                $artwork_name = '《' .$artwork_name. '》';
+            }
+            $data[$k]['title'] = empty($v['title'])?$artwork_name.'花絮':$v['title']; //作品id
+            $data[$k]['artid'] = $v['artid']; //作品id
+            $data[$k]['artupid'] = $v['artupid'];  //作品更新编号
+            $data[$k]['artname'] = $artwork_name;  //作品名称
+            $data[$k]['uname'] = $v['uname']; //作者名字
+            //$data[$k]['faceurl'] = $v['face'];
+            $data[$k]['faceurl'] = Util::getImageResize($v['face'], Image::faceWidth, Image::faceHeight);
+            $data[$k]['summary'] = html_deconvert_content_cut($v['wit'], 45);
+
+           // $data[$k]['number'] = $v['number']; //更新次数编号
+            $data[$k]['category'] = $artworkCateogoryLogic->getCategoryByUser($v['artistid']);
+
+
+            //获取更新记录里面的图片
+            preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $array);
+            $data[$k]['imgurl'] = empty($array[1]) ? [] : Util::getImageResizes($array[1], 300, 300);
+            $data[$k]['imgurl'] = array_slice($data[$k]['imgurl'], 0, 3);
+
+            //获取更新记录里面的视频
+            //preg_match_all('/&lt;source.*?src=&quot;(.*?)&quot;.*?&gt;/is',$v['wit'],$match);
+            preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $match);
+            $data[$k]['video'] = empty($match[1]) ? '' : $match[1][0];
+
+            $data[$k]['uptime'] = date('Y-m-d H:i:s', $v['last_update_time']); //更新时间
+            $data[$k]['like_total'] = $v['like_total'];
+            $data[$k]['istop'] = 'N'; //是否置顶
+            unset($v['wit']);
+            unset($v['category']);
+
+        }
+
+        $my = [
+            'flag' => $flag,
+            'data' => empty($data) ? [] : $data,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $my]);
+    }
+
+    public function Record_bak20170731()
+    {
+
+        $cateid = I('post.category', '', 'number_int'); //作品分类
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 5, 'number_int'); //每页显示条数
+
+        $artworkModel = M('Artwork');
+
+        $flag = 0; //用于判断显示的是分类创作记数据，还是推荐创作记数据
+        //判断是否选择分类
+        if ($cateid > 0) {
+            if ($cateid == 10) $cateid = -1;//其他分类的
+            $where['az_artwork.category'] = ['like', "%{$cateid}%"];
+            $where['az_artwork.state'] = 1;
+            //$where['az_artwork.id'] = ['in',$artwork_ids];
+
+            //获取艺术总数量
+            $total = $artworkModel->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.wit,awu.last_update_time')
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('JOIN az_user au ON az_artwork.artist = au.id')
+                ->where($where)
+                ->count();
+
+            if (0 == $total) {
+                //表示没数据
+                $weightInfo = M('artwork_weight')->field('artwork_id')->order('weight DESC')->limit($page, 5)->select();
+
+                $art_id = '';
+                foreach ($weightInfo as $k => $v) {
+                    $art_id .= $v['artwork_id'] . ',';
+                }
+                $art_id = trim($art_id, ',');
+
+                $map['az_artwork.id'] = ['in', $art_id];
+                $map['az_artwork.state'] = 1;
+                //推荐创作记
+                $artinfo = M('Artwork')->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.cover,awu.wit,awu.last_update_time,au.face,awu.summary,awu.like_total')
+                    ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                    ->join('az_user au ON az_artwork.artist = au.id')
+                    ->where($map)
+                    ->limit(5)
+                    ->select();
+                $flag = 2; //2表示显示推荐创作记数据
+                $total = 5; //总记录数
+            } else {
+                $flag = 1; //1表示显示分类创作记数据
+
+                $data1 = $artworkModel->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.cover,awu.wit,awu.last_update_time,au.face,awu.summary,awu.like_total')
+                    ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                    ->join('JOIN az_user au ON az_artwork.artist = au.id')
+                    ->where($where)
+                    ->limit(5)
+                    ->order('awu.last_update_time desc')
+                    ->select();
+
+                $num = count($data1);
+
+                $upids = '';
+                foreach ($data1 as $k => $v) {
+                    $upids .= $v['artupid'] . ',';
+                }
+                $upids = trim($upids, ',');
+
+                $a['az_artwork.category'] = ['like', "%{$cateid}%"];
+                $a['awu.id'] = ['not in', $upids];
+                $a['az_artwork.state'] = 1;
+                $data2 = $artworkModel->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.cover,awu.wit,awu.last_update_time,au.face,awu.summary')
+                    ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                    ->join('JOIN az_user au ON az_artwork.artist = au.id')
+                    ->where($a)
+                    ->page($page, $pagesize)
+                    ->order('awu.like_total+awu.view_total DESC')
+                    ->select();
+
+                if (1 == $page) {
+                    $artinfo = $num < 5 ? $data1 : array_merge($data1, $data2);  //组合数组
+                } else {
+                    $artinfo = $data2;
+                }
+            }
+
+        } else {
+            $flag = 0;
+            $where['az_artwork.state'] = 1;
+            //获取所有
+            $total = $artworkModel->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.wit,awu.last_update_time')
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('JOIN az_user au ON az_artwork.artist = au.id')
+                ->where($where)
+                ->count();
+
+            $data1 = $artworkModel->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.cover,awu.wit,awu.last_update_time,au.face,awu.summary,awu.like_total')
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('JOIN az_user au ON az_artwork.artist = au.id')
+                ->where($where)
+                ->limit(5)
+                ->order('awu.last_update_time desc')
+                ->select();
+            $num = count($data1);
+
+            $upids = '';
+            foreach ($data1 as $k => $v) {
+                $upids .= $v['artupid'] . ',';
+            }
+            $upids = trim($upids, ',');
+
+            $b['awu.id'] = ['not in', $upids];
+            $b['az_artwork.state'] = 1;
+            $data2 = $artworkModel->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.cover,awu.wit,awu.last_update_time,au.face,awu.summary,awu.like_total')
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('JOIN az_user au ON az_artwork.artist = au.id')
+                ->where($b)
+                ->page($page, $pagesize)
+                ->order('awu.like_total+awu.view_total DESC')
+                ->select();
+            if (1 == $page) {
+                $artinfo = $num < 5 ? $data1 : array_merge($data1, $data2);  //组合数组
+            } else {
+                $artinfo = $data2;
+            }
+
+
+        }
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+
+        $data = [];
+        foreach ($artinfo as $k => $v) {
+
+            /*if(strpos("{$v['imgname']}","《")!==false){
+                $artName = trim($v['imgname'],'《');
+                $artName = trim($artName,'》');
+            }else{
+                $artName = $v['imgname'];
+            }*/
+
+            $data[$k]['artid'] = $v['artid']; //作品id
+            $data[$k]['artupid'] = $v['artupid'];  //作品更新编号
+            $data[$k]['imgname'] = $v['imgname'];  //作品名称
+            $data[$k]['uname'] = $v['uname']; //作者名字
+            $data[$k]['faceurl'] = $v['face'];
+            $data[$k]['summary'] = $v['summary'];
+            $data[$k]['number'] = $v['number']; //更新次数编号
+
+            $temp = '';
+            if ($v['category'] != 10) {
+                $arr = explode(',', $v['category']);
+                foreach ($arr as $kk => $vv) {
+                    $rc = M('ArtworkCategory')->field('cn_name')->find($vv);
+                    $temp .= $rc['cn_name'] . '/';
+                }
+                $catName = trim($temp, '/');
+            } else {
+                $catName = '其他';
+            }
+
+            $res = M('ArtzheCustom')->field('cn_name')->where(['type' => '1', 'artworkid' => $v['artid']])->find();
+            if (strpos("{$res['cn_name']}", "，") !== false) {
+                $res['cn_name'] = trim($res['cn_name'], '，');
+                $catName2 = str_replace('，', '/', $res['cn_name']);
+            } else {
+                $res['cn_name'] = trim($res['cn_name'], ',');
+                $catName2 = str_replace(',', '/', $res['cn_name']);
+            }
+            $data[$k]['category'] = $v['category'] != 10 ? $catName : $catName2; //分类名称
+
+            //获取更新记录里面的图片
+            preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $array);
+            $data[$k]['imgurl'] = empty($array[1]) ? Util::getImageResizes(['0' => $v['cover']], 300, 300) : Util::getImageResizes($array[1], 300, 300);
+
+            //获取更新记录里面的视频
+            //preg_match_all('/&lt;source.*?src=&quot;(.*?)&quot;.*?&gt;/is',$v['wit'],$match);
+            preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $match);
+            $data[$k]['video'] = empty($match[1]) ? '' : $match[1][0];
+
+            $data[$k]['uptime'] = date('Y-m-d H:i:s', $v['last_update_time']); //更新时间
+            $data[$k]['like_total'] = $v['like_total'];
+            $data[$k]['istop'] = 'N'; //是否置顶
+            unset($v['wit']);
+            unset($v['category']);
+
+        }
+
+        $my = [
+            'flag' => $flag,
+            'data' => empty($data) ? [] : $data,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $my]);
+    }
+
+    //app首页-我关注的创作记录  猜你喜欢
+    public function myfollow()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+        $artworkCateogoryLogic = new ArtworkCategoryLogic();
+        $uid = $this->loginUserId; //获得登录艺术者ID
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 5, 'number_int'); //每页显示条数
+
+        //获取当前用户关注的作家
+        $ufo = M('UserFollower')->field('user_id')->where(['follower' => $uid, 'is_follow' => 'Y'])->select();
+
+        $uid = '';
+        $flag = 1; //用于判断显示的是关注创作记数据，还是推荐创作记数据
+        //判断用户是否关注其他艺术者
+        if (empty($ufo)) {
+            $flag = 2; //猜你喜欢数据
+            $page = 1;
+            $pagesize = 5;
+            $artinfo = M('Artwork')->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.wit,awu.create_time,au.face,awu.summary,awu.like_total,awu.title,au.id as artistid')
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('az_user au ON az_artwork.artist = au.id')
+                ->where("az_artwork.state=1 and az_artwork.is_deleted='N' and awu.is_deleted='N'")
+                ->page($page, $pagesize)
+                ->order('awu.create_time desc,az_artwork.create_time desc')
+                ->select();
+            $total = 5;
+        } else {
+            foreach ($ufo as $v) {
+                $uid .= $v['user_id'] . ',';
+            }
+            $uid = trim($uid, ',');
+
+            $where['az_artwork.artist'] = ['in', $uid];
+            $where['az_artwork.state'] = 1;
+            $where['az_artwork.is_deleted'] = 'N';
+            $where['awu.is_deleted'] = 'N';
+            $flag = 1; //我关注的创作记
+            //获取作品列表
+            $artinfo = M('Artwork')->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.wit,awu.create_time,au.face,awu.summary,awu.like_total,awu.cover,awu.title,au.id as artistid')
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('az_user au ON az_artwork.artist = au.id')
+                ->where($where)
+                ->page($page, $pagesize)
+                ->order('awu.create_time desc,az_artwork.create_time desc')
+                ->select();
+
+            $total = M('Artwork')->field('az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,awu.number,az_artwork.category,au.name as uname,awu.wit,awu.create_time,au.face,awu.summary')
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('az_user au ON az_artwork.artist = au.id')
+                ->where($where)
+                ->count();
+        }
+
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+
+        $data = [];
+        foreach ($artinfo as $k => $v) {
+
+            /*if(strpos("{$v['imgname']}","《")!==false){
+                $artName = trim($v['imgname'],'《');
+                $artName = trim($artName,'》');
+            }else{
+                $artName = $v['imgname'];
+            }*/
+
+            $artwork_name=trim($v['imgname']);
+            if(preg_match("/《(.*)》/",$artwork_name)){
+                $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+            }else{
+                $artwork_name = '《' .$artwork_name. '》';
+            }
+            $data[$k]['title'] = empty($v['title'])?$artwork_name.'花絮':$v['title']; //作品id
+            $data[$k]['artid'] = $v['artid']; //作品id
+            $data[$k]['artupid'] = $v['artupid'];  //作品更新编号
+            $data[$k]['artname'] = $artwork_name;  //作品名称
+            $data[$k]['uname'] = $v['uname']; //作者名字
+            $data[$k]['faceurl'] = Util::getImageResize($v['face'],Image::faceWidth,Image::faceHeight);
+            $data[$k]['summary'] = html_deconvert_content_cut($v['wit'], 45);
+            //$data[$k]['number'] = $v['number']; //更新次数编号
+            $data[$k]['like_total'] = $v['like_total'];
+           /* $catinfo = M('artwork_category')->field('cn_name')->find($v['category']);
+            $data[$k]['category'] = $catinfo['cn_name']; //分类名称*/
+            $data[$k]['category'] = $artworkCateogoryLogic->getCategoryByUser($v['artistid']);
+
+            //获取更新记录里面的图片
+            preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $array);
+
+            $data[$k]['imgurl'] = empty($array[1]) ? [] : Util::getImageResizes($array[1], 300, 300);
+            $data[$k]['imgurl']=array_slice($data[$k]['imgurl'],0,3);
+
+            //获取更新记录里面的视频
+            //preg_match_all('/&lt;source.*?src=&quot;(.*?)&quot;.*?&gt;/is',$v['wit'],$match);
+            preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $match);
+            $data[$k]['video'] = empty($match[1]) ? '' : $match[1][0];
+
+            $data[$k]['uptime'] = date('Y-m-d H:i:s', $v['create_time']); //更新时间
+            $data[$k]['istop'] = 'N'; //是否置顶
+            unset($v['wit']);
+            unset($v['category']);
+        }
+
+        $my = [
+            'flag' => $flag,
+            'data' => empty($data) ? [] : $data,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $my]);
+    }
+
+    //app首页-作品集
+    public function getArtList()
+    {
+        $userid = $this->loginUserId; //用户登录ID
+        $userid = empty($userid)?0:$userid;
+
+        $cateid = I('post.category', '', 'number_int'); //作品分类
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 10, 'number_int'); //每页显示条数
+        $seriesId = I('post.series_id', '', 'number_int'); //系列id
+
+        $artworkModel = M('Artwork'); //实例化作品表
+        $artWeightModel = M('ArtworkWeight'); //实例化作品权重表
+
+        $tagTime = strtotime('2018-02-25');
+
+        $flag = 0; //标记
+        //如果有分类
+        if (!empty($cateid)) {
+            if ($cateid == 10) $cateid = -1;//其他分类的
+
+            //$where['az_artwork.category'] = ['like',"%{$cateid}%"];
+           // $where['_string'] = 'FIND_IN_SET(' . intval($cateid) . ', az_artwork.category)';
+            $where['az_artwork.panorama_ids'] = ['neq', ''];
+           // $where['az_artwork.update_times'] = ['gt', 0];
+            $where['az_artwork.state'] = 1;
+            $where['az_artwork.is_deleted'] = 'N';
+            //$where['az_artwork.finish_percent'] = 100;
+            //finish_percent =100 or (finish_percent=90 and artwork_date=0) 2017-2-26之前的作品，显示在作品集
+            $where['_string'] = 'FIND_IN_SET(' . intval($cateid) .
+                ', az_artwork.category) AND (az_artwork.finish_percent=100 OR (az_artwork.create_time<'.$tagTime .
+                ' AND az_artwork.finish_percent=90 AND az_artwork.artwork_date=0)) AND (az_artwork.update_times >0 OR (az_art_circle.id>0 AND az_art_circle.type in (1,2,3,11) AND az_art_circle.status = 1))';
+            $total = $artworkModel->field('distinct az_artwork.id')->where($where)
+                ->join('az_art_circle on az_art_circle.artwork_id =az_artwork.id', 'left')
+                ->select(); //总记录数
+            $total = count($total);
+
+
+            if (0 == $total) {
+                //如果总条数为0，即无数据
+                $flag = 2; //表示猜你喜欢数据
+                $total = 5;
+                $page = 1;
+                $pagesize = 5;
+                //$data = $artworkModel->field('id,name,panorama_ids')->where("state=1 and finish_percent=100 and panorama_ids!='' AND update_times>0 ")->limit($pagesize)->select();
+
+                $where_new['az_artwork.panorama_ids'] = ['neq', ''];
+                $where_new['az_artwork.update_times'] = ['gt', 0];
+                $where_new['az_artwork.state'] = 1;
+                $where_new['az_artwork.is_deleted'] = 'N';
+               // $where_new['az_artwork.finish_percent'] = 100;
+                $where_new['_string'] = 'az_artwork.finish_percent=100 OR (az_artwork.create_time<'.$tagTime .
+                    ' AND az_artwork.finish_percent=90 AND az_artwork.artwork_date=0) AND (az_artwork.update_times >0 OR (az_art_circle.id>0 AND az_art_circle.type in (1,2,3,11) AND az_art_circle.status = 1))';
+                $thedate = date('Ymd');
+                $data = $artworkModel
+                    ->field("az_artwork.id,az_artwork.`name`,az_artwork.panorama_ids,az_artwork.cover,(case when FROM_UNIXTIME(az_artwork.finish_percent_time,'%Y%m%d')= '" . $thedate . "' then 999999999+az_artwork.finish_percent_time else az_artwork_weight.weight end) as the_order")
+                    ->join('az_artwork_weight on az_artwork.id=az_artwork_weight.artwork_id', 'left')
+                    ->join('az_art_circle on az_art_circle.artwork_id =az_artwork.id', 'left')
+                    ->where($where_new)
+                    ->group('az_artwork.id')
+                    ->order("FROM_UNIXTIME(az_artwork.finish_percent_time,'%Y%m%d') desc,the_order desc,az_artwork.finish_percent_time desc")
+                    ->limit(5)
+                    ->select();
+            } else {
+                $flag = 1; //表示分类下作品集
+
+                $thedate = date('Ymd');
+                $data = $artworkModel
+                    ->field("az_artwork.id,az_artwork.`name`,az_artwork.panorama_ids,az_artwork.cover,(case when FROM_UNIXTIME(az_artwork.finish_percent_time,'%Y%m%d')= '" . $thedate . "' then 999999999+az_artwork.finish_percent_time else az_artwork_weight.weight end) as the_order")
+                    ->join('az_artwork_weight on az_artwork.id=az_artwork_weight.artwork_id', 'left')
+                    ->join('az_art_circle on az_art_circle.artwork_id =az_artwork.id', 'left')
+                    ->where($where)
+                    ->group('az_artwork.id')
+                    ->order("FROM_UNIXTIME(az_artwork.finish_percent_time,'%Y%m%d') desc,the_order desc,az_artwork.finish_percent_time desc")
+                    ->page($page, $pagesize)
+                    ->select();
+
+            }
+
+        } else {
+
+            $flag = 0; //表示所有作品集
+            $a['az_artwork.panorama_ids'] = ['neq', ''];
+            //$a['az_artwork.update_times'] = ['gt', 0];
+            $a['az_artwork.state'] = 1;
+            $a['az_artwork.is_deleted'] = 'N';
+            //$a['az_artwork.finish_percent'] = 100;
+            $a['_string'] = '(az_artwork.finish_percent=100 OR (az_artwork.create_time<'.$tagTime .
+                ' AND az_artwork.finish_percent=90 AND az_artwork.artwork_date=0)) AND (az_artwork.update_times >0 OR (az_art_circle.id>0 AND az_art_circle.type in (1,2,3,11) AND az_art_circle.status = 1))';
+            if(!empty($seriesId)){//系列作品
+                $flag = 3;//系列作品
+                $where="az_artwork.is_deleted = 'N' AND (az_artwork.update_times >0 OR (az_art_circle.id>0 AND az_art_circle.type in (1,2,3,11) AND az_art_circle.status = 1))  AND (az_artwork.cover <> ''  or  az_artwork.panorama_ids <> '')  AND az_artwork.series_id = ".$seriesId;
+
+                //是否是艺术家本人
+                $series = M('artwork_series')->field('artist')->find($seriesId);
+                if (!empty($series)) {
+                    if ($userid > 0 && $series['artist'] == $userid) {//是艺术家本人
+
+                    }else{
+                        $where=$where."   AND az_artwork.state = 1";
+                    }
+                }else{
+                    Util::jsonReturn(null, Code::SYS_ERR, '画作系列不存在');
+                }
+
+            } else {
+                $where = $a;
+            }
+
+            $total = $artworkModel->field('distinct az_artwork.id')->where($where)
+                ->join('az_art_circle on az_art_circle.artwork_id =az_artwork.id','left')
+                ->select(); //总记录数
+            $total = count($total);
+
+
+            $thedate = date('Ymd');
+            $data = $artworkModel
+                ->field("az_artwork.id,az_artwork.`name`,az_artwork.panorama_ids,az_artwork.cover,(case when FROM_UNIXTIME(az_artwork.finish_percent_time,'%Y%m%d')= '" . $thedate . "' then 999999999+az_artwork.finish_percent_time else az_artwork_weight.weight end) as the_order")
+                ->join('az_artwork_weight on az_artwork.id=az_artwork_weight.artwork_id', 'left')
+                ->join('az_art_circle on az_art_circle.artwork_id =az_artwork.id', 'left')
+                ->where($where)
+                ->group('az_artwork.id')
+                ->order("FROM_UNIXTIME(az_artwork.finish_percent_time,'%Y%m%d') desc,the_order desc,az_artwork.finish_percent_time desc")
+                ->page($page, $pagesize)
+                ->select();
+//print_r($artworkModel->getLastSql());exit;
+        }
+
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+
+        $list = [];
+
+        $images_guid = [];
+        foreach ($data as $k => $v) {
+            $images = explode(',', $v['panorama_ids']);
+            if(!empty($v['panorama_ids'])){
+                $imgurl = $this->getImageAutoWithWidth($images[0], 500);
+            }else{
+                if(!empty($v['cover'])){
+                    $imgurl = $this->getImageAutoWithWidth($v['cover'], 500);
+                }else{
+                    $imgurl = '';
+                }
+            }
+            $guid = md5(trim($imgurl)) . sha1(trim($imgurl));
+            array_push($images_guid, "'" . $guid . "'");
+        }
+        $images_arr = [];
+        if (count($images_guid)) {
+            $images_list = M('image_size')->where("guid in (" . implode(',', $images_guid) . ")")->select();
+            foreach ($images_list as $value) {
+                $images_arr["'" . $value['guid'] . "'"] = $value;
+            }
+        }
+
+
+        foreach ($data as $k => $v) {
+
+            /*if(strpos("{$v['name']}","《")!==false){
+                $artName = trim($v['name'],'《');
+                $artName = trim($artName,'》');
+            }else{
+                $artName = $v['name'];
+            }*/
+
+            $list[$k]['id'] = $v['id'];
+            $list[$k]['imgname'] = $v['name'];
+            $images = explode(',', $v['panorama_ids']);
+            if(!empty($v['panorama_ids'])){
+                $imgurl = $this->getImageAutoWithWidth($images[0], 500);
+            }else{
+                if(!empty($v['cover'])){
+                    $imgurl = $this->getImageAutoWithWidth($v['cover'], 500);
+                }else{
+                    $imgurl = '';
+                }
+            }
+
+            $list[$k]['imgurl'] = $imgurl;
+            if (trim($list[$k]['imgurl']) == '') {
+                $list[$k]['width'] = 0; //获取图片宽度
+                $list[$k]['height'] = 0; //获取图片高度
+            } else {
+                $guid = md5(trim($list[$k]['imgurl'])) . sha1(trim($list[$k]['imgurl']));
+                if ($images_arr["'" . $guid . "'"]) {//判断数据库里面是否已经保存了图片信息$images_arr
+                    $list[$k]['width'] = $images_arr["'" . $guid . "'"]['width'];
+                    $list[$k]['height'] = $images_arr["'" . $guid . "'"]['height'];
+                } else {
+                    $info = getimagesize($list[$k]['imgurl']);
+                    $data = [
+                        'guid' => $guid,
+                        'url' => trim($list[$k]['imgurl']),
+                        'width' => empty($info[0])?500:$info[0],
+                        'height' => empty($info[1])?500:$info[1],
+                        'create_time' => time(),
+                    ];
+                    M('image_size')->add($data);
+
+                    $list[$k]['width'] = empty($info[0])?500:$info[0]; //获取图片宽度
+                    $list[$k]['height'] = empty($info[1])?500:$info[1]; //获取图片高度
+
+                }
+            }
+        }
+
+        $my = [
+            'flag' => $flag,
+            'data' => empty($list) ? [] : $list,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $my]);
+    }
+
+    public function getArtList_20170806()
+    {
+
+        $cateid = I('post.category', '', 'number_int'); //作品分类
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 5, 'number_int'); //每页显示条数
+
+        $artworkModel = M('Artwork'); //实例化作品表
+        $artWeightModel = M('ArtworkWeight'); //实例化作品权重表
+
+        //获取作品权重列表
+        $weightList = $artWeightModel->field('artwork_id')->order('weight desc')->select();
+        //列出权重所有ids
+        $artwork_ids = '';
+        foreach ($weightList as $k => $v) {
+            $artwork_ids .= $v['artwork_id'] . ',';
+        }
+        $artwork_ids = trim($artwork_ids, ',');
+
+        $flag = 0; //标记
+        //如果有分类
+        if (!empty($cateid)) {
+            if ($cateid == 10) $cateid = -1;//其他分类的
+            $where['id'] = ['in', $artwork_ids];
+            $where['category'] = ['like', "%{$cateid}%"];
+            $where['panorama_ids'] = ['neq', ''];
+            $where['update_times'] = ['gt', 0];
+            $where['state'] = 1;
+            $total = $artworkModel->where($where)->count(); //某分类总记录数
+            if (0 == $total) {
+                //如果总条数为0，即无数据
+                $flag = 2; //表示猜你喜欢数据
+                $total = 5;
+                $page = 1;
+                $pagesize = 5;
+                $data = $artworkModel->field('id,name,panorama_ids')->where("id in ($artwork_ids) AND panorama_ids!='' AND update_times>0 ")->page($page, $pagesize)->select();
+
+            } else {
+                $flag = 1; //表示分类下作品集
+                //查询当前分类下作品集
+                $data1 = $artworkModel->field('id,name,panorama_ids')->where($where)->limit(5)->order('last_update_time DESC')->select();
+
+                $num = count($data1);
+
+                foreach ($data1 as $k => $v) {
+                    $artwork_ids = str_replace("{$v['id']},", '', $artwork_ids);
+                }
+
+                $a['id'] = ['in', $artwork_ids];
+                $a['category'] = ['like', "%{$cateid}%"];
+                $a['panorama_ids'] = ['neq', ''];
+                $a['update_times'] = ['gt', 0];
+                $a['state'] = 1;
+
+                $data2 = $artworkModel->field('id,name,panorama_ids')->where($a)->page($page, $pagesize)->select();
+                if (1 == $page) {
+                    $data = $num < 5 ? $data1 : array_merge($data1, $data2);  //组合数组
+                } else {
+                    $data = $data2;
+                }
+                //$data = array_merge($data1,$data2);
+            }
+
+        } else {
+            $total = $artworkModel->count(); //总记录数
+            $flag = 0; //表示所有作品集
+            $map['id'] = ['in', $artwork_ids];
+            $map['panorama_ids'] = ['neq', ''];
+            $map['update_times'] = ['gt', 0];
+            $map['state'] = 1;
+            $data1 = $artworkModel->field('id,name,panorama_ids')->where($map)->limit(5)->order('last_update_time DESC')->select();
+
+            $num = count($data1);
+
+            foreach ($data1 as $k => $v) {
+                $artwork_ids = str_replace("{$v['id']},", '', $artwork_ids);
+            }
+
+            $a['id'] = ['in', $artwork_ids];
+            $a['panorama_ids'] = ['neq', ''];
+            $a['update_times'] = ['gt', 0];
+
+            $data2 = $artworkModel->field('id,name,panorama_ids')->where($a)->page($page, $pagesize)->select();
+            if (1 == $page) {
+                $data = $num < 5 ? $data1 : array_merge($data1, $data2);  //组合数组
+            } else {
+                $data = $data2;
+            }
+            //$data = array_merge($data1,$data2);
+        }
+
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+
+        $list = [];
+        foreach ($data as $k => $v) {
+
+            /*if(strpos("{$v['name']}","《")!==false){
+                $artName = trim($v['name'],'《');
+                $artName = trim($artName,'》');
+            }else{
+                $artName = $v['name'];
+            }*/
+
+            $list[$k]['id'] = $v['id'];
+            $list[$k]['imgname'] = $v['name'];
+            $images = explode(',', $v['panorama_ids']);
+            $list[$k]['imgurl'] = empty($v['panorama_ids']) ? '' : $this->getImageAutoWithWidth($images[0], 500);
+            $info = getimagesize($list[$k]['imgurl']);
+            if (!empty($v['panorama_ids'])) {
+                $list[$k]['width'] = $info[0]; //获取图片宽度
+                $list[$k]['height'] = $info[1]; //获取图片高度
+            } else {
+                $list[$k]['width'] = 0; //获取图片宽度
+                $list[$k]['height'] = 0; //获取图片高度
+            }
+
+        }
+
+        $my = [
+            'flag' => $flag,
+            'data' => empty($list) ? [] : $list,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $my]);
+    }
+
+
+    //app首页-作品集-我关注的作品集
+    public function getmyfollowArtList()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 5, 'number_int'); //每页显示条数
+
+        $artworkModel = M('Artwork'); //实例化作品表
+        $artWeightModel = M('ArtworkWeight'); //实例化作品权重表
+
+        //获取作品权重列表
+        $weightList = $artWeightModel->field('artwork_id')->order('weight desc')->select();
+        //列出权重所有ids
+        $artwork_ids = '';
+        foreach ($weightList as $k => $v) {
+            $artwork_ids .= $v['artwork_id'] . ',';
+        }
+        $artwork_ids = trim($artwork_ids, ',');
+        $where['id'] = ['in', $artwork_ids];
+
+        $uid = $this->loginUserId; //获得登录艺术者ID
+
+        //获取当前用户关注的作家
+        $ufo = M('UserFollower')->field('user_id')->where(['follower' => $uid, 'is_follow' => 'Y'])->select();
+
+        $uids = '';
+        $flag = 1; //用于判断显示的是关注作品集，还是推荐作品集
+        //判断该用户是否关注其他艺术者
+        if (empty($ufo)) {
+            //没有关注其他艺术者
+            $flag = 2; //表示猜你喜欢数据
+            $total = 5;
+            $page = 1;
+            $pagesize = 5;
+            $where['state'] = 1;
+            $where['is_deleted'] = 'N';
+            $where['finish_percent'] = 100;
+            $data = $artworkModel->field('id,name,cover,panorama_ids')->where($where)->order('finish_percent_time desc')->page($page, $pagesize)->select();
+        } else {
+            foreach ($ufo as $v) {
+                $uids .= $v['user_id'] . ',';
+            }
+            $uids = trim($uids, ',');
+
+            $map['artist'] = ['in', $uids];
+            $map['state'] = 1;
+            $map['is_deleted'] = 'N';
+            $map['finish_percent'] = 100;
+            $flag = 1; //表示关注的艺术者作品集
+            $data = $artworkModel->field('id,name,cover,panorama_ids')->where($map)->order('finish_percent_time desc')->page($page, $pagesize)->select();
+            $total = $artworkModel->field('id,name,cover')->where($map)->count();
+        }
+
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+
+        $images_guid = [];
+        foreach ($data as $k => $v) {
+            $images = explode(',', $v['panorama_ids']);
+            $imgurl = empty($v['panorama_ids']) ? '' : $this->getImageAutoWithWidth($images[0], 500);
+            $guid = md5(trim($imgurl)) . sha1(trim($imgurl));
+            array_push($images_guid, "'" . $guid . "'");
+        }
+        $images_arr = [];
+        if (count($images_guid)) {
+            $images_list = M('image_size')->where("guid in (" . implode(',', $images_guid) . ")")->select();
+            foreach ($images_list as $value) {
+                $images_arr["'" . $value['guid'] . "'"] = $value;
+            }
+        }
+
+
+        $list = [];
+        foreach ($data as $k => $v) {
+
+            /*if(strpos("{$v['name']}","《")!==false){
+                $artName = trim($v['name'],'《');
+                $artName = trim($artName,'》');
+            }else{
+                $artName = $v['name'];
+            }*/
+
+            $list[$k]['id'] = $v['id'];
+            $list[$k]['imgname'] = $v['name'];
+            //$list[$k]['imgurl'] = empty($v['cover']) ? [] : $this->getImageAutoWithWidth($v['cover'], 500);
+            //$info = getimagesize($list[$k]['imgurl']);
+            //$list[$k]['width'] = $info[0]; //获取图片宽度
+            //$list[$k]['height'] = $info[1]; //获取图片高度
+            $images = explode(',', $v['panorama_ids']);
+            $list[$k]['imgurl'] = empty($v['panorama_ids']) ? '' : $this->getImageAutoWithWidth($images[0], 500);
+            if (trim($v['panorama_ids']) == '') {
+                $list[$k]['width'] = 0; //获取图片宽度
+                $list[$k]['height'] = 0; //获取图片高度
+            } else {
+                $guid = md5(trim($list[$k]['imgurl'])) . sha1(trim($list[$k]['imgurl']));
+                if ($images_arr["'" . $guid . "'"]) {//判断数据库里面是否已经保存了图片信息$images_arr
+                    $list[$k]['width'] = $images_arr["'" . $guid . "'"]['width'];
+                    $list[$k]['height'] = $images_arr["'" . $guid . "'"]['height'];
+                } else {
+                    $info = getimagesize($list[$k]['imgurl']);
+                    $data = [
+                        'guid' => $guid,
+                        'url' => trim($list[$k]['imgurl']),
+                        'width' => $info[0],
+                        'height' => $info[1],
+                        'create_time' => time(),
+                    ];
+                    M('image_size')->add($data);
+
+                    $list[$k]['width'] = $info[0]; //获取图片宽度
+                    $list[$k]['height'] = $info[1]; //获取图片高度
+
+                }
+            }
+        }
+
+        $my = [
+            'flag' => $flag,
+            'data' => empty($list) ? [] : $list,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $my]);
+    }
+
+    //app首页-专题录
+    public function getSubjectList()
+    {
+
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 5, 'number_int'); //每页显示条数
+        $type = I('post.type', '2', 'number_int'); //类型
+
+        $subjectModel = M('Subject'); //实例化专题表
+        $Model = new Model();
+        $thistime=time();
+        $start = ($page - 1) * $pagesize;
+      if($type == 1){//微画展
+          $total = $subjectModel->where('status=0 and type=1 and start_time<'.$thistime.' and end_time>'.$thistime)->count();
+
+          $data = $Model->query("SELECT type,id,sub_name,cover,start_time as thetime,description,'' as link from az_subject where status=0 and type=1 and start_time<".$thistime." and end_time>".$thistime." order by thetime desc limit " . $start . "," . $pagesize);
+
+      }else{//专访和其他
+          $total = $Model->table('az_art_activity')->where('status=1')->count();
+          $total = $total + $Model->table('az_subject')->where('status=0 and type!=1 and start_time<'.$thistime.' and end_time>'.$thistime)->count();
+
+          $data = $Model->query("SELECT -1 as type,id,title as sub_name,cover,create_time as thetime,content,link FROM `az_art_activity` where status=1
+union    SELECT type,id,sub_name,cover,start_time as thetime,description,'' as link from az_subject where status=0 and type!=1 and start_time<".$thistime." and end_time>".$thistime." order by type asc,thetime desc limit " . $start . "," . $pagesize);
+
+      }
+
+
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+        $list = [];
+        foreach ($data as $k => $v) {
+            $list[$k]['type'] = $v['type'];
+            $list[$k]['id'] = $v['id']; //专题ID
+            $list[$k]['subname'] = $v['sub_name'];
+            $list[$k]['imgurl'] = $v['cover']; //封面
+            if ($v['type'] == 1) {
+                if (trim($v['link']) != '') {
+                    $list[$k]['html5_description'] = $v['link'];
+                } else {
+                    $list[$k]['html5_description'] = C('m_site') . '/ArtActivity/content/' . $v['id'];
+                }
+            } else {
+                $list[$k]['html5_description'] = C('m_site') . '/subject/content/' . $v['id'];
+            }
+
+            if ($v['type'] == -1) {
+                $list[$k]['shareInfo'] = [
+                    "id" => $v['id'],
+                    "title" => $v['sub_name'],
+                    "content" => $v['content'],
+                    "cover" => $v['cover'],
+                    'link' => $list[$k]['html5_description'],
+                ];
+            }
+        }
+
+        $my = [
+            'data' => empty($list) ? [] : $list,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $my]);
+    }
+
+    //app首页-专题录-专题详情
+    public function getSubjectDetail()
+    {
+
+        $subid = I('post.subid', '', 'number_int'); //专题id
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 5, 'number_int'); //每页显示条数
+
+        $subModel = M('Subject'); //实例化专题表
+        $subinfo = $subModel->field('id,sub_name,sub_title,cover,description,love_num,comment_num')->find($subid); //获取专题基本信息
+        $subModel->where(['id' => $subid])->setInc('view_num', 1);
+
+        //用户是否喜欢
+        if($this->isLogin()){
+            $subjectLike = M('subject_like')->where("subject_id=" . intval($subid) . " and like_user_id=" . intval($this->loginUserId) . " and is_like='Y'")->find();
+            $is_like = $subjectLike ? 1 : 0;
+        }else{
+            $is_like=0;
+        }
+
+
+        $where['az_subject_apply.subid'] = $subinfo['id'];
+        $where['az_subject_apply.status'] = 2;
+        $data = M('SubjectApply')->field('description,aw.id as artid,aw.name as artname,aw.shape,aw.length,aw.width,aw.diameter,aw.cover,aw.story,aw.category,au.nickname,au.face')
+            ->join('az_artwork aw ON az_subject_apply.artid = aw.id')
+            ->join('az_user au ON az_subject_apply.uid = au.id')
+            ->where($where)
+            ->order('aw.last_update_time desc')
+            ->page($page, $pagesize)
+            ->select();
+        $total = M('SubjectApply')->field('aw.id as artid,aw.name as artname,aw.shape,aw.length,aw.width,aw.diameter,aw.cover,aw.story,aw.category,au.nickname,au.face')
+            ->join('az_artwork aw ON az_subject_apply.artid = aw.id')
+            ->join('az_user au ON az_subject_apply.uid = au.id')
+            ->where($where)
+            ->count();
+
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+
+
+        foreach ($data as $k => $v) {
+
+            $description = trim($v['description']) == '' ? $v['story'] : trim($v['description']);
+            if (trim($description) == '') {//申请和画作都没有description,就从更新里面找
+                $updateLogic = new ArtworkUpdateLogic();
+                $description = $updateLogic->where("artwork_id=" . $v['artid'] . " and summary!=''")->order('id desc')->getField('summary');
+            }
+
+            $list[$k]['artid'] = $v['artid']; //作品ID
+            $list[$k]['artname'] = $v['artname']; //作品名称
+            $cat = M('ArtworkCategory')->field('cn_name')->find($v['category']);
+            $list[$k]['category'] = trim($cat['cn_name']) == '' ? '' : $cat['cn_name']; //作品分类
+            $list[$k]['shape'] = $v['shape']; //作品形状
+            $list[$k]['length'] = $v['length']; //作品长度
+            $list[$k]['width'] = $v['width']; //作品宽度
+            $list[$k]['diameter'] = $v['diameter']; //作品直径
+            $list[$k]['art_cover'] = Util::getImageResize($v['cover'], Image::galleryBgWidth, Image::galleryBgHeight); //作品图
+            $list[$k]['description'] = empty($description) ? '' : $description; //作品描述
+            $list[$k]['author'] = $v['nickname']; //艺术者名字
+            $list[$k]['face'] = $v['face'];
+
+
+            unset($v['category']);
+        }
+
+
+        $my = [
+            'subid' => $subinfo['id'], //专题编号
+            'sub_name' => $subinfo['sub_name'], //专题名称
+            'sub_title' => $subinfo['sub_title'], //专题标题
+            'sub_cover' => $subinfo['cover'], //专题
+            'sub_images'=> Util::getHtmlImgSrc($subinfo['description']),
+            //'description' => $subinfo['description'], //专题描述
+            'html5_description' => C('m_site') . '/subject/content/' . $subinfo['id'],
+            'is_like'=>$is_like,//1--喜欢  0--不喜欢
+            'like_total'=>$subinfo['love_num'],
+            'comment_total'=>$subinfo['comment_num'],
+            'data' => empty($list) ? [] : $list,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage,
+            'shareInfo' =>[
+                'title' => $subinfo['sub_title'],
+                'image' => Util::getFillImage($subinfo['cover'], Image::faceWidth, Image::faceHeight),
+                'link' => C('m_site') . '/subject/detail/' . $subinfo['id'],
+            ],
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $my]);
+    }
+
+    //专题详情h5
+    public function getSubjectDetailH5()
+    {
+        $subid = I('post.subid', '', 'number_int'); //专题id
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 5, 'number_int'); //每页显示条数
+
+        //获取专题内容
+        $subjectLogic = new SubjectLogic();
+        $subjectinfo = $subjectLogic->where('id=' . intval($subid) . ' and status=0')->find();
+        if (!$subjectinfo) {
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => []]);
+        }
+
+        $subjectLogic->where(['id' => $subid])->setInc('view_num', 1);
+        $imgUrls = $subjectLogic->getHtmlImgSrc($subjectinfo['description']);
+        $subjectinfo['description'] = $subjectLogic->replaceHtmlImgSrc($imgUrls, $subjectinfo['description']);
+        $subjectinfo['description'] = html_entity_decode($subjectinfo['description']);
+
+        $where['az_subject_apply.subid'] = $subjectinfo['id'];
+        $where['az_subject_apply.status'] = 2;
+        $data = M('SubjectApply')->field('description,aw.id as artid,aw.name as artname,aw.shape,aw.length,aw.width,aw.diameter,aw.cover,aw.story,aw.category,au.nickname,au.face')
+            ->join('az_artwork aw ON az_subject_apply.artid = aw.id')
+            ->join('az_user au ON az_subject_apply.uid = au.id')
+            ->where($where)
+            ->order('aw.last_update_time desc')
+            ->page($page, $pagesize)
+            ->select();
+        $total = M('SubjectApply')->field('aw.id as artid,aw.name as artname,aw.shape,aw.length,aw.width,aw.diameter,aw.cover,aw.story,aw.category,au.nickname,au.face')
+            ->join('az_artwork aw ON az_subject_apply.artid = aw.id')
+            ->join('az_user au ON az_subject_apply.uid = au.id')
+            ->where($where)
+            ->count();
+
+        $maxpage = $total % $pagesize == 0 ? $total / $pagesize : intval($total / $pagesize) + 1; //最大页数
+
+
+        foreach ($data as $k => $v) {
+            $description = trim($v['description']) == '' ? $v['story'] : trim($v['description']);
+            if (trim($description) == '') {//申请和画作都没有description,就从更新里面找
+                $updateLogic = new ArtworkUpdateLogic();
+                $description = $updateLogic->where("artwork_id=" . $v['artid'] . " and summary!=''")->order('id desc')->getField('summary');
+            }
+
+            $list[$k]['artid'] = $v['artid']; //作品ID
+            $list[$k]['artname'] = $v['artname']; //作品名称
+            $cat = M('ArtworkCategory')->field('cn_name')->find($v['category']);
+            $list[$k]['category'] = trim($cat['cn_name']) == '' ? '' : $cat['cn_name']; //作品分类
+            $list[$k]['shape'] = $v['shape']; //作品形状
+            $list[$k]['length'] = $v['length']; //作品长度
+            $list[$k]['width'] = $v['width']; //作品宽度
+            $list[$k]['diameter'] = $v['diameter']; //作品直径
+            $list[$k]['art_cover'] = Util::getImageResize($v['cover'], Image::galleryBgWidth, Image::galleryBgHeight); //作品图
+            $list[$k]['description'] = empty($description) ? '' : $description; //作品描述
+            $list[$k]['author'] = $v['nickname']; //艺术者名字
+            $list[$k]['face'] = $v['face'];
+
+            unset($v['category']);
+        }
+
+        $my = [
+            'subid' => $subjectinfo['id'], //专题编号
+            'sub_name' => $subjectinfo['sub_name'], //专题名称
+            'sub_title' => $subjectinfo['sub_title'], //专题标题
+            'sub_cover' => Util::getImageResize(trim($subjectinfo['cover']),750,380), //专题
+            'description' => $subjectinfo['description'], //专题描述
+            'html5_description' => C('m_site') . '/subject/content/' . $subjectinfo['id'],
+            'data' => empty($list) ? [] : $list,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage,
+            'shareInfo' =>[
+                'title' => $subjectinfo['sub_title'],
+                'image' => Util::getFillImage($subjectinfo['cover'], Image::faceWidth, Image::faceHeight),
+                'link' => C('m_site') . '/subject/detail/' . $subjectinfo['id'],
+            ],
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $my]);
+
+
+    }
+
+    public function getImageAutoWithWidth($img, $width)
+    {
+        return $img . "?x-oss-process=image/resize,w_{$width},image/format,jpg";
+    }
+
+    //获取首页-推荐页面信息（总）
+    public function getHomeRecommendation(){
+        //栏目的类型    1--艺术家   2--画作   3---花絮   4--艺术号    5--专题
+        $column = $this->getColumn();
+        $columnData=[];
+        foreach($column as $value){
+            if(empty($columnData[$value['type']])){
+                $columnData[$value['type']] = $value;
+            }
+        }
+        $info = [
+            'banner' => $this->getRecommendationBanner(),
+            'column'=>array_values($columnData),
+            'artists' =>empty($columnData['1'])?[]:$this->getHomeRecommendArtist(empty($columnData['1']['show_number'])?5:intval($columnData['1']['show_number'])),//TODO
+            'record' => empty($columnData['3'])?[]:$this->getWonderfulRecord(empty($columnData['3']['show_number'])?5:intval($columnData['3']['show_number'])),
+            'artwork'=>empty($columnData['2'])?[]:$this->getRecommendArtwork(empty($columnData['2']['show_number'])?5:intval($columnData['2']['show_number'])),
+            'subject'=>empty($columnData['5'])?[]:$this->getRecommendSubject(empty($columnData['5']['show_number'])?4:intval($columnData['5']['show_number'])),
+            'article'=>empty($columnData['4'])?[]:$this->getRecommendArticle(empty($columnData['4']['show_number'])?5:intval($columnData['4']['show_number'])),
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //获取首页-推荐的banner图
+    private function getRecommendationBanner(){
+        $homeModel = new HomeBannerModel();
+        $images = $homeModel->getBanner();
+        return $images;
+    }
+
+    //获取首页-推荐的最新加入艺术家
+    private function getRecentArtists($size=12){
+        $userModel = new UserModel();
+        $where = " az_user.type = 3 and az_user.is_deleted = 'N' and az_user.banned_to = -1 and az_artwork.is_deleted='N' and az_artwork.state=1 and az_artwork.update_times>0";
+
+        $list = $userModel->field("az_user.id,az_user.gender,az_user.nickname as name,az_user.face")
+            ->join('az_artwork on az_user.last_add_artupdate_artid =az_artwork.id')
+            ->join('az_artist_apply on az_user.id =az_artist_apply.user_id')
+            ->order("FROM_UNIXTIME(az_artist_apply.verify_time,'%Y%m%d') desc")
+            ->where($where)
+            ->limit($size)
+            ->select();
+
+        foreach ($list as $key => $value) {
+            $list[$key]['face'] = empty($value['face']) ? '' : Util::getImageResize($value['face'], Image::faceWidth, Image::faceHeight); //用户头像
+        }
+
+        return empty($list) ? [] : $list;
+    }
+
+    //获取首页-推荐的精彩花絮
+    private function getWonderfulRecord($size = 5){
+        $artworkModel = new ArtworkModel();
+        $artworkUpdateModel = new ArtworkUpdateModel();
+        $artworkCateogoryLogic = new ArtworkCategoryLogic();
+
+        /*
+        *从推荐花絮中随机获取5条花絮
+        */
+        $where['az_artwork.state'] = 1;
+        $where['az_artwork.is_deleted'] = 'N';
+        $where['awu.is_deleted'] = 'N';
+        $where['awu.is_recommend'] = 'Y';
+        $artinfo = $artworkModel->field("az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,az_artwork.category,az_artwork.cover,au.name as uname,awu.cover,awu.wit,awu.last_update_time,au.face,awu.summary,awu.like_total,awu.title,au.id as artistid")
+            ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+            ->join('JOIN az_user au ON az_artwork.artist = au.id')
+            ->where($where)
+            ->limit($size)
+            ->order('rand()')
+            ->select();
+
+        //如果没有推荐的花絮，则默认获取最新5条花絮
+        if(empty($artinfo)){
+            unset($where['awu.is_recommend']);
+            $artinfo = $artworkModel->field("az_artwork.id as artid,awu.id as artupid,az_artwork.name as imgname,az_artwork.category,az_artwork.cover,au.name as uname,awu.cover,awu.wit,awu.last_update_time,au.face,awu.summary,awu.like_total,awu.title,au.id as artistid")
+                ->join('JOIN az_artwork_update awu ON az_artwork.id = awu.artwork_id')
+                ->join('JOIN az_user au ON az_artwork.artist = au.id')
+                ->where($where)
+                ->limit($size)
+                ->order("awu.create_time desc")
+                ->select();
+        }
+
+        $data = [];
+        foreach ($artinfo as $k => $v) {
+            $artwork_name=trim($v['imgname']);
+            if(preg_match("/《(.*)》/",$artwork_name)){
+                $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+            }else{
+                $artwork_name = '《' .$artwork_name. '》';
+            }
+
+            $data[$k]['title'] = empty($v['title'])?$artwork_name.'花絮':$v['title']; //作品id
+            $data[$k]['artid'] = $v['artid']; //作品id
+            $data[$k]['artupid'] = $v['artupid'];  //作品更新编号
+            $data[$k]['artname'] = $artwork_name;  //作品名称
+            $data[$k]['uname'] = $v['uname']; //作者名字
+            $data[$k]['faceurl'] = empty($v['face'])?'':Util::getImageResize($v['face'], Image::faceWidth, Image::faceHeight);
+            $data[$k]['summary'] = html_deconvert_content_cut($v['wit'], 45);
+
+            $temp = '';
+           /* //作品类别
+            if ($v['category'] != 10) {
+                $arr = explode(',', $v['category']);
+                foreach ($arr as $kk => $vv) {
+                    $rc = M('ArtworkCategory')->field('cn_name')->find($vv);
+                    $temp .= $rc['cn_name'] . '/';
+                }
+                $catName = trim($temp, '/');
+            } else {
+                $catName = '其他';
+            }
+
+            //艺术家自定义分类标签
+            $res = M('ArtzheCustom')->field('cn_name')->where(['type' => '1', 'artworkid' => $v['artid']])->find();
+            if (strpos("{$res['cn_name']}", "，") !== false) {
+                $res['cn_name'] = trim($res['cn_name'], '，');
+                $catName2 = str_replace('，', '/', $res['cn_name']);
+            } else {
+                $res['cn_name'] = trim($res['cn_name'], ',');
+                $catName2 = str_replace(',', '/', $res['cn_name']);
+            }
+            $data[$k]['category'] = $v['category'] != 10 ? $catName : $catName2; //分类名称*/
+
+            $data[$k]['category'] = $artworkCateogoryLogic->getCategoryByUser($v['artistid']);
+
+            //获取更新记录里面的图片
+            preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $array);
+            $data[$k]['imgurl'] = empty($array[1]) ? [] : Util::getImageResizes($array[1], 300, 300);
+            $data[$k]['imgurl'] = array_slice($data[$k]['imgurl'], 0, 3);
+
+            //获取更新记录里面的视频
+            //preg_match_all('/&lt;source.*?src=&quot;(.*?)&quot;.*?&gt;/is',$v['wit'],$match);
+            preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $v['wit'], $match);
+            $data[$k]['video'] = empty($match[1]) ? '' : $match[1][0];
+
+            $data[$k]['uptime'] = date('Y-m-d H:i:s', $v['last_update_time']); //更新时间
+            $data[$k]['like_total'] = $v['like_total'];
+            $data[$k]['istop'] = 'N'; //是否置顶
+            unset($v['wit']);
+            unset($v['category']);
+
+        }
+
+        return empty($data) ? [] : $data;
+    }
+
+    /**
+     * 获取首页-艺术家-搜索 推荐艺术家和搜索艺术家
+     * 有请求参数name  是搜索艺术家
+     * 1.如果没有搜索结果，则返回推荐艺术家
+     * */
+    public function getSearchArtists()
+    {
+        $name =  addslashes(trim(I('post.name', ''))); //分页页码
+        $userModel = new UserModel();
+        $searchResult = 0;
+        if(empty($name)){//默认推荐艺术家
+            $list = $this->getRecommendArtists(10);
+
+        }else{//搜索艺术家结果
+            $keys = explode(' ',$name);
+            $where='';
+            if(count($keys)<=1){
+                $where = " az_user.nickname like '%{$name}%'";
+            }else{
+                for($i=0;$i<count($keys);$i++){
+                    if($i==0){
+                        $where = " az_user.nickname like '%{$keys[$i]}%'";
+                    }else{
+                        $where = $where."or az_user.nickname like '%{$keys[$i]}%'";
+                    }
+                }
+            }
+
+            $where = $where." and az_user.type = 3 and az_user.is_deleted = 'N'
+            and az_user.banned_to = -1 and az_artwork.is_deleted='N' and az_artwork.state=1 and az_artwork.update_times>0";
+
+
+            $thedate=date('Ymd');
+            $list = $userModel->field("(case when FROM_UNIXTIME(az_user.last_add_artupdate_time,'%Y%m%d')= '".$thedate."' then 999999999+az_user.last_add_artupdate_time else az_artwork_weight.weight end) as the_order,az_user.id,az_user.nickname as name,az_user.gender,az_user.face")
+                ->join('az_artwork on az_user.last_add_artupdate_artid =az_artwork.id')
+                ->join('az_artwork_weight on az_artwork.id=az_artwork_weight.artwork_id','left')
+                ->where($where)
+                ->order("FROM_UNIXTIME(az_user.last_add_artupdate_time,'%Y%m%d') desc,the_order desc,az_user.last_add_artupdate_time desc")
+                ->select();
+
+            foreach ($list as $key => $value) {
+                $list[$key]['face'] = empty($value['face']) ? '' : Util::getImageResize($value['face'], Image::faceWidth, Image::faceHeight); //用户头像
+                unset($list[$key]['the_order']);
+            }
+
+            if(empty($list)){
+                $searchResult=0;//没有搜索结果
+                $list = $this->getRecommendArtists(10);
+            }else{
+                $searchResult=1;//有搜索结果
+            }
+        }
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => empty($list) ? [] : $list, 'searchResult' => $searchResult]);
+    }
+
+    /**
+     * 获取推荐艺术家
+     * 1.获取配置的推荐艺术家
+     * 2.没有推荐艺术家，默认获取最新入驻10位艺术家
+     * @param $userModel
+     * @return array
+     */
+    private function getRecommendArtists($size = 5)
+    {
+        $userModel = new UserModel();
+        //获取推荐的10位艺术家
+        $where = " az_user.type = 3 and az_user.is_recommend='Y' and az_user.is_deleted = 'N' and az_user.banned_to = -1 and az_artwork.is_deleted='N' and az_artwork.state=1 and az_artwork.update_times>0";
+
+        $thedate = date('Ymd');
+        $list = $userModel->field("(case when FROM_UNIXTIME(az_user.last_add_artupdate_time,'%Y%m%d')= '" . $thedate . "' then 999999999+az_user.last_add_artupdate_time else az_artwork_weight.weight end) as the_order,az_user.id,az_user.nickname as name,az_user.gender,az_user.face")
+            ->join('az_artwork on az_user.last_add_artupdate_artid =az_artwork.id')
+            ->join('az_artwork_weight on az_artwork.id=az_artwork_weight.artwork_id', 'left')
+            ->where($where)
+            ->order("FROM_UNIXTIME(az_user.last_add_artupdate_time,'%Y%m%d') desc,the_order desc,az_user.last_add_artupdate_time desc")
+            ->limit($size)
+            ->select();
+        foreach ($list as $key => $value) {
+            $list[$key]['face'] = empty($value['face']) ? '' : Util::getImageResize($value['face'], Image::faceWidth, Image::faceHeight); //用户头像
+            unset($list[$key]['the_order']);
+        }
+
+        //如果没有推荐的艺术家，则默认获取最新入驻10位艺术家
+        if (empty($list)) {
+            $list = $this->getRecentArtists($size);
+            return $list;
+        }
+        return $list;
+    }
+
+    //获取首页推荐的栏目信息
+    private function getColumn(){
+        $colummData = M('home_column')->field('name,type,show_number,sort')->where(['is_show'=>'Y'])->order('sort')->select();
+        return $colummData;
+    }
+
+    /**
+     * 获取首页推荐的专题
+     * 获取配置的专题，如果没有或少于配置数量，则获取专题前几个
+     * @param $size
+     * @return array
+     */
+    private function getRecommendSubject($size){
+        $recommendSubject = M('recommend_subject')->order('sort asc,id desc')->limit($size)->select();
+        $subjectData=[];
+        if(!empty($recommendSubject)){
+            foreach($recommendSubject as $value){
+                //1--活动   2--专题
+                if($value['type'] == 1){
+                    $subject = M('art_activity')->field('1 as type,id,title as subname,cover as imgurl,create_time as thetime,content,link')->where(['id'=>$value['subject_id'],'status'=>1])->find();
+                }else{
+                    $subject = M('subject')->field('2 as type,id,sub_name as subname,cover as imgurl,start_time as thetime,description as content,\'\' as link')->where(['id'=>$value['subject_id'],'status'=>0])->find();
+                }
+                if(!empty($subject)){
+                    if(!empty($value['recommend_cover'])){
+                        $subject['imgurl'] = $value['recommend_cover'];
+                    }
+                    $subjectData[] = $subject;
+                }
+
+            }
+
+        }
+
+        if(count($subjectData)<$size){//没有配置
+            if(!empty($subjectData)){
+                $activityIds = [];
+                $subjectIds = [];
+                foreach($subjectData as $value){
+                    if($value['type'] == 1){//活动
+                        $activityIds[] = $value['id'];
+                    }else{
+                        $subjectIds[] = $value['id'];
+                    }
+                }
+                $activityIds = empty($activityIds)?'':implode(',',$activityIds);
+                $subjectIds = empty($subjectIds)?'':implode(',',$subjectIds);
+                if(empty($activityIds)){
+                    $query = "SELECT 1 as type,id,title as subname,cover as imgurl,create_time as thetime,content,link FROM `az_art_activity` where status=1";
+                }else{
+                    $query = "SELECT 1 as type,id,title as subname,cover as imgurl,create_time as thetime,content,link FROM `az_art_activity` where status=1 and id not in ({$activityIds})";
+                }
+                if(empty($subjectIds)){
+                    $query = $query." union SELECT 2 as type,id,sub_name as subname,cover as imgurl,start_time as thetime,description as content,'' as link from az_subject where status=0 order by type asc,thetime desc limit " . ($size-count($subjectData));
+
+                }else{
+                    $query = $query." union SELECT 2 as type,id,sub_name as subname,cover as imgurl,start_time as thetime,description as content,'' as link from az_subject where status=0  and id not in ({$subjectIds}) order by type asc,thetime desc limit " . ($size-count($subjectData));
+
+                }
+
+            }else{
+                $query = "SELECT 1 as type,id,title as subname,cover as imgurl,create_time as thetime,content,link FROM `az_art_activity` where status=1
+union    SELECT 2 as type,id,sub_name as subname,cover as imgurl,start_time as thetime,description as content,'' as link from az_subject where status=0 order by type asc,thetime desc limit " . $size;
+            }
+
+            //获取专题前3个
+            $frontSubject =  M('subject')->query($query);
+            $subjectData=array_merge($subjectData,$frontSubject);
+        }
+
+        foreach($subjectData as $key=>$value){
+            if ($value['type'] == 1) {
+                if (trim($value['link']) != '') {
+                    $subjectData[$key]['html5_description'] = $value['link'];
+                } else {
+                    $subjectData[$key]['html5_description'] = C('m_site') . '/ArtActivity/content/' . $value['id'];
+                }
+                //分享信息
+                $subjectData[$key]['shareInfo'] = [
+                    "id" => $value['id'],
+                    "title" => $value['subname'],
+                    "content" => $value['content'],
+                    "cover" => $value['imgurl'],
+                    'link' => $subjectData[$key]['html5_description'],
+                ];
+            } else {
+                $subjectData[$key]['html5_description'] = C('m_site') . '/subject/content/' . $value['id'];
+
+            }
+            unset($subjectData[$key]['link']);
+            unset($subjectData[$key]['cover']);
+            unset($subjectData[$key]['content']);
+            unset($subjectData[$key]['thetime']);
+
+        }
+
+
+        return empty($subjectData)?[]:$subjectData;
+    }
+
+    /**
+     * 获取首页推荐的艺术号
+     * 获取配置的艺术号，如果没有或少于配置数量，获取近2的艺术号文章
+     * @param $size
+     * @return array
+     */
+    private function getRecommendArticle($size){
+        $userLogic = new UserLogic();
+        $recommendArticle = M('recommend_article')->field('article_id')->order('sort')->limit($size)->select();
+        $articleList=[];
+        if(!empty($recommendArticle)){
+            $articleIds = implode(',',array_column($recommendArticle,'article_id'));
+            $where['az_article.status'] = 1;
+            $where['az_article.id'] = ['in',$articleIds];
+            $articleArr = M('article')
+                ->field('az_article.cover,az_article.id,az_article.title,az_article.excerpt,az_article.views,az_article.like_count,az_article.content,az_user.id as uid,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_article.artist=az_user.id', 'left')
+                ->where($where)
+                ->select();
+            //排序
+            $articleListTemp=[];
+            foreach($articleArr as $value){
+                $articleListTemp[$value['id']] = $value;
+            }
+            foreach($recommendArticle as $value){
+                $articleList[] = $articleListTemp[$value['article_id']];
+            }
+
+        }
+
+        if(count($articleList)<$size){//没有配置
+            if(!empty($articleList)){
+                $articleIds = implode(',',array_column($articleList,'id'));
+            }else{
+                $articleIds = '';
+
+            }
+
+            //最近的艺术号文章
+            $condition['az_article.status'] = 1;
+          /*  $condition['az_article.publish_time'] = ['elt',time()];
+            $condition['az_article.publish_time'] = ['egt',time()-86400];*/
+            if(!empty($articleList)){
+                $condition['az_article.id'] = ['not in',$articleIds];
+            }
+            $viewsArticle = M('article')
+                ->field('az_article.cover,az_article.id,az_article.title,az_article.excerpt,az_article.views,az_article.like_count,az_article.content,az_user.id as uid,az_user.nickname,az_user.face,az_user.role')
+                ->join('az_user on az_article.artist=az_user.id', 'left')
+                ->where($condition)
+                ->order('az_article.publish_time desc')
+                ->limit($size-count($articleList))
+                ->select();
+
+            $articleList=array_merge($articleList,$viewsArticle);
+        }
+
+
+        $articleData = [];
+        if(!empty($articleList)){
+            $artistIds = array_column($articleList,'uid');//作者ids
+            $agencyTypeList=$userLogic->getAgencyTypeList_byUids($artistIds);//机构列表
+            foreach ($articleList as $value) {
+                $article['id'] = $value['id'];
+                $article['title'] = html_entity_decode(html_entity_decode($value['title'], ENT_QUOTES), ENT_QUOTES);//app原生不支持html需要转化
+                $article['excerpt'] = empty($value['excerpt']) ? html_deconvert_content_cut($value['content'], 70) : $value['excerpt'];
+                $article['views'] = $value['views'];
+                $article['like_count'] = $value['like_count'];
+                if(empty($this->loginUserId)){
+                    $isLike = 0;
+                }else{
+                    $articleLike = M('article_like')->where(['article_id'=>$value['id'],'like_user_id'=>intval($this->loginUserId),'is_like'=>1])->find();
+                    $isLike = empty($articleLike)?0:1;
+                }
+                $article['is_like'] = $isLike;
+
+
+                $video = 0;
+                if (empty($value['cover'])) {//没有封面图
+                    //获取内容里面的视频
+                    preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $value['content'], $match);
+                    if (!empty($match[1])) {//有视频
+                        $article['cover'] = Util::getImageResize($match[1][0], 300, 300);
+                        $video = 1;
+                    } else {
+                        preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $value['content'], $array);
+                        if (!empty($array)) {//有图片
+                            $article['cover'] = Util::getImageResize($array[1][0], 300, 300);
+                        } else {
+                            $article['cover'] = '';
+                        }
+                    }
+                } else {
+                    $article['cover'] = Util::getImageResize($value['cover'], 300, 300);
+                }
+                $article['video'] = $video;
+
+                $article['user'] = [
+                    'id'=>empty($value['uid'])?-1:$value['uid'],
+                    "nickname" => empty($value['nickname'])?C('ADMIN_NAME'):$value['nickname'],
+                    "faceUrl" => empty($value['nickname'])?Util::getImageResize(C('ADMIN_FACE'), Image::faceWidth, Image::faceHeight):Util::getImageResize($value['face'], Image::faceWidth, Image::faceHeight),
+                    "is_artist" => strpos(',' . $value['role'] . ',', ',artist,') !== false ? 1 : 0,
+                    'is_agency' => $agencyTypeList[$value['artist']] > 0 ? 1 : 0,
+                    'AgencyType' => (int)$agencyTypeList[$value['uid']],
+                    "is_planner" => strpos(',' . $value['role'] . ',', ',planner,') !== false ? 1 : 0,
+                ];
+
+                $articleData[] = $article;
+            }
+
+        }
+
+        return empty($articleData)?[]:$articleData;
+    }
+
+    /**
+     * 获取首页推荐的作品
+     * 获取配置的作品，如果没有或少于配置数量，获取近一个月作品作品的浏览量与点赞数与评论数的权重的前几位,权重=浏览数*1+点赞数*2+评论*3
+     * @param $size
+     * @return array
+     */
+    private function getRecommendArtwork($size){
+        $RecommendArtwork = M('recommend_artwork')->field('artwork_id')->order('sort')->limit($size)->select();
+        $artworkData=[];
+        if(!empty($RecommendArtwork)){
+            $artworkIds = implode(',',array_column($RecommendArtwork,'artwork_id'));
+            $where['az_artwork.state'] = 1;
+            $where['az_artwork.is_deleted'] = 'N';
+            $where['az_artwork.id'] = ['in',$artworkIds];
+            $artworkArr = M('artwork')
+                ->field("az_artwork.id,az_artwork.name,az_artwork.cover,az_user.nickname as artist")
+                ->join('az_user on az_artwork.artist=az_user.id', 'left')
+                ->where($where)
+                ->select();
+
+
+            $artworkListTemp=[];
+            foreach($artworkArr as $value){
+                $artworkListTemp[$value['id']] = $value;
+            }
+            foreach($RecommendArtwork as $value){
+                $artworkData[] = $artworkListTemp[$value['artwork_id']];
+            }
+
+        }
+
+        if(count($artworkData)<$size){//没有配置
+            if(!empty($artworkData)){
+                $artworkIds = implode(',',array_column($artworkData,'id'));
+            }else{
+                $artworkIds = '';
+
+            }
+
+            //近一个月作品作品的浏览量与点赞数与评论数的权重的前几位,权重=浏览数*1+点赞数*2+评论*3
+            $condition['az_artwork.state'] = 1;
+            $condition['az_artwork.is_deleted'] = 'N';
+            $condition['az_artwork.create_time'] = ['elt',time()];
+            $condition['az_artwork.create_time'] = ['egt',time()-30*86400];
+            $condition['az_artwork.update_times'] = ['gt',0];
+            if(!empty($artworkData)){
+                $condition['az_artwork.id'] = ['not in',$artworkIds];
+            }
+            $viewsArtwork = M('artwork')
+                ->field('az_artwork.id,az_artwork.name,az_artwork.cover,az_user.nickname as artist,az_artwork.view_total+az_artwork.like_total*2+az_artwork.comment_total*3 as theorder')
+                ->join('az_user on az_artwork.artist=az_user.id', 'left')
+                ->where($condition)
+                ->order('theorder desc')
+                ->limit($size-count($artworkData))
+                ->select();
+
+            $artworkData=array_merge($artworkData,$viewsArtwork);
+        }
+
+        foreach($artworkData as $key=>$value){
+            $artwork_name=trim($value['name']);
+            if(preg_match("/《(.*)》/",$artwork_name)){
+                $artwork_name = ' ' .$artwork_name. ' ';
+            }else{
+                $artwork_name = '《' .$artwork_name. '》';
+            }
+            $artworkData[$key]['name'] = $artwork_name;
+            $artworkData[$key]['cover'] = empty($value['cover'])?'':Util::getImageResize($value['cover'], Image::artworkWidth, Image::artworkHeight);
+            if($value['theorder']){
+                unset($artworkData[$key]['theorder']);
+            }
+        }
+
+        return $artworkData;
+    }
+
+
+    /**
+     * 获取首页推荐的艺术家及其一副作品,默认选择权重最大的作品,权重=浏览数*1+点赞数*2+评论*3
+     * 获取配置的艺术家，如果没有或少于配置数量，
+     * 1.最近1个月作品更新数量
+     * 2.如果更新数相同，最近1个月作品的浏览量与点赞数与评论数的权重
+     * 权重=浏览数*1+点赞数*2+评论*3
+     * 3.如果权重一致，看艺术家粉丝数
+     * 4.如果粉丝数量相同，推荐最先入驻的艺术家
+     * @param $size
+     * @return array
+     */
+    private function getHomeRecommendArtist($size){
+        $RecommendArtist = M('recommend_artist')->field('artist_id')->order('sort')->limit($size)->select();
+        $artistList=[];
+        if(!empty($RecommendArtist)){
+            $artistIds = implode(',',array_column($RecommendArtist,'artist_id'));
+
+            $where['az_user.type'] = 3;
+            $where['az_user.banned_to'] = -1;
+            $where['az_user.is_deleted'] = 'N';
+            $where['az_user.id'] = ['in',$artistIds];
+            $where['az_user.id'] = ['in',$artistIds];
+            $artistList = M('recommend_artist')
+                ->field("az_user.id as user_id,az_user.nickname as user_name,az_user.gender as user_gender,az_user.face as user_face
+                ,az_artwork.id as artwork_id,az_artwork.name as artwork_name,az_artwork.cover as artwork_cover")
+                ->join('az_user on az_user.id=az_recommend_artist.artist_id', 'left')
+                ->join('az_artwork on az_artwork.id=az_recommend_artist.artwork_id', 'left')
+                ->where($where)
+                ->order('az_recommend_artist.sort')
+                ->select();
+
+        }
+
+        if(count($artistList)<$size){//没有配置
+            if(!empty($artistList)){
+                $artistIds = implode(',',array_column($artistList,'user_id'));
+            }else{
+                $artistIds = '';
+            }
+
+         /* 1.最近1个月作品更新数量
+            2.如果更新数相同，最近1个月作品的浏览量与点赞数与评论数的权重
+            权重=浏览数*1+点赞数*2+评论*3
+            3.如果权重一致，看艺术家粉丝数
+            4.如果粉丝数量相同，推荐最先入驻的艺术家
+         */
+            $condition['az_artwork.state'] = 1;
+            $condition['az_artwork.is_deleted'] = 'N';
+            $condition['az_artwork.create_time'] = ['elt',time()];
+            $condition['az_artwork.create_time'] = ['egt',time()-30*86400];
+            $condition['az_artwork.update_times'] = ['gt',0];
+            if(!empty($artistList)){
+                $condition['az_user.id'] = ['not in',$artistIds];
+            }
+            $viewsArtist = M('artwork')
+                ->field("az_user.id as user_id,az_user.nickname as user_name,az_user.gender as user_gender,az_user.face as user_face
+                ,count(az_artwork.id) as art_total,sum(az_artwork.view_total)+sum(az_artwork.like_total)*2+sum(az_artwork.comment_total)*3 as weight")
+                ->join('az_user on az_artwork.artist=az_user.id', 'left')
+                ->join('az_artist_apply on az_user.id =az_artist_apply.user_id')
+                ->where($condition)
+                ->group('az_user.id')
+                ->order("art_total desc,weight desc,az_user.follower_total desc,FROM_UNIXTIME(az_artist_apply.verify_time,'%Y%m%d') asc")
+                ->limit($size-count($artistList))
+                ->select();
+
+            $artistList=array_merge($artistList,$viewsArtist);
+        }
+
+        foreach ($artistList as $key => $value) {
+            $artistList[$key]['user_face'] = empty($value['user_face']) ? '' : Util::getImageResize($value['user_face'], Image::faceWidth, Image::faceHeight); //用户头像
+            if(empty($value['artwork_id'])){
+                $artwork = M('artwork')
+                    ->field('id as artwork_id,name as artwork_name,cover as artwork_cover,view_total+like_total*2+comment_total*3 as art_weight')
+                    ->order('art_weight desc')
+                    ->where(['artist'=>$value['user_id']])
+                    ->find();
+                $artistList[$key]['artwork_id'] = $artwork['artwork_id'];
+                $artistList[$key]['artwork_name'] = $artwork['artwork_name'];
+                $artistList[$key]['artwork_cover'] = empty($artwork['artwork_cover']) ? '' : Util::getImageResize($artwork['artwork_cover'], Image::artworkWidth, Image::artworkHeight); //作品封面
+
+            }else{
+                $artistList[$key]['artwork_cover'] = empty($value['artwork_cover']) ? '' : Util::getImageResize($value['artwork_cover'], Image::artworkWidth, Image::artworkHeight); //作品封面
+            }
+
+            $artwork_name=trim($artistList[$key]['artwork_name']);
+            if(preg_match("/《(.*)》/",$artwork_name)){
+                $artwork_name = ' ' .$artwork_name. ' ';
+            }else{
+                $artwork_name = '《' .$artwork_name. '》';
+            }
+            $artistList[$key]['artwork_name'] = $artwork_name;
+            unset($artistList[$key]['art_total']);
+            unset($artistList[$key]['weight']);
+        }
+
+        return $artistList;
+    }
+
+    //更新推荐艺术家
+    public function updateRecommendArtist(){
+        $where = "az_user.type = 3 and az_user.is_deleted = 'N'
+        and az_user.banned_to = -1 and az_user.is_recommend='Y'";
+        $recommendArtistOld = M('user')->field("id")->where($where)->select();
+
+        $data=[];
+        foreach($recommendArtistOld as $value){
+            $data[]=[
+                'artist_id'=>$value['id'],
+            ];
+        }
+         M('recommend_artist')->addAll($data);
+        Util::jsonReturn(['status' => Code::SUCCESS]);
+    }
+
+
+}

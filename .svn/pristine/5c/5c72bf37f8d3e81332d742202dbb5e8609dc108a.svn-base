@@ -1,0 +1,18 @@
+<?php
+
+namespace Mp\Logic;
+
+
+use Mp\Base\BaseLogic;
+use Mp\Model\CommentModel;
+use Mp\Model\CommentLikeModel;
+use Mp\Logic\UserLogic;
+use Mp\Logic\MessageLogic;
+use Mp\Logic\ArtworkLogic;
+use Mp\Logic\ArtworkUpdateLogic;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+
+class FeedbackLogic extends BaseLogic{
+
+}

@@ -1,0 +1,84 @@
+<?php
+
+namespace Mp\Controller;
+use Mp\Base\ApiBaseController;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+
+class AudioController extends ApiBaseController{
+
+    function postinfo(){
+        $audioUrl = trim(I('post.audioUrl'));
+        $songName = trim(I('post.songName'));
+        $singerName = trim(I('post.singerName'));
+        $songImg = trim(I('post.songImg'));
+
+        if($audioUrl==''||$songName==''){
+            Util::jsonReturn(null, Code::SYS_ERR, '不能为空');
+        }else{
+            $Audio=M('Audio');
+
+            $Audiodata = [
+                'url' => $audioUrl,
+                'song_name' => $songName,
+                'singer_name' => $singerName,
+                'song_img' => $songImg,
+                'userid' => $this->loginUserId,
+                'create_time' => time(),
+            ];
+            $insertId = $Audio->add($Audiodata);
+            Util::jsonReturn(['status' => 1000]);
+        }
+    }
+
+    public function myaudio()
+    {
+
+        $page = I('post.page', '', 'number_int');
+        $pagesize = I('post.pagesize', '', 'number_int');
+
+
+        $page = $page <= 0 ? 1 : $page;
+        $pagesize = $pagesize <= 0 ? 20 : $pagesize;
+        $pagesize = $pagesize > 200 ? 20 : $pagesize;
+
+        $Audio =  M('Audio');
+
+        $where['userid'] = $this->loginUserId;
+
+        $total = $Audio->where($where)->count();
+        $lists = $Audio
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+
+
+        $lists_return = [];
+        foreach ($lists as $value) {
+            $list['id'] = $value['id'];
+            $list["audioUrl"] = $value['url'];
+            $list["songName"] = $value['song_name'];
+            $list["singerName"] = $value['singer_name'];
+            $list["songImg"] = $value['song_img'];
+            $list["uploadDate"] = date('Y-m-d H:i:s',$value['create_time']);
+
+
+
+            $lists_return[] = $list;//添加进articles
+        }
+
+        $maxpage = ceil($total / $pagesize);
+        $info = [
+            'list' => $lists_return,
+            'page' => $page,
+            'total' => $total,
+            'pagesize' => $pagesize,
+            'maxpage' => $maxpage
+        ];
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+}

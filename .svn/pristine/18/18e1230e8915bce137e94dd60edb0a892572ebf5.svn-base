@@ -1,0 +1,52 @@
+<?php
+namespace H5\Controller;
+
+use Common\Logic\UserLogic;
+use Custom\Helper\Util;
+use Think\Controller;
+
+//登陆模块
+class PassportController extends Controller {
+
+	//推出
+	public function logout(){
+				
+	}
+
+	//检查手机号是否存在
+	public function checkPhone(){
+		$phone = I('phone');
+		$UserLogic = new UserLogic();
+		$flag = $UserLogic->isMobileUsed($phone);
+		if($flag){
+			Util::jsonReturn($flag, 2000, 'ok');
+		}else{
+			Util::jsonReturn($flag, 4000, 'no');
+		}
+	}
+
+	//验证密码
+	public function checkLogin(){
+		$phone = I('phone');
+		$passwd = I('passwd');
+		$UserLogic = new UserLogic();
+		$flag = $UserLogic->checkMobileRegister($phone,$passwd);
+		if($flag){
+			Util::jsonReturn($flag, 2000, 'ok');
+		}else{
+			Util::jsonReturn($flag, 4000, 'no');
+		}
+	}
+
+	public function verifyCode(){
+
+	}
+
+	public function checkVerifyCode(){
+        $data = [
+            'id'=>'1',
+        ];
+        Util::jsonReturn($data, 2000, 'ok');
+	}
+
+}

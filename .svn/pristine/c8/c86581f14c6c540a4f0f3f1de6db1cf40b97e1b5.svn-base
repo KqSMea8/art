@@ -1,0 +1,53 @@
+<?php
+
+namespace Mp\Logic;
+
+
+use Mp\Base\BaseLogic;
+use Mp\Model\ConfigModel;
+use Custom\Define\Image;
+
+class ArtworkColorLogic extends BaseLogic
+{
+    public function getColorList($format = 'json')
+    {
+        $colorLogic = new ConfigLogic();
+        $colorList = $colorLogic->getConfig(ConfigModel::ARTWORK_COLOR_LIST, $format);
+        return $colorList;
+    }
+    public function getColorConfigByIdList($colorIdList)
+    {
+        $colorListWithKey = [];
+        $colorList = $this->getColorList('array');
+        foreach ($colorList as $color) {
+            $colorListWithKey[$color['id']] = $color;
+        }
+        $ret = [];
+        foreach ($colorIdList as $colorId)
+        {
+            //['id'=>'', 'color'=>'', 'sort'=>'']
+            $ret[] = $colorListWithKey[$colorId];
+        }
+        return $ret;
+    }
+
+    public function  getStrByids($ids){
+        $return_str='';
+        $ids_arr = explode(',', $ids);
+        $ids_arr_fix=[];
+        foreach ($ids_arr as $value) {
+            if ($value > 0)
+                array_push($ids_arr_fix, intval($value));
+        }
+        if(count($ids_arr_fix)>0){
+        $map['id'] = ['in', implode(',', $ids_arr_fix)];
+        $color_list = $this->field('cn_name')->where($map)->select();
+            foreach ($color_list as $value) {
+                $return_str=$return_str==''?$value['cn_name']:$return_str.','.$value['cn_name'];
+            }
+            return $return_str;
+        }else{
+            return '';
+        }
+    }
+}

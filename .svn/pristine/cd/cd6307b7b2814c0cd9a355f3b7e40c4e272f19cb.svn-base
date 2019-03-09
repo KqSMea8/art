@@ -1,0 +1,90 @@
+@font-face {
+  font-family: "fzybxsjw";
+  src: url("./fontFamily/fzybxsjw.eot");
+  src: url("./fontFamily/fzybxsjw.eot?#iefix") format("embedded-opentype"),
+  url("./fontFamily/fzybxsjw.woff") format("woff"),
+  url("./fontFamily/fzybxsjw.ttf") format("truetype"),
+  url("./fontFamily/fzybxsjw.svg#FamilyName") format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-family: "fzybxsjw2";
+  src: url("./fontFamily/fzybxsjw2.eot");
+  src: url("./fontFamily/fzybxsjw2.eot?#iefix") format("embedded-opentype"),
+  url("./fontFamily/fzybxsjw2.woff") format("woff"),
+  url("./fontFamily/fzybxsjw2.ttf") format("truetype"),
+  url("./fontFamily/fzybxsjw2.svg#FamilyName") format("svg");
+
+}
+*,:after,:before{box-sizing:border-box;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;-webkit-tap-highlight-color: rgba(0,0,0,0);}
+button,textarea,menu,footer,header,hgroup,nav,output,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;}
+p,h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: normal;
+}
+
+
+.wrap {
+  position: relative;
+  width: 750px;
+  height: 1334px;
+}
+.wrap .info {
+  position: absolute;
+  top: 982px;
+  width: 750px;
+  text-align: center;
+  color: #fff;
+  z-index: 3;
+}
+.wrap .info .name span {
+  position: relative;
+  font-size: 54px;
+  line-height: 54px;
+  font-family: "fzybxsjw", "Segoe UI", "Lucida Grande", "Helvetica", "Arial", "Microsoft YaHei", "FreeSans", "Arimo", "Droid Sans","wenquanyi micro hei","Hiragino Sans GB", "Hiragino Sans GB W3", Arial, sans-serif;
+}
+.wrap .info .name span:after {
+  content: url(../image/artist.png);
+  position: absolute;
+  right: -54px;
+  top: 0px;
+  width: 54px;
+  height: 54px;
+}
+
+.wrap .info .tags {
+  margin-top: 10px;
+  font-size: 20px;
+  line-height: 1;
+}
+.wrap .info .desc {
+  margin-top: 30px;
+  font-size: 32px;
+  line-height: 1;
+}
+.wrap .upload-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 750px;
+  height: auto;
+  z-index: 1;
+}
+.wrap .temp-url {
+  position: relative;
+  width: 750px;
+  height: 1334px;
+  z-index: 2;
+}
+.wrap .code {
+  margin-top: 25px;
+}
+
+.wrap .code img {
+  width: 108px;
+  height: 108px;
+}
+.wrap .code p {
+  font-size: 20px;
+  line-height: 1;
+  margin-top: 14px;
+}

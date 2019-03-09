@@ -1,0 +1,27 @@
+<?php
+
+namespace Common\Model;
+
+
+use Common\Base\BaseModel;
+
+class AreaModel extends BaseModel{
+    protected $tableName = 'area';
+
+    /**
+     * 获取地址
+     * @param $provinceNum 省份id
+     * @param $cityNum 市id
+     * @param $areaNum 地区id
+     * @return string
+     */
+    public function getAddress($provinceNum,$cityNum,$areaNum){
+        $province = $this->field('aname')->find($provinceNum);
+        $province = empty($province)?'':$province['aname'];
+        $city = $this->field('aname')->find($cityNum);
+        $city = empty($city)?'':$city['aname'];
+        $area = $this->field('aname')->find($areaNum);
+        $area = empty($area)?'':$area['aname'];
+        return $province.$city.$area;
+    }
+}

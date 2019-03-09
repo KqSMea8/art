@@ -1,0 +1,85 @@
+html, body {
+  height: 100%;
+  background-color: #eee;
+}
+
+/* 创作过程 end */
+.updates {
+  margin-top: 0.16rem;
+}
+.updates .title,
+.comments .title {
+  padding: 0.34667rem 0.4rem;
+  font-size: 0.42667rem;
+  line-height: 1;
+  background-color: #fff;
+  border-bottom: 2px solid #e3e3e3;
+}
+
+/* 评论 */
+.comments {
+  background-color: #fff;
+  box-shadow: 0 0.05333rem 0.32rem rgba(0,0,0,.15);
+}
+.comments .comment-list {
+  padding: 0.4rem 0.4rem 0.65333rem;
+}
+
+.comments .comment {
+  padding: 0.26667rem 0;
+  font-size: 0.32rem;
+  line-height: 0.4rem;
+  border-bottom: 1px solid #cacaca;
+}
+.comment .user-com,
+.comment .painter-com {
+  position: relative;
+  margin-left: 0.73333rem;
+}
+.user-com .avatar {
+  position: absolute;
+  left: -0.73333rem;
+  top: -0.08rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+}
+.user-com .com {
+  width: 6.8rem;
+}
+.comment .name {
+  display: inline;
+}
+.comment .time {
+  display: inline;
+  padding-left: 0.66667rem;
+  font-size: 0.26667rem;
+  color: #999;
+}
+.comment .icons {
+  float: right;
+  color: #999;
+}
+.comment .painter-com {
+  padding-top: 0.10667rem;
+  width: 6.8rem;
+}
+.comment .painter-com .name,
+.comment .painter-com span {
+  position: relative;
+  margin-right: -0.08rem;
+}
+.comment .painter-com .name::before {
+  content: '';
+  position: absolute;
+  left: -0.2rem;
+  top: 0.16rem;
+  width: 0.10667rem;
+  height: 0.10667rem;
+  border-radius: 50%;
+  background-color: #eaab32;
+}
+.painter-com .com {
+  padding-left: 0.2rem;
+}
+/* 评论 end */

@@ -1,0 +1,19 @@
+<?php
+
+namespace V50\Model;
+
+
+use V50\Base\BaseModel;
+
+//文章草稿箱
+class ArticleDraftModel extends BaseModel{
+    protected $tableName = 'article_draft';
+
+    public static function replaceHtmlImgSrc($find, $content)
+    {
+        foreach ($find as $key => $value) {
+            $content = str_replace($value, $value . '?x-oss-process=image/resize,m_fixed,w_702,q=50,image/format,jpg', $content);
+        }
+        return $content;
+    }
+}

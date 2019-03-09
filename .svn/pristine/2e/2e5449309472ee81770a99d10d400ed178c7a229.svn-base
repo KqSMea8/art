@@ -1,0 +1,8 @@
+<?php
+namespace M\Model;
+
+use M\Base\BaseModel;
+
+class UserStatisticsModel extends BaseModel{
+  protected $tableName = 'user_statistics';
+}

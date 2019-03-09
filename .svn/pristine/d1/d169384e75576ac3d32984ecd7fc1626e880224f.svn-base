@@ -1,0 +1,420 @@
+<?php
+
+namespace V50\Logic;
+
+use V50\Base\BaseLogic;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+
+
+class ArtCircleLogic extends BaseLogic
+{
+    /**动态最近点赞的用户的头像
+     * @param $art_circle_id 艺术圈id
+     * @param int $num
+     * @return array
+     */
+    public function recent_favorite_face($art_circle_id, $num = 10)
+    {
+
+        $art_circle_like_list = M('art_circle_like')->field('like_user_id')->where("art_circle_id=" . intval($art_circle_id) . " and status=1")->order('id desc')->limit($num)->select();
+        if (!$art_circle_like_list) {
+            return [];
+        } else {
+            $recent_favorite_userid = [];
+            foreach ($art_circle_like_list as $value) {
+                $recent_favorite_userid[] = $value['like_user_id'];
+            }
+            $user_list = M('user')->field('face')->where("id in(" . implode(',', $recent_favorite_userid) . ") ")->select();
+            if (!$user_list) {
+                return [];
+            } else {
+                $recent_favorite_face = [];
+                foreach ($user_list as $value) {
+                    $recent_favorite_face[] = $value['face'];
+                }
+                return $recent_favorite_face;
+            }
+
+            return [];
+        }
+
+    }
+
+    /**动态最近点赞的用户的名称
+     * @param $art_circle_id
+     * @param int $num
+     * @return array
+     */
+    public function recent_favorite_nickname($art_circle_id, $num = 10)
+    {
+
+        $art_circle_like_list = M('art_circle_like')->field('like_user_id')->where("art_circle_id=" . intval($art_circle_id) . " and status=1")->order('id desc')->limit($num)->select();
+        if (!$art_circle_like_list) {
+            return [];
+        } else {
+            $recent_favorite_userid = [];
+            foreach ($art_circle_like_list as $value) {
+                $recent_favorite_userid[] = $value['like_user_id'];
+            }
+            $user_list = M('user')->field('nickname')->where("id in(" . implode(',', $recent_favorite_userid) . ") ")->select();
+            if (!$user_list) {
+                return [];
+            } else {
+                $recent_favorite_nickname = [];
+                foreach ($user_list as $value) {
+                    $recent_favorite_nickname[] = $value['nickname'];
+                }
+                return $recent_favorite_nickname;
+            }
+
+            return [];
+        }
+
+    }
+
+    public function recent_comment($art_circle_id, $num = 800)
+    {
+        $art_circle_comment_list = M('art_circle_comment')->where("art_circle_id=" . intval($art_circle_id) . " and status=1")->order('id ')->limit($num)->select();
+        if (!$art_circle_comment_list) {
+            return [];
+        } else {
+            //昵称列表
+            $user_face_list = [];
+            $user_ids = [];
+            foreach ($art_circle_comment_list as $value) {
+                if ($value['commenter'] > 0) {
+                    array_push($user_ids, $value['commenter']);
+                }
+                if ($value['comment_to'] > 0) {
+                    array_push($user_ids, $value['comment_to']);
+                }
+            }
+            $user_ids = array_unique($user_ids);
+            if (count($user_ids)) {
+                $user_list = M('user')->field('id,nickname')->where("id in(" . implode(',', $user_ids) . ") ")->select();
+                foreach ($user_list as $value) {
+                    $user_face_list[$value['id']] = $value['nickname'];
+                }
+            }
+
+            $recent_comment_new = [];
+            foreach ($art_circle_comment_list as $value) {
+                $art_circle_comment = [];
+                $art_circle_comment['id']=(int)$value['id'];
+                $art_circle_comment['commenter_user_id']=(int)$value['commenter'];
+                $art_circle_comment['commenter'] = trim($user_face_list[$value['commenter']]) == '' ? '' : $user_face_list[$value['commenter']];
+                $art_circle_comment['comment_to'] = trim($user_face_list[$value['comment_to']]) == '' ? '' : $user_face_list[$value['comment_to']];
+                $art_circle_comment['content'] = html_entity_decode($value['content']);
+                $art_circle_comment['datetime'] = date('Y-m-d H:i:s', $value['create_time']);
+                $recent_comment_new[] = $art_circle_comment;
+            }
+            return $recent_comment_new;
+        }
+    }
+
+    public function getShareInfo($share_type, $share_id)
+    {
+        $return_data = false;
+        switch ($share_type) {
+            case 'artwork':
+                $artworkinfo = M('artwork')->where(['id' => intval($share_id),'is_deleted'=>'N'])->find();
+                if ($artworkinfo) {
+                    $userinfo = M('user')->where(['id' => intval($artworkinfo['artist'])])->find();
+
+                    if (trim($artworkinfo['panorama_ids']) != '') {//有全局图就全景图，否则封面
+                        $images = explode(',', $artworkinfo['panorama_ids']);
+                        $image_url = $images[0];
+                    } else {
+                        $image_url = $artworkinfo['cover'];
+                    }
+
+                    $artwork_name=trim($artworkinfo['name']);
+                    if(preg_match("/《(.*)》/",$artwork_name)){
+                        $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+                    }else{
+                        $artwork_name = '《' .$artwork_name. '》';
+                    }
+                    $data = [
+                        'type' => $share_type,
+                        'share_id' => $share_id,
+                        'title' => $userinfo['nickname']  . $artwork_name . '详情',
+                        'content' => '',
+                        'image_url' => trim($image_url),
+                        'video_poster' => '',
+                        'video_url' => '',
+                    ];
+                    $return_data = $data;
+                }
+
+                break;
+            case 'artwork_update':
+                $artwork_updateinfo = M('artwork_update')->where(['id' => intval($share_id),'is_deleted'=>'N'])->find();
+               // print_r($artwork_updateinfo);
+                if ($artwork_updateinfo) {
+                    $userinfo = M('user')->where(['id' => intval($artwork_updateinfo['artist'])])->find();
+                    $artworkinfo = M('artwork')->where(['id' => $artwork_updateinfo['artwork_id'],'is_deleted'=>'N'])->find();
+                    //print_r($artworkinfo);
+
+                    //获取更新记录里面的图片
+                    preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $artwork_updateinfo['wit'], $array);
+                    $imgurl = empty($array[1]) ? [] : $array[1];
+                    $imgurl=array_slice($imgurl,0,1);
+                    $imgurl=$imgurl[0];
+
+                    //获取更新记录里面的视频
+                    preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $artwork_updateinfo['wit'], $match);
+                    $video_poster = empty($match[1]) ? '' : $match[1][0];
+
+                    /*if(trim($imgurl==''&&trim($video_poster)=='')){//没有图片和视频，显示默认图片
+                        $imgurl=C('SHARE_IMG_DEFAULT');
+                    }*/
+
+
+                    //封面图片判断,花絮封面图>内容里面的图
+                    $cover='';
+                    if(trim($artwork_updateinfo['cover']) != '') {
+                        $cover = $artwork_updateinfo['cover'];
+                    }elseif(trim($imgurl != '')){
+                        $cover = $imgurl;
+                    }
+
+
+                    $content=trim(strip_tags(html_entity_decode($artwork_updateinfo['wit'],ENT_QUOTES))," \t\n\r\0\x0B");
+                    $content = trim($content);
+
+                    $artwork_name=trim($artworkinfo['name']);
+                    if(preg_match("/《(.*)》/",$artwork_name)){
+                        $artwork_name = ' ' .$artwork_name. ' ';//trim($artwork_name,'《》');
+                    }else{
+                        $artwork_name = '《' .$artwork_name. '》';
+                    }
+                    $title = empty($artwork_updateinfo['title'])?$artwork_name.' 花絮':$artwork_updateinfo['title']; //作品id
+                    $data = [
+                        'type' => $share_type,
+                        'share_id' => $share_id,
+                        'title' => $title,
+                        'content' =>$content,
+                        'image_url' => trim($cover),
+                        'video_poster' => trim($video_poster),
+                        'video_url' => '',
+                    ];
+                    $return_data = $data;
+
+                }
+
+                break;
+            case 'art_article':
+                $articleinfo = M('article')->where(['id' => intval($share_id),'status'=>['neq',2]])->find();
+                if(empty($articleinfo['cover'])){//没有封面图
+                    //获取更新记录里面的视频
+                    preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $articleinfo['content'], $match);
+                    if(!empty($match[1])){//有视频
+                        $cover = $match[1][0];
+                    }else{
+                        preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $articleinfo['content'], $array);
+                        if(!empty($array[1])){//有图片
+                            $cover =  $array[1][0];
+                        }else{
+                            $cover='';
+                        }
+                    }
+                }else{
+                    $cover = $articleinfo['cover'];
+                }
+
+                if ($articleinfo) {
+                    $data = [
+                        'type' => $share_type,
+                        'share_id' => $share_id,
+                        'title' => $articleinfo['title'],
+                        'content' =>'',
+                        'image_url' => $cover,
+                        'video_poster' => '',
+                        'video_url' => '',
+                    ];
+                    $return_data = $data;
+                }
+
+                break;
+            case 'gallery':
+                $galleryinfo = M('gallery')->where(['artist' => intval($share_id),'is_deleted'=>'N'])->find();
+                $userinfo = M('user')->where(['id' => intval($share_id),'is_deleted'=>'N','type'=>3])->find();
+                if ($galleryinfo&&$userinfo) {
+                    $data = [
+                        'type' => $share_type,
+                        'share_id' => $share_id,
+                        'title' => $userinfo['nickname'].'的艺术画廊',
+                        'content' =>'',
+                        'image_url' => trim($galleryinfo['cover']),
+                        'video_poster' => '',
+                        'video_url' => '',
+                    ];
+                    $return_data = $data;
+                }
+
+                break;
+            case 'subject'://专题
+                $subjectinfo = M('subject')->where(['id' => intval($share_id),'status'=>0])->find();
+                if ($subjectinfo) {
+                    $data = [
+                        'type' => $share_type,
+                        'share_id' => $share_id,
+                        'title' => $subjectinfo['sub_title'],
+                        'content' =>'',
+                        'image_url' => trim($subjectinfo['cover']),
+                        'video_poster' => '',
+                        'video_url' => '',
+                    ];
+                    $return_data = $data;
+                }
+
+                break;
+
+            case 'topic'://话题
+                $topic_info = M('topic')->where(['id' => intval($share_id),'status'=>1])->find();
+                if ($topic_info) {
+                    $data = [
+                        'type' => $share_type,
+                        'share_id' => $share_id,
+                        'title' => $topic_info['title'],
+                        'content' =>'',
+                        'image_url' => '',
+                        'video_poster' => '',
+                        'video_url' => '',
+                    ];
+                    $return_data = $data;
+                }
+
+                break;
+
+            case 'topic_discuss'://话题讨论
+                $topic_info = M('topic_discuss')->where(['id' => intval($share_id),'status'=>1])->find();
+                if ($topic_info) {
+
+                    if($topic_info['type']==4){
+                        $title=html_content_cut($topic_info['title'], 200);
+                        $content='';
+                        preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $topic_info['content'], $array);
+                        $first_pic = trim($array[1][0]);
+                        $images_url=$first_pic;
+
+                        preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $topic_info['content'], $match);
+                        $first_poster = trim($match[1][0]);
+                        $video_poster=$first_poster;
+                    }else{
+                        $title=html_content_cut($topic_info['desc'], 200);
+                        $content=$topic_info['desc'];
+                        $images_url=$topic_info['images_url'];
+                        $images_url_arr=explode(',',$images_url);
+                        $images_url=$images_url_arr[0];
+
+                        $video_poster=$topic_info['video_poster'];
+                    }
+
+                    $data = [
+                        'type' => $share_type,
+                        'share_id' => $share_id,
+                        'title' => $title,
+                        'content' =>trim($content),
+                        'image_url' => trim($images_url),
+                        'video_poster' => trim($video_poster),
+                        'video_url' => '',
+                    ];
+                    $return_data = $data;
+                }
+
+                break;
+
+            default:
+                $return_data = false;
+        }
+        return $return_data;
+
+    }
+
+    //发布话题和话题讨论时，同步话题和讨论到艺术圈
+    //data[user_id:11111,type:'topic',share_id:444]  type值:话题topic，话题讨论topic_discuss
+    function synTopicDiscuss2ArtCircle(array $data)
+    {
+        $type = $data['type'];
+        $share_id= (int)$data['share_id'];
+        if ($type == 'topic' || $type == 'topic_discuss') {
+
+            if ($type == 'topic') {
+                $topic_info = M('topic')->where(['id' => intval($share_id), 'status' => 1])->find();
+                if ($topic_info) {
+                    $share_info = [
+                        'type' => $type,
+                        'share_id' => $share_id,
+                        'title' => $topic_info['title'],
+                        'content' => '',
+                        'image_url' => '',
+                        'video_poster' => '',
+                        'video_url' => '',
+                    ];
+                }
+
+            } elseif ($type == 'topic_discuss') {
+                $topic_info = M('topic_discuss')->where(['id' => intval($share_id), 'status' => 1])->find();
+                if ($topic_info) {
+
+                    if ($topic_info['type'] == 4) {
+                        $title = html_content_cut($topic_info['title'], 200);
+                        $content = '';
+                        preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $topic_info['content'], $array);
+                        $first_pic = trim($array[1][0]);
+                        $images_url = $first_pic;
+
+                        preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $topic_info['content'], $match);
+                        $first_poster = trim($match[1][0]);
+                        $video_poster = $first_poster;
+                    } else {
+                        $title = html_content_cut($topic_info['desc'], 200);
+                        $content = $topic_info['desc'];
+                        $images_url = $topic_info['images_url'];
+                        $images_url_arr = explode(',', $images_url);
+                        $images_url = $images_url_arr[0];
+
+                        $video_poster = $topic_info['video_poster'];
+                    }
+
+                    $share_info = [
+                        'type' => $type,
+                        'share_id' => $share_id,
+                        'title' => $title,
+                        'content' => $content,
+                        'image_url' => trim($images_url),
+                        'video_poster' => trim($video_poster),
+                        'video_url' => '',
+                    ];
+
+                }
+            }
+
+            if ($topic_info) {
+                if ($type == 'topic') {
+                    $ArtCircle_type = 101;
+                } elseif ($type == 'topic_discuss') {
+                    $ArtCircle_type = 102;
+                }
+                $data = [
+                    'type' => intval($ArtCircle_type),
+                    'address' => '',
+                    'content' => '',
+                    'images_url' => '',
+                    'video_poster' => '',
+                    'video_url' => '',
+                    'user_id' => (int)$data['user_id'],
+                    'create_time' => time(),
+                ];
+                $ArtCircle_insertId = $this->add($data);
+
+                $ArtCircleShareLogic = new ArtCircleShareLogic();
+                $share_info['art_circle_id'] = $ArtCircle_insertId;
+                $share_insertId = $ArtCircleShareLogic->add($share_info);
+                return $ArtCircle_insertId;
+            }
+        }
+    }
+}

@@ -1,0 +1,10 @@
+<?php
+
+namespace Admin\Model;
+
+use Common\Base\BaseModel;
+
+class ArtworkPrintsModel extends BaseModel
+{
+    protected $tableName = 'artwork_prints';
+}

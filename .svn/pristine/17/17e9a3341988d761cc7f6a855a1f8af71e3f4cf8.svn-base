@@ -1,0 +1,70 @@
+<?php
+
+namespace V22\Controller;
+
+use V22\Base\ApiBaseController;
+use V22\Logic\ArtworkCategoryLogic;
+use V22\Logic\ArtworkColorLogic;
+use V22\Logic\ArtworkLikeLogic;
+use V22\Logic\ArtworkLogic;
+use V22\Logic\ArtworkTagLogic;
+use V22\Logic\ArtworkUpdateLogic;
+use V22\Logic\ArtistExtensionLogic;
+use V22\Logic\CommentLogic;
+use V22\Logic\AssetsLogic;
+use V22\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+
+//artwork upload
+class ExtensionController extends ApiBaseController{
+  public function apply(){
+    $artist = I('artist','');
+    $desc = I('desc','');
+    $img = I('img','');
+    $userLogic = new UserLogic();
+    $extLogic = new ArtistExtensionLogic();
+    $userInfo = $userLogic->find($artist);
+    $url = "gallery-{$userInfo['id']}-{$userInfo['nickname']}";
+    $extLogic->apply($artist,$img,$desc,$url);
+    Util::jsonReturn(['status'=>Code::SUCCESS]);
+  }
+  public function edit(){
+    $id = I('id','');
+    $artist = I('artist','');
+    $desc = I('desc','');
+    $img = I('img','');
+    $extLogic = new ArtistExtensionLogic();
+    $extLogic->edit($id,$artist,$img,$desc);
+    Util::jsonReturn(['status'=>Code::SUCCESS]);
+  }
+  public function stop(){
+    $id = I('id','');
+    $extLogic = new ArtistExtensionLogic();
+    $extLogic->stop($id);
+    Util::jsonReturn(['status'=>Code::SUCCESS]);
+  }
+  public function getNext(){
+    $extLogic = new ArtistExtensionLogic();
+    $info = $extLogic->getNextCover();
+    Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$info]);
+  }
+
+  public function getInfoByArtist(){
+    $artistid = I('artistid','');
+    $userLogic = new UserLogic();
+    if(empty($artistid)){
+      Util::jsonReturn(['status'=>Code::NOT_FOUND, 'info'=>$artistid]);
+    }
+    $extLogic = new ArtistExtensionLogic();
+    $info = $extLogic->getInfoByArtist($artistid);
+    if(!empty($info)){
+      Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$info]);
+    }else{
+      Util::jsonReturn(['status'=>1001, 'info'=>$info,'artTotal' => $userLogic->where(['id' => $this->loginUserId])->getField('art_total')]);
+    }
+  }
+}

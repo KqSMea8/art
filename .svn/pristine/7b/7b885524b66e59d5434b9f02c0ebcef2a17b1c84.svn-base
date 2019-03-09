@@ -1,0 +1,519 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Common\Base\AdminBaseController;
+use Common\Logic\AssetsLogic;
+use Common\Logic\MessageLogic;
+use Common\Logic\UserLogic;
+use Custom\Helper\Nav;
+use Custom\Helper\Util;
+use Common\Logic\TopicLogic;
+use Common\Logic\TopicFollowLogic;
+use Common\Logic\TopicDiscussLogic;
+use Common\Logic\TopicDiscussLikeLogic;
+use Common\Logic\TopicDiscussCommentLogic;
+use Common\Logic\TopicUserinfoLogic;
+use Common\Logic\TopicShareLogic;
+
+
+
+class TopicController extends AdminBaseController
+{
+    private function lock($redis, $key, $expire = 5)
+    {
+        $thistime = time();
+        $lock = $redis->setnx($key, $thistime + $expire);
+        // 不能获取锁
+        if (!$lock) {
+            // 判断锁是否过期
+            $lock_time = $redis->get($key);
+            // 锁已过期，删除锁，重新获取
+            if ($thistime > $lock_time) {
+                $redis->del($key);
+                $lock = $redis->setnx($key, $thistime + $expire);
+            }
+        }
+        return $lock ? true : false;
+    }
+
+    //话题列表
+    public function topic()
+    {
+        $page = I('get.page', 1);
+        $pagesize = I('get.pagesize', 10);
+        $title = I('get.title','');
+        $sCreateTime = strtotime(I('get.sCreateTime'));
+        $eCreateTime = strtotime(I('get.eCreateTime'));
+        $sViewTotal = I('get.sViewTotal')==null?-1:intval(I('get.sViewTotal'));
+        $eViewTotal = I('get.eViewTotal')==null?-1:intval(I('get.eViewTotal'));
+        $sShareTotal = I('get.sShareTotal')==null?-1:intval(I('get.sShareTotal'));
+        $eShareTotal = I('get.eShareTotal')==null?-1:intval(I('get.eShareTotal'));
+        $sFollowTotal = I('get.sFollowTotal')==null?-1:intval(I('get.sFollowTotal'));
+        $eFollowTotal = I('get.eFollowTotal')==null?-1:intval(I('get.eFollowTotal'));
+        $sDiscussTotal = I('get.sDiscussTotal')==null?-1:intval(I('get.sDiscussTotal'));
+        $eDiscussTotal = I('get.eDiscussTotal')==null?-1:intval(I('get.eDiscussTotal'));
+
+        $where="az_topic.status=1";
+        if(!empty($title)){
+            $where=$where." and az_topic.title like '%".$title."%' ";
+        }
+        if(!empty($sCreateTime)){
+            $where=$where." and az_topic.create_time >= ".$sCreateTime;
+        }
+        if(!empty($eCreateTime)){
+            $where=$where." and az_topic.create_time <= ".$eCreateTime;
+        }
+        if($sViewTotal!=-1){
+            $where=$where." and az_topic.view_num >= ".$sViewTotal;
+        }
+        if($eViewTotal!=-1 && $eViewTotal!=0){
+            $where=$where." and az_topic.view_num <= ".$eViewTotal;
+        }
+        if($sShareTotal!=-1){
+            $where=$where." and az_topic.share_num >= ".$sShareTotal;
+        }
+        if($eShareTotal!=-1 && $eShareTotal!=0){
+            $where=$where." and az_topic.share_num <= ".$eShareTotal;
+        }
+        if($sFollowTotal!=-1){
+            $where=$where." and az_topic.follow_num >= ".$sFollowTotal;
+        }
+        if($eFollowTotal!=-1 && $eFollowTotal!=0){
+            $where=$where." and az_topic.follow_num <= ".$eFollowTotal;
+        }
+        if($sDiscussTotal!=-1){
+            $where=$where." and az_topic.discuss_num >= ".$sDiscussTotal;
+        }
+        if($eDiscussTotal!=-1 && $eDiscussTotal!=0){
+            $where=$where." and az_topic.discuss_num <= ".$eDiscussTotal;
+        }
+
+        $topicLogic = new TopicLogic();
+        $totalCount = $topicLogic
+            ->join('JOIN az_user ON az_user.id = az_topic.user_id')
+            ->where($where)
+            ->count();
+        $listInfo = $topicLogic
+            ->field('az_topic.*,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender')
+            ->join('JOIN az_user ON az_user.id = az_topic.user_id')
+            ->where($where)
+            ->order('az_topic.id desc')
+            ->page($page,$pagesize)
+            ->select();
+
+        foreach ($listInfo as &$value) {
+            $value['create_time'] = date('Y-m-d H:i:s', $value['create_time']);
+            $value['face'] = empty($value['face'])?'':Util::getImageResize($value['face'],100,100);
+        }
+
+        $condition = [
+            'title'=>$title,
+            'sCreateTime' => I('get.sCreateTime'),
+            'eCreateTime' => I('get.eCreateTime'),
+            'sViewTotal' => $sViewTotal==-1?'':$sViewTotal,
+            'eViewTotal' => $eViewTotal==-1?'':$eViewTotal,
+            'sShareTotal' => $sShareTotal==-1?'':$sShareTotal,
+            'eShareTotal' => $eShareTotal==-1?'':$eShareTotal,
+            'sFollowTotal' => $sFollowTotal==-1?'':$sFollowTotal,
+            'eFollowTotal' => $eFollowTotal==-1?'':$eFollowTotal,
+            'sDiscussTotal' => $sDiscussTotal==-1?'':$sDiscussTotal,
+            'eDiscussTotal' => $eDiscussTotal==-1?'':$eDiscussTotal,
+        ];
+
+        $nav = Nav::render(U('Admin/Topic/topic'), $condition, $page, $pagesize, $totalCount);
+        $this->assign('list', $listInfo);
+        $this->assign('url', C('m_site'));
+        $this->assign('nav', $nav);
+        $this->display('topic');
+    }
+
+
+    //话题讨论列表
+    public function topicDiscuss()
+    {
+        $page = I('get.page', 1);
+        $pagesize = I('get.pagesize', 10);
+        $title = I('get.title','');//话题标题
+        $sCreateTime = strtotime(I('get.sCreateTime'));
+        $eCreateTime = strtotime(I('get.eCreateTime'));
+        $sViewTotal = I('get.sViewTotal')==null?-1:intval(I('get.sViewTotal'));
+        $eViewTotal = I('get.eViewTotal')==null?-1:intval(I('get.eViewTotal'));
+        $sShareTotal = I('get.sShareTotal')==null?-1:intval(I('get.sShareTotal'));
+        $eShareTotal = I('get.eShareTotal')==null?-1:intval(I('get.eShareTotal'));
+        $sLikeTotal = I('get.sLikeTotal')==null?-1:intval(I('get.sLikeTotal'));
+        $eLikeTotal = I('get.eLikeTotal')==null?-1:intval(I('get.eLikeTotal'));
+        $sCommentTotal = I('get.sCommentTotal')==null?-1:intval(I('get.sCommentTotal'));
+        $eCommentTotal = I('get.eCommentTotal')==null?-1:intval(I('get.eCommentTotal'));
+
+        $where="az_topic_discuss.status=1";
+        if(!empty($title)){
+            $where=$where." and az_topic.title like '%".$title."%' ";
+        }
+        if(!empty($sCreateTime)){
+            $where=$where." and az_topic_discuss.create_time >= ".$sCreateTime;
+        }
+        if(!empty($eCreateTime)){
+            $where=$where." and az_topic_discuss.create_time <= ".$eCreateTime;
+        }
+        if($sViewTotal!=-1){
+            $where=$where." and az_topic_discuss.view_num >= ".$sViewTotal;
+        }
+        if($eViewTotal!=-1 && $eViewTotal!=0){
+            $where=$where." and az_topic_discuss.view_num <= ".$eViewTotal;
+        }
+        if($sShareTotal!=-1){
+            $where=$where." and az_topic_discuss.share_num >= ".$sShareTotal;
+        }
+        if($eShareTotal!=-1 && $eShareTotal!=0){
+            $where=$where." and az_topic_discuss.share_num <= ".$eShareTotal;
+        }
+        if($sLikeTotal!=-1){
+            $where=$where." and az_topic_discuss.like_num >= ".$sLikeTotal;
+        }
+        if($eLikeTotal!=-1 && $eLikeTotal!=0){
+            $where=$where." and az_topic_discuss.like_num <= ".$eLikeTotal;
+        }
+        if($sCommentTotal!=-1){
+            $where=$where." and az_topic_discuss.comment_num >= ".$sCommentTotal;
+        }
+        if($eCommentTotal!=-1 && $eCommentTotal!=0){
+            $where=$where." and az_topic_discuss.comment_num <= ".$eCommentTotal;
+        }
+
+        $topicDiscussLogic = new TopicDiscussLogic();
+        $totalCount = $topicDiscussLogic
+            ->join('JOIN az_user ON az_user.id = az_topic_discuss.user_id')
+            ->join('JOIN az_topic ON az_topic.id = az_topic_discuss.topic_id')
+            ->where($where)
+            ->count();
+        $listInfo = $topicDiscussLogic
+            ->field('az_topic_discuss.*,az_topic.title as topictitle,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender')
+            ->join('JOIN az_user ON az_user.id = az_topic_discuss.user_id')
+            ->join('JOIN az_topic ON az_topic.id = az_topic_discuss.topic_id')
+            ->where($where)
+            ->order('az_topic_discuss.id desc')
+            ->page($page,$pagesize)
+            ->select();
+
+        foreach ($listInfo as &$value) {
+            $value['create_time'] = date('Y-m-d H:i:s', $value['create_time']);
+            $value['face'] = empty($value['face'])?'':Util::getImageResize($value['face'],100,100);
+            $value['video_poster'] = empty($value['video_poster'])?'':Util::getImageResize($value['video_poster'],100,50);
+            if(!empty($value['images_url'])){
+                $images_url=explode(',',$value['images_url']);
+                foreach($images_url as &$v){
+                    $v=Util::getImageResize($v,50,50);
+                }
+                $value['images_url']=implode(',',$images_url);
+            }
+        }
+
+        $condition = [
+            'title'=>$title,
+            'sCreateTime' => I('get.sCreateTime'),
+            'eCreateTime' => I('get.eCreateTime'),
+            'sViewTotal' => $sViewTotal==-1?'':$sViewTotal,
+            'eViewTotal' => $eViewTotal==-1?'':$eViewTotal,
+            'sShareTotal' => $sShareTotal==-1?'':$sShareTotal,
+            'eShareTotal' => $eShareTotal==-1?'':$eShareTotal,
+            'sLikeTotal' => $sLikeTotal==-1?'':$sLikeTotal,
+            'eLikeTotal' => $eLikeTotal==-1?'':$eLikeTotal,
+            'sCommentTotal' => $sCommentTotal==-1?'':$sCommentTotal,
+            'eCommentTotal' => $eCommentTotal==-1?'':$eCommentTotal,
+        ];
+
+        $nav = Nav::render(U('Admin/Topic/topicDiscuss'), $condition, $page, $pagesize, $totalCount);
+        $this->assign('list', $listInfo);
+        $this->assign('nav', $nav);
+        $this->assign('url', C('m_site'));
+        $this->display('topicDiscuss');
+    }
+
+    //发表讨论
+    public function publishDiscussShow(){
+        $topic_id = I('post.topic_id');  //话题id
+        $topicLogic = new TopicLogic();
+        $topic = $topicLogic
+            ->field('id,title')
+            ->where(['user_id'=>100001,'status'=>1])
+            ->select();
+        $this->assign('topic_id', $topic_id);
+        $this->assign('topics', $topic);
+        $this->display('publishDiscuss');
+    }
+
+    //发表讨论操作
+    public function publishDiscuss()
+    {
+        $userId = 100001; //后台发表讨论，用户默认是100001
+        $topicId = intval(I('post.topic_id')); //话题ID
+        $type = intval(I('post.type','2')); //讨论类型  1--短文（类似艺术圈）  2--文章（类似艺术号）
+        $title = trim(I('post.title',''));//文章标题
+        $content = trim(I('post.content',''));//文章内容
+        $desc = trim(I('post.desc',''));//短文内容
+        $images_url = trim(I('post.images_url',''));//短文图片
+        $video_poster = trim(I('post.video_poster',''));//短文视频封面
+        $video_url = trim(I('post.video_url',''));//短文视频URL
+        $create_time = I('get.create_time');//发表时间
+
+        if (empty($topicId) || empty($type) ) {
+            $return = ['error' => 1, 'msg' => '参数错误'];
+            echo json_encode($return);
+            exit;
+        }
+
+        if ($type == 1) {//短文（类似艺术圈）
+            if ($desc != '' && $images_url == '' && $video_poster == '') {
+                $type = 1;
+            } elseif ($images_url != '' && $video_poster == '') {
+                $type = 2;
+            } else {
+                $type = 3;
+            }
+            if ($desc == '' && $images_url == '') {
+                if ($video_poster == '' || $video_url == '') {
+                    $return = ['error' => 1, 'msg' => '参数错误'];
+                    echo json_encode($return);
+                    exit;
+                }
+            } else {
+                if ($images_url != '' && ($video_poster != '' || $video_url != '')) {
+                    $return = ['error' => 1, 'msg' => '视频不能和图片一起，参数错误'];
+                    echo json_encode($return);
+                    exit;
+                }
+                if (($desc != '' && $video_poster == '' && $video_url != '') || $desc != '' && $video_poster != '' && $video_url == '') {
+                    $return = ['error' => 1, 'msg' => '内容与视频，视频参数错误'];
+                    echo json_encode($return);
+                    exit;
+                }
+            }
+        }else{
+            $type = 4;
+            if (empty($title) || empty($content) ) {
+                $return = ['error' => 1, 'msg' => '参数错误'];
+                echo json_encode($return);
+                exit;
+            }
+        }
+
+        $topicDiscussLogic = new TopicDiscussLogic();
+
+        $expire = 10; //有效期10秒
+        $key = 'artzhe_add_topic_lock' . intval($userId); //key
+        $redis = new \Redis();
+        $redis->connect(C('REDIS_HOST'), C('REDIS_PORT'), 1);
+        $redis->auth(C('REDIS_PASSWD'));
+        if ($this->lock($redis, $key, $expire)) {
+            //加锁成功就入库
+
+            //判断该作品单次更新的最新的一个wit内容是否相同，不同就添加，避免多次提交
+            $lastTopicDiscuss = $topicDiscussLogic->where(['user_id'=>intval($userId),'topic_id'=>$topicId,'type'=>$type])->order('id desc')->find();
+            switch($lastTopicDiscuss['type']){
+                case 1://文本
+                    if (trim($lastTopicDiscuss['desc']) == trim($desc)) {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        $return = ['error' => 1, 'msg' => '内容相同，重复提交了'];
+                        echo json_encode($return);
+                        exit;
+                    }
+                    break;
+                case 2://图片
+                    if (trim($lastTopicDiscuss['images_url']) == trim($images_url)) {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        $return = ['error' => 1, 'msg' => '内容相同，重复提交了'];
+                        echo json_encode($return);
+                        exit;
+                    }
+                    break;
+                case 3://视频
+                    if (trim($lastTopicDiscuss['video_poster']) == trim($video_poster)) {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        $return = ['error' => 1, 'msg' => '内容相同，重复提交了'];
+                        echo json_encode($return);
+                        exit;
+                    }
+                    break;
+                case 4://文章
+                    if (trim($lastTopicDiscuss['title']) == trim($title) && trim($lastTopicDiscuss['content']) == trim($content)) {
+                        $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                        $return = ['error' => 1, 'msg' => '内容相同，重复提交了'];
+                        echo json_encode($return);
+                        exit;
+                    }
+                    break;
+            }
+
+
+            $data = [
+                'user_id' => $userId,
+                'topic_id' => $topicId,
+                'type' => $type,
+                'title' => $title,
+                'content' => $content,
+                'desc' => $desc,
+                'images_url' => $images_url,
+                'video_poster' => $video_poster,
+                'video_url' => $video_url,
+                'create_time' => empty($create_time)?time():strtotime($create_time),
+                'status'=>1,
+                'is_top'=>1,
+            ];
+
+            $insertId = $topicDiscussLogic->add($data);
+
+            $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+            if ($insertId) {
+                $topicUserinfoLogic= new TopicUserinfoLogic();
+                $topicUserinfo=$topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$topicId])->find();
+                if($topicUserinfo){//保存用户发表话题讨论的数量
+                    $topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$topicId])->setInc('publish_discuss_num',1);
+                }else{
+                    $topicUserinfoLogic->add(['user_id'=>$userId,'topic_id'=>$topicId,'publish_discuss_num'=>1]);
+                }
+                $topicLogic = new TopicLogic();
+                $topicLogic->ActivateUserRelationships($topicId,$userId);
+                $return = ['error' => 0, 'msg' => '发表讨论成功'];
+                echo json_encode($return);
+                exit;
+            } else {
+                $return = ['error' => 1, 'msg' => '发表讨论失败'];
+                echo json_encode($return);
+                exit;
+            }
+
+        }else {
+            $return = ['error' => 1, 'msg' => 'redis error'];
+            echo json_encode($return);
+            exit;
+        }
+
+    }
+
+    //讨论评论列表
+    public function comment(){
+        $page = I('get.page', 1);
+        $pagesize = I('get.pagesize', 10);
+      /*  $title = I('get.title','');//话题标题
+        $sCreateTime = strtotime(I('get.sCreateTime'));
+        $eCreateTime = strtotime(I('get.eCreateTime'));
+        $sViewTotal = I('get.sViewTotal')==null?-1:intval(I('get.sViewTotal'));
+        $eViewTotal = I('get.eViewTotal')==null?-1:intval(I('get.eViewTotal'));
+        $sShareTotal = I('get.sShareTotal')==null?-1:intval(I('get.sShareTotal'));
+        $eShareTotal = I('get.eShareTotal')==null?-1:intval(I('get.eShareTotal'));
+        $sLikeTotal = I('get.sLikeTotal')==null?-1:intval(I('get.sLikeTotal'));
+        $eLikeTotal = I('get.eLikeTotal')==null?-1:intval(I('get.eLikeTotal'));
+        $sCommentTotal = I('get.sCommentTotal')==null?-1:intval(I('get.sCommentTotal'));
+        $eCommentTotal = I('get.eCommentTotal')==null?-1:intval(I('get.eCommentTotal'));*/
+
+        $where="az_topic_discuss_comment.status=1 and az_topic_discuss.status=1";
+   /*     if(!empty($title)){
+            $where=$where." and az_topic.title like '%".$title."%' ";
+        }
+        if(!empty($sCreateTime)){
+            $where=$where." and az_topic_discuss.create_time >= ".$sCreateTime;
+        }
+        if(!empty($eCreateTime)){
+            $where=$where." and az_topic_discuss.create_time <= ".$eCreateTime;
+        }
+        if($sViewTotal!=-1){
+            $where=$where." and az_topic_discuss.view_num >= ".$sViewTotal;
+        }
+        if($eViewTotal!=-1 && $eViewTotal!=0){
+            $where=$where." and az_topic_discuss.view_num <= ".$eViewTotal;
+        }
+        if($sShareTotal!=-1){
+            $where=$where." and az_topic_discuss.share_num >= ".$sShareTotal;
+        }
+        if($eShareTotal!=-1 && $eShareTotal!=0){
+            $where=$where." and az_topic_discuss.share_num <= ".$eShareTotal;
+        }
+        if($sLikeTotal!=-1){
+            $where=$where." and az_topic_discuss.like_num >= ".$sLikeTotal;
+        }
+        if($eLikeTotal!=-1 && $eLikeTotal!=0){
+            $where=$where." and az_topic_discuss.like_num <= ".$eLikeTotal;
+        }
+        if($sCommentTotal!=-1){
+            $where=$where." and az_topic_discuss.comment_num >= ".$sCommentTotal;
+        }
+        if($eCommentTotal!=-1 && $eCommentTotal!=0){
+            $where=$where." and az_topic_discuss.comment_num <= ".$eCommentTotal;
+        }*/
+
+        $topicDiscussCommentLogic = new TopicDiscussCommentLogic();
+        $totalCount = $topicDiscussCommentLogic
+            ->join('JOIN az_user ON az_user.id = az_topic_discuss_comment.commenter')
+            ->join('JOIN az_topic_discuss ON az_topic_discuss.id = az_topic_discuss_comment.topic_discuss_id')
+            ->where($where)
+            ->count();
+        $listInfo = $topicDiscussCommentLogic
+            ->field('az_topic_discuss_comment.*,az_user.id as userid,az_user.face,az_user.nickname,az_user.gender,az_topic_discuss.id as discussid,az_topic_discuss.topic_id,az_topic_discuss.type')
+            ->join('JOIN az_user ON az_user.id = az_topic_discuss_comment.commenter')
+            ->join('JOIN az_topic_discuss ON az_topic_discuss.id = az_topic_discuss_comment.topic_discuss_id')
+            ->where($where)
+            ->order('az_topic_discuss_comment.id desc')
+            ->page($page,$pagesize)
+            ->select();
+
+        foreach ($listInfo as &$value) {
+            $value['create_time'] = date('Y-m-d H:i:s', $value['create_time']);
+            $value['face'] = empty($value['face'])?'':Util::getImageResize($value['face'],100,100);
+            $topicLogic = new TopicLogic();
+            $topic = $topicLogic->field('title')->find($value['topic_id']);
+            $value['topic_title'] = empty($topic['title'])?'':$topic['title'];
+        }
+
+        $condition = [
+           /* 'title'=>$title,
+            'sCreateTime' => I('get.sCreateTime'),
+            'eCreateTime' => I('get.eCreateTime'),
+            'sViewTotal' => $sViewTotal==-1?'':$sViewTotal,
+            'eViewTotal' => $eViewTotal==-1?'':$eViewTotal,
+            'sShareTotal' => $sShareTotal==-1?'':$sShareTotal,
+            'eShareTotal' => $eShareTotal==-1?'':$eShareTotal,
+            'sLikeTotal' => $sLikeTotal==-1?'':$sLikeTotal,
+            'eLikeTotal' => $eLikeTotal==-1?'':$eLikeTotal,
+            'sCommentTotal' => $sCommentTotal==-1?'':$sCommentTotal,
+            'eCommentTotal' => $eCommentTotal==-1?'':$eCommentTotal,*/
+        ];
+
+        $nav = Nav::render(U('Admin/Topic/comment'), $condition, $page, $pagesize, $totalCount);
+        $this->assign('list', $listInfo);
+        $this->assign('nav', $nav);
+        $this->assign('url', C('m_site'));
+        $this->display('comment');
+    }
+
+    //删除讨论
+    public function deleteComment()
+    {
+        $id = I('post.id', '');//评论id
+        $topicDiscussCommentLogic = new TopicDiscussCommentLogic();
+        if(is_array($id)){
+            foreach($id as $value){
+                $Commentinfo = $topicDiscussCommentLogic->getCommentInfo($value);
+                if (empty($Commentinfo)) {//评论不存在
+                    break;
+                }
+                $commentId = $topicDiscussCommentLogic->deleteComment($Commentinfo);
+            }
+            $return = ['error' => 0, 'msg' => '删除成功', 'delete_num' => implode(',',$id)];
+        }else{
+            $Commentinfo = $topicDiscussCommentLogic->getCommentInfo($id);
+            if (empty($Commentinfo)) {//评论不存在
+                $return = ['error' => 0, 'msg' => '评论不存在！', 'delete_num' => $id];
+                echo json_encode($return);
+                exit;
+            }
+            $commentId = $topicDiscussCommentLogic->deleteComment($Commentinfo);
+            $return = ['error' => 0, 'msg' => '删除成功', 'delete_num' => $id];
+        }
+
+
+        echo json_encode($return);
+    }
+
+}

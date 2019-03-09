@@ -1,0 +1,24 @@
+<?php
+
+namespace V32\Controller;
+
+use V32\Base\ApiBaseController;
+use V32\Logic\ArtworkLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use Custom\Manager\Token;
+use Custom\Define\Image;
+use V32\Logic\RecommendLogic;
+
+//artwork upload
+class RecommendController extends ApiBaseController{
+  public function index(){
+      $page = I('page','1','number_int');
+      $pagesize = I('pagesize','5','number_int');
+      $recommendLogic = new RecommendLogic();
+      $artworkLogic = new ArtworkLogic();
+      $data = $recommendLogic->getList($this->loginUserId,$page,$pagesize);
+      Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$data]);
+  }
+}

@@ -1,0 +1,146 @@
+<?php
+
+namespace V42\Logic;
+
+use V42\Base\BaseLogic;
+use V42\Logic\ArtCircleLogic;
+use V42\Logic\MessageLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+//艺术圈喜欢
+class ArtCircleLikeLogic extends BaseLogic
+{
+    /**
+     * 喜欢艺术圈动态
+     * @param $data
+     * @return bool|mixed
+     */
+    public function like($data)
+    {
+        $likeData = $this->model->where(['art_circle_id' => $data['art_circle_id'], 'like_user_id' => $data['like_user_id'], 'status' => 1])->find();
+        if (empty($likeData)) {
+            $artCircle = new ArtCircleLogic();
+            $artCircleinfo = $artCircle->where(['id' => $data['art_circle_id'], 'status' => 1])->find();
+            if ($artCircleinfo) {//存在艺术圈动态
+                $likeBefore = $this->model->where(['art_circle_id' => $data['art_circle_id'], 'like_user_id' => $data['like_user_id'], 'status' => 0])->find();
+                if(!empty($likeBefore)){//已经喜欢过，不再发送消息
+                    $id = $this->where(['id' => $likeBefore['id']])->setField('status', 1);
+                }else{
+                    $id = $this->add($data);
+                    if($artCircleinfo['user_id'] != $data['like_user_id']){//如果不是自己喜欢自己发表的动态，则发送消息
+                        $messageLogic = new MessageLogic();
+                        $messageLogic->sendMessage($data['like_user_id'], $artCircleinfo['user_id'], '', $messageLogic->type['artCircleLike'], MessageLogic::$showmsg, '', $id, false, '', $data['art_circle_id']);
+                    }
+                }
+                $artCircle->where(['id' => $data['art_circle_id']])->setInc('like_count', 1);
+                //如果关联作品，则作品喜欢数加1
+                if(!empty($artCircleinfo['artwork_id'])){
+                    $artwork = new ArtworkLogic();
+                    $artwork->where(['id' => $artCircleinfo['artwork_id']])->setInc('like_total', 1);
+                }
+                return $id;
+            } else {//不存在艺术圈动态
+                return false;
+            }
+        } else {//已经喜欢
+            return false;
+        }
+    }
+
+    /**
+     * 取消喜欢艺术圈动态
+     * @param $unlikeData
+     * @return bool|mixed
+     */
+    public function unlike($unlikeData)
+    {
+        $condition = ['art_circle_id' => $unlikeData['art_circle_id'], 'like_user_id' => $unlikeData['like_user_id'], 'status' => 1];
+        $likeinfo = $this->model->where($condition)->find();
+        if ($likeinfo) {
+            $artCircle = new ArtCircleLogic();
+            $artCircleinfo = $artCircle->where(['id' => $unlikeData['art_circle_id'], 'status' => 1])->find();
+            if ($artCircleinfo) {//存在艺术圈动态
+                $like_total = $artCircleinfo['like_count'];
+                if ($like_total > 1) {
+                    $artCircle->where(['id' => $unlikeData['art_circle_id']])->setDec('like_count', 1);
+                } else {
+                    $artCircle->where(['id' => $unlikeData['art_circle_id']])->setField('like_count', 0);
+                }
+                //如果关联作品，则作品喜欢数减1
+                if(!empty($artCircleinfo['artwork_id'])){
+                    $artwork = new ArtworkLogic();
+                    $artwork->where(['id' => $artCircleinfo['artwork_id']])->setDec('like_total', 1);
+                }
+            }
+            return $this->where($condition)->setField('status', 0);
+        } else {//已经取消喜欢
+            return false;
+        }
+    }
+
+    /**
+     * 用户是否喜欢动态
+     * @param $id 动态id
+     * @param $uid 用户id
+     * @return string
+     */
+    public function isLike($id, $uid)
+    {
+        $info = $this->where(['art_circle_id' => $id, 'like_user_id' => $uid, 'status' => 1])->find();
+        return !empty($info) ? 'Y' : 'N';
+    }
+
+    /**
+     * 喜欢动态的总数
+     * @param $id 动态id
+     * @return mixed
+     */
+    public function total($id)
+    {
+        return $this->where(['status' => 1, 'art_circle_id' => $id])->count();
+    }
+
+    /**
+     * 用户喜欢的动态总数
+     * @param $uid 用户id
+     * @return mixed
+     */
+    public function totalByUser($uid)
+    {
+        return $this->where(['status' => 1, 'like_user_id' => $uid])->count();
+    }
+
+    public function UserIsLikeList(array $art_circle_ids, $user_id)
+    {
+        if (count($art_circle_ids) == 0||intval($user_id)<=0) {
+            return [];
+        }
+        $arr_length = count($art_circle_ids);
+        for ($i = 0; $i < $arr_length; $i++) {
+            $art_circle_ids[$i] = intval($art_circle_ids[$i]);
+        }
+        $like_list = $this->where("art_circle_id in(" . implode(',', $art_circle_ids) . ") and like_user_id=".intval($user_id)." and status=1 ")->select();
+
+        if (!$like_list) {
+            return [];
+        } else {
+            $user_like_list = [];
+            foreach ($like_list as $value) {
+                $user_like_list[$value['art_circle_id']]=1;
+            }
+            return $user_like_list;
+        }
+    }
+
+    public function UserIsLike($art_circle_id, $user_id)
+    {
+       $like_info=$this->field('id')->where(['art_circle_id'=>intval($art_circle_id),'like_user_id'=>intval($user_id),'status'=>1])->find();
+       if($like_info){
+           return 1;
+       }else{
+           return 0;
+       }
+    }
+}

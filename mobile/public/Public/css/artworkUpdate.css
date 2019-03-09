@@ -1,0 +1,444 @@
+.message-frame .active {
+  width: 7.86667rem;
+}
+body {
+/*  background-color: #f2f2f2;*/
+}
+#header {
+  padding-bottom: 0.5rem;
+  background-color: #fff;
+}
+.update-wrap {
+  position: absolute;
+  bottom: 0;
+  /*bottom: 1.33333rem;   屏蔽*/
+  top: 0;
+  width: 100%;
+  max-width: 15.0rem;
+  padding-bottom: 1.5rem;
+  background-color: #f2f2f2;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+.update-wrap::-webkit-scrollbar
+{
+  width: 0px;
+  height: 0px;
+  background-color: #F5F5F5;
+}
+.title-wrap {
+  padding: 0.26667rem 0.32rem 0;
+}
+.title-wrap .title {
+  display: inline-block;
+  max-width: 8rem;
+  margin-top: 0.03rem;
+  padding-left: 0.12rem;
+  padding-right: 0.32rem;
+  height: 0.6rem;
+  font-size: 0.48rem;
+  line-height: 0.6rem;
+  vertical-align: middle;
+  border-left: 0.08rem solid #f5c729;
+  color: #333;
+}
+.icons.icon-edit {
+  float: right;
+  width: 0.66667rem;
+  height: 0.66667rem;
+  background-position: -10.12rem -7.18rem;
+}
+.art-info {
+  padding: 0 0.52rem;
+}
+.art-info .creat-date, .art-info .artist-name {
+  display: inline-block;
+  font-size: 0.32rem;
+  line-height: 0.64rem;
+}
+.art-info .artist-name {
+  margin-left: 0.4rem;
+}
+.wrap {
+  position: relative;
+  width: 100%;
+  word-break: break-all;
+  padding: 0.16rem 0.52rem;
+  font-size: 0.37333rem;
+  background-color: #fff;
+}
+.wrap br{
+  line-height: 0;
+}
+.wrap img {
+  margin: 0 auto;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.wrap video {
+  margin: 0 auto;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 0.24rem;
+}
+.interact {
+  position: relative;
+  background-color: #f2f2f2;
+}
+.interact .btn-group {
+  padding-top: 0.16rem;
+  padding-bottom: 0.32rem;
+  background-color: #fff;
+}
+.labels {
+  position: relative;
+  padding: 0 0.4rem 0 0.2rem;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+}
+.labels .icons {
+  width: 0.66667rem;
+  height: 0.66667rem;
+}
+.labels .icons.icon-time {
+  background-position: -10.15rem -6.18rem;
+}
+.labels .icons.icon-eye {
+  background-position: -7.15rem -6.19rem;
+}
+.labels .icons.icon-like {
+  background-position: -7.15rem -7.2rem;
+}
+.labels .icons.icon-com {
+  background-position: -11.15rem -6.18rem;
+}
+.labels .label {
+  margin-left: -3px;
+}
+.labels .label-l {
+  float: left;
+}
+.labels .label-r {
+  float: right;
+}
+.labels .label-l, .labels .label-r {
+  height: 0.66667rem;
+  line-height: 0.66667rem;
+  color: #999;
+}
+.labels .label-l:first-of-type {
+  margin-right: 0.4rem;
+}
+.labels .label-r:last-of-type {
+  /*margin-right: 0.4rem;*/
+}
+
+/*标签*/
+.flags {
+  height: 0.96rem;
+  padding-left: 0.36rem;
+  background-color: #fff;
+}
+.icons.icon-flag {
+  width: 0.48rem;
+  height: 0.96rem;
+  background-position: -0.24rem -8.0rem;
+}
+.flags .label {
+  display: inline-block;
+  margin: 0.24rem 3px 0;
+  padding: 0.09333rem 0.21333rem;
+  font-size: 0.26667rem;
+  line-height: 1;
+}
+/*标签 end*/
+
+/* 作者信息 */
+.painter {
+  padding: 0 0.4rem;
+  background-color: #fff;
+}
+.painter .info {
+  position: relative;
+  border-bottom: 1px solid #ececec;
+}
+.painter .info .avatar {
+  position: absolute;
+  top: 50%;
+  margin-top: -0.58667rem;
+  width: 1.17333rem;
+  height: 1.17333rem;
+  border-radius: 50%;
+  box-shadow: 0 0.08rem 0.18667rem rgba(0, 0, 0, .15);
+}
+.painter .info .det {
+  padding: 0.3rem 0 0.3rem 1.6rem;
+}
+.info .det .name {
+  height: 0.74667rem;
+  line-height: 0.74667rem;
+  font-size: 0.48rem;
+  color: #333;
+}
+.info .det span {
+  display: inline-block;
+  padding-right: 0.2rem;
+  height: 0.58667rem;
+  line-height: 0.58667rem;
+  font-size: 0.32rem;
+  color: #666;
+}
+.painter .info .follow {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  height: 1.2rem;
+  margin-top: -0.6rem;
+}
+.painter .info .follow .label {
+  line-height: 0.53333rem;
+  font-size: 0.32rem;
+}
+
+.painter .info .follow.followed {
+  color: #eaab32;
+}
+.icons.icon-follow {
+  display: block;
+  margin: 0 auto;
+  width: 0.66667rem;
+  height: 0.66667rem;
+  background-position: -0.16rem -7.16rem;
+}
+.followed .icons.icon-follow {
+  display: block;
+  margin: 0 auto;
+  width: 0.66667rem;
+  height: 0.66667rem;
+  background-position: -1.16rem -6.16rem;
+}
+
+/* 作者信息 end */
+
+/*喜欢列表*/
+.liker {
+  position: relative;
+  padding: 0.52rem 0.4rem;
+  margin-bottom: 0.16rem;
+  background-color: #fff;
+}
+.liker .icons {
+  width: 0.92rem;
+  height: 0.68rem;
+}
+.liker .icons.icon-like {
+  background-position: -4.06667rem -9.17333rem;
+}
+.liker .icons.icon-liked {
+  background-position: -4.06667rem -8.17333rem;
+}
+.liker .like {
+  float: left;
+  padding-right: 0.32rem;
+  height: 0.68rem;
+  font-size: 0.32rem;
+  color: #999;
+  line-height: 0.68rem;
+  border-right: 1px solid #eee;
+}
+.liker .likers {
+  float: left;
+}
+.liker .likers li {
+  position: relative;
+  float: left;
+  margin-left: 0.32rem;
+}
+.liker .likers .num {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.68rem;
+  height: 0.68rem;
+  font-size: 0.26667rem;
+  line-height: 0.68rem;
+  text-align: center;
+  color: #fff;
+  background-color: rgba(0,0,0, .3);
+  border-radius: 50%;
+}
+.liker img {
+  height: 0.68rem;
+  width: 0.68rem;
+  vertical-align: top;
+  border: 1px solid #dedede;
+  border-radius: 50%;
+}
+/*喜欢列表 end */
+
+/* 评论 */
+.interact .btn-download {
+  height: 1.17333rem;
+  line-height: 1.17333rem;
+  font-size: 0.42667rem;
+  text-align: center;
+  color: #333;
+  background-color: #f4bb21;
+}
+.comments {
+  position: relative;
+  padding: 0.2rem 0.4rem;
+  /*margin-bottom: 2.66667rem;*/
+  background-color: #fff;
+  /*box-shadow: 0 0.12rem 0.32rem rgba(0, 0, 0, .15);*/
+}
+.comments h2 {
+  height: 0.92rem;
+  line-height: 0.92rem;
+  font-size: 0.32rem;
+  font-weight: normal;
+  color: #999;
+  border-bottom: 1px solid #eee;
+}
+.comments h2 .icons {
+  height: 0.92rem;
+  width: 0.6rem;
+
+}
+.comments h2 .icons.icon-comment {
+  background-position: -3.24rem -8.04rem;
+}
+/*.comments::before {
+  content: '';
+  position: absolute;
+  top: -0.12rem;
+  right: 0.8rem;
+  width: 0;
+  height: 0;
+  border-left: 0.09333rem solid transparent;
+  border-right: 0.09333rem solid transparent;
+  border-bottom: 0.10667rem solid #cacaca;
+}*/
+.comments .comment-list {
+  padding: 0.4rem 0.4rem 0.65333rem;
+}
+.comments .comment {
+  padding: 0.26667rem 0;
+  font-size: 0.36rem;
+  line-height: 0.45rem;
+  color: #666;
+  border-bottom: 1px solid #eee;
+}
+.comments .comment:last-of-type {
+  border-bottom: none;
+}
+.comment .user-com, .comment .painter-com {
+  position: relative;
+  margin-left: 0.73333rem;
+}
+.user-com .avatar {
+  position: absolute;
+  left: -0.73333rem;
+  top: -0.08rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+}
+.user-com .com {
+  width: 6.8rem;
+}
+.comment .name {
+  display: inline;
+}
+.comment .time {
+  display: inline;
+  padding-left: 0.36rem;
+  font-size: 0.26667rem;
+  color: #999;
+}
+.comment .icon-r {
+  float: right;
+  color: #999;
+}
+.comment .painter-com {
+  padding-top: 0.10667rem;
+  width: 6.8rem;
+}
+.comment .painter-com .name, .comment .painter-com span {
+  position: relative;
+  margin-right: -0.08rem;
+}
+.comment .painter-com .name::before {
+  content: '';
+  position: absolute;
+  left: -0.2rem;
+  top: 0.16rem;
+  width: 0.10667rem;
+  height: 0.10667rem;
+  border-radius: 50%;
+  background-color: #eaab32;
+}
+.painter-com .com {
+  padding-left: 0.1rem;
+}
+
+/* 评论 end */
+
+/*相关内容*/
+.rel {
+  margin-top: 0.16rem;
+  background-color: #fff;
+}
+.rel h2 {
+  padding: 0 0.32rem;
+  height: 1.0rem;
+  line-height: 1.0rem;
+  font-size: 0.37333rem;
+  color: #666;
+  border-bottom: 1px solid #ececec;
+}
+.rel .rel-item {
+  padding: 0.32rem;
+  border-bottom: 1px solid #ececec;
+}
+.rel .rel-item .rel-info {
+  float: left;
+  width: 7.0rem;
+
+}
+.rel .rel-item img {
+  float: right;
+  width: 1.6rem;
+  height: 1.6rem;
+}
+.rel .rel-item .rel-info h3 {
+  max-width: 6.9rem;
+  font-size: 0.4rem;
+  color: #333;
+}
+.rel .rel-item .rel-info p {
+  margin-top: 0.2rem;
+  padding-left: 0.12rem;
+  font-size: 0.32rem;
+  color: #999;
+}
+/*相关内容 end*/
+/*猜你喜欢 居中*/
+.hf{
+  float: left;
+}
+.hfbtn{
+  float: right;
+  position: static;
+  margin-top: 0.24rem;
+}
+.mabelike{
+  /*display: flex;*/
+  /*justify-content: center;*/
+  display: block;
+  margin: 0 auto;
+  width: 9.4rem;
+}
+/*猜你喜欢 居中 end*/

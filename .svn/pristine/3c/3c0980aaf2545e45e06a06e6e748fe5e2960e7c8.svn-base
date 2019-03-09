@@ -1,0 +1,234 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Admin\Logic\AdminLogic;
+use Common\Base\AdminBaseController;
+use Common\Logic\ArtistExtensionLogic;
+use Common\Logic\ArtworkCategoryLogic;
+use Custom\Helper\Oss;
+use Common\Logic\UserLogic;
+use Custom\Helper\Nav;
+use Think\Verify;
+use Common\Logic\MessageLogic;
+
+class ExtensionController extends AdminBaseController
+{
+    public function index()
+    {
+        $page = I('get.page', '1');  //接收页面,默认1
+        $perPageCount = I('get.perPageCount', '5');
+        $showType = intval(I('get.showType',0));
+        $where='';
+        switch($showType) {
+            case 0://全部
+                break;
+            case 1://审核中
+                $where['status'] = 1;
+                break;
+            case 2://审核失败
+                $where['status'] = 2;
+                break;
+            case 3://审核成功
+                $where['status'] = 3;
+                $where['_string'] = 'time>'.(time()-30*86400).' OR id<10';
+                break;
+            case 4://用户终止推广
+                $where['status'] = 4;
+                break;
+            case 5://已过期
+                $where['_string'] = '(time<='.(time()-30*86400).' and status=3) or status=5';
+                $where['id'] = ['gt',9];
+                break;
+        }
+
+
+        $logic = new ArtistExtensionLogic();
+        $userLogic = new UserLogic();
+        $lists = $logic->where($where)->order('time DESC')->page($page, $perPageCount)->select();
+        $smap = ['1' => '审核中', '2' => '审核失败', '3' => '审核成功', '4' => '用户终止推广', '5' => '已过期'];
+        foreach ($lists as $key => $value) {
+            $lists[$key]['artistName'] = $userLogic->where(['id' => $value['artist']])->getField('nickname');
+            $lists[$key]['statusName'] = $smap[$value['status']];
+            if($value['id'] >9 && $value['status'] == 3){
+                if(time() >$value['time']+30*86400){//超过30天
+                    $lists[$key]['statusName'] ='已过期';
+                    $lists[$key]['status'] =5;
+                }
+            }
+
+        }
+
+        $queryParams = ['showType'=>$showType];
+        $this->assign('queryParams', $queryParams);
+
+        $totalCount = $logic->where($where)->count();
+        $nav = Nav::render(U('Admin/Extension/index'), $queryParams, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    public function verifySuccess()
+    {
+        $id = I('id');
+        $showType = intval(I('get.showType',0));
+        $reason = addslashes(I('reason',''));
+        $logic = new ArtistExtensionLogic();
+        $categoryLogic = new ArtworkCategoryLogic();
+        $userLogic = new UserLogic();
+        $info = $logic->find($id);
+        if (IS_POST) {
+            $one = I('one');
+            $two = I('two');
+            $three = I('three');
+            $logic->where(['id' => $id])->save([
+                'status' => 3,
+                'one' => $one,
+                'two' => $two,
+                'three' => $three,
+                'time' => time(),
+                'reason'=>$reason
+            ]);
+            $this->redirect('index',['showType'=>$showType]);
+        } else {
+            $info['category'] = $categoryLogic->getCategoryByUser($info['artist']);
+            $info['name'] = $userLogic->where(['id' => $info['artist']])->getField('name');
+            $info['img'] = $this->image2base64($info['img'] . '?x-oss-process=image/resize,w_750,image/format,jpg');
+            $this->assign('info', $info);
+            $this->assign('showType', $showType);
+            $this->display();
+        }
+    }
+
+    //详情
+    public function detail()
+    {
+        $id = intval(I('id'));
+        $showType = intval(I('get.showType',0));
+        $logic = new ArtistExtensionLogic();
+        $image = $logic->where(['id'=>$id])->find();
+        $this->assign('image', $image);
+        $this->assign('showType', $showType);
+        $this->display();
+    }
+
+    public function getrqcode()
+    {
+        $uid = I('uid');
+        $url = 'http://qr.liantu.com/api.php?text=' . C('m_site') . '/gallery/detail/' . $uid;
+        header("Content-Type:image/png");
+        echo file_get_contents($url);
+    }
+
+
+    public function verifyFailed()
+    {
+        $id = I('id');
+        $status = empty(I('status'))?2:intval(I('status'));
+        $reason = addslashes(I('reason',''));
+        $showType = intval(I('showType',0));
+        if(empty($reason)){
+            $response = ['error' => 1, 'message' => '审核备注不能为空'];
+            echo json_encode($response);
+        }
+        $logic = new ArtistExtensionLogic();
+        $logic->where(['id' => $id])->save(['status' => $status,'reason'=>$reason]);
+        if($status ==2){
+            $messageLogic = new MessageLogic();
+            $extension = $logic->field('artist')->where(['id' => $id])->find();
+            $messageLogic->sendSysMessage($extension['artist'],'您的封面申请审核失败，原因：'.$reason.',请重新申请');
+        }
+
+        //$this->redirect('index',['showType'=>$showType]);
+        $response = ['error' => 0, 'message' => '提交成功'];
+        echo json_encode($response);
+    }
+
+    public function upload()
+    {
+
+        $id = I('id');
+        $reason = addslashes(I('reason',''));
+        set_time_limit(300);
+        if ($_FILES['one']['error'] == 4 || $_FILES['two']['error'] == 4 || $_FILES['three']['error'] == 4) {
+            $response = ['error' => 1, 'message' => '图片上传失败，请重试'];
+            echo json_encode($response);
+        } else {
+            if(empty($_FILES['one']['tmp_name']) || empty($_FILES['two']['tmp_name']) || empty($_FILES['three']['tmp_name'])){
+                $response = ['error' => 1, 'message' => '图片上传失败，请重试'];
+                echo json_encode($response);
+                return;
+            }
+
+            $imgbuff = file_get_contents($_FILES['one']['tmp_name']);
+
+            $result = Oss::upload($imgbuff, 'jpeg');
+
+            $one = $result['info']['url'];
+
+            $imgbuff = file_get_contents($_FILES['two']['tmp_name']);
+
+            $result = Oss::upload($imgbuff, 'jpeg');
+
+            $two = $result['info']['url'];
+            //var_dump($_FILES);
+            $imgbuff = file_get_contents($_FILES['three']['tmp_name']);
+
+            $result = Oss::upload($imgbuff, 'jpeg');
+
+            $three = $result['info']['url'];
+
+            $logic = new ArtistExtensionLogic();
+            $data = $logic->where(['id' => $id])->save([
+                'status' => 3,
+                'one' => $one,
+                'two' => $two,
+                'three' => $three,
+                'time' => time(),
+                'reason'=>$reason
+            ]);
+
+            /* $this->ajaxReturn(['status' => 0,
+             'one' => $one,
+             'two' => $two,
+             'three' => $three,
+           ]);*/
+            if ($data) {
+                $response = ['error' => 0, 'message' => '提交成功'];
+                $messageLogic = new MessageLogic();
+                $extension = $logic->field('artist')->where(['id' => $id])->find();
+                $messageLogic->sendSysMessage($extension['artist'],'您申请的APP封面已通过审核');
+                echo json_encode($response);
+            } else {
+                $response = ['error' => 1, 'message' => '提交失败，请重试'];
+                echo json_encode($response);
+            }
+        }
+    }
+
+    function image2base64($imgurl)
+    {
+        if (strpos($imgurl, 'http') === false) {
+            $file = 'https:' . $imgurl;
+        } else {
+            $file = $imgurl;
+        }
+        $type = getimagesize($file);//取得图片的大小，类型等
+        $file_content = chunk_split(base64_encode(file_get_contents($file)));//base64编码
+        switch ($type[2]) {//判读图片类型
+            case 1:
+                $img_type = "gif";
+                break;
+            case 2:
+                $img_type = "jpg";
+                break;
+            case 3:
+                $img_type = "png";
+                break;
+        }
+        $img = 'data:image/' . $img_type . ';base64,' . $file_content;//合成图片的base64编码
+        return $img;
+    }
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术者">
+    <meta name="description" content="艺术者是最专业的">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- <meta name="csrf-token" content="3wOniT3eM1AZx48w3gR6EawM0lDrcQwDSSh1xOOw"> -->
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>我的喜欢</title>
+    <script src="/Public/H5/js/lib/flexible.js"></script>
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/global.css">
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/> -->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <link rel="stylesheet" type="text/css" href="/Public/H5/css/user.css">
+  </head>
+  <body>
+    <div class="user-like" id="user-like">
+      <div class="holder">
+        <img  src="/Public/H5/image/user/holder.png" alt="">
+        <p>你收获的艺术品空空如也</p>
+      </div>
+      <ul class="list" style="display: none;">
+        <li class="item fix">
+          <div class="info fix">
+            <i class="icons icon-like"></i>
+            <img class="pic" src="/Public/H5/image/user/painting.png">
+            <div class="group">
+              <div class="title-row">
+                <h3 class="title ellipsis">眼神</h3>
+                <i class="icons icon-update-1"></i>
+              </div>
+              <div class="name-row">
+                <a class="name" href="javascript:;">季志桥</a>
+                <i class="icons icon-artist"></i>
+              </div>
+            </div>  
+          </div>
+          <div class="desc">
+            我是一个喜欢真实的人，我才决定通过绘画触及生死问题，尽管这个命题在我这个年龄阶段显得有可疑。
+          </div>
+        </li>
+        <li class="item fix">
+          <div class="info fix">
+            <i class="icons icon-like icon-liked"></i>
+            <img class="pic" src="/Public/H5/image/user/painting.png">
+            <div class="group">
+              <div class="title-row">
+                <h3 class="title ellipsis">正午的书桌正午的书桌正午的书桌</h3>
+                <i class="icons icon-stage-num icon-stage-num-1"></i>
+              </div>
+              <div class="name-row">
+                <a class="name" href="javascript:;">董兵</a>
+                <i class="icons icon-artist"></i>
+              </div>
+            </div>  
+          </div>
+          <div class="desc">
+            把一颗灵感种进土壤，把秋天的色彩装进一张纸，把你遇见的美好，都留在当下。我是一个喜欢真实的人，我才决定通过绘画触及生死问题
+          </div>
+        </li>
+      </ul>
+    </div>
+  </body>
+  <script src="/Public/H5/js/lib/vue.js"></script>
+  <script src="/Public/H5/js/lib/zepto.js"></script>
+  <script src="/Public/H5/js/util.js"></script>
+  <script type="text/javascript" src="/Public/H5/js/user/userlike.js"></script>
+</html>

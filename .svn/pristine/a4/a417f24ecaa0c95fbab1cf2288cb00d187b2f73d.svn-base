@@ -1,0 +1,32 @@
+<?php
+
+namespace V30\Model;
+
+use V30\Base\BaseModel;
+use Custom\Helper\Util;
+use Custom\Define\Image;
+
+class ArtworkModel extends BaseModel
+{
+    protected $tableName = 'artwork';
+
+    public function getThumbListByUid($uid,$order = ''){
+      $list = $this->field('id,cover')->where("artist = {$uid} AND is_deleted='N' AND state=1 AND update_times>0")->limit(3)->order($order)->select();
+      $return = [];
+      foreach ($list as $key => $value) {
+        $img = Util::getImgUrlById($value['cover']);
+        if($img){
+          $return[] = $img;
+        }
+      }
+      return $return;
+    }
+    public function getFields($where = [],$field){
+      $return = [];
+      $list = $this->field($field)->where(array_merge(['is_deleted' => 'N'],$where))->select();
+      foreach ($list as $key => $value) {
+        $return[] = $value[$field];
+      }
+      return $return;
+    }
+}

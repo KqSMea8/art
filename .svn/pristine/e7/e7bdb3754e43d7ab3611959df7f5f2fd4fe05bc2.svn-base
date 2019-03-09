@@ -1,0 +1,77 @@
+<extend name="Public:base"/>
+<style type="text/css" rel="stylesheet">
+    div.row {
+        margin-bottom: 10px;
+    }
+</style>
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                   艺术号-{$subinfo['sub_name']}详情如下：
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">艺术号名称</div>
+                        <div class="col-md-10">{$subinfo['title']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row">
+                        <div class="col-md-2">艺术家名称</div>
+                        <div class="col-md-10">{$subinfo['artist']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row">
+                        <div class="col-md-2">艺术号内容</div>
+                        <div class="col-md-10">{$subinfo['content']|htmlspecialchars_decode}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row">
+                        <div class="col-md-2">浏览数</div>
+                        <div class="col-md-10">{$subinfo['views']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc"></div>
+                    <div class="row" >
+                        <div class="col-md-2">喜欢数</div>
+                        <div class="col-md-10">{$subinfo['like_count']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc" hidden></div>
+                    <div class="row" >
+                        <div class="col-md-2">评论数</div>
+                        <div class="col-md-10">{$subinfo['comment_count']}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc" ></div>
+                    <div class="row">
+                        <div class="col-md-2">发布时间</div>
+                        <div class="col-md-10">{$subinfo['publish_time']|date="Y-m-d H:i:s",###}</div>
+                    </div>
+                    <div style="height:3px;border-bottom: 1px solid #ccc" hidden></div>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+           <!-- <a href="{:U('RecommendSubject/index')}" class="btn btn-default">返回</a>-->
+            <a href="javascript:history.go(-1);"  class="btn btn-default">返回</a>
+            <!-- /.panel -->
+            <!-- /.col-lg-12 -->
+        </div>
+    </div>
+</block>
+<block name="customJs">
+    <script>
+        // $(document).ready(function(){
+        //     $('#az-id-date-selector').datetimepicker({
+        //         format:'yyyy-mm-dd',
+        //         language:  'zh-CN',
+        //         weekStart: 1,
+        //         todayBtn:  1,
+        //         autoclose: 1,
+        //         todayHighlight: 1,
+        //         startView: 2,
+        //         minView: 2,
+        //         forceParse: 0
+        //     })
+        // });
+    </script>
+</block>

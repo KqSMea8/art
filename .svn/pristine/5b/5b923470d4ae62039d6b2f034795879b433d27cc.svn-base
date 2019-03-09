@@ -1,0 +1,132 @@
+<extend name="Public:base"/>
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    艺术家推广封面详情
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <!--<table>
+                            <tr>
+                                <td style="padding-right: 30px">
+                                    <img src="{$image['one']}">
+                                </td>
+                                <td style="padding-right: 30px">
+                                    <img src="{$image['two']}">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top: 30px">
+                                    <img src="{$image['three']}">
+                                </td>
+                            </tr>
+                        </table>-->
+
+
+                        <div style="padding-top: 30px">
+                            <img src="{$image['one']}">
+                        </div>
+                        <div style="padding-top: 30px">
+                            <img src="{$image['two']}">
+                        </div>
+
+                        <div style="padding-top: 30px">
+                            <img src="{$image['three']}">
+                        </div>
+
+                    </div>
+
+                    <form action="{:U('Extension/verifyFailed')}" class="form-horizontal"  method="post" onsubmit="return verifyFailed();">
+                        <div class="form-group">
+                            <input type="hidden" name="id" value="{$image['id']}">
+                            <input type="hidden" name="showType" value="{$showType}" id="three">
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="col-sm-1 control-label">备注：</label>
+                            <div class="col-sm-4">
+                                <textarea id="reason" name="reason" class="form-control" placeholder="请备注原因。" rows="5">{$image['reason']}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" name="status" value="5">
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <a href="{:U('Extension/index',['showType'=>$showType])}" class="btn btn-default">返回</a>&nbsp;&nbsp;
+                                <button type="submit" class="btn btn-default" >下线</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                <!-- /.panel-body -->
+            </div>
+
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+    <script type="text/javascript">
+        function verifyFailed() {
+            var reason = $("#reason").val();
+
+            var check = true;
+            var message = "";
+            if ($.trim(reason) == '') {
+                check = false;
+                message = message + "<li>备注不能为空</li>";
+            }
+
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+                var formData = new FormData($(".form-horizontal")[0]);
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo U('Extension/verifyFailed');?>',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    dataType: 'json',
+                    error: function (data) {
+                        $.prompt("<span style=\" color:#F00\">error</span>", {
+                            title: "提示",
+                            buttons: {"确定": false}
+                        });
+                    },
+                    success: function (data) {
+                        if (data.error == 0) {
+                            $.prompt("提交成功！", {
+                                title: "提示",
+                                buttons: {"确定": true},
+                                submit: function (e, v, m, f) {
+                                    if (v == true) {
+                                        window.location.href="{:U('Extension/index',['showType'=>$showType])}";
+                                    }
+                                }
+                            });
+
+                        }else{
+                            $.prompt("<span style=\" color:#F00\">"+data.message+"</span>", {
+                                title: "提示",
+                                buttons: {"确定": false},
+                            });
+                        }
+                    }
+                });
+                return false;
+            }
+        }
+    </script>
+</block>

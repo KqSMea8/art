@@ -1,0 +1,376 @@
+html, body {
+  height: 100%;
+}
+body {
+  background: #f4f4f4;
+}
+
+/*主标题a链接*/
+.title a {
+  color: #666;
+}
+.title a:hover {
+  color: #f4ad23;
+}
+/*主标题a链接end*/
+
+/*右侧主内容区*/
+.con-wrap {
+  margin-left: 210px;
+  height: 1055px;
+  background-color: #fff;
+}
+.con-wrap .tit {
+  height: 74px;
+  padding-left: 20px;
+  padding-top: 33px;
+  line-height: 1;
+  font-size: 22px;
+  color: #444;
+  border-top: 1px solid #f0f0f0;
+  background-color: #fff;
+}
+
+/*选项卡*/
+.el-tabs__header {
+  border-bottom: 1px solid #e1e1e1;
+  margin-bottom: 0;
+}
+.el-tabs__item {
+  padding: 0 18px;
+  font-size: 16px;
+  color: #333;
+}
+.el-tabs__item.is-active {
+  color: #333;
+}
+.el-tabs__active-bar{
+  height: 4px;
+}
+.recom-detail {
+  position: relative;
+  padding: 30px 20px;
+  border-bottom: 1px solid #e1e1e1;
+  cursor: pointer;
+}
+.recom-desc .view {
+  background-color: #fff;
+}
+.recom-detail .fr,
+.recom-detail .fl {
+  position: relative;
+}
+.recom-detail img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 72px;
+  height: 72px;
+}
+.recom-detail .fl h3,
+.recom-detail .fl p {
+  padding-left: 85px;
+}
+.recom-detail .fl h3 {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+  color: #333;
+}
+.recom-detail .fl p {
+  font-size: 16px;
+  line-height: 36px;
+  color: #666;
+}
+.recom-detail .fr .apply-2 {
+  font-size: 16px;
+  line-height: 32px;
+  text-align: center;
+  color: #666;
+}
+.recom-detail .fr .apply-p3 {
+  position: absolute;
+  right: 180px;
+  top: 18px;
+  width: 400px;
+  color: #999;
+}
+.recom-detail .fr .end-date {
+  padding-top: 10px;
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  color: #999;
+}
+
+.recom-detail .fr {
+  width: 166px;
+  text-align: right;
+}
+.recom-detail .fr .p1 {
+  font-size: 16px;
+  line-height: 20px;
+  color: #666;
+}
+.recom-detail .fr h3 {
+  display: inline-block;
+  margin: 10px 0;
+  padding-left: 6px;
+  font-size: 18px;
+  line-height: 1;
+  color: #333;
+  border-left: 4px solid #e9ab32;
+}
+.my-detail {
+/*  cursor: auto;*/
+  transition: all 0.3s;
+}
+/*.my-detail:hover {
+  background-color: #f1f1f1;
+}*/
+.recom-item {
+  max-height: 421px;
+  overflow: hidden;
+}
+.recom-detail .fr .p2 {
+  font-size: 14px;
+  line-height: 1;
+  color: #999;
+}
+.recom-desc {
+  /*display: none;*/
+  opacity: 0;
+  padding: 0 105px;
+  height: 0;
+  background-color: #f4f4f4;
+  font-size: 14px;
+  line-height: 24px;
+  transition: all 0.3s;
+}
+.recom-desc h4 {
+  color: #333;
+}
+.recom-desc p {
+  color: #666;
+}
+.recom-item.active .recom-desc {
+  padding: 10px 105px 6px;
+  height: 270px;
+  opacity: 1;
+  overflow-y: scroll;
+}
+
+.recom-desc::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.recom-desc::-webkit-scrollbar {
+  width: 4px;
+  background-color: #fff;
+}
+
+.recom-desc::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #fff2dd;
+}
+.el-tabs__content {
+  position: relative;
+  height: 939px;
+}
+/* 页码 */
+.upload-page{
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 24px 50px 25px;
+  text-align: right;
+
+}
+.upload-button{position: absolute;right: 16px;top:16px;line-height: 25px;}
+.upload-jump.is-plain{height: 28px;line-height: 28px; padding:0 6px;vertical-align: bottom;border-color: #b7b7b7;}
+.el-pagination__editor2{border-color: #b7b7b7;}
+.upload-page .btn-prev,.upload-page .btn-next{width: 30px;height: 30px;border-radius: 50%;border:1px solid #a9a9a9;}
+span.upload-num{font-size: 16px;color: #7b7b7b;text-align: center}
+/* 页码 end */
+
+/*选项卡 end */
+
+/*右侧主内容区 end*/
+
+/*申请推广*/
+.main-wrap .title span {
+  font-size: 18px;
+  color: #999;
+}
+
+.apply .second {
+  height: 780px;
+}
+.second .temp-wrap {
+  float: left;
+  padding-top: 66px;
+  padding-left: 130px;
+  width: 585px;
+  height: 785px;
+}
+.second .temp-wrap .template {
+  position: relative;
+  width: 865px;
+  height: 1767px;
+  background: url(../image/promote/mobile.png) no-repeat;
+  -webkit-background-size: 865px 1767px;
+  background-size: 865px 1767px;
+  transform:scale(0.36666666667);
+  transform-origin: 0 0;
+}
+
+.temp-wrap .template .inner {
+  position: relative;
+  top: 218px;
+  left: 58px;
+  width: 750px;
+  height: 1334px;
+  background-color: #fff;
+}
+
+
+/*.second .temp-wrap .template img {
+  position: absolute;
+
+  width: 750px;
+  height: auto;
+  z-index: 1;
+}*/
+.template .temp-url {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 750px;
+  height: 1334px;
+  z-index: 1;
+}
+.topic-apply {
+  position: relative;
+  padding-top: 48px;
+  z-index: 2;
+}
+.topic-apply h3 {
+  margin: 0 auto;
+  width: 595px;
+  height: 80px;
+  font-size: 36px;
+  text-align: center;
+  line-height: 80px;
+  color: #666;
+}
+.topic-apply .apply-info {
+  margin-top: 20px;
+  padding: 50px 20px;
+  background-color: #fff;
+  border-top: 1px solid #eee;
+}
+.apply-info .cover {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 0 25px;
+  width: 700px;
+  height: auto;
+}
+.infos .art-info {
+  float: left;
+  line-height: 1;
+}
+.infos .art-info h4 {
+  padding-top: 35px;
+  font-size: 36px;
+  text-indent: -12px;
+  font-weight: 700;
+  color: #333;
+}
+.infos .art-info p {
+  padding-top: 12px;
+  font-size: 24px;
+  color: #999;
+}
+.infos .artist-info {
+  float: right;
+  text-align: center;
+  min-width: 120px;
+}
+.infos .artist-info img {
+  width: 72px;
+  height: 72px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+}
+.infos .artist-info p {
+  font-size: 28px;
+  color: #666;
+}
+.topic-apply .desc {
+  margin-top: 35px;
+  font-size: 28px;
+  line-height: 42px;
+  color: #333;
+  word-break: break-all;
+}
+
+
+.second .form {
+  float: left;
+  position: relative;
+  margin-top: 113px;
+  height: 496px;
+}
+.con .box {
+  position: relative;
+}
+.el-upload {
+  text-align: left;
+}
+
+.item .con .img-list .img-item {
+  float: left;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+.item .con .img-list .img-item img {
+  width: 110px;
+  height: 110px;
+}
+
+
+
+.btn-s {
+  margin: 6px 0;
+  padding: 3px 18px;
+  height: 36px;
+  border: 1px solid #b6b6b6;
+  border-radius: 2px;
+  background-color: #fff;
+  cursor: pointer;
+}
+.form .item {
+  margin-bottom: 24px;
+}
+.form .item .tit {
+  width: 75px;
+  text-align: left;
+  float: left;
+  line-height: 48px;
+}
+.form .item .con {
+  position: relative;
+  float: left;
+  width: 350px;
+}
+.form .input {
+  font-size: 16px;
+}
+.form .btn-group {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+/*申请推广 end*/

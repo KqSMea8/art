@@ -1,0 +1,9 @@
+var vmUserIntro = new Vue({
+  el: '#user-intro',
+  data: {
+    
+  },
+  methods: {
+    
+  }
+});

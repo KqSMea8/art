@@ -1,0 +1,10 @@
+<?php
+
+namespace V60\Model;
+
+use V60\Base\BaseModel;
+
+class GalleryModel extends BaseModel
+{
+    protected $tableName = 'gallery';
+}

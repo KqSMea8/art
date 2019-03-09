@@ -1,0 +1,112 @@
+var vmApp = new Vue({
+  el: '#app',
+  data: {
+    isClickgetVerify: false,
+    getVerifyCodeText: '获取验证码',
+    count: 60,
+    errorTip: '',
+    formData: {
+      mobile: '18575569513',
+      verifyCode: '',
+      password: '',
+      password2: ''
+    },
+    
+  },
+  methods: {
+    submitForm: function (formName) {
+      var that = this;
+      var mobile = this.formData.mobile;
+      var verifyCode = this.formData.verifyCode;
+      var password = this.formData.password;
+      var password2 = this.formData.password2;
+      if (verifyCode == "") {
+        this.errorTip = "请输入短信验证码";
+        return false;
+      } else if (!validInfo.verifyCode.test(verifyCode)) {
+        this.errorTip = "验证码错误，请重新输入";
+        return false;
+      } else if (password == "") {
+        this.errorTip = "请设置6-16位密码";
+        return false;
+      } else if (password.length < 6 || password.length > 16) {
+        this.errorTip = "请输入6-16位密码";
+        return false;
+      } else if (!validInfo.password.test(password)) {
+        this.errorTip = "密码不能包含空格，汉字";
+        return false;
+      } else if (!validInfo.chinese.test(password)) {
+        this.errorTip = "密码不能包含空格，汉字";
+        return false;
+      } else if (password2 == "") {
+        this.errorTip = "请再次输入您的密码";
+        return false;
+      } else if (password != password2) {
+        this.errorTip = "两次输入密码不一致";
+        return false;
+      }
+      //避免重复点击提交
+      if (this.isSubmit) {
+        return false;
+      }
+      this.isSubmit = true;
+      this.errorTip = "提交中，请稍后";
+
+      artzheAgent.call('user/accountLogin',this.formData,function(res) {
+        that.isSubmit = false;
+        console.log(res);
+        if (res.code == 30000) {
+          window.location.href = '/home/register/third';
+        } else if (res.code == 30110) {
+          that.errorTip = "验证码错误，请重新输入";
+        } else if (res.code == 30111) {
+          that.errorTip = "您已注册，请直接登录";
+        }
+      });
+    },
+    getVerifyCode: function () {
+      console.log('getVerifyCode');
+      var that = this;
+      var data = {
+        mobile: this.formData.mobile
+      };
+      if (that.isClickgetVerify) {
+        return false;
+      }
+      that.setTime();
+
+      artzheAgent.call('user/sendVerifyCode',this.formData,function(res) {
+        that.isSubmit = false;
+        console.log(res);
+        if (res.code == 30000) {
+          setCookie('userid', res.data.userid);
+          if (res.data.isArtist == '1') {
+            window.location.href = '/home/upload/manage';
+          } else {
+            that.isLogin = true;
+          }
+        } else if (res.code == 30111) {
+          that.errorTip = "密码错误";
+        }
+      });
+    },
+    setTime: function (argument) {
+      var that = this;
+      var count = this.count;
+      if (this.count == 0) {
+        this.isClickgetVerify = false;
+        this.getVerifyCodeText = "重新发送";
+        this.count = 60;
+        return false;
+      } else {
+        this.isClickgetVerify = true;
+        this.getVerifyCodeText = this.count + "S";
+        this.count = --count;
+        // console.log(this.count);
+      }
+      setTimeout(function() {
+        that.setTime();
+      }, 1000);
+    }
+  }
+});

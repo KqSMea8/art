@@ -1,0 +1,242 @@
+[ 2019-02-27T09:37:26+08:00 ] 172.17.0.1 /Api/WebsiteConfig/getWebConfig
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000004s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000026s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000027s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000045s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/WebsiteConfig-getWebConfig.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T09:37:26+08:00 ] 172.17.0.1 /Api/Home/getRecord/
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000003s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000063s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000016s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000027s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getRecord.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T09:37:26+08:00 ] 172.17.0.1 /Api/Home/getArtist
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000008s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000058s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000024s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000041s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getArtist.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T09:37:26+08:00 ] 172.17.0.1 /Api/UserCenter/getMyHomeDetail
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000004s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000041s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000013s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000024s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/UserCenter-getMyHomeDetail.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T09:37:28+08:00 ] 172.17.0.1 /Api/Home/getRecord/
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000005s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000363s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000329s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000342s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getRecord.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T09:37:28+08:00 ] 172.17.0.1 /Api/Home/getRecord/
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000004s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000039s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000014s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000024s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getRecord.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:23:52+08:00 ] 172.17.0.1 /Api/WebsiteConfig/getWebConfig
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000006s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000059s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000033s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000052s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/WebsiteConfig-getWebConfig.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:23:52+08:00 ] 172.17.0.1 /Api/Home/getArtist
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000004s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000039s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000014s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000025s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getArtist.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:23:52+08:00 ] 172.17.0.1 /Api/Home/getRecord/
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000005s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000046s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000015s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000024s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getRecord.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:23:52+08:00 ] 172.17.0.1 /Api/UserCenter/getMyHomeDetail
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000004s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000046s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000015s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000024s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/UserCenter-getMyHomeDetail.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:23:59+08:00 ] 172.17.0.1 /Api/Home/getArtist
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000003s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000026s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000031s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000057s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getArtist.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:23:59+08:00 ] 172.17.0.1 /Api/Home/getRecord/
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000003s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000022s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000024s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000042s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getRecord.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:23:59+08:00 ] 172.17.0.1 /Api/WebsiteConfig/getWebConfig
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000005s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000055s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000015s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000048s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/WebsiteConfig-getWebConfig.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:23:59+08:00 ] 172.17.0.1 /Api/UserCenter/getMyHomeDetail
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000005s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000035s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000019s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000028s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/UserCenter-getMyHomeDetail.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:25:00+08:00 ] 172.17.0.1 /Api/WebsiteConfig/getWebConfig
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000004s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000029s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000036s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000054s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/WebsiteConfig-getWebConfig.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:25:00+08:00 ] 172.17.0.1 /Api/Home/getRecord/
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000005s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000035s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000015s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000026s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getRecord.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:25:00+08:00 ] 172.17.0.1 /Api/Home/getArtist
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000004s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000030s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000013s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000022s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getArtist.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:25:00+08:00 ] 172.17.0.1 /Api/UserCenter/getMyHomeDetail
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000003s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000040s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000015s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000025s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/UserCenter-getMyHomeDetail.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:25:15+08:00 ] 172.17.0.1 /Api/Home/getRecord/
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000003s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000025s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000019s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000036s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getRecord.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:25:15+08:00 ] 172.17.0.1 /Api/WebsiteConfig/getWebConfig
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000006s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000055s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000033s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000057s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/WebsiteConfig-getWebConfig.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:25:15+08:00 ] 172.17.0.1 /Api/Home/getArtist
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000003s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000021s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000015s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000026s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/Home-getArtist.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+
+[ 2019-02-27T10:25:15+08:00 ] 172.17.0.1 /Api/UserCenter/getMyHomeDetail
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000004s ]
+INFO: [ app_init ] --END-- [ RunTime:0.000027s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.000018s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.000030s ]
+NOTIC: [2] file_put_contents(/var/www/work/pcwww/Log/UserCenter-getMyHomeDetail.log): failed to open stream: No such file or directory /var/www/work/pcwww/Application/Custom/Helper/Util.class.php 第 117 行.
+NOTIC: [2] Redis::connect(): connect() failed: Connection refused /var/www/work/pcwww/ThinkPHP/Library/Think/Cache/Driver/Redis.class.php 第 45 行.
+ERR: Redis server went away
+

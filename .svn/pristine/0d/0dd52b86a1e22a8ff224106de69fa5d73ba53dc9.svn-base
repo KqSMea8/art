@@ -1,0 +1,235 @@
+<?php
+
+namespace Admin\Controller;
+
+
+use Common\Base\AdminBaseController;
+
+use OSS\OssClient;
+class AppUpgradeController extends AdminBaseController
+{
+    
+    public function delAndroidUpgradeFile(){//删除android升级文件
+        $channel= trim(I('get.channel'));
+        $Object= trim(I('get.Object'));
+        $pos=strpos($Object,'..');//禁止..返回返回上一级目录
+        if (preg_match("/^AppUpgrade\/Android\/(.+)$/", $Object,$maths)&&$pos===false) {
+            $ossConfig = C('OSS'); // 获取OSS配置信息
+            $ossClient = new OssClient($ossConfig['appKeyId'], $ossConfig['appKeySecret'], $ossConfig['endPoint']);
+            $ossClient->deleteObject($ossConfig['bucket'], $Object);
+            $this->success('成功', U('AppUpgrade/androidPatch').'?channel='.$channel,0);
+        }
+        
+    }
+    public function appDel(){
+        $id = intval(I('get.id'));
+        
+        $softinfo_M=M('softinfo');
+        $softinfo=$softinfo_M->where(['id'=>$id])->delete();
+        $this->success('删除成功', $_SERVER['HTTP_REFERER'],0);
+        
+    }
+    public function appEdit(){
+        $softinfo_M=M('softinfo');
+        
+        if(IS_POST){
+            $id = intval(I('post.id')); 
+            $appname = trim(I('post.appname'));
+            $version = trim(I('post.version'));
+            $appurl = trim(I('post.appurl'));
+            $filesize = intval(I('post.filesize'));
+            $flag = intval(I('post.flag'));
+            $content = trim(I('post.content'));
+            $forced_update = intval(I('post.forced_update'));
+            $publish_date = trim(I('post.publish_date'));
+            
+           
+            
+            if($appname==''||$version==''||$appurl==''||$filesize==''||!in_array($flag, [1,2])||$content==''||$publish_date==''||!in_array($forced_update, [0,1])){
+                $this->error('内容是必填，修改失败');
+            }
+            $data=[
+                'appname'=>$appname,
+                'version'=>$version,
+                'appurl'=>$appurl,
+                'filesize'=>$filesize,
+                'flag'=>$flag,
+                'content'=>$content,
+                'forced_update'=>$forced_update,
+                'publish_date'=>$publish_date,
+            ];
+            
+            $softinfo_M->where(['id'=>$id])->save($data);
+            $this->success('成功', U('AppUpgrade/AppList'),0);
+           
+        }
+        $id = intval(I('get.id')); 
+        $softinfo=$softinfo_M->where(['id'=>$id])->find();
+       
+        $this->assign('softinfo', $softinfo);
+        $this->display();
+    }
+    
+    public function appAdd(){
+     
+        if(IS_POST){
+            $appname = trim(I('post.appname')); 
+            $version = trim(I('post.version')); 
+            $appurl = trim(I('post.appurl')); 
+            $filesize = intval(I('post.filesize')); 
+            $flag = intval(I('post.flag')); 
+            $content = trim(I('post.content')); 
+            $forced_update = intval(I('post.forced_update')); 
+            $publish_date = trim(I('post.publish_date')); 
+            
+            $softinfo_M=M('softinfo');
+            if($appname==''||$version==''||$appurl==''||$filesize==''||!in_array($flag, [1,2])||$content==''||$publish_date==''||!in_array($forced_update, [0,1])){
+                $this->error('内容是必填，添加失败');
+            }
+            $softinfo_M->add([
+                'appname'=>$appname,
+                'version'=>$version,
+                'appurl'=>$appurl,
+                'filesize'=>$filesize,
+                'flag'=>$flag,
+                'content'=>$content,
+                'forced_update'=>$forced_update,
+                'publish_date'=>$publish_date,
+            ]);
+            
+            if ($softinfo_M->getLastInsID()) {
+                $this->success('添加成功', U('AppUpgrade/AppList'),0);
+            } else {
+                $this->error('添加失败');
+            }
+        }
+     
+        $this->display();
+    }
+    
+    public function AppList(){
+        $flag = intval(I('get.flag'));
+        
+        $softinfo_M=M('softinfo');
+        if($flag==1||$flag==2){
+            $where['flag']=$flag;
+        }
+        
+        $list=$softinfo_M->where($where)->order('version desc')->select();
+        $this->assign('lists', $list);
+        $this->display();
+    }
+    
+    public function AndroidChannelList(){
+       
+        $this->assign('lists', C('AppUpgrade_android_channel'));
+        
+        $this->display();
+    }
+    public  function androidPatch(){
+        
+        $channel = trim(I('get.channel'));
+        if(!in_array($channel, C('AppUpgrade_android_channel'))){
+            echo 'android渠道号错误';
+            exit();
+        }
+        
+        
+        $ossConfig = C('OSS'); // 获取OSS配置信息
+        $ossClient = new OssClient($ossConfig['appKeyId'], $ossConfig['appKeySecret'], $ossConfig['endPoint']);
+        
+        $prefix = 'AppUpgrade/Android/'.$channel.'/';
+//         echo $prefix;exit;
+        $delimiter = '/';
+        $nextMarker = '';
+        $maxkeys = 1000;
+        
+        $options = array(
+            'delimiter' => $delimiter,
+            'prefix' => $prefix,
+            'max-keys' => $maxkeys,
+            'marker' => $nextMarker
+        );
+        
+        $listObjectInfo = $ossClient->listObjects($ossConfig['bucket'], $options);
+        
+        $listObject = $listObjectInfo->getObjectList();
+        //         print_r($listObject);
+        $file_list = [];
+        $file_list_url_arr = [];
+        foreach ($listObject as $value) {
+            $file_url = "https://".$ossConfig['bucket'].".oss-cn-shenzhen.aliyuncs.com/" . $value->getKey();
+            $file_size = $value->getSize();
+            $file_Modifi_time = $value->getLastModified();
+            
+//             $fileinfo = pathinfo($value->getKey());
+            //if($file_size>0&&preg_match("/^artzhe_([0-9a-z]+)_([0-9\.]+)-to-([0-9\.]+)$/", $fileinfo['filename'])){
+            array_push($file_list_url_arr, $file_url);
+                $file_list[] = [
+                    'file_url' => $file_url,
+                    'Object'=>$value->getKey(),
+                    'file_size' => round($file_size/1024/1024,2)." M",
+                    'file_Modifi_time' => strtotime($file_Modifi_time),
+                ];
+            //}
+        }
+        
+        
+        //验证完整
+        $Verification_msg='';
+        $file_list_new = [];
+        $file_list_sort = [];
+        foreach ($file_list as $file) {
+            $fileinfo = pathinfo($file['file_url']);
+           
+            if (preg_match("/^artzhe_([0-9a-z]+)_([0-9\.]+)-to-([0-9\.]+)$/", $fileinfo['filename'],$maths)) {
+                //                 print_r($maths);
+                array_push($file_list_new, $maths[3]);
+            }
+        }
+        $file_list_new = array_unique($file_list_new);
+        rsort($file_list_new); // 降序
+        foreach ($file_list_new as $value) {
+            array_push($file_list_sort, $value);
+        }
+        
+        $version_new = trim($file_list_sort[0]);
+        if ($version_new!='') {
+            
+            $full_apk = "https://" . $ossConfig['bucket'] . ".oss-cn-shenzhen.aliyuncs.com/" . "AppUpgrade/Android/" . $channel . "/artzhe_" . $channel . "_" . $version_new . '.apk'; // 完整升级
+            if (!in_array($full_apk, $file_list_url_arr)) {//对应的完整升级包是否存在
+                $msg='<li>请上传artzhe_' . $channel . "_" . $version_new . '.apk</li>';
+                $Verification_msg=$Verification_msg==''?$msg:$Verification_msg.$msg;
+            }
+            
+            $softinfo_M=M('softinfo');
+            $softinfo_info=$softinfo_M->where(['version'=>$version_new,'flag'=>2])->find();
+            if(!$softinfo_info){//升级记录描述
+                $msg='<li>请到版本列表，添加'.$version_new.'版本信息</li>';
+                $Verification_msg=$Verification_msg==''?$msg:$Verification_msg.$msg;
+            }
+            
+            //md5sum
+            $md5sum="AppUpgrade/Android/".$channel."/md5sum.txt";
+            $md5sum_url = "https://" . $ossConfig['bucket'] . ".oss-cn-shenzhen.aliyuncs.com/".$md5sum;
+            $md5sum_arry = parse_ini_string(file_get_contents($md5sum_url));
+            $md5sum_value=$md5sum_arry[''."artzhe_".$channel."_".$version_new . '.apk'.''];
+            if(trim($md5sum_value)==''){
+                $msg='<li>没有artzhe_' . $channel . "_" . $version_new . '.apk校验文件的md5值，请上传新的md5sum.txt</li>';
+                $Verification_msg=$Verification_msg==''?$msg:$Verification_msg.$msg;
+            }
+            
+        }else{
+            $msg='<li>没有patch文件，请上传</li>';
+            $Verification_msg=$Verification_msg==''?$msg:$Verification_msg.$msg;
+        }
+        
+        //验证完整 end
+        $this->assign('Verification_msg', $Verification_msg);
+        $this->assign('channel', $channel);
+        $this->assign('lists', $file_list);
+        $this->display();
+        
+        
+    }
+}

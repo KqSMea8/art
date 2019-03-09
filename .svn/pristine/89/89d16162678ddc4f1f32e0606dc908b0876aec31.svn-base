@@ -1,0 +1,113 @@
+<?php
+
+namespace V2\Controller;
+
+use Think\Controller;
+use Custom\Define\Code;
+use Custom\Helper\Util;
+use OSS\OssClient;
+use Think\Model;
+
+class FileController extends Controller{
+
+    //图片上传
+    public function upimg(){
+
+        if($_FILES['imgurl']['error'] == 4){
+            Util::ajaxReturn(['status'=>Code::PARAM_ERR, 'info'=>'没有上传图片']);
+        }
+
+        $imgurl = file_get_contents($_FILES['imgurl']['tmp_name']);; //获取图片上传url
+
+        $ossConfig = C('OSS'); //获取OSS配置信息
+        $ossClient = new OssClient($ossConfig['appKeyId'], $ossConfig['appKeySecret'],$ossConfig['endPoint']);
+        $filename = time().rand(100,999); //设置文件名
+        $result  = $ossClient->putObject($ossConfig['bucket'], 'uploads/'.date('Y/m/d').'/'.$filename.'.'.'jpg', $imgurl);
+        $info = $result['info']['url'];
+
+        Util::ajaxReturn(['status'=>Code::SUCCESS, 'url'=>$info]);
+    }
+
+    public function updatecate(){
+        $cat = [
+            1=>'油画',
+            2=>'水彩',
+            3=>'插画',
+            4=>'素描',
+            5=>'工笔',
+            6=>'国画',
+            7=>'版画',
+            8=>'漆画',
+            9=>'丙烯',
+            10=>'其它',
+        ];
+
+
+        $data = M('ArtzheCustom')->where(['type'=>'4'])->select();
+
+        $temp = [];
+        foreach ($data as $k=>$v){
+            $a = trim($v['cn_name'],',');
+            $arr = explode(',', $a);
+
+            //$temp[] = $arr;
+            $c = '';
+            for($i=0;$i<count($arr);$i++){
+                if($arr[$i] == $cat[1]){
+                    $c .= '1'.',';
+                }
+                if($arr[$i] == $cat[2]){
+                    $c .= '2'.',';
+                }
+                if($arr[$i] == $cat[3]){
+                    $c .= '3'.',';
+                }
+                if($arr[$i] == $cat[4]){
+                    $c .= '4'.',';
+                }
+                if($arr[$i] == $cat[5]){
+                    $c .= '5'.',';
+                }
+                if($arr[$i] == $cat[6]){
+                    $c .= '6'.',';
+                }
+                if($arr[$i] == $cat[7]){
+                    $c .= '7'.',';
+                }
+                if($arr[$i] == $cat[8]){
+                    $c .= '8'.',';
+                }
+                if($arr[$i] == $cat[9]){
+                    $c .= '9'.',';
+                }
+                if($arr[$i] == $cat[10]){
+                    $c .= '10'.',';
+                }
+            }
+            //$temp[$k]['artworkid'] = $v['artworkid'];
+            //$temp[$k]['category'] = trim($c,',');
+            $category = trim($c,',');
+            if(!empty($category)){
+                $data = ['category' => $category];
+            }else{
+                $data = ['category' => 10 ];
+            }
+            $temp[] = M('Artwork')->where(['id'=>$v['artworkid']])->save($data);
+        }
+
+        var_dump($temp);
+    }
+
+    public function test(){
+        $data = M('Artwork')->field('id,artist')->select();
+        //var_dump($data);exit;
+
+        $temp = [];
+        foreach ($data as $k=>$v){
+            $my = ['artist'=>"{$v['artist']}"];
+            $temp[$k] = M('ArtworkUpdate')->where(['artwork_id'=>"{$v['id']}",'artist'=>'0'])->save($my);
+        }
+
+        var_dump($temp);
+    }
+}

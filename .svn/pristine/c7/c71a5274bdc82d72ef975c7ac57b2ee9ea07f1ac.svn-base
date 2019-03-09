@@ -1,0 +1,15 @@
+<?php
+
+namespace V50\Logic;
+
+use V50\Base\BaseLogic;
+use V50\Logic\ArtCircleLogic;
+use V50\Logic\MessageLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+//话题讨论
+class TopicDiscussLogic extends BaseLogic
+{
+}

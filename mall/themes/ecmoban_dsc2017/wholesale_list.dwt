@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="Keywords" content="{$keywords}" />
+<meta name="Description" content="{$description}" />
+<!-- TemplateBeginEditable name="doctitle" -->
+<title>{$page_title}</title>
+<!-- TemplateEndEditable -->
+<!-- TemplateBeginEditable name="head" -->
+<!-- TemplateEndEditable -->
+<link rel="shortcut icon" href="favicon.ico" />
+<!-- #BeginLibraryItem "/library/js_languages_new.lbi" --><!-- #EndLibraryItem -->
+<link rel="stylesheet" type="text/css" href="themes/<?php echo $GLOBALS['_CFG']['template']; ?>/css/other/wholesale.css" />
+<link rel="stylesheet" type="text/css" href="../js/perfect-scrollbar/perfect-scrollbar.min.css" />
+</head>
+<body class="bg-ligtGary">
+<!-- #BeginLibraryItem "/library/page_header_business.lbi" --><!-- #EndLibraryItem -->
+
+<div class="content b2b-content">
+    <div class="banner b2b-home-banner">
+        {* DSC 提醒您：动态载入wholesale_ad.lbi，显示首页分类小广告 *}{insert name='get_adv_child' ad_arr=$wholesale_ad}
+        <div class="vip-outcon">
+            {* DSC 提醒您：动态载入business_user_info.lbi，显示首页分类小广告 *}{insert name='business_user_info'}
+        </div>
+    </div>
+    <div class="b2b-purchase">
+        <div class="w w1200">
+            <div class="bp-title">
+                <h3>限时采购</h3>
+            </div>
+            <div class="bp-content">
+                <div class="hd"><ul></ul></div>
+                <div class="bd">
+                    <ul>
+                    	<!-- {foreach from=$wholesale_limit item=wholesale_limit} 遍历限时采购的商品 -->
+                        <li class="opacity_img">
+                            <div class="p-img"><a href="{$wholesale_limit.url}" target="_blank"><img src="{$wholesale_limit.goods_thumb}"></a></div>
+                            <div class="info">
+                                <div class="p-name"><a href="{$wholesale_limit.url}" target="_blank">{$wholesale_limit.goods_name}</a></div>
+                                <div class="p-lie">
+                                    {if $wholesale_limit.goods_price eq 0}
+                                    <div class="p-price">{$wholesale_limit.volume_price}<span>/件</span></div>
+                                    <div class="p-number"><em>{$wholesale_limit.volume_number}件</em>起批</div> 
+                                    {else}
+                                    <div class="p-price">{$wholesale_limit.goods_price}<span>/件</span></div>
+                                    <div class="p-number"><em>{$wholesale_limit.moq}件</em>起批</div> 
+                                    {/if}
+                                </div>
+                                {if $wholesale_limit.small_time > 86400}
+                                <div class="p-time lefttime" data-time='{$wholesale_limit.formated_end_date}'>剩余时间：<span class="days"></span>天</div>
+                                {else}
+                                <div class="p-time">剩余时间：1 天</div>
+                                {/if}
+                                <a href="{$wholesale_limit.url}" class="p-btn" target="_blank">立即采购</a>
+                            </div>
+                        </li>
+                        <!-- {/foreach} -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="b2b-floor">
+        <div class="w w1200" ectype="wholesale_cat_level">
+            <!-- {foreach from=$get_wholesale_cat item=wholesale_goods name=wholesale_goods} 遍历分类数据 -->
+            <!-- {if $smarty.foreach.wholesale_goods.iteration<9}-->
+            <!-- {if $wholesale_goods.count_goods neq 0} 如果分类下商品不为空 -->
+            <div class="b2b-floor-line">
+                <div class="floor-hd">
+                    <div class="title"><em></em>{$wholesale_goods.cat_name}</div>
+                    <div class="more"><a href="{$wholesale_goods.cat_url}" target="_blank">更多批发<i></i></a></div>
+                </div>
+                <div class="floor-bd">
+                    <ul>
+                        <li class="floor-adv">{* DSC 提醒您：动态载入wholesale_cat_ad.lbi，显示首页分类小广告 *}{insert name='get_adv_child' ad_arr=$wholesale_cat_ad id=$wholesale_goods.cat_id}</li>
+                        <!-- {foreach from=$wholesale_goods.goods item=goods} 遍历分类下的商品 -->
+                        <li class="floor-goods opacity_img">
+                            <div class="p-img"><a href="{$goods.url}" target="_blank"><img src="{$goods.thumb}" width="202" height="202"></a></div>
+                            <div class="p-name"><a href="{$goods.url}" target="_blank">{$goods.goods_name}</a></div>
+                            {if $goods.goods_price eq 0}
+                            <div class="p-lie"><span class="label">批发价：</span><div class="p-price">{$goods.volume_price}<span>/件</span></div></div>
+                            {else}
+                            <div class="p-lie"><span class="label">批发价：</span><div class="p-price">{$goods.goods_price}<span>/件</span></div></div>
+                            {/if}
+                            <div class="p-lie">
+                                {if $goods.goods_price eq 0}
+                                 <div class="fl"><span class="label">起批量：</span><em class="org">{$goods.volume_number}</em></div>
+                                {else}
+                                <div class="fl"><span class="label">起批量：</span><em class="org">{$goods.moq}</em></div>
+                                {/if}
+                                <div class="fr"><span class="label">成交量：</span><em>{$goods.goods_sale|default:0}</em></div>
+                            </div>
+                            {$goods.goods_extends.is_delivery}
+                            <!-- {if $goods.goods_extend.is_delivery || $goods.goods_extend.is_return || $goods.goods_extend.is_free} -->
+                            <div class="p-lie p-tiy">
+                                {if $goods.goods_extend.is_delivery}<a href="javascript:void(0);" class="goods-icons">48</a>{/if}
+                                {if $goods.goods_extend.is_free}<a href="javascript:void(0);" class="goods-icons">邮</a>{/if}
+                                {if $goods.goods_extend.is_return}<a href="javascript:void(0);" class="goods-icons">退</a>{/if}
+                            </div>
+                            <!-- {/if} -->
+                            <a href="{$goods.url}" class="p-btn" target="_blank">立即采购</a>
+                        </li>
+                        <!-- {/foreach} -->
+                    </ul>
+                </div>
+            </div>
+            <!--{/if}-->
+            <!--{/if}-->
+            <!-- {/foreach} -->
+            
+        </div>
+    </div>
+</div>
+<!-- #BeginLibraryItem "/library/page_footer.lbi" --><!-- #EndLibraryItem -->
+{insert_scripts files='jquery.SuperSlide.2.1.1.js,jquery.yomi.js'}
+<script type="text/javascript" src="../js/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script type="text/javascript" src="themes/<?php echo $GLOBALS['_CFG']['template']; ?>/js/dsc-common.js"></script>
+<script type="text/javascript" src="themes/<?php echo $GLOBALS['_CFG']['template']; ?>/js/jquery.purebox.js"></script>
+<script type="text/javascript">
+$(".vip-item").slide({titCell:".tit a",mainCell:".con"});
+
+function quantity(){
+    $(".btn-reduce").click(function(){
+        var quantity = Number($(this).siblings('.buy-num').val());
+        if(quantity>1){
+            quantity-=1;
+            $(this).siblings('.buy-num').val(quantity);
+        }else{
+            return false;
+        }
+    });
+
+    $(".btn-add").click(function(){
+        var quantity = Number($(this).siblings('.buy-num').val());
+        quantity+=1;
+        $(this).siblings('.buy-num').val(quantity);
+    })
+}
+quantity();
+
+{if $search_category > 0}
+document.getElementById('search_category').value = '{$search_category}';
+{/if}
+
+var right = 0;
+var winWidth = $(window).width();
+var width = $("*[ectype='whoBtn']").width();
+
+right = (winWidth-1200)/2 - width - 20;
+
+$("*[ectype='whoBtn']").css({"right":right});
+
+$(window).resize(function(){
+    winWidth = $(window).width();
+
+    if(winWidth < 1400){
+        right = 10;
+    }else{
+        right = (winWidth-1200)/2 - width - 20;
+    }
+
+    $("*[ectype='whoBtn']").css({"right":right});
+});
+
+$("*[ectype='whoBtn']").on("click",function(){
+    var content = $("#whoDialog1").html();
+    pb({
+        id:"whoDialog",
+        title:"我的进货单",
+        width:1040,
+        content:content,
+        drag:false,
+        foot:false
+    });
+});
+
+$(document).on("click","*[ectype='wdCart']",function(){
+
+    var frm  = $("#whoDialog form[name='form_name']");
+    var str = "";
+    var consignee = frm.find("input[name='consignee']").val();
+    var shipping  = frm.find("input[name='shipping']").val();
+    var mobile = frm.find("input[name='mobile']").val();
+    var pay_name = frm.find("input[name='pay_name']").val();
+    var remarks = frm.find("textarea[name='remarks']").val();
+
+    if(consignee == ""){
+        pbDialog("联系人不能为空","",0);
+        return false;
+    }else{
+        str += "联系人:"+consignee+"，";
+    }
+    if(shipping == ""){
+        pbDialog("配送方式不能为空","",0);
+        return false;
+    }else{
+        str += "配送方式："+shipping+"，";
+    }
+    if(mobile == ""){
+        pbDialog("联系方式不能为空","",0);
+        return false;
+    }else{
+
+        var reg = /^1[0-9]{10}$/;
+        if (!reg.test(mobile)){
+           pbDialog("联系方式格式不正确","",0);
+            return false;
+        }else{
+            $("#phone_notice").html("<i></i>");
+        }
+        str += "联系方式："+mobile+"，";
+    }
+
+    if(pay_name == ""){
+        pbDialog("付款方式不能为空","",0);
+        return false;
+    }else{
+        str += "付款方式："+pay_name+"，";
+    }
+    str += "其他" + remarks
+
+    $("input[name='remark']").val(str);
+
+    frm.submit();   
+
+});
+</script>
+<script type="text/javascript">
+    $(".banner").slide({titCell:".hd ul",mainCell:".bd ul",effect:"fold",interTime:3500,delayTime:500,autoPlay:true,autoPage:true,trigger:"click"});
+    $(".bp-content").slide({titCell:".hd ul",mainCell:".bd ul",effect:"left",interTime:3500,delayTime:500,autoPlay:true,autoPage:true,trigger:"click",vis:5,scroll:5});
+    //倒计时
+    $(".lefttime").each(function(){
+        $(this).yomi();
+    });
+    //首页楼层层数
+    $(function(){
+	$(".b2b-floor-line").each(function(i, e) {
+            i++;
+            $(this).find(".title em").html(i+"F");
+        })	
+    })
+</script>
+</body>
+</html>

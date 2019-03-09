@@ -1,0 +1,386 @@
+<extend name="Public:base" />
+<style type="text/css" rel="stylesheet">
+    div.row {
+        margin-bottom: 10px;
+    }
+</style>
+<block name="content">
+    <style type="text/css">
+        .label-td{
+            border: 1px solid #ddd;
+            background-color: #9a9a9a1c;
+            width: 135px;
+            text-align:right;
+            vertical-align: middle;
+            padding: 10px 10px;
+        }
+
+        .table-div{
+            padding: 10px 10px;
+        }
+
+        .div-td{
+            width: 250px;
+            border: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+        .custom-table1{
+            width: 1200px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .custom-table2{
+            width: 100%;
+            height: 100%;
+        }
+
+        .label-td2{
+            background-color: #9a9a9a1c;
+            width: 136px;
+            text-align:right;
+            vertical-align: middle;
+            padding: 10px 10px;
+        }
+
+        .div-td2{
+            /* width: 250px;*/
+            vertical-align: middle;
+        }
+
+
+        .label-td-top{
+            border-top: 1px solid #ddd;
+        }
+
+        .label-td-bottom{
+            border-bottom: 1px solid #ddd;
+        }
+
+        .label-td-left{
+            border-left: 1px solid #ddd;
+        }
+
+        .label-td-right{
+            border-right: 1px solid #ddd;
+        }
+
+        .div-td-top{
+            border-top: 1px solid #ddd;
+        }
+
+        .div-td-bottom{
+            border-bottom: 1px solid #ddd;
+        }
+
+        .div-td-left{
+            border-left: 1px solid #ddd;
+        }
+
+        .div-td-right{
+            border-right: 1px solid #ddd;
+        }
+
+
+    </style>
+    <div class="row" style="min-width: 1300px">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    机构管理资料
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div style="padding: 10px 0px">基本信息</div>
+                    <table class="custom-table1">
+                        <tr>
+                            <td class="label-td">
+                                <label>申请时间</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['addtime']|date="Y年m月d日",###}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>机构类型</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['type']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>机构名称</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['name']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>真实姓名</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['admin_name']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>手机号码</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['admin_phone']}</div>
+                            </td>
+                            <td class="label-td">
+                                <label>邮箱</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['admin_email']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td" rowspan="5">
+                                <label>身份证</label>
+                            </td>
+                            <td class="div-td" rowspan="5">
+                                <if condition="$detail['certImageUrlListPair']">
+                                    <div class="table-div az-cls-popup-group">
+                                        <foreach name="detail['certImageUrlListPair']" item="groupPhotoUrlPair">
+                                            <a href="{$groupPhotoUrlPair['raw']}" ><img src="{$groupPhotoUrlPair['mini']}"></a>
+                                        </foreach>
+                                    </div>
+                                    <else />
+                                    <div style="width:60px;height: 60px;">
+
+                                    </div>
+                                </if>
+                            </td>
+                            <td class="label-td" rowspan="5">
+                                <label>营业执照</label>
+                            </td>
+                            <td class="div-td" rowspan="5">
+                                <if condition="$detail['licenseImageUrlListPair']">
+                                    <div class="table-div az-cls-popup-group">
+                                        <foreach name="detail['licenseImageUrlListPair']" item="groupPhotoUrlPair">
+                                            <a href="{$groupPhotoUrlPair['raw']}" ><img src="{$groupPhotoUrlPair['mini']}"></a>
+                                        </foreach>
+                                    </div>
+                                    <else />
+                                    <div style="width:60px;height: 60px;">
+
+                                    </div>
+                                </if>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>审核状态</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['verifyState']}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td">
+                                <label>处理时间</label>
+                            </td>
+                            <td class="div-td">
+                                <div class="table-div">{$detail['checktime']|date="Y年m月d日",###}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-td" rowspan="2">
+                                <label>审核者备注</label>
+                            </td>
+                            <td class="div-td" rowspan="2">
+                                <div class="table-div" style="word-break: break-all;word-wrap: break-word;">{$detail['memo']}</div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!--<div style="padding: 10px 0px">审核信息</div>
+                    <if condition="$detail['status'] neq 1">
+                        <table class="custom-table1" style="width: 800px;">
+                            <tr>
+                                <td class="label-td">
+                                    <label>审核状态</label>
+                                </td>
+                                <td class="div-td">
+                                    <div class="table-div">{$detail['verifyState']}</div>
+                                </td>
+                                <td class="label-td">
+                                    <label>处理时间</label>
+                                </td>
+                                <td class="div-td">
+                                    <div class="table-div">{$detail['checktime']|date="Y年m月d日",###}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-td">
+                                    <label>审核者备注</label>
+                                </td>
+                                <td class="div-td"colspan="3">
+                                    <div class="table-div">{$detail['memo']}</div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <else />
+                        <form method="post" action="{:U('Admin/Agency/verify')}" id="az-verify-form">
+                            <input type="hidden" name="id" value="{$detail['id']}">
+                            <table class="custom-table1" style="width: 500px;">
+                                <tr>
+                                    <td class="label-td">
+                                        <label>审核状态</label>
+                                    </td>
+                                    <td class="div-td" style="width: 400px;">
+                                        <div class="table-div">
+                                            <select name="verifyState" class="form-control" style="width: 120px">
+                                                <option value="1" selected>审核中</option>
+                                                <option value="-1">审核未通过</option>
+                                                <option value="2">审核通过</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="label-td">
+                                        <label>审核者备注</label>
+                                    </td>
+                                    <td class="div-td" style="width: 400px;">
+                                        <div class="table-div">
+                                            <textarea name="verifyMemo" class="form-control" placeholder="请备注通过或不通过原因，便于电话回访。" cols="50" rows="10"></textarea>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="text-align: center">
+                                        <a style="margin: 10px;" href="#" class="btn btn-success btn-sm" data-toggle="modal" data-target="#az-id-modal" id="az-btn-submit">提交</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </form>
+                    </if>-->
+
+                    <!-- 机构添加的艺术家 -->
+                    <if condition="$detail['status'] eq 2">
+                        <div style="padding: 10px 0px">艺术家(共计{$agency_artists|count}位)</div>
+                        <table style="width: 1200px;margin: 0" border="1" align="center" cellpadding="0" cellspacing="0" class="table table-striped table-bordered table-hover">
+                            <tr style="font-weight:bold">
+                                <td style="width: 100px;">用户id</td>
+                                <td style="width: 150px;">用户头像</td>
+                                <td style="width: 100px;">真实姓名</td>
+                                <td style="width: 100px;">昵称</td>
+                                <td style="width: 200px;">手机号</td>
+                                <td style="width: 100px;">性别</td>
+                                <td style="width: 100px;">画作数</td>
+                                <td style="width: 200px;">地址</td>
+                                <td style="width: 200px;">最近一次登陆时间</td>
+                                <td style="width: 150px;">审核状态</td>
+                                <td style="width: 100px;">操作</td>
+                            </tr>
+                            <foreach name="agency_artists" item="data" key="k">
+                                <tr>
+                                    <td>{$data['id']}</td>
+                                    <td>
+                                        <if condition="$data['face'] == '' ">
+                                            <else />
+                                            <img src="{$data['face']}" alt="" style="width:100px;height: 100px;padding: 5px 5px 5px 5px;">
+                                        </if>
+                                    </td>
+                                    <td>{$data['truename']}</td>
+                                    <td>{$data['nickname']}</td>
+                                    <td>{$data['mobile']}</td>
+                                    <td>{$data['show_gender']}</td>
+                                    <td>{$data['art_total']}</td>
+                                    <td>{$data['address']}</td>
+                                    <td>{$data['last_login_time']}</td>
+                                    <td>{$data['verify_state']}</td>
+                                    <td>
+                                        <a href="{:U('Admin/User/showDetail',['id'=>$data['id']])}" target="_blank">详情</a>
+                                    </td>
+                                </tr>
+                            </foreach>
+                        </table>
+                    </if>
+
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <div class="modal fade" id="az-id-modal" tabindex="-1" role="dialog" aria-labelledby="az-label-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="az-label-modal">温馨提示</h4>
+                </div>
+                <div class="modal-body">
+                    该用户将成为机构管理员，是否确认通过？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-success" id="az-id-btn-ok">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="customJs">
+    <script >
+        $(document).ready(function () {
+            $('.az-image-popup').magnificPopup({
+                type:"image"
+            });
+            $('.az-cls-popup-cert').magnificPopup({
+                delegate: 'a',
+                type: 'image',
+                tLoading: 'Loading image #%curr%...',
+                mainClass: 'mfp-img-mobile',
+                gallery: {
+                    enabled: true,
+                    navigateByImgClick: true,
+                    preload: [0,1] // Will preload 0 - before current, and 1 after the current image
+                }
+            });
+            $('.az-cls-popup-group').magnificPopup({
+                delegate: 'a',
+                type: 'image',
+                tLoading: 'Loading image #%curr%...',
+                mainClass: 'mfp-img-mobile',
+                gallery: {
+                    enabled: true,
+                    navigateByImgClick: true,
+                    preload: [0,1] // Will preload 0 - before current, and 1 after the current image
+                }
+            });
+            $('#az-btn-submit').click(function () {
+                var state = $("select[name=verifyState]").val();
+                if (state == 1) {
+
+                }
+            });
+            $("#az-id-modal").on('show.bs.modal', function (e) {
+                var modal = $(this);
+                var state = $("select[name=verifyState]").val();
+                if (state == 1) {
+                    modal.find('.modal-body').text('你还未审核！');
+                    modal.find('.modal-footer').hide();
+                } else if(state == -1)
+                {
+                    modal.find('.modal-body').text('该机构将不通过审核，确定此操作吗？');
+                    modal.find('.modal-footer').show();
+                } else if (state == 2)
+                {
+                    modal.find('.modal-body').text('该机构将通过审核，确定此操作吗？');
+                    modal.find('.modal-footer').show();
+                } else {
+                    return false;
+                }
+            });
+            $('#az-id-btn-ok').click(function () {
+                $('#az-verify-form').submit();
+            });
+        })
+    </script>
+</block>

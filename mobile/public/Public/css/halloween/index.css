@@ -1,0 +1,673 @@
+*{margin:0; padding:0}
+a{ text-decoration:none; color:#000; outline:none;}
+a:hover{ text-decoration:none}
+li{list-style:none}
+img{ border:none; display:block}
+html,body {font-family:"微软雅黑";font-size:12px;}
+.clear{zoom:1;}
+.clear:after{content:"";display:block;clear:both;}
+.fl { float:left}
+.fr { float:right}
+.no-flash {
+    -webkit-backface-visibility: hidden;
+}
+body { background-color: #000000; margin: 0; cursor: move; overflow: hidden; position:relative;}
+#pano{position: absolute;top: 0;left: 0}
+.bg_section { width: 1026px; height: 1026px; background-size: cover; position: absolute;z-index: 1;}
+.bg_section .bg { position: absolute; width: 1026px; height: 1026px;z-index: 2;}
+.showImg{
+  width: 4.875rem;
+  height: 7.5rem;
+  position: absolute;
+    z-index: 3;
+  -webkit-transform: perspective(600px);
+          transform: perspective(600px);
+  background-size: 100% 100%;
+  -webkit-backface-visibility:hidden;
+          backface-visibility:hidden;
+}
+.rtz{
+  -webkit-animation: routZ 1s linear;
+          animation: routZ 1s linear;
+}
+.imgFront,.imgBack{
+  position: absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: #fff;
+  -webkit-backface-visibility:hidden;
+          backface-visibility:hidden;
+}
+.imgFront{
+    background:url("//artzhe.oss-cn-shenzhen.aliyuncs.com/activity/halloween/cardfront.png") no-repeat center center;
+    background-size: 100% 100%;
+}
+.imgBack{
+    width: 100%;
+    height: 100%;
+}
+.imgBack .ibc{
+  width: 100%;
+  height: 100%;
+}
+.bk{
+  -webkit-transform:rotateY(-180deg);
+          transform:rotateY(-180deg);
+}
+.bkzeo{
+  -webkit-transform:rotateY(0deg);
+          transform:rotateY(0deg);
+}
+.z1{
+  -webkit-animation: zhuan 1s linear;
+          animation: zhuan 1s linear;
+}
+.z2{
+  -webkit-animation: zhuandb 1s linear;
+          animation: zhuandb 1s linear;
+}
+.cBg{
+  top:30%;
+  left:50%;
+  margin-left: -2.4375rem;
+}
+.lBg{
+  top:30%;
+  left:16%;
+
+}
+.rBg{
+  top:30%;
+  right:16%;
+
+}
+
+/*音乐开关*/
+.audioBtn{
+    position:absolute;
+    top:0.32432432432432434rem;
+    left:0.32432432432432434rem;
+    width:0.918918918918919rem;
+    height:0.918918918918919rem;
+    z-index:99999;
+    background:url(//artzhe.oss-cn-shenzhen.aliyuncs.com/activity/halloween/yinyue.png) no-repeat center center;
+    background-size:100% 100%;
+    overflow:hidden;
+}
+
+.play {
+    -webkit-animation: xuanzhuan 3s linear infinite;
+            animation: xuanzhuan 3s linear infinite
+}
+
+/*首屏*/
+.doorShow{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:1000;
+}
+.doorShow .s_title{
+  position: absolute;
+/*  top: 0.4375rem;*/
+  width: 100%;
+  z-index: 156;
+}
+.doorShow .open_img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100
+}
+.doorShow .startPan{
+  position: absolute;
+  width: 9.375rem;
+  height: 9.375rem;
+  top: 2.3125rem;
+  z-index: 150;
+  left:50%;
+  margin-left: -4.6875rem;
+}
+.startPan img{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+.startPan img:nth-child(1){
+  -webkit-animation:routeMaxShun 2s 1 linear;
+          animation:routeMaxShun 2s 1 linear;
+}
+.startPan img:nth-child(2){
+  width: 6.2rem;
+  height: 6.2rem;
+  top: 0; left: 0; bottom: 0; right: 0;
+  margin: auto;
+  -webkit-animation:routeFan 2s 1 linear;
+          animation:routeFan 2s 1 linear;
+}
+.startPan img:nth-child(3){
+  width: 5.3125rem;
+  height: 5.3125rem;
+  top: 0; left: 0; bottom: 0; right: 0;
+  margin: auto;
+  -webkit-animation:routeShun 2s 1 linear;
+          animation:routeShun 2s 1 linear;
+}
+.startPan img:nth-child(4){
+  -webkit-transform: scale(0.2,0.2);
+          transform: scale(0.2,0.2);
+}
+.door{
+  position: fixed;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+}
+.doorShow .changan {/*手*/
+    width: 1.53125rem;
+    height: 2.15625rem;
+    position:absolute;
+    left:50%;
+    top:60%;
+    margin-left: -0.8125rem;
+    z-index: 200;
+    color: #fff;
+    -webkit-animation:changan 2s infinite linear;
+            animation:changan 2s infinite linear;
+    display: none;
+}
+.meng{
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 99;
+  width: 100%;
+  height: 100vh;
+  background: url("//artzhe.oss-cn-shenzhen.aliyuncs.com/activity/halloween/mainbg.jpg") no-repeat center center;
+  background-size: 100% 100%;
+}
+.trip{
+  position: absolute;
+  width: 8.98667rem;
+  height: 12.6rem;
+  display: none;
+  margin: auto;
+  top: 0; left: 0; bottom: 0; right: 0;
+}
+.trip img{
+  width: 100%;
+  height: 100%;
+}
+.trip .cbtn{
+  margin: 0.625rem auto 0.3125rem auto;
+  display: block;
+  border: none;
+  padding: 0.125rem;
+  background-color: #5a2d96;
+  color: #fff;
+}
+.bigImgBox{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 400;
+  display: none;
+  background: url("//artzhe.oss-cn-shenzhen.aliyuncs.com/activity/halloween/mainbg.jpg") no-repeat center center;
+  background-size: 100% 100%;
+  /*opacity: 0.6;*/
+}
+.onlyOne{
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+.bigImgBox .close{
+  position: absolute;
+  top:0.32432432432432434rem;
+  right:0.32432432432432434rem;
+  width:0.918918918918919rem;
+  height:0.918918918918919rem;
+  z-index:99999;
+}
+.bmg{
+    margin-top:0.96rem;
+    margin-bottom: 0.613333333rem;
+}
+.bmg img{
+    width: 6.746666666rem;
+    height:10.5066666rem;
+    margin: 0 auto;
+}
+.bigImgBox .btm{
+    margin:0 auto;
+}
+/*.bigImgBox .qcz{*/
+    /*width: 4.6875rem;*/
+    /*height: 1.5rem;*/
+    /*margin: 0 auto;*/
+    /*margin-bottom: 0.3466666rem;*/
+/*}*/
+.bbox{
+    width:9.243243243243244rem;
+    height: 1.3066666rem;
+    padding-top: 0.93333rem;
+    margin: 0 auto;
+}
+.bigImgBox .btm .bbox div{
+  width: 4.324324324324325rem;
+  height: 100%;
+
+}
+.bigImgBox .btm .bbox div img{
+  width: 100%;
+  height: 100%;
+}
+
+.handtrip{
+  width: 3.5675675675675675rem;
+  height: 2.918918918918919rem;
+  position: absolute;
+  z-index: 50;
+  bottom: 1.6486486486486487rem;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+.handtrip .quan{
+  width: 100%;
+  height: 30%;
+
+}
+.handtrip .hand{
+  width: 1.53125rem;
+  height: 70%;
+  margin: 0 auto;
+  -webkit-animation: lefttoright 4s infinite linear;
+          animation: lefttoright 4s infinite linear;
+}
+.haibaopng{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 500;
+  display: none;
+}
+.haibaopng .createhaibao{
+  width: 100%;
+  height: 100%;
+}
+.haibaopng .backstep{
+  position: absolute;
+  top: 0.32432432432432434rem;
+  right: 0.32432432432432434rem;
+  width: 0.918918918918919rem;
+  height: 0.918918918918919rem;
+  z-index: 99999;
+}
+.haibaopng .backstep img{
+  width: 100%;
+  height: 100%;
+}
+/*动画*/
+@-webkit-keyframes xuanzhuan{
+    0% {
+        transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+        -webkit-transform: rotate(360deg);
+    }
+}
+@keyframes xuanzhuan{
+    0% {
+        transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+        -webkit-transform: rotate(360deg);
+    }
+}
+@-webkit-keyframes changan {
+    0% {
+        -webkit-transform: scale(1,1);
+                transform: scale(1,1)
+    }
+    50% {
+        -webkit-transform: scale(1.4,1.4);
+                transform: scale(1.4,1.4)
+    }
+    100% {
+        -webkit-transform: scale(1,1);
+                transform: scale(1,1)
+    }
+}
+@keyframes changan {
+    0% {
+        -webkit-transform: scale(1,1);
+                transform: scale(1,1)
+    }
+    50% {
+        -webkit-transform: scale(1.4,1.4);
+                transform: scale(1.4,1.4)
+    }
+    100% {
+        -webkit-transform: scale(1,1);
+                transform: scale(1,1)
+    }
+}
+@-webkit-keyframes routeMaxShun {
+  0% {
+      -webkit-transform: rotate(0deg);
+              transform: rotate(0deg);
+  }
+  25% {
+      -webkit-transform: rotate(90deg);
+              transform: rotate(90deg);
+  }
+  50% {
+      -webkit-transform: rotate(180deg);
+              transform: rotate(180deg);
+  }
+  75% {
+      -webkit-transform: rotate(270deg);
+              transform: rotate(270deg);
+  }
+  100% {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+  }
+}
+@keyframes routeMaxShun {
+  0% {
+      -webkit-transform: rotate(0deg);
+              transform: rotate(0deg);
+  }
+  25% {
+      -webkit-transform: rotate(90deg);
+              transform: rotate(90deg);
+  }
+  50% {
+      -webkit-transform: rotate(180deg);
+              transform: rotate(180deg);
+  }
+  75% {
+      -webkit-transform: rotate(270deg);
+              transform: rotate(270deg);
+  }
+  100% {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes routeShun {/* scale(0.5,0.5)*/
+  0% {
+      -webkit-transform: rotate(0deg);
+              transform: rotate(0deg);
+  }
+  25% {
+      -webkit-transform: rotate(90deg);
+              transform: rotate(90deg);
+  }
+  50% {
+      -webkit-transform: rotate(180deg);
+              transform: rotate(180deg);
+  }
+  75% {
+      -webkit-transform: rotate(270deg);
+              transform: rotate(270deg);
+  }
+  100% {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+  }
+}
+@keyframes routeShun {/* scale(0.5,0.5)*/
+  0% {
+      -webkit-transform: rotate(0deg);
+              transform: rotate(0deg);
+  }
+  25% {
+      -webkit-transform: rotate(90deg);
+              transform: rotate(90deg);
+  }
+  50% {
+      -webkit-transform: rotate(180deg);
+              transform: rotate(180deg);
+  }
+  75% {
+      -webkit-transform: rotate(270deg);
+              transform: rotate(270deg);
+  }
+  100% {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes routeFan { /*scale(0.6,0.6)*/
+  0% {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+  }
+  25% {
+      -webkit-transform: rotate(270deg);
+              transform: rotate(270deg);
+  }
+  50% {
+      -webkit-transform: rotate(180deg);
+              transform: rotate(180deg);
+  }
+  75% {
+      -webkit-transform: rotate(90deg);
+              transform: rotate(90deg);
+  }
+  100% {
+      -webkit-transform: rotate(0deg);
+              transform: rotate(0deg);
+  }
+}
+@keyframes routeFan { /*scale(0.6,0.6)*/
+  0% {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+  }
+  25% {
+      -webkit-transform: rotate(270deg);
+              transform: rotate(270deg);
+  }
+  50% {
+      -webkit-transform: rotate(180deg);
+              transform: rotate(180deg);
+  }
+  75% {
+      -webkit-transform: rotate(90deg);
+              transform: rotate(90deg);
+  }
+  100% {
+      -webkit-transform: rotate(0deg);
+              transform: rotate(0deg);
+  }
+}
+@-webkit-keyframes routY {
+  0% {
+      -webkit-transform: rotateY(0deg);
+              transform: rotateY(0deg);
+  }
+  25% {
+      -webkit-transform: rotateY(70deg);
+              transform: rotateY(70deg);
+  }
+  100% {
+      -webkit-transform: rotateY(90deg);
+              transform: rotateY(90deg);
+  }
+}
+@keyframes routY {
+  0% {
+      -webkit-transform: rotateY(0deg);
+              transform: rotateY(0deg);
+  }
+  25% {
+      -webkit-transform: rotateY(70deg);
+              transform: rotateY(70deg);
+  }
+  100% {
+      -webkit-transform: rotateY(90deg);
+              transform: rotateY(90deg);
+  }
+}
+@-webkit-keyframes routZ {
+  0% {
+      -webkit-transform: perspective(300px) rotateY(0deg) translateZ(0px);
+              /*transform: rotateZ(0deg);*/
+  }
+  50% {
+      -webkit-transform: perspective(300px) rotateY(0deg) translateZ(100px);
+              /*transform: rotateZ(180deg);*/
+  }
+  100% {
+      -webkit-transform: perspective(300px) rotateY(0deg) translateZ(200px);
+              /*transform: rotateZ(360deg);*/
+  }
+}
+@keyframes routZ {
+  0% {
+      transform: perspective(300px) rotateY(0deg) translateZ(0px);
+              /*transform: rotateZ(0deg);*/
+  }
+  50% {
+      transform: perspective(300px) rotateY(0deg) translateZ(100px);
+              /*transform: rotateZ(180deg);*/
+  }
+  100% {
+      transform: perspective(300px) rotateY(0deg) translateZ(200px);
+              /*transform: rotateZ(360deg);*/
+  }
+}
+/*@keyframes routZ {
+  0% {
+      -webkit-transform: rotateZ(0deg);
+              transform: rotateZ(0deg);
+  }
+  50% {
+      -webkit-transform: rotateZ(180deg);
+              transform: rotateZ(180deg);
+  }
+  100% {
+      -webkit-transform: rotateZ(360deg);
+              transform: rotateZ(360deg);
+  }
+}*/
+@-webkit-keyframes zhuan {
+  0%{
+    -webkit-transform: perspective(300px) rotateY(0deg);
+            transform: perspective(300px) rotateY(0deg);
+  }
+  50%{
+    -webkit-transform: perspective(300px) rotateY(-90deg);
+            transform: perspective(300px) rotateY(-90deg);
+  }
+  100%{
+    -webkit-transform: perspective(300px) rotateY(-180deg);
+            transform: perspective(300px) rotateY(-180deg);
+  }
+}
+@keyframes zhuan {
+  0%{
+    -webkit-transform: perspective(300px) rotateY(0deg);
+            transform: perspective(300px) rotateY(0deg);
+  }
+  50%{
+    -webkit-transform: perspective(300px) rotateY(90deg);
+            transform: perspective(300px) rotateY(90deg);
+  }
+  100%{
+    -webkit-transform: perspective(300px) rotateY(180deg);
+            transform: perspective(300px) rotateY(180deg);
+  }
+}
+@-webkit-keyframes zhuandb {
+  0%{
+    -webkit-transform: perspective(300px) rotateX(-180deg);
+            transform: perspective(300px) rotateX(-180deg);
+  }
+  50%{
+    -webkit-transform: perspective(300px) rotateX(-270deg);
+            transform: perspective(300px) rotateX(-270deg);
+  }
+  100%{
+    -webkit-transform: perspective(300px) rotateX(-360deg);
+            transform: perspective(300px) rotateX(-360deg);
+  }
+}
+@keyframes zhuandb {
+  0%{
+    -webkit-transform: perspective(300px) rotateY(180deg);
+            transform: perspective(300px) rotateY(180deg);
+  }
+  50%{
+    -webkit-transform: perspective(300px) rotateY(270deg);
+            transform: perspective(300px) rotateY(270deg);
+  }
+  100%{
+    -webkit-transform: perspective(300px) rotateY(360deg);
+            transform: perspective(300px) rotateY(360deg);
+  }
+}
+@-webkit-keyframes lefttoright {
+  0%{
+    -webkit-transform: translateX(0px);
+            transform: translateX(0px);
+  }
+  25%{
+    -webkit-transform: translateX(-1.5625rem);
+            transform: translateX(-1.5625rem);
+  }
+  50%{
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+  75%{
+    -webkit-transform: translateX(1.5625rem);
+            transform: translateX(1.5625rem);
+  }
+  100%{
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+}
+@keyframes lefttoright {
+  0%{
+    -webkit-transform: translateX(0px);
+            transform: translateX(0px);
+  }
+  25%{
+    -webkit-transform: translateX(-1.5625rem);
+            transform: translateX(-1.5625rem);
+  }
+  50%{
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+  75%{
+    -webkit-transform: translateX(1.5625rem);
+            transform: translateX(1.5625rem);
+  }
+  100%{
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+}

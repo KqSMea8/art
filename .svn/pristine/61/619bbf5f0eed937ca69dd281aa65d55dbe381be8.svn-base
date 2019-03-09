@@ -1,0 +1,10 @@
+<?php
+
+namespace Common\Model;
+
+
+use Common\Base\BaseModel;
+
+class TopicFollowModel extends BaseModel{
+    protected $tableName = 'topic_follow';
+}

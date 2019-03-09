@@ -1,0 +1,21 @@
+<?php
+namespace Home\Controller;
+use Think\Controller;
+use Custom\Define\Cache;
+
+class IndexController extends Controller {
+    public function index(){
+      $this->display();
+        // exit('404');
+    }
+    public function download(){
+      $this->display();
+    }
+
+
+    public function ceshi(){
+    	$token = I('token');
+    	$result = S(Cache::TOKEN_PREFIX . $token);
+    	var_dump($result);
+    }
+}

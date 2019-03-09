@@ -1,0 +1,118 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: gsy
+ * Date: 2018/9/21
+ * Time: 14:27
+ */
+
+namespace Admin\Logic;
+
+use Admin\Base\BaseLogic;
+class ArtCircleLogic extends BaseLogic
+{
+    /**动态最近点赞的用户的头像
+     * @param $art_circle_id 艺术圈id
+     * @param int $num
+     * @return array
+     */
+    public function recent_favorite_face($art_circle_id, $num = 10)
+    {
+
+        $art_circle_like_list = M('art_circle_like')->field('like_user_id')->where("art_circle_id=" . intval($art_circle_id) . " and status=1")->order('id desc')->limit($num)->select();
+        if (!$art_circle_like_list) {
+            return [];
+        } else {
+            $recent_favorite_userid = [];
+            foreach ($art_circle_like_list as $value) {
+                $recent_favorite_userid[] = $value['like_user_id'];
+            }
+            $user_list = M('user')->field('face')->where("id in(" . implode(',', $recent_favorite_userid) . ") ")->select();
+            if (!$user_list) {
+                return [];
+            } else {
+                $recent_favorite_face = [];
+                foreach ($user_list as $value) {
+                    $recent_favorite_face[] = $value['face'];
+                }
+                return $recent_favorite_face;
+            }
+
+            return [];
+        }
+
+    }
+
+    /**动态最近点赞的用户的名称
+     * @param $art_circle_id
+     * @param int $num
+     * @return array
+     */
+    public function recent_favorite_nickname($art_circle_id, $num = 10)
+    {
+
+        $art_circle_like_list = M('art_circle_like')->field('like_user_id')->where("art_circle_id=" . intval($art_circle_id) . " and status=1")->order('id desc')->limit($num)->select();
+        if (!$art_circle_like_list) {
+            return [];
+        } else {
+            $recent_favorite_userid = [];
+            foreach ($art_circle_like_list as $value) {
+                $recent_favorite_userid[] = $value['like_user_id'];
+            }
+            $user_list = M('user')->field('nickname')->where("id in(" . implode(',', $recent_favorite_userid) . ") ")->select();
+            if (!$user_list) {
+                return [];
+            } else {
+                $recent_favorite_nickname = [];
+                foreach ($user_list as $value) {
+                    $recent_favorite_nickname[] = $value['nickname'];
+                }
+                return $recent_favorite_nickname;
+            }
+
+            return [];
+        }
+
+    }
+
+    public function recent_comment($art_circle_id, $num = 800)
+    {
+        $art_circle_comment_list = M('art_circle_comment')->where("art_circle_id=" . intval($art_circle_id) . " and status=1")->order('id ')->limit($num)->select();
+        if (!$art_circle_comment_list) {
+            return [];
+        } else {
+            //昵称列表
+            $user_face_list = [];
+            $user_ids = [];
+            foreach ($art_circle_comment_list as $value) {
+                if ($value['commenter'] > 0) {
+                    array_push($user_ids, $value['commenter']);
+                }
+                if ($value['comment_to'] > 0) {
+                    array_push($user_ids, $value['comment_to']);
+                }
+            }
+            $user_ids = array_unique($user_ids);
+            if (count($user_ids)) {
+                $user_list = M('user')->field('id,nickname')->where("id in(" . implode(',', $user_ids) . ") ")->select();
+                foreach ($user_list as $value) {
+                    $user_face_list[$value['id']] = $value['nickname'];
+                }
+            }
+
+            $recent_comment_new = [];
+            foreach ($art_circle_comment_list as $value) {
+                $art_circle_comment = [];
+                $art_circle_comment['id']=(int)$value['id'];
+                $art_circle_comment['commenter_user_id']=(int)$value['commenter'];
+                $art_circle_comment['commenter'] = trim($user_face_list[$value['commenter']]) == '' ? '' : $user_face_list[$value['commenter']];
+                $art_circle_comment['comment_to'] = trim($user_face_list[$value['comment_to']]) == '' ? '' : $user_face_list[$value['comment_to']];
+                $art_circle_comment['content'] = html_entity_decode($value['content']);
+                $art_circle_comment['datetime'] = date('Y-m-d H:i:s', $value['create_time']);
+                $recent_comment_new[] = $art_circle_comment;
+            }
+            return $recent_comment_new;
+        }
+    }
+
+}

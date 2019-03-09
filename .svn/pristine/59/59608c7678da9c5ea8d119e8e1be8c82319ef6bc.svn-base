@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+   <!-- Bootstrap Core CSS -->
+    <link href="/Public/Admin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="/Public/Admin/vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+    <link href="/Public/Admin/vendor/Magnific-Popup/magnific-popup.css" rel="stylesheet">
+    <link href="/Public/Admin/vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/Public/Admin/dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/Public/Admin/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<style type="text/css">
+body {
+	margin-left: 8px;
+	margin-top: 0px;
+	margin-right: 8px;
+	margin-bottom: 0px;
+	font-size:13px;
+	line-height:25px;
+}
+td {
+	padding:3px;
+}
+</style>
+<script src="/Public/Admin/vendor/jquery/jquery.min.js"></script>
+</head>
+
+<body>
+
+
+
+<table width="850" border="1" align="center" cellpadding="0" cellspacing="0" class="table table-striped table-bordered table-hover">
+
+  <tr style="font-weight:bold">
+      <td colspan="4">
+          <form id="form1" name="form1" method="get" class="form-inline" action="{:U('HomeBanner/articleSelect')}">
+              <div class="form-group">
+                  <label for="">艺术号标题</label>
+                  <input type="text" name="title" class="form-control" value="{:I('title')}" style="width:100px;">
+                  <input type="hidden" name="id"  value="{$id}" >
+                  <input type="hidden" name="show_type"  value="{$show_type}" >
+              </div>
+              <button class="btn btn-default" type="submit">搜索</button>
+          </form>
+      </td>
+  </tr>
+  <tr style="font-weight:bold">
+    <td width="75">id</td>
+    <td width="75">艺术家名称</td>
+    <td width="75">艺术号标题</td>
+    <td width="120">操作</td>
+  </tr>
+  <?php
+  if(count($list)==0){
+  ?>
+    <tr>
+    <td colspan="5" style=" color:#F00">没有搜索结果</td>
+    </tr>
+  
+  <?php
+  }
+  ?>
+ 
+<foreach name="list" item="data" key="k">
+ <tr>
+    <td><?php echo $data['id'];?></td>
+    <td><?php echo htmlspecialchars($data['uname']);?></td>
+     <td><?php echo htmlspecialchars($data['title']);?></td>
+    <!-- <a href="{:U('Admin/HomeBanner/showEdit',['id'=>$image['id']])}">编辑</a>-->
+    <td>
+       <if condition="$show_type == 1 ">
+           <a href="{:U('HomeBanner/showEdit')}?id=<?php echo $id;?>&type=7&link_id=<?php echo $data['id'];?>" onclick="return select_artist(this);">选择艺术号</a>
+           <else />
+           <a href="{:U('HomeBanner/showAdd')}?type=7&link_id=<?php echo $data['id'];?>" onclick="return select_artist(this);">选择艺术号</a>
+        </if>
+    </td>
+    </tr>
+  </foreach>
+  
+  <tr>
+    <td colspan="5">&nbsp;</td>
+    </tr>
+  <tr>
+    <td colspan="5">{$nav}</td>
+  </tr>
+  
+</table>
+
+</body>
+</html>
+<script type="text/javascript">
+function select_artist(obj){
+//	alert(obj.href);
+self.parent.tb_remove();
+//self.parent.location.reload();
+parent.location.href=obj.href;
+	}
+</script>

@@ -1,0 +1,25 @@
+<?php
+
+namespace V2\Logic;
+
+
+use V2\Base\BaseLogic;
+use Custom\Define\Image;
+
+class ConfigLogic extends BaseLogic
+{
+    //format enum json array
+    public function getConfig($key, $format = 'json')
+    {
+        //todo do cache it
+         $config = $this->model->where(['en_name'=>$key])->getField('value');
+         if ($config === '') {
+             $config =  "{}";
+         }
+         if ($format === 'array') {
+             return json_decode($config, true);
+         } else {
+             return $config;
+         }
+    }
+}

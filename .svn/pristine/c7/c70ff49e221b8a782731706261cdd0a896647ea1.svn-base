@@ -1,0 +1,11 @@
+<?php
+
+namespace Common\Model;
+
+
+use Common\Base\BaseModel;
+
+class ArtworkColorModel extends BaseModel
+{
+    protected $tableName = 'artwork_color';
+}

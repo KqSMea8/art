@@ -1,0 +1,311 @@
+<?php
+
+namespace Common\Logic;
+
+
+use Common\Base\BaseLogic;
+use Common\Logic\ArtworkLogic;
+use Common\Logic\ArtworkUpdateLogic;
+use Custom\Define\Image;
+use Common\Logic\ArtworkLikeLogic;
+use Common\Logic\UserFollowerLogic;
+use Custom\Helper\Push;
+
+//$messageLogic = new MessageLogic();
+//$messageLogic->welcomeMsg($userId);
+class MessageLogic extends BaseLogic
+{
+    public $msg = [
+      'welcome' => '欢迎来到艺术者平台，在这里，开启你的艺术之旅，遇见你的品味吧。',
+      'authSuccess' => '恭喜您成为艺术者认证艺术家，新认证艺术家享有三次免费推广服务，详情请添加官方微信号：“Artzhe2017”，咨询后台专属工作人员。欢迎您的加入！',
+      'authFailed' => '很遗憾，艺术家认证失败了，艺术者客服将会与您取得联系。',
+        'AgencyauthSuccess' => '恭喜您，成为了艺术者平台的认证艺术机构，一大波红利向您涌来。',
+        'AgencyauthFailed' => '很遗憾，艺术机构认证失败了，艺术者客服将会与您取得联系。',
+        'PlannerSuccess' => '恭喜您，成为了艺术者平台的认证策展人，一大波红利向您涌来。',
+        'PlannerauthFailed' => '很遗憾，策展人认证失败了，艺术者客服将会与您取得联系。',
+      'artworkUpdate' => '你喜欢的作品《%s》有更新了，快来欣赏吧。',
+      'artistUpdate' => '我的新作品《%s》有更新了，快来欣赏吧。',
+      'repayComment' => '回复了你对《%s》的评论：“%s”',
+      'repayMessage' => '回复了你对《%s》的留言：“%s”',
+      'message' => '留言了你的作品《%s》：“%s”',
+      'comment' => '评论了你的作品《%s》：“%s”',
+      'like' => '喜欢了你的作品《%s》'
+    ];
+    public $type = [
+      'welcome' => '8',
+      'authSuccess' => '8',
+      'authFailed' => '8',
+      'artworkUpdate' => '12',
+      'artistUpdate' => '12',
+      'repayComment' => '13',
+      'repayMessage' => '13',
+      'message' => '10',
+      'comment' => '10',
+      'like' => '9'
+    ];
+    public static $showmsg = 1;
+    public static $linkmsg = 2;
+    public static $commentmsg = 3;
+    public function getMessageTotal($conditionArray)
+    {
+        $total = $this->model->where(sql_pin_where($conditionArray))->count();
+        if (empty($total)) {
+            return 0;
+        } else {
+            return intval($total);
+        }
+    }
+    public function getMessageListByPage($userId, $type,$page, $perPageCount)
+    {
+        $list = $this->where(
+          sql_pin_where(['to_user_id'=>$userId,'type[in]' => $type])
+          )->page($page, $perPageCount)->order('id DESC')->select();
+        if (empty($list)) {
+            return [];
+        }
+        return $list;
+    }
+    public function addSystemMessage($content, $toUserId)
+    {
+        $systemField = [
+            'content'=>$content,
+            'to_user_id'=>$toUserId,
+            'type'=> 8,
+            'create_time'=>$_SERVER['REQUEST_TIME']
+        ];
+        return $this->addOne($systemField);
+    }
+    public function sendSysMessage($to,$content){
+      return $this->sendMessage(-1,$to,$content,8,self::$showmsg);
+    }
+    public function welcomeMsg($to){
+      return $this->sendSysMessage($to,$this->msg['welcome']);
+    }
+    public function authSuccess($to){
+      return $this->sendSysMessage($to,$this->msg['authSuccess']);
+    }
+    public function AgencyauthSuccess($to){
+        return $this->sendSysMessage($to,$this->msg['AgencyauthSuccess']);
+    }
+    public function authFailed($to){
+      return $this->sendSysMessage($to,$this->msg['authFailed']);
+    }
+    public function AgencyAuthFailed($to){
+        return $this->sendSysMessage($to,$this->msg['AgencyauthFailed']);
+    }
+
+    public function plannerAuthSuccess($to){
+        return $this->sendSysMessage($to,$this->msg['PlannerSuccess']);
+    }
+    public function plannerAuthFailed($to){
+        return $this->sendSysMessage($to,$this->msg['PlannerauthFailed']);
+    }
+
+    public function artworkUpdate($artId){
+      $artLogic = new ArtworkLogic();
+      $likeLogic = new ArtworkLikeLogic();
+      $updateLogic = new ArtworkUpdateLogic();
+      $artInfo = $artLogic->where(['id'=>$artId])->find();
+      $likeList = $likeLogic->where(['artwork_id' => $artId,'type' => '1','is_like' => 'Y'])->select();
+      $lastUp = $updateLogic->where(['artwork_id' => $artId])->order('id desc')->find();
+      $lastUpId = $lastUp['id'];
+      foreach ($likeList as $key => $value) {
+        $this->sendMessage(
+            $artInfo['artist'],
+            $value['like_user_id'],
+            sprintf($this->msg['artworkUpdate'],$artInfo['name']),
+            $this->type['artworkUpdate'],
+            self::$linkmsg,
+            $this->createLink($artInfo['name'],$lastUpId,'artUpdateDetail')
+          );
+      }
+    }
+    public function artistUpdate($artId){
+      $artLogic = new ArtworkLogic();
+      $likeLogic = new ArtworkLikeLogic();
+      $userFollowerLogic = new UserFollowerLogic();
+      $userLogic = new UserLogic();
+      $artInfo = $artLogic->where(['id'=>$artId])->find();
+      $nickname = $userLogic->where(['id' => $artInfo['artist']])->getField('nickname');
+      $followerList = $userFollowerLogic->where(['user_id' => $artInfo['artist'],'is_follow' => 'Y'])->select();
+      foreach ($followerList as $key => $value) {
+        $exists = $likeLogic->where(['is_like' => 'Y','artwork_id' => $artId,'type' => '1','like_user_id' => $value['follower']])->find();
+        if(empty($exists)){
+          $this->sendMessage(
+            $artInfo['artist'],
+            $value['follower'],
+            sprintf($this->msg['artistUpdate'],$artInfo['name']),
+            $this->type['artistUpdate'],
+            self::$linkmsg,
+            $this->createLink($artInfo['name'],$artId,'artDetail'),
+            '',
+            true,
+            $nickname.'：'.sprintf($this->msg['artistUpdate'],$artInfo['name'])
+          );
+        }
+      }
+    }
+    public function repayComment($artist,$to,$artId,$content,$commentId,$repayCommentId){
+      $artLogic = new ArtworkLogic();
+      $userLogic = new UserLogic();
+      $nickname = $userLogic->where(['id' => $artist])->getField('nickname');
+      $artInfo = $artLogic->where(['id'=>$artId])->find();
+      $this->where(['comment_id'=>$repayCommentId])->setField('is_repay','Y');
+      return $this->sendMessage(
+        $artist,
+        $to,
+        sprintf($this->msg['repayComment'],$artInfo['name'],base64_decode($content)),
+        $this->type['repayComment'],
+        self::$showmsg,
+        $this->createLink('我的消息',0,'myMessage'),
+        $commentId,
+        true,
+        $nickname.sprintf($this->msg['repayComment'],$artInfo['name'],base64_decode($content))
+      );
+    }
+    public function repayMessage($artist,$to,$artId,$content,$commentId,$repayCommentId){
+        $artLogic = new ArtworkLogic();
+        $artUpdateLogic = new ArtworkUpdateLogic(); //实例化画作更新模块
+        $userLogic = new UserLogic();
+        $nickname = $userLogic->where(['id' => $artist])->getField('nickname');
+        $artUpdateInfo = $artUpdateLogic->field('artist,artwork_id,number')->find($artId);
+        $artInfo = $artLogic->field('name')->find($artUpdateInfo['artwork_id']);
+        $this->where(['comment_id'=>$repayCommentId])->setField('is_repay','Y');
+        $artName = $artInfo['name'].'记录'.$artUpdateInfo['number'];
+        return $this->sendMessage(
+            $artist,
+            $to,
+            sprintf($this->msg['repayMessage'],$artName,base64_decode($content)),
+            $this->type['repayMessage'],
+            self::$showmsg,
+            $this->createLink('我的消息',0,'myMessage'),
+            $commentId,
+            true,
+            $nickname.sprintf($this->msg['repayMessage'],$artName,base64_decode($content))
+        );
+    }
+    public function message($userId,$artId,$content,$commentId){
+        $artLogic = new ArtworkLogic();
+        $artUpdateLogic = new ArtworkUpdateLogic(); //实例化画作更新模块
+        $userLogic = new UserLogic();
+        $nickname = $userLogic->where(['id' => $userId])->getField('nickname');
+        $artUpdateInfo = $artUpdateLogic->field('artist,artwork_id,number')->find($artId);
+        $artInfo = $artLogic->field('name')->find($artUpdateInfo['artwork_id']);
+        $artName = $artInfo['name'].'记录'.$artUpdateInfo['number'];
+        return $this->sendMessage(
+            $userId,
+            $artUpdateInfo['artist'],
+            sprintf($this->msg['message'],$artName,base64_decode($content)),
+            $this->type['message'],
+            self::$commentmsg,
+            $this->createLink('我的消息',0,'myMessage'),
+            $commentId,
+            true,
+            $nickname.sprintf($this->msg['message'],$artName,base64_decode($content))
+        );
+    }
+    public function comment($userId,$artId,$content,$commentId){
+        $artLogic = new ArtworkLogic();
+        $userLogic = new UserLogic();
+        $nickname = $userLogic->where(['id' => $userId])->getField('nickname');
+        $artInfo = $artLogic->where(['id'=>$artId])->find();
+        return $this->sendMessage(
+            $userId,
+            $artInfo['artist'],
+            sprintf($this->msg['comment'],$artInfo['name'],base64_decode($content)),
+            $this->type['comment'],
+            self::$commentmsg,
+            $this->createLink('我的消息',0,'myMessage'),
+            $commentId,
+            true,
+            $nickname.sprintf($this->msg['comment'],$artInfo['name'],base64_decode($content))
+        );
+    }
+    public function like($userId,$artId){
+      $artLogic = new ArtworkLogic();
+      $artInfo = $artLogic->where(['id'=>$artId])->find();
+      $content = sprintf($this->msg['like'],$artInfo['name']);
+      return $this->sendMessage(
+        $userId,
+        $artInfo['artist'],
+        $content,
+        $this->type['like'],
+        self::$linkmsg,
+        $this->createLink($artInfo['name'],$artId,'artDetail'),
+        '',
+        false
+      );
+    }
+    public function createLink($title,$id,$action){
+      if(VERSION < 1.1){
+        return "$action-$id-$title";
+      }else{
+        return json_encode([
+          'title' => $title,
+          'id' => $id,
+          'action' => $action
+        ]);
+      }
+    }
+    public function getLink($id){
+      $link = $this->where(['id' => $id])->getField('link');
+      $info = $this->where(['id' => $id])->find();
+      if(!empty($link)){
+        if(VERSION < 1.1){
+          if($info['create_time'] > 1494410250){
+            //new
+            $return = json_decode($link,1);
+            if($return == null){
+              return [];
+            }
+            return "{$return['action']}-{$return['id']}-{$return['title']}";
+          }else{
+            //old
+            return $link;
+          }
+        }else{
+          if($info['create_time'] > 1494410250){
+            //new
+            $return = json_decode($link,1);
+            if($return == null){
+              return [];
+            }
+            return $return;
+          }else{
+            //old
+            list($action,$id,$title) = explode('-',$link);
+            return [
+              'title' => $title,
+              'action' => $action,
+              'id' => $id
+            ];
+          }
+        }
+      }else{
+        return '';
+      }
+    }
+    public function sendMessage($from,$to,$content,$type,$showType,$link='',$commentId = '',$isSend = true,$sendmsg = ''){
+      if($isSend){
+        if($sendmsg){
+          Push::pushByAlias($to,'艺术者',$sendmsg,'',$link);
+        }else{
+          Push::pushByAlias($to,'艺术者',$content,'',$link);
+        }
+      }
+      return $this->add([
+        'type' => $type,
+        'content' => $content,
+        'from_user_id' => $from,
+        'to_user_id' => $to,
+        'is_deleted' => 'N',
+        'delete_time' => '',
+        'is_read' => 'N',
+        'read_time' => '',
+        'show_type' => $showType,
+        'link' => $link,
+        'create_time' => time(),
+        'comment_id' => $commentId
+      ]);
+    }
+}

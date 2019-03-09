@@ -1,0 +1,1118 @@
+<?php
+
+namespace Admin\Controller;
+
+use Custom\Helper\Util;
+use Custom\Helper\AdmTpl;
+use Common\Base\AdminBaseController;
+use Common\Logic\UserLogic;
+use Common\Logic\ArtworkLikeLogic;
+use Common\Logic\CommentLogic;
+use Common\Logic\ThirdLogic;
+use Common\Logic\ArtistApplyLogic;
+use Common\Logic\ArtworkLogic;
+use Common\Logic\GalleryLogic;
+use Common\Logic\InviteLogLogic;
+use Custom\Helper\Nav;
+use Custom\Helper\Oss;
+use Common\Logic\AgencyLogic;
+use Common\Logic\ArtworkCategoryLogic;
+use Common\Model\AgencyModel;
+use Common\Logic\AssetsLogic;
+
+class UserController extends AdminBaseController
+{
+    public $size = 10;  //每页显示条数
+
+    //普通用户管理
+    public function index()
+    {
+        //接收用户输入条件
+        $keyword = trim(I('get.keyword'));//关键字
+        $page = I('get.page', '1');  //页码
+        $perPageCount = I('get.perPageCount', $this->size);
+        $userLogic = new UserLogic();  //实例化普通用户模型
+        $thirdLogic = new ThirdLogic();
+        $likeLogic = new ArtworkLikeLogic();
+        $commentLogic = new CommentLogic();
+        $AdmirerTotal = $userLogic->where(['is_deleted' => 'N', 'type' => '1', 'banned_to' => '-1'])->count();
+        $where = "type=1";
+        if(!empty($keyword)){
+            $where=$where." and (name like '%".$keyword."%' ";
+            $where=$where." or nickname like '%".$keyword."%' )";
+        }
+
+        $lists = $userLogic->where($where)
+            ->field('id,type,face,nickname,mobile,create_time,gender,birthday,follow_total,login_times,last_login_time')
+            ->order('id DESC')
+            ->page($page, $perPageCount)
+            ->select();
+        $typeMap = ['1' => '欣赏者', '3' => '创作者'];
+        $genderType = ['1' => '男', '2' => '女'];
+        foreach ($lists as $key => $value) {
+            $lists[$key]['like_total'] = $likeLogic->totalByUser($value['id'], 1);
+            $lists[$key]['comment_total'] = $commentLogic->totalByUser($value['id'], 1);
+            $lists[$key]['wechat_openid'] = $thirdLogic->where(['bind_user_id' => $value['id']])->getField('open_id');
+            $lists[$key]['show_type'] = $typeMap[$value['type']];
+            $lists[$key]['show_gender'] = $genderType[$value['gender']];
+            $lists[$key]['create_time'] = date('Y-m-d H:i', $value['create_time']);
+            $lists[$key]['birthday'] = $value['birthday'] ? date('Y-m-d', $value['birthday']) : '';
+            $lists[$key]['last_login_time'] = empty($value['last_login_time'])?'':date('Y-m-d H:i', $value['last_login_time']);
+            $lists[$key]['face']=Util::getFillImage($value['face'],100,100);
+        }
+        $totalCount = $userLogic->where($where)->count();
+        $condition =[
+            'keyword'=>$keyword,
+        ];
+        $nav = Nav::render(U('Admin/User/index'), $condition, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('AdmirerTotal', $AdmirerTotal);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    //普通用户管理_20190108
+    public function index_20190108()
+    {
+        //接收用户输入条件
+        $uid = intval(I('get.uid'));  //用户id
+        $nickname= trim(I('get.nickname'));
+        $mobile = I('get.mobile');  //手机号
+        $sRegistTime = strtotime(I('get.sRegistTime'));  //注册开始时间
+        $eRegistTime = strtotime(I('get.eRegistTime'));  //注册结束时间
+        $sLastLoginTime = strtotime(I('get.sLastLoginTime'));  //最后登陆开始时间
+        $eLastLoginTime = strtotime(I('get.eLastLoginTime'));  //最后登陆结束时间
+        $sLoginCount = I('get.sLoginCount')==null?-1:intval(I('get.sLoginCount'));  //登陆次数开始
+        $eLoginCount = I('get.eLoginCount')==null?-1:intval(I('get.eLoginCount'));  //登陆次数结束
+        $page = I('get.page', '1');  //页码
+        $perPageCount = I('get.perPageCount', $this->size);
+        $userLogic = new UserLogic();  //实例化普通用户模型
+        $thirdLogic = new ThirdLogic();
+        $likeLogic = new ArtworkLikeLogic();
+        $commentLogic = new CommentLogic();
+        $AdmirerTotal = $userLogic->where(['is_deleted' => 'N', 'type' => '1', 'banned_to' => '-1'])->count();
+        $where = "type=1";
+        if(!empty($uid)){
+            $where=$where." and id =".$uid;
+        }
+        if(!empty($nickname)){
+            $where=$where." and nickname like '%".$nickname."%' ";
+        }
+        if(!empty($mobile)){
+            $where=$where." and mobile =".$mobile;
+        }
+        if(!empty($sRegistTime)){
+            $where=$where." and create_time >= ".$sRegistTime;
+        }
+        if(!empty($eRegistTime)){
+            $where=$where." and create_time <= ".$eRegistTime;
+        }
+        if(!empty($sLastLoginTime)){
+            $where=$where." and last_login_time >= ".$sLastLoginTime;
+        }
+        if(!empty($eLastLoginTime)){
+            $where=$where." and last_login_time <= ".$eLastLoginTime;
+        }
+        if($sLoginCount!=-1){
+            $where=$where." and login_times >= ".$sLoginCount;
+        }
+        if($eLoginCount!=-1 && $eLoginCount!=0){
+            $where=$where." and login_times <= ".$eLoginCount;
+        }
+
+        $lists = $userLogic->where($where)
+            ->field('id,type,face,nickname,mobile,create_time,gender,birthday,follow_total,login_times,last_login_time')
+            ->order('id DESC')
+            ->page($page, $perPageCount)
+            ->select();
+        $typeMap = ['1' => '欣赏者', '3' => '创作者'];
+        $genderType = ['1' => '男', '2' => '女'];
+        foreach ($lists as $key => $value) {
+            $lists[$key]['like_total'] = $likeLogic->totalByUser($value['id'], 1);
+            $lists[$key]['comment_total'] = $commentLogic->totalByUser($value['id'], 1);
+            $lists[$key]['wechat_openid'] = $thirdLogic->where(['bind_user_id' => $value['id']])->getField('open_id');
+            $lists[$key]['show_type'] = $typeMap[$value['type']];
+            $lists[$key]['show_gender'] = $genderType[$value['gender']];
+            $lists[$key]['create_time'] = date('Y-m-d H:i', $value['create_time']);
+            $lists[$key]['birthday'] = $value['birthday'] ? date('Y-m-d', $value['birthday']) : '';
+            $lists[$key]['last_login_time'] = empty($value['last_login_time'])?'':date('Y-m-d H:i', $value['last_login_time']);
+            $lists[$key]['face']=Util::getFillImage($value['face'],100,100);
+        }
+        $totalCount = $userLogic->where($where)->count();
+        $condition =[
+            'uid' => $uid,
+            'nickname' => $nickname,
+            'mobile' => $mobile,
+            'sRegistTime' => I('get.sRegistTime'),
+            'eRegistTime' => I('get.eRegistTime'),
+            'sLastLoginTime' => I('get.sLastLoginTime'),
+            'eLastLoginTime' => I('get.eLastLoginTime'),
+            'sLoginCount' => $sLoginCount==-1?'':$sLoginCount,
+            'eLoginCount' => $eLoginCount==-1?'':$eLoginCount,
+        ];
+        $nav = Nav::render(U('Admin/User/index'), $condition, $page, $perPageCount, $totalCount);
+        $this->assign('nav', $nav);
+        $this->assign('AdmirerTotal', $AdmirerTotal);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    //艺术家管理
+    public function artist()
+    {
+        //接收用户输入条件
+        $keyword = trim(I('get.keyword'));//关键字
+        $page = I('get.page', '1');  //接收页面,默认1
+        $perPageCount = I('get.perPageCount', $this->size);
+        $userLogic = new UserLogic();  //实例化用户模型
+        $likeLogic = new ArtworkLikeLogic();
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $applyLogic = new ArtistApplyLogic();
+        $galleryLogic = new GalleryLogic();
+        $inviteLogic = new InviteLogLogic();
+        $CreatorTotal = $userLogic->where(['is_deleted' => 'N', 'type' => '3', 'banned_to' => '-1'])->count();
+        // $where = "az_user.type=3 and az_artwork.update_times > 0 and az_artwork.state = 1 and az_artwork.is_deleted='N' and (az_artwork.cover != ''  or  az_artwork.panorama_ids != '')";
+        $where = "az_user.type=3 and az_user.is_deleted='N' and az_user.banned_to=-1";
+        $order = 'az_user.id DESC';
+        if(!empty($keyword)){
+            $where=$where." and (az_user.name like '%".$keyword."%' ";
+            $where=$where." or az_user.nickname like '%".$keyword."%' )";
+        }
+
+        $total = M('user')
+            ->join('az_artist_apply on az_artist_apply.user_id=az_user.id','left')
+            ->join('az_artwork on az_artwork.artist=az_user.id','left')
+            ->where($where)
+            ->field('az_artist_apply.province,az_artist_apply.city,az_artist_apply.area,count(az_artwork.id) as gallery_art_total,az_artist_apply.is_wechat_friend,az_artist_apply.is_art_show,az_artist_apply.is_interview,az_artist_apply.is_pa_show,az_user.id,az_user.type,az_user.face,az_user.nickname,az_user.mobile,az_user.gender,az_user.follower_total,az_user.login_times,az_user.last_login_time,az_user.invite_total')
+            ->group('az_user.id')
+            ->select();
+
+        $lists = M('user')
+            ->join('az_artist_apply on az_artist_apply.user_id=az_user.id','left')
+            ->join('az_artwork on az_artwork.artist=az_user.id','left')
+            ->where($where)
+            ->field('az_artist_apply.province,az_artist_apply.city,az_artist_apply.area,count(az_artwork.id) as gallery_art_total,az_artist_apply.is_wechat_friend,az_artist_apply.is_art_show,az_artist_apply.is_interview,az_artist_apply.is_pa_show,az_user.id,az_user.type,az_user.face,az_user.nickname,az_user.mobile,az_user.gender,az_user.follower_total,az_user.login_times,az_user.last_login_time,az_user.invite_total')
+            ->order($order)
+            ->group('az_user.id')
+            ->page($page, $perPageCount)
+            ->select();
+
+        $typeMap = ['1' => '欣赏者', '3' => '创作者'];
+        $genderType = ['1' => '男', '2' => '女'];
+        foreach ($lists as $key => $value) {
+            $applyInfo = $applyLogic->where(['user_id' => $value['id']])->find();
+            $lists[$key]['truename'] = $applyInfo['name'];
+            $lists[$key]['IDNO'] = $applyInfo['id_card_no'];
+            $lists[$key]['selfInviteCode'] = $inviteLogic->getInvite($value['id']);
+            $lists[$key]['inviteCode'] = $applyInfo['invite_code'];
+            $lists[$key]['like_total'] = $likeLogic->totalByUser($value['id'], 1);
+            $lists[$key]['view_total'] = intval($artLogic->where(['is_deleted' => 'N', 'artist' => $value['id']])->sum('view_total'));
+            $lists[$key]['share_total'] = intval($artLogic->where(['is_deleted' => 'N', 'artist' => $value['id']])->sum('share_total'));
+            $lists[$key]['comment_total'] = $commentLogic->totalByUser($value['id'], 1);
+            $lists[$key]['show_type'] = $typeMap[$value['type']];
+            $lists[$key]['show_gender'] = $genderType[$value['gender']];
+            $lists[$key]['create_time'] = date('Y-m-d H:i', $value['create_time']);
+            $lists[$key]['last_login_time'] = empty($value['last_login_time'])?'':date('Y-m-d H:i', $value['last_login_time']);
+            $lists[$key]['cover'] = $galleryLogic->where(['artist' => $value['id']])->getField('cover');
+            $lists[$key]['cover'] = Util::getFillImage($lists[$key]['cover'],100,100);
+            $lists[$key]['face'] = Util::getFillImage($lists[$key]['face'],100,100);
+            $lists[$key]['gallery_art_total'] = $artLogic->where("artist = ".$value['id']." AND update_times > 0 AND state = 1 and is_deleted='N' AND (`cover` <> ''  or  `panorama_ids` <> '') ")->count();
+            $lists[$key]['is_wechat_friend'] = $value['is_wechat_friend']=='Y'?'已添加':'未添加';
+            $lists[$key]['is_art_show'] = $value['is_art_show']=='Y'?'已办':'未办';
+            $lists[$key]['is_interview'] = $value['is_interview']=='Y'?'已办':'未办';
+            $lists[$key]['is_pa_show'] = $value['is_pa_show']=='Y'?'已办':'未办';
+            $address=$value['province'].','.$value['city'].','.$value['area'];
+            $address =M('area')->field('aname')->where(['id'=>['in',$address]])->select();
+            $lists[$key]['address'] = implode('',array_column($address,'aname'));
+
+            $lists[$key]['mobile'] = strlen($value['mobile'])==11?substr($value['mobile'],0,3).'-<br/>'.substr($value['mobile'],3,4).'-<br/>'.substr($value['mobile'],7,4):$value['mobile'];
+            unset($lists[$key]['province']);
+            unset($lists[$key]['city']);
+            unset($lists[$key]['area']);
+        }
+        $condition =[
+            'keyword'=>$keyword,
+        ];
+        $nav = Nav::render(U('Admin/User/artist'), $condition, $page, $perPageCount, count($total));
+        $this->assign('nav', $nav);
+        $this->assign('page', $page);
+        $this->assign('CreatorTotal', $CreatorTotal);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    //艺术家管理_20190108
+    public function artist_20190108()
+    {
+        //接收用户输入条件
+        $uid = intval(I('get.uid'));  //用户id
+        $nickname= trim(I('get.nickname'));
+        $mobile = I('get.mobile');  //手机号
+        $sRegistTime = strtotime(I('get.sRegistTime'));  //注册开始时间
+        $eRegistTime = strtotime(I('get.eRegistTime'));  //注册结束时间
+        $sLastLoginTime = strtotime(I('get.sLastLoginTime'));  //登陆开始时间
+        $eLastLoginTime = strtotime(I('get.eLastLoginTime'));  //登陆结束时间
+        $sLoginCount = I('get.sLoginCount')==null?-1:intval(I('get.sLoginCount'));  //登陆次数开始
+        $eLoginCount = I('get.eLoginCount')==null?-1:intval(I('get.eLoginCount'));  //登陆次数结束
+        $sFollowerTotal = I('get.sFollowerTotal')==null?-1:intval(I('get.sFollowerTotal'));  //画廊粉丝数开始
+        $eFollowerTotal = I('get.eFollowerTotal')==null?-1:intval(I('get.eFollowerTotal'));  //画廊粉丝数结束
+        $gender= trim(I('get.gender'));
+        $wechatFriend = trim(I('get.wechatFriend',''));//是否添加微信好友
+        $gallery_art_total = I('get.gallery_art_total');//画廊作品数排序
+        $province = intval(I('get.province'));//省
+        $city = intval(I('get.city'));//市
+        $area = intval(I('get.area'));//区
+        $artShow = trim(I('get.artShow'));//是否办微画展
+        $interview = trim(I('get.interview'));//是否办微专访
+        $PAShow = trim(I('get.PAShow'));//是否办PA画展
+        $page = I('get.page', '1');  //接收页面,默认1
+        $perPageCount = I('get.perPageCount', $this->size);
+        $userLogic = new UserLogic();  //实例化用户模型
+        $likeLogic = new ArtworkLikeLogic();
+        $artLogic = new ArtworkLogic();
+        $commentLogic = new CommentLogic();
+        $applyLogic = new ArtistApplyLogic();
+        $galleryLogic = new GalleryLogic();
+        $inviteLogic = new InviteLogLogic();
+        $CreatorTotal = $userLogic->where(['is_deleted' => 'N', 'type' => '3', 'banned_to' => '-1'])->count();
+       // $where = "az_user.type=3 and az_artwork.update_times > 0 and az_artwork.state = 1 and az_artwork.is_deleted='N' and (az_artwork.cover != ''  or  az_artwork.panorama_ids != '')";
+        $where = "az_user.type=3 and az_user.is_deleted='N' and az_user.banned_to=-1";
+        $order = 'az_user.id DESC';
+        $querystr='';
+        if(!empty($uid)){
+            $querystr=$querystr." and az_user.id =".$uid;
+        }
+        if(!empty($nickname)){
+            $querystr=$querystr." and az_user.nickname like '%".$nickname."%' ";
+        }
+        if(!empty($mobile)){
+            $querystr=$querystr." and az_user.mobile =".$mobile;
+        }
+        if(!empty($sRegistTime)){
+            $querystr=$querystr." and az_user.create_time >= ".$sRegistTime;
+        }
+        if(!empty($eRegistTime)){
+            $querystr=$querystr." and az_user.create_time <= ".$eRegistTime;
+        }
+        if(!empty($sLastLoginTime)){
+            $querystr=$querystr." and az_user.last_login_time >= ".$sLastLoginTime;
+        }
+        if(!empty($eLastLoginTime)){
+            $querystr=$querystr." and az_user.last_login_time <= ".$eLastLoginTime;
+        }
+        if($sLoginCount!=-1){
+            $querystr=$querystr." and az_user.login_times >= ".$sLoginCount;
+        }
+        if($eLoginCount!=-1 && $eLoginCount!=0){
+            $querystr=$querystr." and az_user.login_times <= ".$eLoginCount;
+        }
+        if(!empty($gender)){
+            $querystr=$querystr." and az_user.gender=".$gender;
+        }
+        if(!empty($wechatFriend)){
+            $querystr=$querystr." and az_artist_apply.is_wechat_friend='".$wechatFriend."'";
+        }
+        if (!empty($artShow)) {
+            $querystr=$querystr." and az_artist_apply.is_art_show='".$artShow."'";
+        }
+        if (!empty($interview)) {
+            $querystr=$querystr." and az_artist_apply.is_interview='".$interview."'";
+        }
+        if (!empty($PAShow)) {
+            $querystr=$querystr." and az_artist_apply.is_pa_show='".$PAShow."'";
+        }
+        if (!empty($province)) {
+            $querystr=$querystr." and az_artist_apply.province=".$province;
+        }
+        if (!empty($city)) {
+            $querystr=$querystr." and az_artist_apply.city=".$city;
+        }
+        if (!empty($area)) {
+            $querystr=$querystr." and az_artist_apply.area=".$area;
+        }
+
+        if($sFollowerTotal!=-1){
+            $querystr=$querystr." and az_user.follower_total >= ".$sFollowerTotal;
+            $order = 'follower_total DESC';
+        }
+        if($eFollowerTotal!=-1 && $eFollowerTotal!=0){
+            $querystr=$querystr." and az_user.follower_total <= ".$eFollowerTotal;
+            $order = 'follower_total DESC';
+        }
+
+        if ($gallery_art_total==1) {
+            $order = 'gallery_art_total ASC';
+            $where=$where." and az_artwork.update_times > 0 and az_artwork.state = 1 and az_artwork.is_deleted='N' and (az_artwork.cover != ''  or  az_artwork.panorama_ids != '')";
+        }
+        if ($gallery_art_total==2) {
+            $order = 'gallery_art_total DESC';
+            $where=$where." and az_artwork.update_times > 0 and az_artwork.state = 1 and az_artwork.is_deleted='N' and (az_artwork.cover != ''  or  az_artwork.panorama_ids != '')";
+        }
+
+        $where = $where.$querystr;
+
+        $total = M('user')
+            ->join('az_artist_apply on az_artist_apply.user_id=az_user.id','left')
+            ->join('az_artwork on az_artwork.artist=az_user.id','left')
+            ->where($where)
+            ->field('az_artist_apply.province,az_artist_apply.city,az_artist_apply.area,count(az_artwork.id) as gallery_art_total,az_artist_apply.is_wechat_friend,az_artist_apply.is_art_show,az_artist_apply.is_interview,az_artist_apply.is_pa_show,az_user.id,az_user.type,az_user.face,az_user.nickname,az_user.mobile,az_user.gender,az_user.follower_total,az_user.login_times,az_user.last_login_time,az_user.invite_total')
+            ->group('az_user.id')
+            ->select();
+
+        $lists = M('user')
+            ->join('az_artist_apply on az_artist_apply.user_id=az_user.id','left')
+            ->join('az_artwork on az_artwork.artist=az_user.id','left')
+            ->where($where)
+            ->field('az_artist_apply.province,az_artist_apply.city,az_artist_apply.area,count(az_artwork.id) as gallery_art_total,az_artist_apply.is_wechat_friend,az_artist_apply.is_art_show,az_artist_apply.is_interview,az_artist_apply.is_pa_show,az_user.id,az_user.type,az_user.face,az_user.nickname,az_user.mobile,az_user.gender,az_user.follower_total,az_user.login_times,az_user.last_login_time,az_user.invite_total')
+            ->order($order)
+            ->group('az_user.id')
+            ->page($page, $perPageCount)
+            ->select();
+
+      /*  $totle=($page-1)*$perPageCount+count($list1);
+        if($totle<$CreatorTotal && count($list1)<$perPageCount){
+            $artistIds = M('user')
+                ->field("az_user.id")
+                ->join('az_artist_apply on az_artist_apply.user_id=az_user.id','left')
+                ->join('az_artwork on az_artwork.artist=az_user.id','left')
+                ->group('az_user.id')
+                ->where($where)
+                ->select();
+            $queryTotle = count($artistIds);
+            $where2="az_user.type=3 and az_user.is_deleted='N' and az_user.banned_to=-1";
+            if(!empty($artistIds)){
+                $artistIds = implode(',',array_column($artistIds,'id'));
+                $where2=$where2." and az_user.id not in ({$artistIds})";
+            }
+            $newpage = $page-intval($queryTotle/$perPageCount);//默认数据的page
+            if($newpage > 1){
+                $start = ($newpage-2)*$perPageCount + $perPageCount-$queryTotle%$perPageCount;
+            }else{
+                $start = 0;
+            }
+
+            $list2 =  M('user')
+                ->join('az_artist_apply on az_artist_apply.user_id=az_user.id','left')
+                ->join('az_artwork on az_artwork.artist=az_user.id','left')
+                ->where($where2.$querystr)
+                ->field('az_artist_apply.province,az_artist_apply.city,az_artist_apply.area,count(az_artwork.id) as gallery_art_total,az_artist_apply.is_wechat_friend,az_artist_apply.is_art_show,az_artist_apply.is_interview,az_artist_apply.is_pa_show,az_user.id,az_user.type,az_user.face,az_user.nickname,az_user.mobile,az_user.gender,az_user.follower_total,az_user.login_times,az_user.last_login_time,az_user.invite_total')
+                ->order($order)
+                ->group('az_user.id')
+                ->limit($start, $perPageCount-count($list1))
+                ->select();
+            $lists = array_merge($list1,$list2);
+        }else{
+            $lists=$list1;
+        }*/
+
+
+        $typeMap = ['1' => '欣赏者', '3' => '创作者'];
+        $genderType = ['1' => '男', '2' => '女'];
+        foreach ($lists as $key => $value) {
+            $applyInfo = $applyLogic->where(['user_id' => $value['id']])->find();
+            $lists[$key]['truename'] = $applyInfo['name'];
+            $lists[$key]['IDNO'] = $applyInfo['id_card_no'];
+            $lists[$key]['selfInviteCode'] = $inviteLogic->getInvite($value['id']);
+            $lists[$key]['inviteCode'] = $applyInfo['invite_code'];
+            $lists[$key]['like_total'] = $likeLogic->totalByUser($value['id'], 1);
+            $lists[$key]['view_total'] = intval($artLogic->where(['is_deleted' => 'N', 'artist' => $value['id']])->sum('view_total'));
+            $lists[$key]['share_total'] = intval($artLogic->where(['is_deleted' => 'N', 'artist' => $value['id']])->sum('share_total'));
+            $lists[$key]['comment_total'] = $commentLogic->totalByUser($value['id'], 1);
+            $lists[$key]['show_type'] = $typeMap[$value['type']];
+            $lists[$key]['show_gender'] = $genderType[$value['gender']];
+            $lists[$key]['create_time'] = date('Y-m-d H:i', $value['create_time']);
+            $lists[$key]['last_login_time'] = empty($value['last_login_time'])?'':date('Y-m-d H:i', $value['last_login_time']);
+            $lists[$key]['cover'] = $galleryLogic->where(['artist' => $value['id']])->getField('cover');
+            $lists[$key]['cover'] = Util::getFillImage($lists[$key]['cover'],100,100);
+            $lists[$key]['face'] = Util::getFillImage($lists[$key]['face'],100,100);
+            $lists[$key]['gallery_art_total'] = $artLogic->where("artist = ".$value['id']." AND update_times > 0 AND state = 1 and is_deleted='N' AND (`cover` <> ''  or  `panorama_ids` <> '') ")->count();
+            $lists[$key]['is_wechat_friend'] = $value['is_wechat_friend']=='Y'?'已添加':'未添加';
+            $lists[$key]['is_art_show'] = $value['is_art_show']=='Y'?'已办':'未办';
+            $lists[$key]['is_interview'] = $value['is_interview']=='Y'?'已办':'未办';
+            $lists[$key]['is_pa_show'] = $value['is_pa_show']=='Y'?'已办':'未办';
+            $address=$value['province'].','.$value['city'].','.$value['area'];
+            $address =M('area')->field('aname')->where(['id'=>['in',$address]])->select();
+            $lists[$key]['address'] = implode('',array_column($address,'aname'));
+
+            $lists[$key]['mobile'] = strlen($value['mobile'])==11?substr($value['mobile'],0,3).'-<br/>'.substr($value['mobile'],3,4).'-<br/>'.substr($value['mobile'],7,4):$value['mobile'];
+            unset($lists[$key]['province']);
+            unset($lists[$key]['city']);
+            unset($lists[$key]['area']);
+        }
+        $condition =[
+            'uid' => $uid,
+            'nickname' => $nickname,
+            'mobile' => $mobile,
+            'gender' => $gender,
+            'sRegistTime' => I('get.sRegistTime'),
+            'eRegistTime' => I('get.eRegistTime'),
+            'sLastLoginTime' => I('get.sLastLoginTime'),
+            'eLastLoginTime' => I('get.eLastLoginTime'),
+            'sLoginCount' => $sLoginCount==-1?'':$sLoginCount,
+            'eLoginCount' => $eLoginCount==-1?'':$eLoginCount,
+            'wechatFriend' => $wechatFriend,
+            'gallery_art_total' => $gallery_art_total,
+            'province' => $province,
+            'city' => $city,
+            'area' => $area,
+            'artShow' => $artShow,
+            'interview' => $interview,
+            'PAShow' => $PAShow,
+        ];
+        $nav = Nav::render(U('Admin/User/artist'), $condition, $page, $perPageCount, count($total));
+        $this->assign('nav', $nav);
+        $this->assign('page', $page);
+        $this->assign('CreatorTotal', $CreatorTotal);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    //机构管理
+    public function agency()
+    {
+        $page = I('get.page', 1);
+        $perPageCount = I('get.perPageCount', 10);
+        //接收用户输入条件
+        $keyword = trim(I('get.keyword'));//关键字
+
+        $querystr='az_agency.status = 2';
+        if(!empty($keyword)){
+            $querystr=$querystr." and (az_agency.name like '%".$keyword."%' ";
+            $querystr=$querystr." or az_agency.admin_name like '%".$keyword."%'";
+            $artist = M('user')->field('id')->where("type=3 and is_deleted='N' and banned_to=-1 and nickname like '%".$keyword."%' ")->select();
+            if($artist){
+                $artist=array_column($artist,'id');
+            }
+            $artwork = M('artwork')->field('artist')->where("is_deleted='N' and name like '%".$keyword."%' ")->select();
+            $artwork = array_column($artwork,'artist');
+            $artistIds = array_intersect($artist,$artwork);
+            if($artistIds){
+                $artistIds = implode(',',$artistIds);
+                $querystr=$querystr." or (az_agency_artist_relation.status=1 and az_agency_artist_relation.artist_user_id in (".$artistIds.") ))";
+            }else{
+                $querystr=$querystr.")";
+            }
+
+        }
+
+
+        $listInfo = M('agency')
+            ->join('az_agency_artist_relation on az_agency_artist_relation.agency_user_id=az_agency.uid','left')
+            ->field('az_agency.*')
+            ->where($querystr)
+            ->group('az_agency.id')
+            ->order('az_agency.checktime DESC')
+            ->page($page, $perPageCount)
+            ->select();
+
+        $total =  M('agency')
+            ->join('az_agency_artist_relation on az_agency_artist_relation.agency_user_id=az_agency.uid','left')
+            ->field('az_agency.id')
+            ->group('az_agency.id')
+            ->where($querystr)
+            ->select();
+
+
+        foreach ($listInfo as &$apply) {
+            $apply['addtime'] = date('Y-m-d H:i:s', $apply['addtime']);
+            $apply['status'] = AgencyModel::VERIFY_STATE_CN_LIST[$apply['status']];
+            $apply['type'] = AgencyModel::AGENCY_TYPE_LIST[$apply['type']];
+            $artists = M('agency_artist_relation')->where(['agency_user_id'=>$apply['uid'],'status'=>1])->count();
+            $apply['artists']=$artists;
+            $articles = M('article')->where(['artist'=>$apply['uid'],'status'=>1])->count();
+            $apply['articles']=$articles;
+        }
+        $queryParams = [
+            'keyword'=>$keyword,
+        ];
+        $totalCount = count($total);
+
+
+        $nav = Nav::render(U('Admin/User/agency'), $queryParams, $page, $perPageCount, $totalCount);
+        $this->assign('agencyList', $listInfo);
+        $this->assign('nav', $nav);
+        $this->assign('agencyType', AgencyModel::AGENCY_TYPE_LIST);
+        $this->display();
+    }
+
+    //机构管理_20190108
+    public function agency_20190108()
+    {
+        $page = I('get.page', 1);
+        $perPageCount = I('get.perPageCount', 10);
+        //接收用户输入条件
+        $agencyName= trim(I('get.angency_name'));//机构名称
+        $adminName= trim(I('get.admin_name'));//管理员名称
+        $artistName= trim(I('get.artist_name'));//机构艺术家名称
+        $artworkName= trim(I('get.artwork_name'));//机构艺术家艺术品名称
+        $angencyType= intval(I('get.angency_type'));//机构类型
+
+        $querystr='az_agency.status = 2';
+        if(!empty($agencyName)){
+            $querystr=$querystr." and az_agency.name like '%".$agencyName."%' ";
+        }
+        if(!empty($adminName)){
+            $querystr=$querystr." and az_agency.admin_name like '%".$adminName."%' ";
+        }
+        if(!empty($angencyType)){
+            $querystr=$querystr." and az_agency.type =".$angencyType;
+        }
+
+        $artistIds = [];
+        $artist = [];
+        $artwork = [];
+        if(!empty($artistName)){
+            $artist = M('user')->field('id')->where("type=3 and is_deleted='N' and banned_to=-1 and nickname like '%".$artistName."%' ")->select();
+            if($artist){
+                $artist=array_column($artist,'id');
+            }
+        }
+        if(!empty($artworkName)){
+            $artwork = M('artwork')->field('artist')->where("is_deleted='N' and name like '%".$artworkName."%' ")->select();
+            $artwork = array_column($artwork,'artist');
+        }
+
+        if(!empty($artistName)){
+            if(!empty($artworkName)){
+                $artistIds = array_intersect($artist,$artwork);
+            }else{
+                $artistIds = $artist;
+            }
+        }else{
+            if(!empty($artworkName)){
+                $artistIds = $artwork;
+            }
+        }
+
+        if($artistIds){
+            $artistIds = implode(',',$artistIds);
+            $querystr=$querystr." and az_agency_artist_relation.status=1 and az_agency_artist_relation.artist_user_id in (".$artistIds.") ";
+        }
+
+        if((!empty($artistName) || !empty($artworkName)) && empty($artistIds)){//没有对应的艺术家或艺术品
+            $listInfo=[];
+            $total=0;
+
+        }else{
+            $listInfo = M('agency')
+                ->join('az_agency_artist_relation on az_agency_artist_relation.agency_user_id=az_agency.uid','left')
+                ->field('az_agency.*')
+                ->where($querystr)
+                ->group('az_agency.id')
+                ->order('az_agency.checktime DESC')
+                ->page($page, $perPageCount)
+                ->select();
+
+            $total =  M('agency')
+                ->join('az_agency_artist_relation on az_agency_artist_relation.agency_user_id=az_agency.uid','left')
+                ->field('az_agency.id')
+                ->group('az_agency.id')
+                ->where($querystr)
+                ->select();
+        }
+
+        foreach ($listInfo as &$apply) {
+            $apply['addtime'] = date('Y-m-d H:i:s', $apply['addtime']);
+            $apply['status'] = AgencyModel::VERIFY_STATE_CN_LIST[$apply['status']];
+            $apply['type'] = AgencyModel::AGENCY_TYPE_LIST[$apply['type']];
+        }
+        $queryParams = [
+            'angency_name'=>$agencyName,
+            'admin_name'=>$adminName,
+            'artist_name'=>$artistName,
+            'artwork_name'=>$artworkName,
+            'angency_type'=>$angencyType,
+        ];
+        $totalCount = count($total);
+
+
+
+        $nav = Nav::render(U('Admin/User/agency'), $queryParams, $page, $perPageCount, $totalCount);
+        $this->assign('agencyList', $listInfo);
+        $this->assign('nav', $nav);
+        $this->assign('agencyType', AgencyModel::AGENCY_TYPE_LIST);
+        $this->display();
+    }
+
+
+    //机构详情
+    public function agencyDetail(){
+
+        $id = I('get.id');  //获取传过来的机构id
+        $agencyLogic = new AgencyLogic();  //实例化机构模型
+        $detail = $agencyLogic->getDetail($id);  //根据机构id获取详情
+
+        //处理身份证照片
+        $assetsLogic = new AssetsLogic();
+        $certImageIdList = empty($detail['admin_images'])?[]:explode(',', $detail['admin_images']);
+        $certImageUrlList = $assetsLogic->getUrlList($certImageIdList);
+        $process = 'image/resize,m_lfit,h_100,w_100';
+        foreach ($certImageUrlList as $certImageUrl) {
+            $certImageUrlMini = AssetsLogic::processImage($certImageUrl, $process);
+            $detail['certImageUrlListPair'][] = ['raw'=>$certImageUrl, 'mini'=>$certImageUrlMini];
+        }
+
+        //处理营业执照
+        $licenseImageIdList = empty($detail['license'])?[]:explode(',', $detail['license']);
+        $licenseImageUrlList = $assetsLogic->getUrlList($licenseImageIdList);
+        foreach ($licenseImageUrlList as $licenseImageUrl){
+            $licenseUrlMini = AssetsLogic::processImage($licenseImageUrl, $process);
+            $detail['licenseImageUrlListPair'][] = ['raw'=>$licenseImageUrl, 'mini'=>$licenseUrlMini];
+        }
+
+        //审核状态
+        $detail['verifyState'] = AgencyModel::VERIFY_STATE_CN_LIST[$detail['status']];
+        $detail['type'] = AgencyModel::AGENCY_TYPE_LIST[$detail['type']];
+
+        $agency_artists = M('agency_artist_relation')
+            ->join('az_user on az_user.id=az_agency_artist_relation.artist_user_id','left')
+            ->join('az_artist_apply on az_artist_apply.user_id=az_agency_artist_relation.artist_user_id','left')
+            ->join('az_artwork on az_artwork.artist=az_agency_artist_relation.artist_user_id','left')
+            ->where(['az_agency_artist_relation.agency_user_id'=>$detail['uid'],'az_agency_artist_relation.status'=>1])
+            ->field('az_artist_apply.verify_state,az_artist_apply.name as truename,az_artist_apply.province,az_artist_apply.city,az_artist_apply.area,az_user.id,az_user.nickname,az_user.face,az_user.mobile,az_user.gender,az_user.last_login_time,az_user.art_total')
+            ->group('az_agency_artist_relation.artist_user_id')
+            ->order('az_agency_artist_relation.create_time')
+            ->select();
+
+
+        $genderType = ['1' => '男', '2' => '女'];
+        $verifyState = ['-1' => '审核不通过', '0' => '未提交审核', '1' => '未审核', '2' => '审核通过'];//-1审核不通过1未审核2审核通过
+        foreach ($agency_artists as $key => $value) {
+            $agency_artists[$key]['show_gender'] = $genderType[$value['gender']];
+            $agency_artists[$key]['last_login_time'] = empty($value['last_login_time'])?'':date('Y-m-d H:i', $value['last_login_time']);
+            $address=$value['province'].','.$value['city'].','.$value['area'];
+            $address =M('area')->field('aname')->where(['id'=>['in',$address]])->select();
+            $agency_artists[$key]['address'] = implode('',array_column($address,'aname'));
+            $agency_artists[$key]['verify_state'] = empty($verifyState[$value['verify_state']])?'未提交审核':$verifyState[$value['verify_state']];
+            //$lists[$key]['mobile'] = strlen($value['mobile'])==11?substr($value['mobile'],0,3).'-<br/>'.substr($value['mobile'],3,4).'-<br/>'.substr($value['mobile'],7,4):$value['mobile'];
+            unset($agency_artists[$key]['province']);
+            unset($agency_artists[$key]['city']);
+            unset($agency_artists[$key]['area']);
+        }
+
+
+        $this->assign('detail', $detail);
+        $this->assign('agency_artists', $agency_artists);
+        $this->display();
+
+    }
+
+    public function adduser()
+    {
+        if (IS_POST) {
+
+            $rules = array(
+                array('nickname', 'require', 'nickname必须！', 1),
+                array('mobile', 'require', 'nickname必须！', 1),
+                array('password', 'require', 'nickname必须！', 1),
+                array('mobile','','手机已经存在！',0,'unique',1),
+                array('mobile', 'number', '手机格式不符！', 1),
+                array('mobile','11','手机长度不符，11位！',1,'length'), // 验证电话号码长度
+
+            );
+            $Checker = M('user');
+            if (!$Checker->validate($rules)->create()) {
+                $response = ['error' => 1, 'message' => $Checker->getError()];
+                echo json_encode($response);
+                exit;
+            }
+
+            if (!isset($_FILES['face'])) {
+                $response = ['error' => 1, 'message' => 'error'];
+                echo json_encode($response);
+                exit;
+            }
+
+
+            $nickname = I('post.nickname');
+            $mobile = I('post.mobile');
+            $password = I('post.password');
+            $motto = I('post.motto');
+            $is_agency = I('post.is_agency');
+
+            $userLogic = new UserLogic();
+
+            $user_id=$userLogic->field('id')->where(" nickname='".addslashes($nickname)."' or `name`='".addslashes($nickname)."' ")->find();
+            if($user_id){
+                $response = ['error' => 1, 'message' => '昵称已经存在'];
+                echo json_encode($response);
+                exit;
+            }
+
+            $imgbuff = file_get_contents($_FILES['face']['tmp_name']);
+             $result = Oss::upload($imgbuff, 'png');
+            $face = $result['info']['url'];
+
+
+
+
+            $encInfo = Util::encryptPassword($password);
+
+            $data=[
+                'nickname' => $nickname,
+                'name' => $nickname,
+                'mobile' => $mobile,
+                'face' => trim($face),
+                'enc_password' => $encInfo['encryptedPassword'],
+                'enc_salt' => $encInfo['salt'],
+                'create_time' => time(),
+                'motto' => trim($motto),
+                'resume' => trim($motto),
+            ];
+
+            if($is_agency==1){
+                $data['role']='agency';
+            }
+
+            $userid = $userLogic->add($data);
+
+            if ($userid) {
+                if($is_agency==1){
+                    $agencyLogic = new AgencyLogic();
+                    $agencyLogic->add([
+                        'uid'=>$userid,
+                        'type'=>7,
+                        'name' => $nickname,
+                        'admin_name' => $nickname,
+                        'admin_phone' => $mobile,
+                        'addtime' => time(),
+                        'status' => 2,
+                    ]);
+                }
+
+                $response = ['error' => 0, 'message' => '添加完成'];
+                echo json_encode($response);
+                exit;
+            } else {
+                $response = ['error' => 1, 'message' => 'error'];
+                echo json_encode($response);
+                exit;
+            }
+        } else {
+            $this->display();
+        }
+    }
+
+    public function SelectUserId(){
+        $uid = intval(I('get.uid'));
+        $nickname =trim(I('get.nickname'));
+        $role_type=trim(I('get.role_type'));
+
+        $page = I('get.page', '1');  //页码
+        $pagesize=10;
+        $userLogic = new UserLogic();
+
+        switch ($role_type) {
+            case 'artist':
+                $where = "FIND_IN_SET('artist',role) ";
+                break;
+            case 'agency':
+                $where = "FIND_IN_SET('agency',role) ";
+                break;
+            case 'planner':
+                $where = "FIND_IN_SET('planner',role) ";
+                break;
+            default:
+                $where = "(FIND_IN_SET('artist',role) or FIND_IN_SET('agency',role) or FIND_IN_SET('planner',role)) ";
+        }
+
+
+
+        if($uid>0){
+            $where=$where." and id=".$uid;
+        }
+        if($nickname!=''){
+            $where=$where." and nickname like '%".$nickname."%' ";
+        }
+
+        $userTotal = $userLogic->where($where)->count();
+        $lists = $userLogic->where($where)
+            ->field('id,type,face,nickname,mobile,create_time,gender,birthday,follow_total,login_times,role')
+            ->order('id DESC')
+            ->page($page, $pagesize)
+            ->select();
+
+        $nav = Nav::render(U('User/SelectUserId'), ['nickname' => $nickname, 'uid' => $uid==0?'':$uid,'role_type'=>$role_type], $page, $pagesize, $userTotal);
+
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+        $this->display();
+    }
+
+    public function getAddress(){
+        $level = intval(I('post.level',1));
+        $pid = intval(I('post.pid',0));
+        $data = M('area')->field('id,aname')->where(['level'=>$level,'pid'=>$pid])->select();
+        if($data){
+            $response = ['error' => 0, 'data' =>$data];
+        }else{
+            $response = ['error' => 0, 'message' => '请求失败，请重试'];
+        }
+        echo json_encode($response);
+    }
+
+    //艺术家管理-艺术家详情
+    public function showDetail(){
+        $id = intval(I('get.id'));
+        $page = intval(I('get.page'));
+        $likeLogic = new ArtworkLikeLogic();
+        $commentLogic = new CommentLogic();
+        $applyLogic = new ArtistApplyLogic();
+        $galleryLogic = new GalleryLogic();
+        $inviteLogic = new InviteLogLogic();
+        $artLogic = new ArtworkLogic();
+        $where = "az_user.id=".$id." and az_user.type=3 and az_user.is_deleted='N' and az_user.banned_to=-1";
+        $data = M('user')
+            ->join('az_artist_apply on az_artist_apply.user_id=az_user.id','left')
+            ->join('az_artwork on az_artwork.artist=az_user.id','left')
+            ->where($where)
+            ->field('az_artist_apply.resume,az_artist_apply.school,az_artist_apply.contract_img,az_artist_apply.province,az_artist_apply.city,az_artist_apply.area,count(az_artwork.id) as gallery_art_total,az_artist_apply.is_wechat_friend,az_user.id,az_user.type,az_user.face,az_user.nickname,az_user.mobile,az_user.create_time,az_user.gender,az_user.birthday,az_user.art_total,az_user.follower_total,az_user.follow_total,az_user.login_times,az_user.last_login_time,az_user.invite_total')
+            ->find();
+
+        $typeMap = ['1' => '欣赏者', '3' => '创作者'];
+        $genderType = ['1' => '男', '2' => '女'];
+        $applyInfo = $applyLogic->where(['user_id' => $id])->find();
+        $data['truename'] = $applyInfo['name'];
+        $data['IDNO'] = $applyInfo['id_card_no'];
+        $data['selfInviteCode'] = $inviteLogic->getInvite($id);
+        $data['inviteCode'] = $applyInfo['invite_code'];
+        $data['like_total'] = $likeLogic->totalByUser($id, 1);
+        $data['view_total'] = intval($artLogic->where(['is_deleted' => 'N', 'artist' => $id])->sum('view_total'));
+        $data['share_total'] = intval($artLogic->where(['is_deleted' => 'N', 'artist' => $id])->sum('share_total'));
+        $data['comment_total'] = $commentLogic->totalByUser($id, 1);
+        $data['show_type'] = $typeMap[$data['type']];
+        $data['show_gender'] = $genderType[$data['gender']];
+        $data['create_time'] = date('Y-m-d H:i', $data['create_time']);
+        $data['birthday'] = empty($data['birthday'])?'':date('Y-m-d', $data['birthday']);
+        $data['last_login_time'] = empty($data['last_login_time'])?'':date('Y-m-d H:i', $data['last_login_time']);
+        $data['cover'] = $galleryLogic->where(['artist' => $id])->getField('cover');
+        $data['cover_small']=Util::getFillImage($data['cover'],60,60);
+        $data['gallery_art_total'] = $artLogic->where("artist = ".$id." AND update_times > 0 AND state = 1 and is_deleted='N' AND (`cover` <> ''  or  `panorama_ids` <> '') ")->count();
+        $data['face_small']=Util::getFillImage($data['face'],60,60);
+
+        $data['contract_img'] = empty($data['contract_img'])?[]:explode(',',$data['contract_img']);
+        $contract_img= [];
+        foreach ($data['contract_img'] as $v) {
+            $small = Util::getFillImage($v,60,60);
+            $contract_img[] = ['raw'=>$v, 'mini'=>$small];
+        }
+        $data['contract_img']=$contract_img;
+        $address=$data['province'].','.$data['city'].','.$data['area'];
+        $address =M('area')->field('aname')->where(['id'=>['in',$address]])->select();
+        $data['address'] = implode('',array_column($address,'aname'));
+
+        //艺术家举办活动信息
+        $art_show_info = M('subject')->field('sub_title')->where(['artist'=>$id,'type'=>1])->order('start_time')->select();//微画展
+        $interview_info = M('subject')->field('sub_title')->where(['artist'=>$id,'type'=>2])->order('start_time')->select();//微专访
+        $pa_show_info = M('subject')->field('sub_title')->where(['artist'=>$id,'type'=>3])->order('start_time')->select();//PA画展
+
+        if(empty($art_show_info)){
+            $data['is_art_show']='未办';
+        }else{
+            $data['is_art_show']=implode('、',array_column($art_show_info,'sub_title'));
+        }
+        if(empty($interview_info)){
+            $data['is_interview']='未办';
+        }else{
+            $data['is_interview']=implode('、',array_column($interview_info,'sub_title'));
+        }
+        if(empty($pa_show_info)){
+            $data['is_pa_show']='未办';
+        }else{
+            $data['is_pa_show']=implode('、',array_column($pa_show_info,'sub_title'));
+        }
+
+        //艺术家作品
+        $artworks = M('artwork')
+            ->field('id,name,cover,panorama_ids,topography_ids,update_times')
+            ->where("artist=".$id." and state=1 and is_deleted='N'")
+            ->order('id DESC')
+            ->select();
+        foreach($artworks as $key=>$value){
+            $artwork_name=trim($value['name']);
+            if(preg_match("/《(.*)》/",$artwork_name)){
+                if(mb_strlen($artwork_name,'utf-8') >7){
+                    $artwork_name = mb_substr($artwork_name,0,7,'utf-8');
+                    if(!preg_match("/《(.*)》/",$artwork_name)){
+                        if(preg_match("/《(.*)/",$artwork_name)){
+                            $artwork_name = $artwork_name. '...》';
+                        }else{
+                            $artwork_name = '《' .$artwork_name. '...》';
+                        }
+                    }else{
+                        $artwork_name = $artwork_name. '...';
+                    }
+                }
+            }else{
+                if(mb_strlen($artwork_name,'utf-8') >7){
+                    $artwork_name = mb_substr($artwork_name,0,7,'utf-8').'...';
+                }
+                $artwork_name = '《' .$artwork_name. '》';
+            }
+            $artworks[$key]['name']=$artwork_name;
+            $cover = '';
+            if(!empty($value['cover'])){
+                $cover= $value['cover'];
+            }else{
+                if(!empty($value['panorama_ids'])){
+                    $cover= explode(',',$value['panorama_ids'])[0];
+                }else{
+                    if(!empty($value['topography_ids'])){
+                        $cover= explode(',',$value['topography_ids'])[0];
+                    }else{
+                        $cover=C('ADMIN_FACE');
+                    }
+                }
+            }
+            $artworks[$key]['cover']=Util::getFillImage($cover,140,140);
+        }
+        $this->assign('artworks', $artworks);
+        $this->assign('detail', $data);
+        $this->assign('page', $page);
+        $this->assign('art_show_info', $art_show_info);
+        $this->assign('interview_info', $interview_info);
+        $this->assign('pa_show_info', $pa_show_info);
+        $this->display('artistDetail');
+    }
+
+    //艺术家专题列表
+    public function artistSubjectDetail(){
+        $type = I('get.type');
+        $id = intval(I('get.id'));
+        $data = M('subject')->field('id,sub_title,start_time')->where(['artist'=>$id,'type'=>$type])->order('start_time')->select();
+        foreach($data as $k=>$v){
+            $data[$k]['start_time'] = date('Y-m-d', $v['start_time']);
+            $data[$k]['link'] = C('m_site') . '/subject/detail/' . $v['id'];
+        }
+        $this->assign('data', $data);
+        $this->display();
+    }
+
+    public function bigImage(){
+        $src = I('get.src');
+        $this->assign('src', $src);
+        $this->display();
+    }
+
+
+    //编辑标签操作
+    public function editArtist()
+    {
+        $id = I('post.id');
+        $is_wechat_friend = I('post.is_wechat_friend');  //是否添加微信好友
+
+        if($is_wechat_friend){
+            $data['is_wechat_friend']=$is_wechat_friend;
+            $save_id = M('artist_apply')->where(['user_id'=>$id])->save($data);
+        }
+
+        if ($save_id) {
+            $response = ['error' => 0, 'message' => 'OK'];
+            echo json_encode($response);
+        } else {
+            $response = ['error' => 1, 'message' => '更新失败，请重试'];
+            echo json_encode($response);
+        }
+    }
+
+
+    public function blacklistDel()
+    {
+        $user_blacklist_M = M('user_blacklist');
+        $id = (int)I('get.id');
+
+        $where['id']=$id;
+
+        $data['status'] = 0;
+        $user_blacklist_M->where($where)->save($data);
+
+        $this->success('删除成功');
+    }
+    public function blacklist()
+    {
+        $pagesize=10;
+
+        $page = I('get.page', '1');  //页码
+        $nickname = I('get.nickname');
+
+        $user_blacklist_M = M('user_blacklist');
+
+        $where['status'] = 1;
+        if(trim($nickname)!='') {
+            $where['nickname'] = ['like', '%' . $nickname . '%'];
+        }
+        $Total = $user_blacklist_M
+            ->join('az_user on az_user_blacklist.user_id=az_user.id')
+            ->where($where)->count();
+
+        $lists = $user_blacklist_M
+            ->field('az_user.id as user_id,az_user.nickname,az_user_blacklist.create_time,az_user_blacklist.content,az_user_blacklist.id')
+            ->join('az_user on az_user_blacklist.user_id=az_user.id')
+            ->where($where)
+            ->order('id desc')
+            ->page($page, $pagesize)
+            ->select();
+
+
+
+
+        $nav = Nav::render(U('Admin/User/blacklist'), ['nickname' => $nickname], $page, $pagesize,$Total);
+        $this->assign('nav', $nav);
+        $this->assign('lists', $lists);
+
+
+
+        $this->display();
+    }
+
+    public function SetToBlacklistStep1()
+    {
+        $user_id = (int)I('get.user_id');
+        $userLogic = new UserLogic();
+        $where['id'] = $user_id;
+        $user_info = $userLogic->where($where)->find();
+
+        if (!$user_info) {
+            $this->error('用户不存在');
+        }
+        $this->assign('user_info', $user_info);
+        $this->display();
+
+    }
+
+    public function SetToBlacklist(){
+        $user_id = (int)I('post.user_id');
+        $content = I('post.content');
+
+        $user_blacklist_M = M('user_blacklist');
+        $userLogic = new UserLogic();
+
+        $user_where['id'] = $user_id;
+        $user_info = $userLogic->where($user_where)->find();
+
+        if (!$user_info) {
+            $this->error('用户不存在');
+        }
+
+        if (trim($content)=='') {
+            $this->error('备注不能为空');
+        }
+
+        $blacklist_where['status']=1;
+        $blacklist_where['user_id']=$user_id;
+
+        $blacklist_info=$user_blacklist_M->where($blacklist_where)->find();
+        if(!$blacklist_info) {
+
+            $data['user_id'] = $user_id;
+            $data['content'] = $content;
+            $data['create_time'] = time();
+
+            $user_blacklist_M->data($data)->add();
+            $this->success('添加成功', U('User/blacklist'));
+        }else{
+            $this->error('已经在黑名单了，不能添加');
+        }
+    }
+}

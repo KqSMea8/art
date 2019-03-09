@@ -1,0 +1,35 @@
+<?php
+
+namespace Admin\Logic;
+
+use Common\Base\AdminBaseLogic;
+use Custom\Helper\Util;
+
+class AdminLogic extends AdminBaseLogic
+{
+
+    public function checkPassword($account, $password)
+    {
+        $adminDetail = $this->model->where(['account'=>$account])->find();
+        if (empty($adminDetail)) {
+            return false;
+        }
+        if ($adminDetail['is_deleted'] == 'Y') {
+            return -1;
+        }
+        $encInfo = Util::encryptPassword($password, $adminDetail['enc_salt']);
+        if ($adminDetail['enc_password'] !== $encInfo['encryptedPassword']) {
+            return -2;
+        }
+        return true;
+    }
+    public function getDetailByAccount($account)
+    {
+        $adminDetail = $this->model->where(['account'=>$account])->find();
+        if (empty($adminDetail)) {
+            return [];
+        } else {
+            return $adminDetail;
+        }
+    }
+}

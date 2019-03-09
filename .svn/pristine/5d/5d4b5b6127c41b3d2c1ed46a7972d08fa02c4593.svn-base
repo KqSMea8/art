@@ -1,0 +1,12 @@
+var vmAuth = new Vue({
+  el: '#reg',
+  data: {
+    mobile: '',
+    imgcode: ''
+  },
+  methods: {
+    goToSecond: function () {
+      window.location.href = '/home/forget/second';
+    }
+  }
+});

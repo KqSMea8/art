@@ -1,0 +1,10 @@
+<?php
+
+namespace Mp\Model;
+
+use Mp\Base\BaseModel;
+
+class SubjectApplyModel extends BaseModel
+{
+    protected $tableName = 'subject_apply';
+}

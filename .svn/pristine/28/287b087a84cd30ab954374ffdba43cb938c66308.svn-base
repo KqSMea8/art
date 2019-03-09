@@ -1,0 +1,60 @@
+<?php
+
+namespace V47\Controller;
+
+use V47\Base\ApiBaseController;
+use V47\Logic\ArtworkCategoryLogic;
+use V47\Logic\ArtworkColorLogic;
+use V47\Logic\ArtworkLikeLogic;
+use V47\Logic\MessageLogic;
+use V47\Logic\ArtworkLogic;
+use V47\Logic\ArtworkTagLogic;
+use V47\Logic\InviteLogLogic;
+use V47\Logic\ArtworkUpdateLogic;
+use V47\Logic\CommentLogic;
+use V47\Logic\ArtistApplyLogic;
+use V47\Logic\AssetsLogic;
+use V47\Logic\PlannerLogic;
+use V47\Logic\UserLogic;
+use Custom\Define\Code;
+use Custom\Helper\Checker;
+use Custom\Helper\Util;
+use V47\Model\AreaModel;
+use Custom\Helper\Verify;
+use Custom\Define\Image;
+use Custom\Manager\Token;
+/**
+ * 认证策展人
+ * @author:xugx
+ */
+class AuthPlannerController extends ApiBaseController{
+  public function stepOne(){
+    $all = I('post.');
+    Verify::all($all,[
+      'trueName' => '!',
+      'phone' => '!',
+      'email' => '!',
+      'resume' => '!'
+    ]);
+    $all['uid'] = $this->loginUserId;
+    $plannerLogic = new PlannerLogic();
+    $result = $plannerLogic->stepOne($all);
+    Util::jsonReturn([],$result['status'],$result['msg']);
+  }
+  public function stepTwo(){
+    $all = I('post.');
+    Verify::all($all,[
+      'plannerImages' => '!'
+    ]);
+    $all['uid'] = $this->loginUserId;
+    $plannerLogic = new PlannerLogic();
+    $result = $plannerLogic->stepTwo($all);
+    Util::jsonReturn([],$result['status'],$result['msg']);
+  }
+  public function getAuthInfo(){
+    $uid = $this->loginUserId;
+    $plannerLogic = new PlannerLogic();
+    $info = $plannerLogic->where(['uid' => $uid])->find();
+    Util::jsonReturnSuccess($info);
+  }
+}

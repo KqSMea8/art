@@ -1,0 +1,148 @@
+var vmAuth = new Vue({
+  el: '#app',
+  data: {
+    isClickgetVerify: false,
+    getVerifyCodeText: '获取验证码',
+    count: 60,
+    errorTip: '',
+    isSubmit: false,
+    ruleForm: {
+      mobile: '',
+      verifyCode: '',
+      inviteCode: ''
+    },
+    rules: {
+      mobile: [{
+        required: true,
+        message: '请输入手机号',
+        trigger: 'blur'
+      }, {
+        max: 11,
+        pattern: validInfo.mobile,
+        message: '请输入正确的手机号',
+        trigger: 'blur'
+      }],
+      verifyCode: [{
+        required: true,
+        message: '请输入验证码',
+        trigger: 'blur'
+      }, {
+        max: 6,
+        pattern: validInfo.verifyCode,
+        message: '请填写正确的验证码',
+        trigger: 'blur'
+      }],
+      inviteCode: [{
+        required: true,
+        message: '请输入邀请码',
+        trigger: 'blur'
+      }],
+    }
+  },
+  methods: {
+    submitForm: function (formName) {
+      var that = this;
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          //避免重复点击提交
+          if (this.isSubmit) {
+            return false;
+          }
+          this.isSubmit = true;
+          this.errorTip = "提交中，请稍后";
+
+          artzheAgent.call('UserCenter/applyArtistStepOne',this.ruleForm,function(res) {
+            that.isSubmit = false;
+            console.log(res);
+            if (res.code == 30000) {
+              window.location.href = '/home/auth/second';
+            } else if (res.code == 30110 || res.code == 30104) {
+              that.errorTip = "请输入正确的验证码";
+            } else if (res.code == 30113) {
+              that.errorTip = "您输入的邀请码不存在";
+            }
+          });
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    getVerifyCode: function () {
+      console.log('getVerifyCode');
+      var that = this;
+      var data = {
+        mobile: this.ruleForm.mobile
+      };
+      this.$refs['ruleForm'].validateField('mobile',
+        function (errorMsg) {
+          if (errorMsg) {
+            console.log(errorMsg);
+          } else {
+          console.log('haha');
+          if (that.isClickgetVerify) {
+            return false;
+          }
+          that.setTime();
+          artzheAgent.call('user/sendVerifyCode', data,function(res) {
+            console.log(res);
+            if (res.code == 30000) {
+
+            }
+          });
+          return false;
+        }
+      });
+
+      // var mphone = /^1[34578]{1}\d{9}$/;
+      // if (this.ruleForm.mobile == '') {
+      //   return false;
+      // }
+      // if (!mphone.test(this.ruleForm.mobile)) {
+      //   return false;
+      // }
+      // var that = this;
+      // var data = {
+      //   mobile: this.ruleForm.mobile
+      // };
+      // if (this.isClickgetVerify) {
+      //   return false;
+      // }
+      // this.setTime();
+      // $.ajax({
+      //   type: "POST",
+      //   url: '/Api/user/sendVerifyCode', //获取手机验证码
+      //   data: data,
+      //   success: function(res) {
+      //     console.log('获取手机验证码', res);
+      //     if (res.code == '30000') {
+      //       if (res.data.status == '1000') {
+
+      //       }
+      //       // that.verifycode = 1234;
+      //       // that.verifycode = res.data.verifycode;
+      //     }
+
+      //   }
+      // });
+    },
+    setTime: function (argument) {
+      var that = this;
+      var count = this.count;
+      if (this.count == 0) {
+        this.isClickgetVerify = false;
+        this.getVerifyCodeText = "重新发送";
+        this.count = 60;
+        return false;
+      } else {
+        this.isClickgetVerify = true;
+        this.getVerifyCodeText = this.count + "S";
+        this.count = --count;
+        // console.log(this.count);
+      }
+      setTimeout(function() {
+        that.setTime();
+      }, 1000);
+    }
+  }
+});

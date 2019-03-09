@@ -1,0 +1,150 @@
+<extend name="Public:base" />
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    首页最新动态设置
+                </div>
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <a class="btn btn-default" href="{:U('Admin/WebsiteConfig/showAddNews')}">添加</a>
+                        </div><!-- /.col-lg-6 -->
+                    </div><!-- /.row -->
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <table width="100%" class="table table-striped table-bordered table-hover" >
+                        <thead>
+                        <tr>
+                            <th class="col-sm-1"></th>
+                            <th class="col-sm-1">动态ID</th>
+                            <th class="col-sm-2">标题</th>
+                            <th class="col-sm-2">动态时间</th>
+                            <th class="col-sm-2">创建时间</th>
+                            <th class="col-sm-1">浏览次数</th>
+                            <th class="col-sm-1">类型</th>
+                            <!--<th class="col-sm-2">数据来源</th>-->
+                            <th class="col-sm-2">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <form name="newsform" id="newsform" action="{:U('Admin/WebsiteConfig/deleteNews')}"
+                              class="form-inline">
+                        <foreach name="lists" item="news" key="k" >
+                            <tr>
+                                <td><input name="id[]" type="checkbox" value="{$news['id']}"/></td>
+                                <td>{$news['id']}</td>
+                                <td>{$news['title']}</td>
+                                <td>{$news['news_date']|date='Y-m-d H:i:s',###}</td>
+                                <td>{$news['createtime']|date='Y-m-d H:i:s',###}</td>
+                                <td>{$news['view_total']}</td>
+                                <td>{$news['type']}</td>
+                               <!-- <td>{$news['source']}</td>-->
+                                <td>
+                                    <a href="{:U('Admin/WebsiteConfig/getNewsDetail',['id'=>$news['id']])}">查看详情</a>&nbsp;||
+                                    <a href="{:U('Admin/WebsiteConfig/showEditNews',['id'=>$news['id']])}">编辑</a>&nbsp;|
+                                    <!-- <a href="{:U('Admin/WebsiteConfig/deleteImage',['id'=>$image['id']])}">删除</a>-->
+                                    <a href="#" onclick="return delete_comment(<?php echo $news['id']; ?>,this)">删除</a>
+                                </td>
+                            </tr>
+                        </foreach>
+                            <tr>
+                                <th colspan="8"><a href="#" onclick="return check_all()">全选/全不选</a> &nbsp;|&nbsp;
+                                    <a href="#" onclick="return dele_select(this)">删除选中的评论</a></th>
+                            </tr>
+                        </form>
+                        </tbody>
+                    </table>
+                    <!-- /.table-responsive -->
+                    <!-- TODO:page -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+</block>
+<block name="customJs">
+    <script>
+        function delete_comment(id, obj) {
+            $.prompt("确定删除？", {
+                title: "提示",
+                buttons: {"确定": true, "取消": false},
+                submit: function (e, v, m, f) {
+                    if (v == true) {
+                        $(obj).after("<img id='loading" + id + "' src='/Public/Admin/image/loading.gif' /> ");
+                        $.ajax({
+                            type: 'post',
+                            url: '<?php echo U('Admin/WebsiteConfig/deleteNews');?>',
+                            data: "id=" + id,
+                            cache: false,
+                            dataType: 'json',
+                            error: function (data) {
+                                alert("error");
+                            },
+                            success: function (data) {
+                                // alert(data);
+                                if (data.error == 0) {
+                                    $("#loading" + id).remove();
+                                    $(obj).parent().parent().remove();
+                                }
+
+                            }
+                        });
+                    }else{
+
+                    }
+                }
+            });
+            return false;
+        }
+
+        var allCheck = false;
+        function check_all() {
+            allCheck = !allCheck;
+            $('input[name="id[]"]').each(function () {
+                $(this).prop("checked", allCheck);
+            });
+        }
+
+        function dele_select(obj) {
+            $.prompt("确定删除？", {
+                title: "提示",
+                buttons: {"确定": true, "取消": false},
+                submit: function (e, v, m, f) {
+                    if (v == true) {
+                        $(obj).after("<img id='loading_select' src='/Public/Admin/image/loading.gif' /> ");
+                        $.ajax({
+                            type: 'post',
+                            url: '<?php echo U('Admin/WebsiteConfig/deleteNews');?>',
+                            data: $("#newsform").serialize(),
+                            cache: false,
+                            dataType: 'json',
+                            error: function (data) {
+                                alert("error");
+                            },
+                            success: function (data) {
+                                //alert(data);
+                                if (data.error == 0) {
+                                    $("#loading_select").remove();
+                                    $('input[name="id[]"]').each(function () {
+                                        if ($(this).prop("checked") == true) {
+                                            $(this).parent().parent().remove();
+                                        }
+                                    });
+                                }
+
+                            }
+                        });
+                    }else{
+
+                    }
+                }
+            });
+            return false;
+        }
+    </script>
+</block>

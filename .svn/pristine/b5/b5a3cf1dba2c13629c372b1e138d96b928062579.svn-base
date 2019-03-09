@@ -1,0 +1,134 @@
+<?php
+
+namespace V44\Logic;
+
+use V44\Base\BaseLogic;
+use V44\Logic\ArtworkLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+/**
+ * 用户咨询艺术家
+ * Class ArtCircleLikeLogic
+ * @package V44\Logic
+ */
+class ArtworkConsultationLogic extends BaseLogic
+{
+
+    /**
+     * 获取咨询总数
+     * @param $conditionArray 条件
+     * @return int
+     */
+    public function getHistoryTotal($artworkId=0, $userId=0, $userToId=0)
+    {
+        if($userToId == 0){//用户咨询艺术家
+            $artwork = new ArtworkLogic();
+            $artworkinfo = $artwork->field('artist')->where(['id' => $artworkId, 'is_deleted' => 'N'])->find();
+            $userTo= $artworkinfo['artist'];
+        }else{//艺术家回复用户
+            $userTo = $userToId;
+        }
+        $where['type'] = 1;
+        $where['topic_id'] = intval($artworkId);
+        $where['is_deleted'] = 'N';
+        $where['_string'] = "(user={$userId} and user_to={$userTo}) or (user={$userTo} and user_to={$userId})";
+        $total = $this->model->where($where)->count();
+
+        if (empty($total)) {
+            return 0;
+        } else {
+            return intval($total);
+        }
+    }
+
+
+    /**
+     * @param $artworkId 咨询的画作
+     * @param $userId 咨询的用户
+     * @return array
+     */
+    public function getHistory($artworkId=0, $userId=0, $userToId=0, $page=1, $pagesize=10)
+    {
+        $userLogic = new UserLogic();
+        if($userToId == 0){//用户咨询艺术家
+            $artwork = new ArtworkLogic();
+            $artworkInfo = $artwork->field('artist')->where(['id' => $artworkId, 'is_deleted' => 'N', 'state' => 1])->find();
+            $userTo= $artworkInfo['artist'];
+        }else{//艺术家回复用户
+            $userTo = $userToId;
+        }
+
+        $where['type'] = 1;
+        $where['topic_id'] = intval($artworkId);
+        $where['is_deleted'] = 'N';
+        $where['_string'] = "(user={$userId} and user_to={$userTo}) or (user={$userTo} and user_to={$userId})";
+        $list=$this->model->field('id,user,user_to,content,create_time')
+           ->where($where)
+           ->order('create_time desc')
+           ->page($page,$pagesize)
+           ->select();
+
+        foreach($list as $key=>$value){
+            $list[$key]['create_time'] = date('Y-m-d H:i',$value['create_time']);
+            $face = $value['user'] == '-1' ? C('ADMIN_FACE') : $userLogic->getUserField('face', $value['user']);
+            $name = $value['user'] == '-1' ? C('ADMIN_NAME') : $userLogic->getUserField('nickname', $value['user']);
+            $list[$key]['userInfo']=[
+                'id'=>$value['user'],
+                'face'=>empty($face) ? Util::getImageResize(C('ADMIN_FACE'), Image::faceWidth, Image::faceHeight) : Util::getImageResize($face, Image::faceWidth, Image::faceHeight),
+                'name'=>$name,
+            ];
+            unset($list[$key]['user']);
+        }
+       if(!empty($list)){
+           return $list;//array_reverse($list);
+       }else{
+           return [];
+       }
+    }
+
+    /**
+     * 咨询或回复
+     * 1.如果参数$userToId不为0  则是艺术家回复用户
+     * 2.参数$userToId为0  则是用户咨询艺术家
+     */
+    public function consultationAndReply($artworkId=0, $userId=0, $userToId=0,$content='')
+    {
+        $messageLogic = new MessageLogic();
+        $userLogic = new UserLogic();
+        $data['user'] = $userId;
+        $data['type'] = 1;
+        $data['topic_id'] = $artworkId;
+        $data['content'] = $content;
+        $data['create_time'] = time();
+        if($userToId == 0){//用户咨询艺术家
+            $artwork = new ArtworkLogic();
+            $artworkinfo = $artwork->field('artist')->where(['id' => $artworkId, 'is_deleted' => 'N', 'state' => 1])->find();
+            $data['user_to'] = $artworkinfo['artist'];
+        }else{//艺术家回复用户
+            $data['user_to'] = $userToId;
+        }
+        $id=$this->model->add($data);
+        if(!empty($id)){
+            if($userToId == 0) {//用户咨询艺术家
+                $messageLogic->sendMessage($data['user'], $data['user_to'], $data['content'], $messageLogic->type['userConsultation'], MessageLogic::$linkmsg, '', '', false, '', $data['topic_id']);
+            }else{//艺术家回复用户
+                $messageLogic->sendMessage($data['user'], $data['user_to'], $data['content'], $messageLogic->type['artistReplyConsultation'], MessageLogic::$linkmsg, '', '', false, '', $data['topic_id']);
+            }
+            $info=$this->model->field('id,user,user_to,content,create_time,topic_id')->find($id);
+            $info['create_time'] = date('Y-m-d H:i',$info['create_time']);
+            $face = $info['user'] == '-1' ? C('ADMIN_FACE') : $userLogic->getUserField('face', $info['user']);
+            $name = $info['user'] == '-1' ? C('ADMIN_NAME') : $userLogic->getUserField('nickname', $info['user']);
+            $info['userInfo']=[
+                'id'=>$info['user'],
+                'face'=>empty($face) ? Util::getImageResize(C('ADMIN_FACE'), Image::faceWidth, Image::faceHeight) : Util::getImageResize($face, Image::faceWidth, Image::faceHeight),
+                'name'=>$name,
+            ];
+            unset($info['user']);
+            return empty($info)?'':$info;
+        }else{
+            return '';
+        }
+    }
+}

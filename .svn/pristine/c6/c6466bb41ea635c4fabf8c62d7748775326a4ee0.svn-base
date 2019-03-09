@@ -1,0 +1,11 @@
+<?php
+
+namespace Mp\Model;
+
+
+use Mp\Base\BaseModel;
+
+class InviteModel extends BaseModel
+{
+    protected $tableName = 'invite';
+}

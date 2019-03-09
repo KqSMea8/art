@@ -1,0 +1,24 @@
+<?php
+
+namespace V40\Logic;
+
+use V40\Base\BaseLogic;
+
+
+class ArticleLogic extends BaseLogic
+{
+
+    public static function replaceHtmlImgSrc($find,$content){
+        foreach ($find as $key => $value) {
+            $content = str_replace($value,$value.'?x-oss-process=image/resize,m_fixed,w_702,q=50,image/format,jpg',$content);
+        }
+        return $content;
+    }
+    public static function getHtmlImgSrc($content){
+        $match = [];
+       //preg_match_all('/(img.*?src="(.*?)")/',$content,$match);
+       preg_match_all('/<img.*?src="(.*?)".*?>/',$content,$match);
+
+        return $match[1];
+    }
+}

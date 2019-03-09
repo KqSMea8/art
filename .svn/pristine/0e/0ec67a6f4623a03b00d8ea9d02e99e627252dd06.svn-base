@@ -1,0 +1,14 @@
+<?php
+namespace Home\Controller;
+use Think\Controller;
+class ForgetController extends Controller {
+    public function first(){
+      $this->display();
+    }
+    public function second(){
+      $this->display();
+    }
+    public function third(){
+      $this->display();
+    }
+}

@@ -1,0 +1,10 @@
+<?php
+
+namespace V43\Model;
+
+
+use V43\Base\BaseModel;
+
+class AreaModel extends BaseModel{
+    protected $tableName = 'area';
+}

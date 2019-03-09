@@ -1,0 +1,13 @@
+# Token structure
+
+```
+{
+    "userInfo":{},
+    "thirdInfo":{},
+    "isLogin":false,
+    "thirdFullInfo":{}
+}
+
+```
+> 其中thirdFullInfo：第三方传过来的完整登录信息
+> userInfo可能会改变，请只使用其中的id(userId)

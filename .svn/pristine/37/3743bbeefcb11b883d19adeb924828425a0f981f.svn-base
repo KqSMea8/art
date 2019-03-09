@@ -1,0 +1,11 @@
+<?php
+
+namespace V22\Model;
+
+
+use V22\Base\BaseModel;
+
+class ArtworkColorModel extends BaseModel
+{
+    protected $tableName = 'artwork_color';
+}

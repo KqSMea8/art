@@ -1,0 +1,250 @@
+<?php
+
+namespace V51\Logic;
+
+use V51\Base\BaseLogic;
+use V51\Logic\ArtworkLogic;
+use V51\Logic\UserLogic;
+use V51\Logic\ArtworkUpdateLogic;
+use V51\Logic\MessageLogic;
+use V51\Logic\RecommendLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+class ArtworkLikeLogic extends BaseLogic
+{
+    public function getList($userId, $page, $perPageCount,$type = '1')
+    {
+      $artLogic = new ArtworkLogic();
+      $userLogic = new UserLogic();
+      $returns = [];
+        $data_artwork = $this->model
+            ->table('az_artwork_like a')
+            ->join('az_artwork_update b on a.artwork_id=b.id and a.type=2','left')
+            ->field('(CASE when a.type=1 THEN a.artwork_id else  b.artwork_id end) as artwork_id,(CASE when a.type=1 THEN 0 else  a.artwork_id end) as artworkupdateid')
+            ->where("a.`like_user_id` =".$userId." AND a.`is_like` = 'Y'")
+            ->group('artwork_id')
+            ->page($page, $perPageCount)
+            ->order('a.like_time desc')
+            ->select();
+//echo $this->getLastSql();exit;
+   if($data_artwork){
+       $artwork_ids=[];
+       $artworkUpdateIds=[];
+       foreach ($data_artwork as $key => $value) {
+           array_push($artwork_ids, $value['artwork_id']);
+           $artworkUpdateIds[$value['artwork_id']]=$value['artworkupdateid'];
+       }
+
+       //print_r(implode(",", $artwork_ids));
+       $data = $artLogic
+           //->field('(CASE when a.type=1 THEN a.artwork_id else  b.artwork_id end) as artwork_id')
+           ->where(array('id'=>array('in',implode(",", $artwork_ids))))
+           ->select();
+
+       $artwork_nostory_ids=[];//保存没有story的id
+       foreach ($data as $artwork) {
+           if(trim($artwork['story'])=='')array_push($artwork_nostory_ids, $artwork['id']);
+       }
+
+       if(count($artwork_nostory_ids)) {
+           $ArtworkUpdate = new ArtworkUpdateLogic();
+           //分组，取出最新的id
+           $data_Update_id_list = $ArtworkUpdate
+               ->field('max(id) as id')
+               ->where(array('artwork_id' => array('in', implode(",", $artwork_nostory_ids))))
+               ->group('artwork_id')
+               ->select();
+           $data_Update_ids = [];
+           foreach ($data_Update_id_list as $key => $value) {
+               array_push($data_Update_ids, $value['id']);
+           }
+
+           //取出artwork_id wit
+           $data_Update = $ArtworkUpdate
+               ->field('artwork_id,wit')
+               ->where(array('id' => array('in', implode(",", $data_Update_ids))))
+               ->select();
+           $wit_list = [];
+           foreach ($data_Update as $key => $value) {
+               $wit_list[$value['artwork_id']] = $value['wit'];
+           }
+       }
+
+
+       $list=[];//保存排序
+       foreach ($artwork_ids as $key => $value) {//按照第一次查询的排序
+           $list["".$value.""]='';
+       }
+
+       foreach ($data as $key => $value) {//排序完赋值
+           if(trim($value['panorama_ids'])!=''){//有全局图就不显示封面
+               $images = explode(',',$value['panorama_ids']);
+               $img=$images[0];
+           }else{
+               $img = $value['cover'];
+           }
+           $list[$value['id']]=[
+               'state' => $value['state'],
+               'artworkId' => $value['id'],
+               'artworkupdateid'=>(int)$artworkUpdateIds[$value['id']],
+               'coverUrl' => empty($img)? '':Util::getFillImage($img,Image::faceWidth,Image::faceHeight),
+               'name' => $value['name'],
+               'updateTimes' => $value['update_times'],
+               'artistName' => $userLogic->getUserField('nickname',$value['artist']),
+               'story' => trim($value['story'])!=''?$value['story']:html_deconvert_content_cut($wit_list[$value['id']],54)
+
+           ];
+
+       }
+       foreach ($list as $key => $value) {//去掉$list的key
+           $returns[]=$value;
+       }
+     return $returns;
+   }
+
+      return $returns;
+    }
+    public function like($data,$type = 1){
+        $recommendLogic = new RecommendLogic();
+        $messageLogic = new MessageLogic();
+        if(empty($this->where(['type'=>$type,'artwork_id'=>$data['artwork_id'],'like_user_id'=>$data['like_user_id'],'is_like'=>'Y'])->find())){
+
+            if($type == 1){
+                $artwork = new ArtworkLogic();
+                $artworkinfo=$artwork->where(['id' => $data['artwork_id'],'is_deleted'=>'N'])->find();
+                if($artworkinfo) {
+                    $id = $this->add($data);
+                    $artwork->where(['id' => $data['artwork_id']])->setInc('like_total', 1);
+                    $messageLogic->like($data['like_user_id'], $data['artwork_id']);
+                    $recommendLogic->toArtworklike($data['artwork_id'], $data['like_user_id']);
+                    return $id;
+                }else{
+                    return false;
+                }
+            }elseif($type == 2){
+                $artwork = new ArtworkUpdateLogic();
+                $ArtworkUpdateinfo=$artwork->where(['id' => $data['artwork_id'],'is_deleted'=>'N'])->find();
+                if($ArtworkUpdateinfo){
+                    $id = $this->add($data);
+                $artwork->where(['id'=>$data['artwork_id']])->setInc('like_total',1);
+                $artId = $artwork->where(['id' => $data['artwork_id']])->getField('artwork_id');
+                $messageLogic->like($data['like_user_id'],$artId);
+
+                //艺术品更新的喜欢，也增加艺术品的like_totle
+                $artwork = new ArtworkLogic();
+                $artwork->where(['id'=>$ArtworkUpdateinfo['artwork_id']])->setInc('like_total',1);
+                    return $id;
+                }else{
+                    return false;
+                }
+
+            }
+
+        }else{
+            return false;
+        }
+    }
+    public function saveUnlike($unlikeData,$type = 1)
+    {
+        $recommendLogic = new RecommendLogic();
+        $condition = ['artwork_id'=>$unlikeData['artwork_id'],'like_user_id'=>$unlikeData['like_user_id'],'type'=>$type,'is_like'=>'Y'];
+        $likeinfo=$this->where(['type'=>$type,'artwork_id'=>$unlikeData['artwork_id'],'like_user_id'=>$unlikeData['like_user_id'],'is_like'=>'Y'])->find();
+        if($likeinfo) {
+            if ($type == 1) {
+                $artwork = new ArtworkLogic();
+                $artworkinfo = $artwork->where(['id' => $unlikeData['artwork_id'], 'is_deleted' => 'N'])->find();
+                if ($artworkinfo) {
+                    $like_total = $artworkinfo['like_total'];
+                    if ($like_total > 1) {
+                        $artwork->where(['id' => $unlikeData['artwork_id']])->setDec('like_total', 1);
+                    } else {
+                        $artwork->where(['id' => $unlikeData['artwork_id']])->setField('like_total', 0);
+                    }
+                    $recommendLogic->toArtworkunlike($unlikeData['artwork_id'], $unlikeData['like_user_id']);
+                }
+
+            } elseif ($type == 2) {
+                $artwork = new ArtworkUpdateLogic();
+                $ArtworkUpdateinfo = $artwork->where(['id' => $unlikeData['artwork_id'], 'is_deleted' => 'N'])->find();
+                if ($ArtworkUpdateinfo) {
+                    $like_total = $ArtworkUpdateinfo['like_total'];
+                    if ($like_total > 1) {
+                        $artwork->where(['id' => $unlikeData['artwork_id']])->setDec('like_total', 1);
+                    } else {
+                        $artwork->where(['id' => $unlikeData['artwork_id']])->setField('like_total', 0);
+                    }
+
+                    //艺术品更新的取消喜欢，也修改艺术品的like_totle
+                    $artwork = new ArtworkLogic();
+                    $like_total = $artwork->where(['id' => $ArtworkUpdateinfo['artwork_id']])->getField('like_total');
+                    if ($like_total > 1) {
+                        $artwork->where(['id' => $ArtworkUpdateinfo['artwork_id']])->setDec('like_total', 1);
+                    } else {
+                        $artwork->where(['id' => $ArtworkUpdateinfo['artwork_id']])->setField('like_total', 0);
+                    }
+                }
+
+            }
+            return $this->where($condition)->delete();
+        }else{
+            return false;
+        }
+    }
+
+    public function delUserlike_byArtid($unlikeData){//我的喜欢页面，取消喜欢时，删除艺术品和所有更新的喜欢
+        $Model = new Model();
+
+        /*$artwork_update_list=$Model->query(" SELECT artwork_id as artwork_update_id FROM `az_artwork_like` WHERE
+ artwork_id in(select id from az_artwork_update where artwork_id=".intval($unlikeData['artwork_id']).")
+ and type=2 and like_user_id=".intval($unlikeData['like_user_id']));*/
+
+        $artwork_update_list=$Model->query(" SELECT id as artwork_update_id  from az_artwork_update where artwork_id=".intval($unlikeData['artwork_id']));
+
+
+        $Model->execute("delete FROM `az_artwork_like` WHERE 
+ artwork_id in(select id from az_artwork_update where artwork_id=".intval($unlikeData['artwork_id']).") 
+ and type=2 and like_user_id=".intval($unlikeData['like_user_id']));
+        $Model->execute("delete FROM `az_artwork_like` WHERE artwork_id=".intval($unlikeData['artwork_id'])."
+         and type=1  and like_user_id=".intval($unlikeData['like_user_id']));
+
+
+      $artwork_likes=M("ArtworkLike")->where("artwork_id=".intval($unlikeData['artwork_id'])." and type=1")->count("id");
+
+      if($artwork_update_list) {
+      foreach ($artwork_update_list as $artwork_update) {
+         // echo $artwork_update['artwork_update_id'];
+          $artwork_update_likes=M("ArtworkLike")->where("artwork_id=".intval($artwork_update['artwork_update_id'])." and type=2")->count("id");
+          $Model->execute("update az_artwork_update set like_total=".$artwork_update_likes." where id=".intval($artwork_update['artwork_update_id']));
+          $artwork_likes=$artwork_likes+$artwork_update_likes;
+      }
+      }
+     $Model->execute("update az_artwork set like_total=".$artwork_likes." where id=".$unlikeData['artwork_id']);
+
+    }
+    public function isLike($id,$type,$uid){
+      $info = $this->where(['artwork_id' => $id , 'like_user_id' => $uid ,'is_like' => 'Y','type'=>$type])->find();
+      return !empty($info) ? 'Y' : 'N';
+    }
+    public function total($id,$type){
+      return $this->where(['type'=>$type,'is_like' => 'Y','artwork_id' => $id])->count();
+    }
+    public function totalByUser($uid,$type){
+      return $this->where(['type'=>$type,'is_like' => 'Y','like_user_id' => $uid])->count();
+    }
+    public function getLikesByArtUpdate($upId,$field = ''){
+      $userLogic = new UserLogic();
+      if(empty($field)){
+        return $this->where(['type'=>2,'is_like' => 'Y','artwork_id' => $upId])->order('like_time DESC')->limit(10)->select();
+      }else{
+        $list = $this->where(['type'=>2,'is_like' => 'Y','artwork_id' => $upId])->order('like_time DESC')->limit(10)->select();
+        $fields = [];
+        foreach ($list as $key => $value) {
+          $userInfo = $userLogic->where(['id' => $value['like_user_id']])->find();
+          $fields[] = $userInfo[$field].'?x-oss-process=image/resize,m_fixed,h_180,w_180';
+        }
+        return $fields;
+      }
+    }
+}

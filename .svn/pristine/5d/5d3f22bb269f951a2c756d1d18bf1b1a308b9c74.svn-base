@@ -1,0 +1,272 @@
+<?php
+
+namespace V42\Controller;
+
+use Custom\Define\Image;
+use V42\Base\ApiBaseController;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use Think\Model;
+use Custom\Define\Cache;
+use Custom\Helper\Checker;
+use Custom\Manager\Token;
+use V42\Logic\UserFollowerLogic;
+
+
+class GuideController extends ApiBaseController
+{
+    //获取引导的状态
+    public function getStatus()
+    {
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $userId = $tokenInfo['userInfo']['id'];
+        $recommendData = M('user_recommend')->where(['user_id' => $userId])->find();
+        if (empty($recommendData)) {//未开始
+            $info = [
+                'show_tags' => 1,
+                'show_artists' => 1,
+            ];
+        } else {
+            //判断用户是否完成引导
+            if ($recommendData['status'] == 0) {//未完成，已选择标签
+                $artistList = $this->getInterestArtists($userId);
+                if (count($artistList)>0) {
+                    $info = [
+                        'show_tags' => 0,
+                        'show_artists' => 1,
+                    ];
+                } else {
+                    $info = [
+                        'show_tags' => 0,
+                        'show_artists' => 0,
+                    ];
+                    M('user_recommend')->where(['user_id' => $userId])->save(['status' => 1]);
+                }
+            } else {//完成
+                $info = [
+                    'show_tags' => 0,
+                    'show_artists' => 0,
+                ];
+            }
+        }
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //获取引导的标签
+    public function getTags()
+    {
+        $category = M('user_recommend_tag')->field('id,name,image,sort')->where(['type' => 1])->order('sort')->select();//类型
+        $subject = M('user_recommend_tag')->field('id,name,image,sort')->where(['type' => 2])->order('sort')->select();//题材
+        foreach ($category as $key => $value) {
+            $category[$key]['image'] = Util::getImageResize($value['image'], 114, 114);
+        }
+        foreach ($subject as $k => $v) {
+            $subject[$k]['image'] = Util::getImageResize($v['image'], 114, 114);
+        }
+        $info = [
+            'category' => empty($category) ? [] : $category,
+            'subject' => empty($subject) ? [] : $subject,
+        ];
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+
+    //保存用户选择的标签
+    public function saveTags()
+    {
+        $categoryIds = addslashes(trim(I('post.category_ids', '')));//选择的类型ids
+        $subjectIds = addslashes(trim(I('post.subject_ids', '')));//选择的题材ids
+        if (empty($categoryIds) || empty($subjectIds)) {
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误!');
+        }
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $userId = $tokenInfo['userInfo']['id'];
+        $data = [
+            'user_id' => $userId,
+            'interest_category_ids' => $categoryIds,
+            'interest_subject_ids' => $subjectIds,
+            'update_time' => time(),
+        ];
+        $insertId = M('user_recommend')->add($data);//类型
+        if ($insertId) {
+            //获取感兴趣艺术家个数,如果艺术家不为空
+            $list = $this->getInterestArtists($userId);
+            if (count($list)>0) {
+                $info = [
+                    'show_artists' => 1,
+                ];
+            } else {
+                $info = [
+                    'show_artists' => 0,
+                ];
+                M('user_recommend')->where(['user_id' => $userId])->save(['status' => 1]);
+            }
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+
+    }
+
+    //获取用户感兴趣艺术家
+    private function getInterestArtists($userId)
+    {
+        $recommentData = M('user_recommend')->field('interest_category_ids,interest_subject_ids')->where(['user_id' => $userId])->find();
+        if(empty($recommentData['interest_category_ids']) && empty($recommentData['interest_subject_ids'])){
+            return [];
+        }
+        $category = explode(',',$recommentData['interest_category_ids']);
+        $subject = explode(',',$recommentData['interest_subject_ids']);
+        $tags = implode(',',array_merge($category,$subject));
+        $tagsName = M('user_recommend_tag')->field('name')->where(['id' => ['in',$tags]])->select();//类型
+        $tagsName = array_column($tagsName,'name');
+
+        //获取用户关注的艺术家
+        $followList = M('user_follower')->field('user_id')->where(['follower' => $userId, 'is_follow' => 'Y'])->select();
+        $followList = array_column($followList,'user_id');
+        $followArr = implode(',',$followList);
+
+        //根据标签获取艺术家
+        $where = " az_user.type = 3 and az_user.is_deleted = 'N' and az_user.banned_to = -1 and az_artwork.is_deleted='N' and az_artwork.state=1 and az_artwork.update_times>0";
+
+        if(!empty($followList)){
+            $where = $where." and az_user.id not in ({$followArr})";
+        }
+
+        $where1 = $where;
+        $where2 = $where;
+        if(count($tagsName)>0){
+           /* if(count($tagsName)<=1){
+                $where =$where. " and (az_artwork_update.tag like '%{$tagsName[0]}%' or az_artzhe_custom.cn_name like '%{$tagsName[0]}%')";
+            }else{
+                for($i=0;$i<count($tagsName);$i++){
+                    if($i==0){
+                        $where = $where." and (az_artwork_update.tag like '%{$tagsName[$i]}%' or az_artzhe_custom.cn_name like '%{$tagsName[$i]}%'";
+                    }elseif($i==count($tagsName)-1){
+                        $where = $where." or az_artwork_update.tag like '%{$tagsName[$i]}%' or az_artzhe_custom.cn_name like '%{$tagsName[$i]}%')";
+                    }else{
+                        $where = $where."or az_artwork_update.tag like '%{$tagsName[$i]}%' or az_artzhe_custom.cn_name like '%{$tagsName[$i]}%'";
+                    }
+                }
+            }*/
+          $tagsName = implode('|',$tagsName);
+            $where1 =$where1. " and (az_artzhe_custom.cn_name REGEXP  '{$tagsName}')";//az_artwork_update.tag REGEXP  '{$tagsName}' or
+            $where2 =$where2. " and (az_artwork_update.tag REGEXP  '{$tagsName}')";//az_artwork_update.tag REGEXP  '{$tagsName}' or
+        }
+
+        $recommentList = M('user')->field("az_user.id,az_user.nickname as name,az_user.cover,az_user.follower_total")
+            ->join('az_artist_apply on az_user.id =az_artist_apply.user_id')
+            ->join('az_artwork on az_user.id =az_artwork.artist')
+            ->join('az_artzhe_custom on az_user.id =az_artzhe_custom.uid')
+            ->where($where1)
+            ->group('az_user.id')
+            ->order("FROM_UNIXTIME(az_artist_apply.verify_time,'%Y%m%d') asc")
+            ->limit(50)
+            ->select();
+
+        if(count($recommentList)<50){
+            $recommentList2 = M('user')->field("az_user.id,az_user.nickname as name,az_user.cover,az_user.follower_total")
+                ->join('az_artwork_update on az_user.id =az_artwork_update.artist')
+                ->join('az_artist_apply on az_user.id =az_artist_apply.user_id')
+                ->join('az_artwork on az_user.id =az_artwork.artist')
+                ->where($where2)
+                ->group('az_user.id')
+                ->order("FROM_UNIXTIME(az_artist_apply.verify_time,'%Y%m%d') asc")
+                ->limit(50-count($recommentList))
+                ->select();
+            $recommentList =array_merge($recommentList,$recommentList2);
+        }
+
+        if(count($recommentList)<5){
+            //获取后台配置推荐的5位艺术家
+            $recommentArtistIds = array_column($recommentList,'id');
+            $existArtistIds = implode(',',array_merge($followList,$recommentArtistIds));
+            $userModel = M('user');
+            $where = " az_user.type = 3 and az_user.is_recommend='Y' and az_user.is_deleted = 'N' and az_user.banned_to = -1";
+            if(!empty($recommentList)){
+                $where = $where." and az_user.id not in ({$existArtistIds})";
+            }
+
+
+            $configList = $userModel->field("az_user.id,az_user.nickname as name,az_user.cover,az_user.follower_total")
+                ->join('az_artist_apply on az_user.id =az_artist_apply.user_id')
+                ->where($where)
+                ->order("FROM_UNIXTIME(az_artist_apply.verify_time,'%Y%m%d') asc")
+                ->limit(5)
+                ->select();
+
+            $list =array_merge($recommentList,$configList);
+        }else{
+            $list =$recommentList;
+        }
+        return $list;
+    }
+
+    //获取用户感兴趣艺术家--引导页
+    public function getArtists()
+    {
+        //判断用户是否登录
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token);
+        $userId = $tokenInfo['userInfo']['id']; //获取登录用户的uid
+        $list = $this->getInterestArtists($userId);
+
+        foreach ($list as $key => $value) {
+            $list[$key]['cover'] = empty($value['cover']) ? '' : Util::getImageResize($value['cover'], Image::faceWidth, Image::faceHeight); //用户画廊封面
+            //人气值=所有作品花絮喜欢*1+所有作品喜欢*2+关注人数*3
+            $updateLikeTotal = M('artwork_update')->field("sum(like_total) as like_total")->where(['artist'=>$value['id']])->find();
+            $artworkLikeTotal = M('artwork')->field("sum(like_total) as like_total")->where(['artist'=>$value['id']])->find();
+            //$artworkLikeTotal = intval($artworkLikeTotal['like_total'])-intval($updateLikeTotal['like_total']);//所有作品时间喜欢数
+            $list[$key]['popularity'] = intval($updateLikeTotal['like_total']) + intval($artworkLikeTotal['like_total']) *2 + intval($value['follower_total'])*3;
+            unset( $list[$key]['follower_total']);
+        }
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => ['artists'=>$list]]);
+    }
+
+
+    //一键关注艺术家
+    public function followArtists()
+    {
+        $artists = addslashes(trim(I('post.artists', '')));//艺术家id
+        $artists = trim($artists,',');
+        if (empty($artists)) {
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误!');
+        }
+        $this->checkLogin();
+        $tokenInfo = Token::getTokenInfo($this->token); //获取用户token信息
+        if (empty($tokenInfo) || empty($tokenInfo['userInfo'])) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+        $userId = $tokenInfo['userInfo']['id'];
+        $recommendData = M('user_recommend')->where(['user_id' => $userId])->find();//类型
+        if (empty($recommendData)) {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+
+        $data = [
+            'interest_artist_ids' => $artists,
+            'update_time' => time(),
+            'status' => 1,
+        ];
+        $insertId = M('user_recommend')->where(['user_id' => $userId])->save($data);
+
+        if ($insertId) {
+            $userFollowerLogic = new UserFollowerLogic();
+            $userFollowerLogic->addFollowers($userId, $artists);
+            Util::jsonReturn(['status' => Code::SUCCESS]);
+        } else {
+            Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+        }
+
+    }
+
+
+}

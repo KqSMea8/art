@@ -1,0 +1,15 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: gsy
+ * Date: 2018/9/21
+ * Time: 14:26
+ */
+
+namespace Admin\Logic;
+
+use Admin\Base\BaseLogic;
+class ArtworkUpdateLogic extends BaseLogic
+{
+
+}

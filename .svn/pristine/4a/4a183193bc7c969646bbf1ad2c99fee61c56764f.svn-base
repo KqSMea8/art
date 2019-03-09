@@ -1,0 +1,25 @@
+html, body {
+  height: 100%;
+}
+body {
+  background: #f4f4f4;
+}
+
+.finished-title{padding:16px 0 16px 20px;border-bottom: 1px solid #e2e2e2; font-size: 22px;color: #666;}
+.finished-title span{font-size: 18px;color: #999;}
+.finished-tip{padding:62px 0 87px;text-align: center; font-size: 18px;color: #7d7d7d;}
+.finished-box{width: 730px;padding:42px 83px 50px 135px; border:1px solid #dcdcdc; margin:0 auto 60px;}
+.finished-pdr{padding-right: 84px;}
+.finished-pdr.el-select{display: block;}
+.finished-x{display: inline-block;padding:0 20px;font-size: 18px; color: #dcdcdc;}
+.finished-cm{color: #dcdcdc;font-size: 18px;}
+.el-input__inner::-webkit-input-placeholder,.el-textarea__inner::-webkit-input-placeholder{color: #c5c5c5}
+.el-input__inner::-moz-placeholder,.el-textarea__inner::-moz-placeholder {color: #c5c5c5}
+.el-input__inner:-ms-input-placeholder,.el-textarea__inner::-ms-input-placeholder {color: #c5c5c5}
+.el-input__inner::placeholder,.el-textarea__inner::placeholder {color: #c5c5c5}
+.el-textarea__inner{border-color:#dcdcdc }
+.line{height: 48px;line-height: 48px;font-size: 18px;color: #dcdcdc;}
+.upload-pic1 .el-form-item__content,.upload-pic2 .el-form-item__content{width: 350px;min-height: 95px;padding: 15px 0 15px 19px;border:1px solid #dcdcdc;line-height: 1;}
+.upload-pic1 .el-upload--picture-card,.upload-pic2 .el-upload--picture-card{width: 62px;height: 62px;line-height: 62px; border:2px dashed #5eacd4;border-radius:0;}
+.upload-pic1 .el-upload-list__item,.upload-pic2 .el-upload-list__item{width: 62px;height: 62px;}
+.upload-pic1 .el-upload-list__item,.upload-pic2 .el-upload-list__item{margin-bottom: 0;margin-right: 19px;}

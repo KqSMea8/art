@@ -1,0 +1,38 @@
+var vmGalleryDetail = new Vue({
+  // element to mount to
+  el: '#gallery-detail',
+  // initial data
+  data: {
+    boxIsShow: false,
+    shareIsShow: false,
+    boxMsg: '',
+    userInfo: {
+      "isArtist": true,
+      "id":"1212",
+      "faceUrl":"https://artzhe.oss-cn-shenzhen.aliyuncs.com/test1.png",
+      "motto":"个性签名",
+      "nickname":"昵称",
+      "gender":"男",//男，女，未知
+      "birthday":"1488957085",
+      "galleryCoverUrl":"https://artzhe.oss-cn-shenzhen.aliyuncs.com/test1.png",//画廊封面图
+      "qrCodeUrl":"https://www.baidu.com",//画廊封面图
+      "resume":"2015年获得宇宙最强艺术家奖励",//画廊封面图
+    },
+  },
+  created: function () {
+    this.$nextTick(function () {
+
+    });
+  },
+  // methods
+  methods: {
+    showShare: function () {
+      this.boxIsShow = true;
+      this.shareIsShow = true;
+    },
+    hideBox: function() {
+      this.boxIsShow = false;
+      this.shareIsShow = false;
+    }
+  }
+});

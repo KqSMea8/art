@@ -1,0 +1,131 @@
+<extend name="Public:base" />
+<block name="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    编辑图片
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" action="{:U('WebsiteConfig/editImage')}" method="post" enctype="multipart/form-data" onsubmit="return editImage();">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">图片</label>
+                            <div class="col-sm-10">
+                                <img src="{$data['url']}" width="193" height="168" border="0" />
+                                <input type="file" id="picture" name="picture" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">描述</label>
+                            <div class="col-sm-4">
+                                <textarea name="description" id="des" class="form-control" rows="3">{$data['des']}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">序号</label>
+                            <div class="col-sm-1">
+                                <input type="number" id="num" name="num" class="form-control number" value="{$data['num']}" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" name="id" value="{$data['id']}">
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-success">确定</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="{:U('WebsiteConfig/imageLunbo')}" class="btn btn-default">返回</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="customJs">
+    <script>
+        $(document).ready(function(){
+            /* $('#az-id-date-selector').datetimepicker({
+             format:'yyyy-mm-dd',
+             language:  'zh-CN',
+             weekStart: 1,
+             todayBtn:  1,
+             autoclose: 1,
+             todayHighlight: 1,
+             startView: 2,
+             minView: 2,
+             forceParse: 0
+             })*/
+
+            $('.number').bind('input propertychange', function() {
+                var re = /^0+$/;
+                var re1 = /^[0-9]/;
+                if (re.test($(this).val()) || $(this).val()<0 || !re1.test($(this).val())) {
+                    $(this).val('0');
+                }
+            });
+
+
+        });
+
+        function editImage() {
+            var des = $("#des").val();
+            var num = $("#num").val();
+
+            var check = true;
+            var message = "";
+            if ($.trim(des) == '') {
+                check = false;
+                message = message + "<li>图片描述不能为空</li>";
+            }
+            if ($.trim(num) == '') {
+                check = false;
+                message = message + "<li>序号不能为空</li>";
+            }
+            if (check == false) {
+                $.prompt("<span style=\" color:#AD6C14\">"+message+"</span>", {
+                    title: "提示",
+                    buttons: {"确定": false}
+                });
+                return false;
+            } else {
+                var formData = new FormData($(".form-horizontal")[0]);
+                $.ajax({
+                    type: 'post',
+                    url: '<?php echo U('WebsiteConfig/editImage');?>',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    dataType: 'json',
+                    error: function (data) {
+                        alert("error");
+                    },
+                    success: function (data) {
+                        // alert(data);
+                        if (data.error == 0) {
+                            $.prompt("修改成功！", {
+                                title: "提示",
+                                buttons: {"确定": true},
+                                submit: function (e, v, m, f) {
+                                    if (v == true) {
+                                        window.location.href="{:U('WebsiteConfig/imageLunbo')}";
+                                    }
+                                }
+                            });
+
+                        }else{
+                            $.prompt("<span style=\" color:#F00\">"+data.message+"</span>", {
+                                title: "提示",
+                                buttons: {"确定": false}
+                            });
+                        }
+
+                    }
+                });
+                return false;
+            }
+        }
+
+    </script>
+</block>

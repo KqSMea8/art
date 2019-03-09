@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<title>OSS web直传</title>
+	<link rel="stylesheet" type="text/css" href="/Public/Admin/oss-h5-upload/style.css"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+<style>
+	body{
+		margin: 0px;
+	}
+	.title{
+		padding: 0 80px 0 20px;
+		height: 42px;
+		line-height: 40px;
+		border-bottom: 1px solid #eee;
+		font-size: 14px;
+		color: #333;
+		overflow: hidden;
+		border-radius: 2px 2px 0 0;
+	}
+	ul{
+		list-style:none;
+		max-height: 300px;
+	}
+	#file-list {padding-left: initial;}
+	#file-list li {
+		width:150px;
+		float: left;
+		height:180px;
+		position: relative;
+		margin-bottom: inherit;
+	}
+	#file-list li a {
+		width:130px;
+		height:130px;
+		text-align: center;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin:0 auto;
+		/*border:1px solid #ccc;*/
+		padding: 5px 5px 5px 5px;
+	}
+	.close{
+		background-image: url("/Public/Admin/image/selectshare_close.png");
+		width: 12px;
+		height: 12px;
+		background-size: contain;
+		position: absolute;
+		right: 2%;
+		top: 0;
+		text-align: center;
+	}
+	#file-list li a img {max-width:100%;max-height: 100%;}
+	.progress{
+		position: absolute;
+		background-color: rgba(4, 4, 4, 0.13);
+		color: #fff;
+		padding: 3px 0px 3px 0px;
+		width: 60px;
+	}
+</style>
+
+
+<div class="title">
+	批量上传艺术圈banner(画作详情)
+</div>
+
+<div id="ossfile">你的浏览器不支持flash,Silverlight或者HTML5！</div>
+
+<br/>
+
+<input type="hidden" id="imageurl" name="imageurl" value=""/>
+<div id="container" style="padding: 10px;">
+	<div>
+		<button class="btn btn-primary" type="button" id="selectfiles">选择图片</button>
+		<button class="btn btn-primary" type="button" id="postfiles" style="display: none">开始上传</button>
+		<button class="btn btn-primary" type="button" id="confirmadd">确定</button>
+		<span style="color:red;font-size: 14px;">注意：上传图片格式为jpg,gif,png,bmp,jpeg;你的文件名称格式为(上线日期_画作id)：2018-04-12_123.jpg</span>
+	</div>
+
+	<ul id="file-list">
+	</ul>
+</div>
+
+<!--<div id="container">
+	<a id="selectfiles" href="javascript:void(0);" class='btn'>选择文件</a>
+	<a id="postfiles" href="javascript:void(0);" class='btn'>开始上传</a>
+</div>-->
+
+<pre id="console"></pre>
+
+<p>&nbsp;</p>
+
+</body>
+
+<script type="text/javascript">
+var toTagid="{$toTagid}";//要修改的标签ID
+var previewId="{$previewId}";//图片预览展示id
+</script>
+
+<script src="/Public/Admin/vendor/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/Public/Admin/oss-h5-upload/lib/plupload-2.1.2/js/plupload.full.min.js"></script>
+<script type="text/javascript" src="/Public/Admin/oss-h5-upload/uploadPicBatchArtcirclebanner.js"></script>
+<!--上传成功，给父窗口标签赋值,并且设置焦点-->
+</html>

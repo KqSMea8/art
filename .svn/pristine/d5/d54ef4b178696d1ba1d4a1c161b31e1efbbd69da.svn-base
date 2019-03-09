@@ -1,0 +1,10 @@
+<?php
+
+namespace M\Model;
+
+
+use M\Base\BaseModel;
+
+class AdModel extends BaseModel{
+    protected $tableName = 'ad';
+}

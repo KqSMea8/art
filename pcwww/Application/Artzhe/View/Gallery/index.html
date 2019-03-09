@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="艺术,美术,美术圈,艺术者,美学,artzhe,art,美术史,青年艺术家,艺术品,美院,arts,美术生,画展,画廊,美术馆,艺术品收藏,艺术电商网,故宫博物院,艺术电商,艺术品鉴,展览,艺术收藏,艺术品电商,博物馆,故宫展览,艺术展,艺术新闻,艺术生活,油画,插画,国画,水粉,水彩,素描,工笔,版画,漆画,丙烯,艺术云图,阿波罗,artand,艺术头条,artsy,雅昌,artpollo,意外艺术,艺术狗,在艺,雅昌兜藏,画家圈,Vart,芭莎艺术,空艺术,藏客,寺库艺术,中国美术馆,掌拍艺术,优家,艺典中国,艺堆,久久视频,在艺,艺厘米,艺堆 - 发现艺术,artstack,葫芦里,VICE MEDIA,imuseum,798,artstack limited,古玩鉴定,雅昌云图,雅昌艺术云图,人物,风景,静物,动物,植物,萌化,宗教,具象,抽象,古典,观念,表现,当代艺术,当代,原始艺术,古典艺术,现代艺术">
+    <meta name="description" content="艺术者-遇见你的品味。这里有温度的艺术家，有故事的艺术作品，有品味的社交圈。专注手绘艺术创作，打造青年艺术家品牌。由艺术家记录艺术创作全过程，建立以艺术家、艺术作品为核心的社交网络，帮助艺术家轻松经营粉丝，建立个性互动的长期收藏，完善艺术作品流通。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>画廊页</title>
+    <link rel="shortcut icon" href="/Public/favicon.ico?v=1.0.1" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="/Public/js/lib/element/index.css">
+    <link rel="stylesheet" type="text/css" href="/Public/css/global.css?v=1.2.0">
+    <link rel="stylesheet" type="text/css" href="/Public/css/gallery.css?v=0.0.1">
+  </head>
+  <body>
+    <div v-cloak id="app">
+      <ysz-header></ysz-header>
+      <div id="main">
+        <div class="content clearfix">
+          <div class="w">
+            <ul class="artist-list clearfix">
+              <li v-for="(item, index) in info.list" class="item">
+                <!-- <img :src="item.face" class="avatar"> -->
+                <div class="artist-info clearfix">
+                  <div class="fl">
+                    <a :href="'/gallery/detail/' + item.id">
+                      <img v-lazy="item.face + compress.face" class="avatar">
+                      <h3 class="name">{{item.name}} <i class="icons icon-artist"></i></h3>
+                    </a>
+                    <p class="category">{{item.category_names}}</p>
+
+                  </div>
+                  <div class="fr">
+                    <div class="btn-group">
+                      <div @mouseover="overFollowText(index)" @mouseout="outFollowText(index)" @click="toggleFollow(item.id, index)" :class="[item.follow=='Y'? 'followed': '', 'btn-s']">{{item.btnText}}</div>
+                    </div>
+                    <p class="num"><span>作品 <strong>{{item.total_art}}</strong></span>|<span>粉丝 <strong>{{item.follower_total}}</strong></span></p>
+                  </div>
+                </div>
+                <ul class="art-list clearfix">
+                  <li v-for="(artitem, index2) in item.imginfo" class="fl">
+                    <a :href="'/artwork/detail/' + artitem.imgid">
+                      <img class="art-pic" v-lazy="artitem.imgurl + compress.S">
+                    </a>
+                    <h3>
+                      <a :href="'/artwork/detail/' + artitem.imgid"><span>{{artitem.imgname}}</span></a>
+                      <i @click="toggleLike(artitem.imgid, index, index2)" :class="['icons', artitem.islike == 'Y'?'icon-liked': 'icon-like']"></i>
+                    </h3>
+
+                  </li>
+                  <a :href="'/artzhe/gallery/detail/' + item.id" class="enter">进入画廊<i class="icons icon-pointer"></i></a>
+                </ul>
+              </li>
+            </ul>
+            <ysz-loadmore v-infinite-scroll="getData"></ysz-loadmore>
+            <div v-show="bottomLoginShow" id="bottom-login-form" class="bottom-login-form">
+              <div class="title">这里有全国最优秀的青年艺术家在等你</div>
+              <div class="btns">
+                <div @click="showReg" class="btn btn-sign">注册</div>
+                <div @click="showLogin" class="btn btn-login">登录</div>
+              </div>
+              <div class="tips">也许下一个就是你呢 :)</div>
+            </div>
+            <div v-show="bottomDownloadShow" id="bottom-download-form" class="bottom-download-form">
+              <div class="title">下载艺术者APP查看更多艺术家</div>
+              <div class="img-wrap">
+                <img src="//artzhe.oss-cn-shenzhen.aliyuncs.com/static/pc/APP.png">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <like-box></like-box>
+      <auth-fixedbox></auth-fixedbox>
+      <set-user-box></set-user-box>
+      <login-box></login-box>
+      <ysz-footer></ysz-footer>
+    </div>
+    <div class="share-wrap">
+      <div class="bdsharebuttonbox bdshare-button-style2-32">
+        <a href="javascript:;" id="to-top" class="to-top" title="返回顶部"></a>
+      </div>
+    </div>
+    <script src="/Public/js/lib/vue.min.js"></script>
+    <script src="/Public/js/lib/element/index.js"></script>
+    <script src="/Public/js/plugin/vue-lazyload.js"></script>
+    <script src="/Public/js/plugin/vue-infinite-scroll.js"></script>
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/Public/js/common.js?v=1.2.0"></script>
+    <script src="/Public/js/gallery/index.js?v=1.1.1"></script>
+  </body>
+</html>

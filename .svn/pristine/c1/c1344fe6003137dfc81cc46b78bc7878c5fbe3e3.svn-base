@@ -1,0 +1,247 @@
+<?php
+
+namespace V50\Logic;
+
+use V50\Base\BaseLogic;
+use V50\Logic\ArtCircleLogic;
+use V50\Logic\MessageLogic;
+use Custom\Define\Image;
+use Custom\Helper\Util;
+use Think\Model;
+
+//话题
+class TopicLogic extends BaseLogic
+{
+    //3小时循环
+    public function getHottest($limit=1){
+        $hottest_cache=S('topic_hottest_list_'.$limit);
+        if(is_array($hottest_cache)) {
+            $ids = implode(',', array_column($hottest_cache, 'id'));
+            $idsInfo = $this->model->where(['id' => ['in', $ids], 'status' => ['neq', 0]])->select();
+            if (count($idsInfo) == count($hottest_cache)) {
+                return $hottest_cache;
+            }
+        }
+
+        $hottest = [];
+        $time = time();
+        while (count($hottest) < $limit) {
+            $count = $limit - count($hottest);
+            $list = $this->model
+                ->field('view_num+follow_num+discuss_num*2+share_num as count,id,title')
+                ->where(['create_time' => [['gt', $time - 10800], ['lt', $time]], 'status' => ['neq',0]])
+                ->order('count desc')
+                ->limit($count)
+                ->select();
+            $hottest = array_merge($hottest, $list);
+            $time = $time - 10800;
+        }
+        S('topic_hottest_list_' . $limit, $hottest, 600);
+        return $hottest;
+
+    }
+
+    //更新话题用户关联表
+    public function ActivateUserRelationships($topic_id,$user_id){
+        if($topic_id>0&&$user_id>0) {
+            $thistime = time();
+            $topic_user_relationships_M = M('topic_user_relationships');
+            $where['topic_id'] = $topic_id;
+            $where['user_id'] = $user_id;
+            $topic_user_relationships_info = $topic_user_relationships_M->where($where)->find();
+            if ($topic_user_relationships_info) {
+                $data['update_time'] = $thistime;
+                $data['is_read'] = 0;
+                $topic_user_relationships_M->where($where)->save($data);
+            } else {
+                $data['topic_id'] = $topic_id;
+                $data['user_id'] = $user_id;
+                $data['update_time'] = $thistime;
+                $data['creat_time'] = $thistime;
+                $topic_user_relationships_M->add($data);
+            }
+        }
+    }
+
+    //艺术圈关联话题同步话题讨论（短文）
+    public function synTopicDiscuss($data=[])
+    {
+        $userId=intval($data['user_id']);
+        $artcircleId = intval($data['artcircle_id']); //同步到艺术圈的id
+        $topicId = intval($data['topic_id']); //话题ID
+        $desc = trim($data['desc']);//短文内容
+        $images_url = trim($data['images_url']);//短文图片
+        $video_poster = trim($data['video_poster']);//短文视频封面
+        $video_url = trim($data['video_url']);//短文视频URL
+
+        if (empty($userId) || empty($artcircleId) || empty($topicId)) {
+            return false;
+        }
+
+        if ($desc != '' && $images_url == '' && $video_poster == '') {
+            $type = 1;
+        } elseif ($images_url != '' && $video_poster == '') {
+            $type = 2;
+        } else {
+            $type = 3;
+        }
+        if ($desc == '' && $images_url == '') {
+            if ($video_poster == '' || $video_url == '') {
+                return false;
+            }
+        } else {
+            if ($images_url != '' && ($video_poster != '' || $video_url != '')) {
+                return false;
+            }
+            if (($desc != '' && $video_poster == '' && $video_url != '') || $desc != '' && $video_poster != '' && $video_url == '') {
+                return false;
+            }
+        }
+
+        $topicDiscussLogic = new TopicDiscussLogic();
+
+
+            /* //判断该作品单次更新的最新的一个wit内容是否相同，不同就添加，避免多次提交
+             $lastTopicDiscuss = $topicDiscussLogic->where(['user_id'=>intval($userId),'topic_id'=>$topicId,'type'=>$type])->order('id desc')->find();
+             switch($lastTopicDiscuss['type']){
+                 case 1://文本
+                     if (trim($lastTopicDiscuss['desc']) == trim($desc)) {
+                         $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                         Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                     }
+                     break;
+                 case 2://图片
+                     if (trim($lastTopicDiscuss['images_url']) == trim($images_url)) {
+                         $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                         Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                     }
+                     break;
+                 case 3://视频
+                     if (trim($lastTopicDiscuss['video_poster']) == trim($video_poster)) {
+                         $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                         Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                     }
+                     break;
+                 case 4://文章
+                     if (trim($lastTopicDiscuss['title']) == trim($title) && trim($lastTopicDiscuss['content']) == trim($content)) {
+                         $redis->del($key);//执行完（Util::jsonReturn），redis解锁
+                         Util::jsonReturn(null, Code::SYS_ERR, '内容相同，重复提交了');
+                     }
+                     break;
+             }*/
+
+            //敏感词判断
+            $sensitiveWord=Util::sensitive_words_match($desc);
+            if (!empty($sensitiveWord)) {
+                return false;
+            }
+
+            $data = [
+                'user_id' => $userId,
+                'topic_id' => $topicId,
+                'artcircle_id' => $artcircleId,
+                'type' => $type,
+                'title' => '',
+                'content' => '',
+                'desc' => $desc,
+                'images_url' => $images_url,
+                'video_poster' => $video_poster,
+                'video_url' => $video_url,
+                'create_time' => time(),
+                'status'=>1,
+            ];
+
+            $insertId = $topicDiscussLogic->add($data);
+            if ($insertId) {
+                $this->model->where(['id'=>$topicId])->setInc('discuss_num',1);
+                $topicUserinfoLogic= new TopicUserinfoLogic();
+                $topicUserinfo=$topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$topicId])->find();
+                if($topicUserinfo){//保存用户发表话题讨论的数量
+                    $topicUserinfoLogic->where(['user_id'=>$userId,'topic_id'=>$topicId])->setInc('publish_discuss_num',1);
+                }else{
+                    $topicUserinfoLogic->add(['user_id'=>$userId,'topic_id'=>$topicId,'publish_discuss_num'=>1]);
+                }
+                $this->ActivateUserRelationships($topicId,$userId);
+                return true;
+            } else {
+                return false;
+            }
+
+    }
+
+    //艺术圈删除话题/话题讨论同步删除话题/话题讨论
+    public function deleteTopic($data=[])
+    {
+        $userId=intval($data['user_id']);
+        $id=intval($data['id']);//艺术圈id
+        $type = intval($data['type']); //1--话题  2--讨论
+        if (empty($userId) || empty($type)) {
+            return false;
+        }
+
+        if($type==1){//话题
+            /*
+             * 删除话题，
+             * 1.如果话题下没有讨论，删除status==0
+             * 2.如果话题下有讨论，删除status==2
+             */
+            $info = $this->model->where(['artcircle_id'=>$id])->find();
+            if($info && $info['user_id']==$userId){
+                $topicDiscussLogic = new TopicDiscussLogic();
+                $otherDiscuss = $topicDiscussLogic->where(['topic_id'=>$info['id'],'status'=>1])->find();
+                if(!$otherDiscuss){//没有讨论
+                    $this->model->where(['artcircle_id'=>$id])->save(['status'=>0]);
+                    $hottest = $this->getHottest(5);
+                    $hotids = array_column($hottest,'id');
+                    if(in_array($info['id'],$hotids)){//如果话题是最热话题，清楚缓存
+                        S('topic_hottest_list_1',NULL);
+                        S('topic_hottest_list_5',NULL);
+                    }
+                }else{//有讨论
+                    $this->model->where(['artcircle_id'=>$id])->save(['status'=>2]);
+                }
+                return true;
+            }else{
+                return false;
+            }
+
+        }elseif($type==2){//讨论
+            /*
+            * 删除讨论，
+            * 1.如果话题被删除过（话题status==2）且话题下没有其他讨论，则同时删除话题status==0，讨论status==0
+            * 2.如果话题下未删除过（话题status==2），则只删除讨论status==0
+            */
+            $topicDiscussLogic = new TopicDiscussLogic();
+            $info = $topicDiscussLogic->where(['artcircle_id'=>$id])->find();
+            if($info && $info['user_id']==$userId){
+                $topicDiscussLogic->where([['artcircle_id'=>$id]])->save(['status'=>0]);
+                $topic = $this->model->where(['id'=>$info['topic_id']])->find();
+                if($topic['status']==2){//被删除过
+                    $otherDiscuss = $topicDiscussLogic->where(['topic_id'=>$info['topic_id'],'status'=>1])->find();
+                    if($otherDiscuss){//话题下有其他讨论
+                        $this->model->where(['id'=>$info['topic_id']])->setDec('discuss_num',1);
+                    }else{//话题下没有其他讨论
+                        $this->model->where(['id'=>$info['topic_id']])->setField('discuss_num',0);
+                        $this->model->where(['id'=>$info['topic_id']])->save(['status'=>0]);
+                        $hottest = $this->getHottest(5);
+                        $hotids = array_column($hottest,'id');
+                        if(in_array($info['id'],$hotids)){//如果话题是最热话题，清楚缓存
+                            S('topic_hottest_list_1',NULL);
+                            S('topic_hottest_list_5',NULL);
+                        }
+                    }
+                }else{//未被删除过
+                    $this->model->where(['id'=>$info['topic_id']])->setDec('discuss_num',1);
+                }
+                return true;
+            }else{
+                return false;
+            }
+
+        }
+
+
+    }
+
+
+}

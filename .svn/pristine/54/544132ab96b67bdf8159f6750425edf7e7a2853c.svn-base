@@ -1,0 +1,93 @@
+<?php 
+namespace V40\Controller;
+
+use V40\Base\ApiBaseController;
+use V40\Logic\SubjectApplayLogic;
+use V40\Logic\SubjectLogic;
+use Custom\Define\Code;
+use Custom\Helper\Util;
+use Custom\Manager\Token;
+use Custom\Define\Image;
+use V40\Logic\imageLogic;
+
+//艺术专题接口
+class SubjectController extends  ApiBaseController{
+
+    //艺术专题列表
+    public function subjectList(){
+
+        $page = I('page','1','number_int');  //第几页,没传则表示第一页
+        $pagesize = I('pagesize','10','number_int');  //每页显示多少条
+
+        $subjectLogic = new SubjectLogic();  //实例化主题模型
+        $data = $subjectLogic->getList($this->loginUserId,$page,$pagesize);
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$data]);
+    }
+
+    //个人申请列表(申请通过)
+    public function subjectAllow(){
+
+        $page = I('page','1','number_int');  //第几页,没传则表示第一页
+        $pagesize = I('pagesize','10','number_int');  //每页显示多少条
+
+        $subjectLogic = new SubjectLogic(); //实例化主题列表
+        $data = $subjectLogic->getMyApplyList($this->loginUserId,$page,$pagesize);
+        Util::jsonReturn(['status'=>Code::SUCCESS, 'info'=>$data]);
+    }
+
+    //申请艺术专题
+    public function addSubjectApply(){
+
+        $uid = $this->loginUserId; //获取艺术者id
+        $subid = I('post.subid');  //获取主题id
+        $artid = I('post.artid');  //获取艺术品id
+        $description = I('post.description');  //获取作品与主题的描述
+
+        $subjectApplyModel = M('SubjectApply');
+
+        $data = [
+            'uid'   =>  $uid,
+            'subid' =>  $subid,
+            'artid' =>  $artid,
+            'description' => $description,
+            'create_time' => time(),
+            'status' => 1
+            ];
+
+        //添加申请记录，获取新插入的id号
+        $inserid = $subjectApplyModel->add($data);
+
+        if($inserid>0){
+            Util::jsonReturn(['status'=>1000]);
+        }else{
+            Util::jsonReturn(null, Code::SYS_ERR);
+        }
+    }
+    public function getContent___20170826(){
+        $subid = I('post.subid');
+        $subjectLogic = new SubjectLogic();
+        $subjectinfo=$subjectLogic->where('id='.intval($subid).' and status=0')->find();
+        if(!$subjectinfo){
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => []]);
+        }
+
+        $imgUrls = $subjectLogic->getHtmlImgSrc($subjectinfo['description']);
+        $subjectinfo['description']=$subjectLogic->replaceHtmlImgSrc($imgUrls,$subjectinfo['description']);
+
+        $subjectinfo = [
+            'id'=>$subjectinfo['id'],
+            'sub_name'=> $subjectinfo['sub_name'],
+            'sub_title' => $subjectinfo['sub_title'],
+            'description' => html_entity_decode($subjectinfo['description']),
+
+            'cover' => trim($subjectinfo['cover']),
+
+        ];
+
+
+        $info = $subjectinfo;
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $info]);
+    }
+}
+?>

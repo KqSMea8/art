@@ -1,0 +1,11 @@
+<?php
+
+namespace V60\Model;
+
+
+use V60\Base\BaseModel;
+
+class InviteModel extends BaseModel
+{
+    protected $tableName = 'invite';
+}

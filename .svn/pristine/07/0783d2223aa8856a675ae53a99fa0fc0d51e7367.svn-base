@@ -1,0 +1,52 @@
+var vmUserProfile = new Vue({
+  // element to mount to
+  el: '#user-profile',
+  // initial data
+  data: {
+    boxIsShow: false,
+    qrcodeIsShow: false,
+    downloadIsShow: false,
+    boxMsg: '',
+    userInfo: {
+      "isArtist": true,
+      "id":"1212",
+      "faceUrl":"https://artzhe.oss-cn-shenzhen.aliyuncs.com/test1.png",
+      "motto":"个性签名",
+      "nickname":"昵称",
+      "gender":"男",//男，女，未知
+      "birthday":"1488957085",
+      "galleryCoverUrl":"https://artzhe.oss-cn-shenzhen.aliyuncs.com/test1.png",//画廊封面图
+      "qrCodeUrl":"https://www.baidu.com",//画廊封面图
+      "resume":"2015年获得宇宙最强艺术家奖励",//画廊封面图
+    },
+  },
+  created: function () {
+    this.$nextTick(function () {
+      new QRCode(document.getElementById("qrcode"), this.userInfo.qrCodeUrl);
+    });
+  },
+  // methods
+  methods: {
+    showDownload: function(msg) {
+      this.boxMsg = msg;
+      this.boxIsShow = true;
+      this.downloadIsShow = true;
+    },
+    showQrcode: function () {
+      this.boxIsShow = true;
+      this.qrcodeIsShow = true;
+    },
+    hideBox: function() {
+      this.boxIsShow = false;
+      this.qrcodeIsShow = false;
+      this.downloadIsShow = false;
+    },
+    getScreenShot: function () {
+      var url = $('#qrcode img')[0].src;
+      console.log(url);
+      var triggerDownload = $("<a>").attr("href", url).attr("download", this.userInfo.nickname+"的艺术画廊.png").appendTo("body");
+      triggerDownload[0].click();
+      triggerDownload.remove();
+    }
+  }
+});

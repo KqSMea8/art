@@ -1,0 +1,10 @@
+<?php
+
+namespace Mp\Model;
+
+use Mp\Base\BaseModel;
+
+class Sub_artModel extends BaseModel
+{
+    protected $tableName = 'Sub_art';
+}

@@ -1,0 +1,24 @@
+html, body {
+  height: 100%;
+}
+body {
+  background: #f4f4f4;
+}
+
+.con-wrap {
+    margin-left: 210px;
+    position: relative;
+    min-height: 760px;
+    overflow: hidden;
+    padding-left: 20px;
+}
+.con-wrap .title {
+	margin-top: 5px;
+	padding-left: 0;
+	height: 50px;
+	line-height: 50px;
+	font-size: 16px;
+	color: #1a1a1a;
+}
+
+

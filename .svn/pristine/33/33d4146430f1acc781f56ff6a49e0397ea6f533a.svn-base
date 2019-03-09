@@ -1,0 +1,10 @@
+<?php
+
+namespace Common\Model;
+
+
+use Common\Base\BaseModel;
+
+class TopicShareModel extends BaseModel{
+    protected $tableName = 'topic_share';
+}

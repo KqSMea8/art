@@ -1,0 +1,29 @@
+<?php
+
+namespace V60\Logic;
+
+use V60\Base\BaseLogic;
+use Custom\Define\Image;
+
+class ArtworkStatLogic extends BaseLogic
+{
+    //获取艺术家id列表的有效作品数量
+    public  function getArtworkTotal($artistIdList)
+    {
+         if (empty($artistIdList)) {
+             return [];
+         }
+         $result = $this->model
+             ->where(['artist'=>['in',$artistIdList]])
+             ->getField('artist,total,deleted_total AS deletedTotal');
+
+         if(empty($result)) {
+             return [];
+         }
+         foreach ($result as $artistId =>&$item) {
+             $item['restTotal'] =  (int)$item['total'] - (int)$item['deletedTotal'];
+             unset($item['artist'], $item['total'], $item['deletedTotal']);//删除无用字段
+         }
+         return $result;//['artistId'=>'restTotal']
+    }
+}

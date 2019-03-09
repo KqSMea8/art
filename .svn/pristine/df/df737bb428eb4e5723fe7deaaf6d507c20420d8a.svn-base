@@ -1,0 +1,328 @@
+<?php
+
+namespace V60\Controller;
+
+use Admin\Model\ArtworkModel;
+use V60\Model\ArticleModel;
+use V60\Base\ApiBaseController;
+use Custom\Helper\Util;
+use Custom\Define\Code;
+use V60\Model\SearchModel;
+use V60\Model\UserModel;
+use V60\Logic\TopicLogic;
+
+class SearchController extends ApiBaseController
+{
+
+    //获取搜索页面的热搜关键字(6个）和搜索推荐（10个）
+    public function getSearchKey(){
+        $name = trim(addslashes(I('post.name', ''))); //关键字
+        $searchModel = new SearchModel();
+        if(empty($name)){
+            $topicLogic = new TopicLogic();
+            $hottest = $topicLogic->field('id,title')
+                ->where(['status'=>1])
+                ->order('discuss_num desc')
+                ->find();
+            $list[] = $hottest['title'];
+            $search = $searchModel->field('name')->where(['name'=>['neq',$hottest['title']]])->limit(5)->order('count desc')->select();
+            $list = empty($search)?$list:array_merge($list,array_column($search,'name'));
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $list]);
+        }else{
+            $list = $searchModel->field('name')->where(['name'=>['like','%'.$name.'%']])->limit(10)->order('count desc')->select();
+            $list = empty($list)?[]:$list;
+            Util::jsonReturn(['status' => Code::SUCCESS, 'info' => array_column($list,'name')]);
+        }
+    }
+
+    //添加搜索关键字
+    public function addSearchKey(){
+        $name = trim(addslashes(I('post.name', ''))); //关键字
+        if(empty($name)){
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误');
+        }
+        $searchModel = new SearchModel();
+        $data = $searchModel->where(['name'=>$name])->find();
+        if($data){
+            $searchModel->where(['name'=>$name])->setInc('count',1);
+            Util::jsonReturn(['status' => Code::SUCCESS]);
+        }else{
+            $id = $searchModel->add(['name'=>$name]);
+            if($id){
+                Util::jsonReturn(['status' => Code::SUCCESS]);
+            }else{
+                Util::jsonReturn(null, Code::SYS_ERR, 'System error!');
+            }
+        }
+
+    }
+
+    //获取搜索结果(艺术家、作品、艺术号)
+    public function getSearchResult(){
+        $name = trim(addslashes(I('post.name', ''))); //关键字
+        $type = trim(addslashes(I('post.type', ''))); //all--综合 artist--艺术家  artwork--作品  article--艺术号 topic--话题
+        $page = I('post.page', '1', 'number_int'); //分页页码
+        $pagesize = I('post.pagesize', 20, 'number_int'); //每页显示条数
+        $userModel = new UserModel();
+        $artworkModel = new ArtworkModel();
+        $articleModel = new ArticleModel();
+        $topicLogic = new TopicLogic();
+
+        if(empty($name) || empty($type)){
+            Util::jsonReturn(null, Code::SYS_ERR, '参数错误');
+        }
+
+        switch($type){
+            case 'all': //综合
+                //艺术家
+
+                //搜索结果数量
+                $num=[];
+                $artistnum = $userModel
+                    ->join('az_artist_apply on az_user.id =az_artist_apply.user_id')
+                    ->where(['az_user.nickname'=>['like','%'.$name.'%'],'az_user.is_deleted'=>'N','az_user.banned_to'=>-1,'az_artist_apply.verify_state'=>2])
+                    ->count();
+                $num['artist']=$artistnum;
+                $artworknum = $artworkModel
+                    ->where(['name'=>['like','%'.$name.'%'],'state'=>1,'is_deleted'=>'N'])
+                    ->count();
+                $num['artwork']=$artworknum;
+                $articlenum = $articleModel
+                    ->join('az_user on az_article.artist=az_user.id', 'left')
+                    ->where(['title'=>['like','%'.$name.'%','status'=>1]])
+                    ->count();
+                $num['article']=$articlenum;
+                //话题数量
+                $topicnum = $topicLogic
+                    ->where(['title'=>['like','%'.$name.'%'],'state'=>1])
+                    ->count();
+                $num['topic']=$topicnum;
+                asort($num);
+                $total = $artistnum+$artworknum+$articlenum+$topicnum;
+                $maxpage=ceil($total/20);
+                $size=[];
+                $tpage=1;
+                while($maxpage>=$tpage){
+                    $temp=['artist'=>[0,0],'artwork'=>[0,0],'article'=>[0,0],'topic'=>[0,0]];
+                    $ttotal=0;
+                    $i=0;
+                    foreach($num as $k=>$v){
+                        $i++;
+                        if($v==0){
+                            continue;
+                        }
+                        if($tpage>1){
+                            $start=$size[$tpage-2][$k][0]+$size[$tpage-2][$k][1];
+                        }else{
+                            $start=0;
+                        }
+                        $request_num=$i*5-$ttotal;
+                        if($v>$request_num){
+                            $temp[$k]=[$start,$request_num];
+                            $num[$k]=$num[$k]-$request_num;
+                            $ttotal+=$request_num;
+                        }else{
+                            $temp[$k]=[$start,intval($v)];
+                            $num[$k]=0;
+                            $ttotal+=intval($v);
+                        }
+                    }
+                    $size[]=$temp;
+                    $tpage++;
+                }
+               // Util::jsonReturn(['status' => Code::SUCCESS, 'info' => $size]);
+
+                if($size[$page-1]['artist'][1]>0){
+                    $artistlist = $userModel
+                        ->join('az_artist_apply on az_user.id =az_artist_apply.user_id')
+                        ->field('az_user.id,az_user.nickname as title,az_user.face as cover,az_user.gender')
+                        ->where(['az_user.nickname'=>['like','%'.$name.'%'],'az_user.is_deleted'=>'N','az_user.banned_to'=>-1,'az_artist_apply.verify_state'=>2])
+                        ->order('az_artist_apply.verify_time desc')
+                        ->limit($size[$page-1]['artist'][0],$size[$page-1]['artist'][1])
+                        ->select();
+
+                    foreach($artistlist as &$artist){
+                        $artist['cover']=empty($artist['cover'])?'':Util::getImageResize($artist['cover'],50,50);
+                        $artist['type']=1;
+                        $artist['update_times']='';
+                        $artist['views']='';
+                        $artist['nickname']='';
+                        $artist['face']='';
+                    }
+                }else{
+                    $artistlist=[];
+                }
+
+                if($size[$page-1]['artwork'][1]>0){
+                    //作品
+                    $artworklist = $artworkModel
+                        ->field('id,name as title,cover,update_times')
+                        ->where(['name'=>['like','%'.$name.'%'],'state'=>1,'is_deleted'=>'N'])
+                        ->order('create_time desc')
+                        ->limit($size[$page-1]['artwork'][0],$size[$page-1]['artwork'][1])
+                        ->select();
+
+                    foreach($artworklist as &$artwork){
+                        /*  $artwork_name=trim($artwork['name']);
+                          if(preg_match("/《(.*)》/",$artwork_name)){
+                              $artwork_name = ' ' .$artwork_name. ' ';
+                          }else{
+                              $artwork_name = '《' .$artwork_name. '》';
+                          }
+                          $artwork['name'] = $artwork_name;*/
+                        $artwork['cover']=empty($artwork['cover'])?'':Util::getImageResize($artwork['cover'],50,50);
+                        $artwork['type']=2;
+                        $artwork['gender']='';
+                        $artwork['views']='';
+                        $artwork['nickname']='';
+                        $artwork['face']='';
+                    }
+                }else{
+                    $artworklist=[];
+                }
+
+                if($size[$page-1]['article'][1]>0){
+                    //艺术号
+                    $articlelist = $articleModel->field('az_article.id,az_article.title,az_article.cover,az_article.views,az_user.nickname,az_user.face,az_user.gender')
+                        ->join('az_user on az_article.artist=az_user.id', 'left')
+                        ->where(['az_article.title'=>['like','%'.$name.'%'],'az_article.status'=>1])
+                        ->order('publish_time desc')
+                        ->limit($size[$page-1]['article'][0],$size[$page-1]['article'][1])
+                        ->select();
+
+                    foreach($articlelist as &$article){
+                        $article['title'] = html_entity_decode(html_entity_decode($article['title'], ENT_QUOTES), ENT_QUOTES);
+                        $article['face']=empty($article['face'])?'':Util::getImageResize($article['face'],50,50);
+                        //$article['excerpt'] =empty($article['excerpt'])?html_deconvert_content_cut_forApp($article['content'], 20):html_deconvert_content_cut_forApp($article['excerpt'], 20);
+                        if(empty($article['cover'])){//没有封面图
+                            //获取更新记录里面的视频
+                            preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $article['content'], $match);
+                            if(!empty($match[1])){//有视频
+                                $article['cover'] = Util::getImageResize($match[1][0], 50, 50);
+                            }else{
+                                preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $article['content'], $array);
+                                if(!empty($array)){//有图片
+                                    $article['cover']='';
+                                    foreach($array[1] as $v){
+                                        if(!stripos($v,'?x-oss-process')){
+                                            $article['cover'] =  Util::getImageResize($v, 50, 50);
+                                            break;
+                                        }
+                                    }
+                                }else{
+                                    $article['cover']='';
+                                }
+                            }
+                        }else{
+                            $article['cover'] = Util::getImageResize($article['cover'], 50, 50);
+                        }
+                        $article['nickname']=empty($article['nickname'])?'':$article['nickname'];
+                        $article['gender']=empty($article['gender'])?'':$article['gender'];
+                        $article['type']=3;
+                        $article['update_times']='';
+                    }
+                }else{
+                    $articlelist=[];
+                }
+
+                if($size[$page-1]['topic'][1]>0){//话题
+                    $topiclist = $topicLogic
+                        ->field("id,title,4 as type,'' as cover,'' as gender,'' as update_times,'' as views,'' as nickname,'' as face")
+                        ->where(['title'=>['like','%'.$name.'%'],'state'=>1])
+                        ->order('create_time desc')
+                        ->limit($size[$page-1]['topic'][0],$size[$page-1]['topic'][1])
+                        ->select();
+                }else{
+                    $topiclist=[];
+                }
+
+                $list=array_merge($artistlist,$topiclist,$artworklist,$articlelist);
+                break;
+            case 'artist':
+                //艺术家
+                $list = $userModel
+                    ->join('az_artist_apply on az_user.id =az_artist_apply.user_id')
+                    ->field('az_user.id,az_user.nickname,az_user.face,az_user.gender')
+                    ->where(['az_user.nickname'=>['like','%'.$name.'%'],'az_user.is_deleted'=>'N','az_user.banned_to'=>-1,'az_artist_apply.verify_state'=>2])
+                    ->order('az_artist_apply.verify_time desc')
+                    ->page($page,$pagesize)
+                    ->select();
+
+                foreach($list as &$artist){
+                    $artist['face']=empty($artist['face'])?'':Util::getImageResize($artist['face'],50,50);
+                }
+                break;
+            case 'artwork':
+                //作品
+                $list = $artworkModel
+                    ->field('id,name,cover,update_times')
+                    ->where(['name'=>['like','%'.$name.'%'],'state'=>1,'is_deleted'=>'N'])
+                    ->order('create_time desc')
+                    ->page($page,$pagesize)
+                    ->select();
+
+                foreach($list as &$artwork){
+                  /*  $artwork_name=trim($artwork['name']);
+                    if(preg_match("/《(.*)》/",$artwork_name)){
+                        $artwork_name = ' ' .$artwork_name. ' ';
+                    }else{
+                        $artwork_name = '《' .$artwork_name. '》';
+                    }
+                    $artwork['name'] = $artwork_name;*/
+                    $artwork['cover']=empty($artwork['cover'])?'':Util::getImageResize($artwork['cover'],50,50);
+                }
+                break;
+            case 'article':
+                //艺术号
+                $list = $articleModel->field('az_article.id,az_article.title,az_article.cover,az_article.views,az_user.nickname,az_user.face')
+                    ->join('az_user on az_article.artist=az_user.id', 'left')
+                    ->where(['az_article.title'=>['like','%'.$name.'%'],'az_article.status'=>1])
+                    ->order('publish_time desc')
+                    ->page($page,$pagesize)
+                    ->select();
+
+                foreach($list as &$article){
+                    $article['title'] = html_entity_decode(html_entity_decode($article['title'], ENT_QUOTES), ENT_QUOTES);
+                    $article['face']=empty($article['face'])?'':Util::getImageResize($article['face'],50,50);
+                    //$article['excerpt'] =empty($article['excerpt'])?html_deconvert_content_cut_forApp($article['content'], 20):html_deconvert_content_cut_forApp($article['excerpt'], 20);
+                    if(empty($article['cover'])){//没有封面图
+                        //获取更新记录里面的视频
+                        preg_match_all('/&lt;video.*?poster=&quot;(.*?)&quot;.*?&gt;/is', $article['content'], $match);
+                        if(!empty($match[1])){//有视频
+                            $article['cover'] = Util::getImageResize($match[1][0], 50, 50);
+                        }else{
+                            preg_match_all('/&lt;img.*?src=&quot;(.*?)&quot;.*?&gt;/is', $article['content'], $array);
+                            if(!empty($array)){//有图片
+                                $article['cover']='';
+                                foreach($array[1] as $v){
+                                    if(!stripos($v,'?x-oss-process')){
+                                        $article['cover'] =  Util::getImageResize($v, 50, 50);
+                                        break;
+                                    }
+                                }
+                            }else{
+                                $article['cover']='';
+                            }
+                        }
+                    }else{
+                        $article['cover'] = Util::getImageResize($article['cover'], 50, 50);
+                    }
+                    unset($article['content']);
+                }
+                break;
+            case 'topic':
+                //话题
+                $list = $topicLogic
+                    ->field('id,title')
+                    ->where(['title'=>['like','%'.$name.'%'],'state'=>1])
+                    ->order('create_time desc')
+                    ->page($page,$pagesize)
+                    ->select();
+
+                break;
+        }
+
+        Util::jsonReturn(['status' => Code::SUCCESS, 'info' => empty($list)?[]:$list]);
+    }
+    
+}
