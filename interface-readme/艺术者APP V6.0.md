@@ -116,6 +116,15 @@
 > 请求地址：http://test-api.artzhe.com/V60/collection/getCollection
 > 需要token：是(GET方式传token)
 
+
+**请求参数列表**
+
+| 字段        | 字段描述   |  规格  |必须 |示例|备注|缺省值|
+| --------   | :-----:  | :----:  | :----:  | :----:  |:----:|:----:|
+|page|--|int|否|--|--|1|
+|pageSize|--|int|否|--|--|20|
+
+
 **响应结果示例**
 ```
 {
@@ -303,4 +312,48 @@
     "message": "success",
     "debug": false
 }
+```
+
+
+
+#### 查看艺签的列表
+> 请求方法：POST
+> 需要登录：是
+> 请求地址：http://test-api.artzhe.com/V60/Artwork/getSignatureImageList
+> 需要token：是(GET方式传token)
+
+
+**请求参数列表**
+
+| 字段        | 字段描述   |  规格  |必须 |示例|备注|缺省值|
+| --------   | :-----:  | :----:  | :----:  | :----:  |:----:|:----:|
+|page|--|int|否|--|--|1|
+|pageSize|--|int|否|--|--|10|
+
+**响应结果示例**
+```
+{
+    "data": {
+        "status": 1000,
+        "info": {
+            "page": 1,
+            "pageSize": 10,
+            "total": "178",
+            "maxPage": 18,
+            "arrSign": [
+                {
+                    "url": "https://artzhe.oss-cn-shenzhen.aliyuncs.com/uploads/2019/03/12/17/WHjAXPyGD8.jpg",
+                    "url_main": "https://artzhe.oss-cn-shenzhen.aliyuncs.com/uploads/2019/03/12/17/PS4ZW4GnX3.jpg",
+                    "date": "2029-02-19",
+                    "work_id": "37",
+                    "story": "很久不画，因为它找回了过往创作的意义，对我而言，这是重要的代表作。"
+                }
+            ]
+        }
+    },
+    "code": 30000,
+    "message": "success",
+    "debug": false
+}
+
 ```
